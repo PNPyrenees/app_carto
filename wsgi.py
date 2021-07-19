@@ -1,5 +1,4 @@
-#from init import app_carto
-from backend import app_carto
+from backend import app
 
-if __name__ == "__main__":
-    app_carto.run()
+if __name__ == "__main__":  
+    app.run(debug=False)

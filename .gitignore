@@ -1,20 +1,11 @@
 *.*~
 settings.ini
-config/geonature_config.toml
+config/config.toml
 
-**/conf_gn_module.toml
-**/module.config.ts
+**/config.toml
 
 log/*
 .vscode/
-geonature_config.toml
-external_assets/
-external_modules/*
-tmp/
-var/
-data/migrations/v1tov2/old/v1_compat.ini
-data/migrations/v1tov2/old/v1_compat.log
-data/migrations/v1tov2/migratetoV2.ini
 
 config.py
 backend/static/medias/*

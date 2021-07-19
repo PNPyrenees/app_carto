@@ -1,0 +1,19 @@
+#map-browser{
+    width: 85%;
+    /*background-color: rgb(108, 79, 238);*/
+    height: 100%;
+    vertical-align: top;
+}
+
+#map-block{
+    width: 100%;
+    background-color: rgb(108, 79, 238);
+    height: 75%;
+    vertical-align: top;
+}
+
+#data-block{
+    width: 100%;
+    background-color: rgb(251, 255, 0);
+    height: 25%;
+}

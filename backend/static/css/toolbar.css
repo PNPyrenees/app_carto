@@ -1,0 +1,7 @@
+.toolbar{
+    min-width: 3%;
+    background-color: moccasin;
+    height: 100%;
+    /*vertical-align: middle;*/
+    vertical-align: top;
+}
