@@ -8,8 +8,10 @@
     min-height: 30px;
 }
 
-.bg-primary{
-    background-color: #01965e !important;
+.app_name {
+    color: mintcream;
+    font-weight: bold;
+    font-size: 4vh;
 }
 
 #btn-login{
@@ -17,8 +19,25 @@
     padding: 0 .375rem;
 }
 
-.app_name {
-    color: mintcream;
-    font-weight: bold;
-    font-size: large;
+.btn-login-label{
+    display: block;
+}
+
+.bi-box-arrow-in-right{
+    font-size: 4vh;
+    display: none;
+}
+
+@media(max-width: 1500px){
+    .bi-box-arrow-in-right{
+        display: block;
+    }
+    
+    .btn-login-label{
+        display: none;
+    }
+
+    /*.app_name {
+        font-size: 3rem;
+    }*/
 }

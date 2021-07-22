@@ -1,7 +1,30 @@
-.toolbar{
-    min-width: 3%;
+#toolbar{
     background-color: moccasin;
     height: 100%;
     /*vertical-align: middle;*/
     vertical-align: top;
+}
+
+@media(min-width: 1500px) {
+    #toolbar{
+        width: 3%;
+        position: relative;
+        display: inline-block !important;
+    }
+}
+
+@media(max-width: 500px) {
+    #toolbar{
+        display: none;
+        position: absolute;
+        width: 100%;
+    }
+}
+
+@media(max-width: 1500px) and (min-width: 500px) {
+    #toolbar{
+        display: none;
+        position: absolute;
+        width: 50%;
+    }
 }

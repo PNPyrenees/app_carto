@@ -2,6 +2,8 @@
     <nav class="navbar navbar-light bg-primary">
         <img class="logo" src="{{ url_for('static', filename='images') }}/{{ config.LOGO_STRUCTURE }}" />
         <div class="app_name"> {{ config.APP_NAME }}</div> 
-        <button id="btn-login" type="button" class="btn btn-primary">Se connecter</button>
+        <button id="btn-login" type="button" class="btn btn-primary" title="S'identifier">
+            <i class="bi bi-box-arrow-in-right"></i><div class="btn-login-label">S'identifier</div>
+        </button>
     </nav>
 </header>

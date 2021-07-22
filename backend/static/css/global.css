@@ -8,8 +8,13 @@
     padding: 0;
 }*/
 
+.bg-primary{
+    background-color: #01965e !important;
+}
+
 html * {
     font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+    overflow: hidden;
 }
 
 #container {
@@ -22,4 +27,20 @@ html * {
 .app-content {
     width: 100%;
     height: 94vh;
+}
+
+/*.slide-anim {
+    animation-name: slide;
+    animation-duration: 2s;
+}
+
+@keyframes slide {
+    from {  margin-left: 0;}
+    to { margin-left: 100vw;}
+}*/
+
+@media(min-width: 1500px){
+    .responsive-bt-close{
+        display: none;
+    }
 }

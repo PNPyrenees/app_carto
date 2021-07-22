@@ -16,4 +16,12 @@
     width: 100%;
     background-color: rgb(251, 255, 0);
     height: 25%;
+    overflow-x: auto;
+    overflow-y: scroll;
+}
+
+@media(max-width: 1500px){
+    #map-browser{
+        width: 100%;
+    }
 }
