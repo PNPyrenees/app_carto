@@ -1,27 +1,27 @@
-.responsive-bt-block{
+.responsive-btn-block{
     position: absolute;
     top: 7vh;
     left: 1vh;
     display: none;
 }
 
-.responsive-bt{
+.responsive-btn{
     width: 8vh;
     height: 8vh;
 }
 
-.responsive-bt-icon{
+.responsive-btn-icon{
     font-size: 4vh;
 }
 
-.responsive-bt-close{
+.responsive-btn-close{
     position: absolute;
     right: 1vh;
     top: 1vh;
 }
 
 @media(max-width: 1500px){
-    .responsive-bt-block{
+    .responsive-btn-block{
         display: block;
     }
 }

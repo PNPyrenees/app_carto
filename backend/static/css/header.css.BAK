@@ -1,21 +1,17 @@
 .logo {
-    height: 6vh;
+    height: 100%;
 }
 
-header{
+.navbar { 
+    padding: 0;
     height: 6vh;
     min-height: 30px;
 }
 
-.app_name{
+.app_name {
     color: mintcream;
-    font-size: 3vh;
     font-weight: bold;
-}
-
-#username-label{
-    color: mintcream;
-    font-style: italic;
+    font-size: 4vh;
 }
 
 #btn-login,
@@ -36,7 +32,7 @@ header{
 
 #icon-logout,
 #icon-login{
-    font-size: 3vh;
+    font-size: 4vh;
     display: none;
 }
 
@@ -50,4 +46,8 @@ header{
     .btn-logout-label{
         display: none !important;
     }
+
+    /*.app_name {
+        font-size: 3rem;
+    }*/
 }

@@ -1,5 +1,27 @@
 APP_NAME = "SIG-PNP"
 
+# url d'accès à l'application
+# Remplacer par l'url de votre instance sans '/' à la fin
+APP_URL = "http://carto.parc-pyrenees.fr"
+
+# Chaine de connexion à la base de données de l'application
+SQLALCHEMY_DATABASE_URI = "postgresql://<USER>:<PASSWORD>@<HOST>:<PORT>/<DB_NAME>"
+
+# Active (=true) ou pas (=false) le système de suivi de modification de SQLAlchemy
+# Note : l'API event de SQLAchemy n'étant pas utilisée, la désactivation économise des ressources.
+# Note : Patch pour suivre la supression des médias et pouvoir supprimer un fichier sur un DELETE de media
+SQLALCHEMY_TRACK_MODIFICATIONS = false
+
+# URL vers l'instance Geonature
+# Remplacer par l'url de votre instance GeoNature sans '/' à la fin
+GEONATURE_URL = "https://geonature.pyrenees-parcnational.fr" 
+
+# Identifiant de l'application dans userhub
+# l'application doit préalablement être déclaré dans usershub
+ID_APPLICATION = 
+
+
+
 LOGO_STRUCTURE = "logo_structure.png"
 
 # Activer le mode développement

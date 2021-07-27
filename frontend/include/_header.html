@@ -1,9 +1,23 @@
-<header>
-    <nav class="navbar navbar-light bg-primary">
-        <img class="logo" src="{{ url_for('static', filename='images') }}/{{ config.LOGO_STRUCTURE }}" />
-        <div class="app_name"> {{ config.APP_NAME }}</div> 
-        <button id="btn-login" type="button" class="btn btn-primary" title="S'identifier">
-            <i class="bi bi-box-arrow-in-right"></i><div class="btn-login-label">S'identifier</div>
-        </button>
-    </nav>
+<header class="bg-primary">
+    <div class="row h-100">
+        <div class="col-sm-2 col-lg-1 p-0 my-auto">
+            <img class="logo" src="{{ url_for('static', filename='images') }}/{{ config.LOGO_STRUCTURE }}" />
+        </div>
+        <div class="col-sm-4 col-lg-5 p-0 text-left my-auto">
+            <div class="app_name">&nbsp;{{ config.APP_NAME }}</div>
+        </div>
+        <div class="col-sm-5 col-lg-5 p-0 align-right my-auto">
+            <div id="username-label"></div>
+        </div>
+        <div class="col-sm-1 col-lg-1 h-100">
+            <button id="btn-login" type="button" class="btn btn-primary active float-end h-100" data-bs-toggle="modal" data-bs-target="#login-modal" title="S'identifier">
+                <i id="icon-login" class="bi bi-box-arrow-in-right active"></i>
+                <div class="btn-login-label">S'identifier</div>
+            </button>
+            <button id="btn-logout" type="button" class="btn btn-primary float-end h-100" title="Se déconnecter">
+                <i id="icon-logout" class="bi bi-box-arrow-left"></i>
+                <div class="btn-logout-label">Deconnexion</div>
+            </button>
+        </div>
+    </div>
 </header>

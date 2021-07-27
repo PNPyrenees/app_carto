@@ -8,6 +8,12 @@ from marshmallow import ValidationError
 from backend.utils.config_schema import ConfSchema
 #from backend.utils.errors import ConfigError, AppError
 
+from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
+
+db_app = SQLAlchemy()
+ma = Marshmallow()
+
 def read_config(toml_conf_file):
     """
         Fonction qui charge le fichier de configuration
@@ -19,12 +25,10 @@ def read_config(toml_conf_file):
         try:
             configs_py = ConfSchema().load(toml_config)
         except ValidationError as err:
-            #print(err.messages, file=sys.stdout)
             msg = "Erreur dans la configuration de l'application ('{}') :\n".format(toml_conf_file)
             for key, errors in err.messages.items():
                 msg += "\n\t{} : {}\n".format(key, errors)
             raise Exception(msg)
         return configs_py
     else:
-        #print('Fichier non trouvé', file=sys.stdout)
         raise Exception("Missing file {}".format(toml_conf_file))

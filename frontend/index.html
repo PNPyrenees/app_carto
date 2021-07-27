@@ -12,6 +12,7 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/layerbar.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/map-block.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive_button.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/modal-login.css') }}">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
         {# FIN lien CSS #}
     </head>
@@ -27,10 +28,18 @@
             </div>            
         </div>
 
+        {# include des fenêtres modales #}
+        {% include 'modal/login_form.html' %}
+
+
+        {# Variable à passer au javascript #}
+        {% include 'conf.html' %}
+
         {# lien JS #}
+        <script type="text/javascript" src="{{ url_for('static', filename='js/init.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='lib/bootstrap-5.0.2-dist/js/bootstrap.bundle.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/responsive.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/auth.js') }}"></script>
         {# FIN lien JS #}
     </body>
 </html>
-

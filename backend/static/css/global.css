@@ -7,14 +7,14 @@
     margin: 0;
     padding: 0;
 }*/
-
-.bg-primary{
-    background-color: #01965e !important;
-}
+/*:root{
+    --bs-primary: #01965e;
+}*/
 
 html * {
     font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
     overflow: hidden;
+    font-size: 2vh;
 }
 
 #container {
@@ -29,6 +29,25 @@ html * {
     height: 94vh;
 }
 
+.bg-primary{
+    background-color: #01965e !important;
+}
+
+.btn-primary, .btn-primary:active, .btn-primary.active, .btn-primary:focus {
+    color: mintcream;
+    background-color: #01965e;
+    border-color: #01965e;
+}
+
+.btn-primary:focus {
+    box-shadow: none;
+}
+
+.btn-primary:hover, .open>.dropdown-toggle.btn-primary {
+    color: mintcream;
+    background-color: #006e44;
+    border-color: #006e44; /*set the color you want here*/
+}
 /*.slide-anim {
     animation-name: slide;
     animation-duration: 2s;
@@ -40,7 +59,26 @@ html * {
 }*/
 
 @media(min-width: 1500px){
-    .responsive-bt-close{
+    .responsive-btn-close{
         display: none;
     }
+}
+
+@media(max-width: 1500px){
+    .form-control-lg{
+        font-size: 3vh;
+    }
+
+    .modal-footer >.btn,
+    .modal-footer > .submit{
+        font-size: 3vh;
+    }
+}
+
+.modal-title {
+    font-weight: bold;
+}
+
+.align-right {
+    text-align: right !important;
 }
