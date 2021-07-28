@@ -25,3 +25,12 @@
         width: 100%;
     }
 }
+
+#map{
+    height: 100%;
+}
+
+.ol-zoom{
+    left: unset!important;
+    right: .5em;
+}

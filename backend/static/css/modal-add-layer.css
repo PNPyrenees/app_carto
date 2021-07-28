@@ -1,0 +1,4 @@
+/* Contournement bug btn-group-vertical en mode "radio" */
+#add-layer-menu > .btn:first-of-type{
+    margin-top: 0 !important;
+}

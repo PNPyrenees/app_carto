@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from flask import Flask, render_template, send_from_directory, request, make_response
+from flask import Flask, render_template, send_from_directory, request, make_response, jsonify
 import requests
 import json
 from datetime import datetime
@@ -120,6 +120,47 @@ def login():
     resp.set_cookie("expiration", str(role.role_token_expiration), expires=role.role_token_expiration, path="/" )
 
     return resp
+
+@app.route('/api/auth/logout', methods=['PATCH'])
+def logout():
+    """ Deconnexion d'un utilisateur 
+    Supprime le token et la date d'expiration du token en BDD
+
+    Parameters
+    ----------
+        POST Data : Token devant être "détruit"
+
+    Returns
+    -------
+        code_http
+    """
+    postdata = request.json
+    token = postdata['token']
+    
+    try:
+        role = Role.query.filter(Role.role_token == token).one()
+    except:
+        return jsonify({
+            'status': 'error',
+            'message': 'Erreur lors de la déconnexion : Aucun role associé au token'
+        }), 520
+
+    # On efface les valeur associé au Token
+    role.role_token = None
+    role.role_token_expiration = None
+    role.role_date_update = datetime.now()
+
+    #Enregistrement en base
+    db_app.session.add(role)
+    db_app.session.commit() 
+
+    role_schema = RoleSchema()
+    role_dump = role_schema.dump(role)
+    return jsonify({
+            'status': 'OK',
+            'message': 'Token supprimé !'
+        })
+
 
 if __name__ == "__main__":
     app.run()

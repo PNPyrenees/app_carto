@@ -145,3 +145,9 @@ backend/static/images/taxa.png
 
 *.swp
 *.swo
+
+# fichier de sauvegarde
+*.BAK
+*.bak
+*.OLD
+*.old

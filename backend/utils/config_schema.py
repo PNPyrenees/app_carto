@@ -15,6 +15,8 @@ class ConfSchema(Schema):
     LOGO_STRUCTURE = fields.String(required=True)
     DEBUG = fields.Boolean(missing=False)
     ENV = fields.String(required=True)
+    CENTER = fields.List(fields.Float, missing=[42.922276035501696, -0.16777084451550842])
+    ZOOM_LEVEL = fields.Integer(missing=6)
     #TEST = fields.String(required=True)
 
     @validates("ENV")

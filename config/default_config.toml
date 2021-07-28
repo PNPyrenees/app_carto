@@ -28,3 +28,7 @@ LOGO_STRUCTURE = "logo_structure.png"
 DEBUG = true # true | false
 ENV = "development" # "production" | "development"
 #TEST = "Oh Yeah !"
+
+# Configuration de la carte
+CENTER = [<LAT>, <LONG>]
+ZOOM_LEVEL = 10

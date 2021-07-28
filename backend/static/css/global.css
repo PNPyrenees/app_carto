@@ -33,20 +33,33 @@ html * {
     background-color: #01965e !important;
 }
 
-.btn-primary, .btn-primary:active, .btn-primary.active, .btn-primary:focus {
-    color: mintcream;
-    background-color: #01965e;
-    border-color: #01965e;
+.btn-primary, 
+.btn-primary:active, 
+.btn-primary.active, 
+.btn-primary:focus, 
+.btn-check:checked + .btn-outline-primary,
+.btn-outline-primary:active,
+.btn-outline-primary:focus {
+    color: mintcream!important;
+    background-color: #01965e!important;
+    border-color: #01965e!important;
+    outline: none!important;
+    box-shadow: none!important;
 }
 
-.btn-primary:focus {
-    box-shadow: none;
-}
+/*.btn-primary:focus, 
+.btn-outline-primary:focus {
+    outline: none!important;
+    box-shadow: none!important;
+}*/
 
-.btn-primary:hover, .open>.dropdown-toggle.btn-primary {
-    color: mintcream;
-    background-color: #006e44;
-    border-color: #006e44; /*set the color you want here*/
+.btn-primary:hover, 
+.open>.dropdown-toggle.btn-primary,
+.btn-outline-primary:hover
+ {
+    color: mintcream!important;
+    background-color: #006e44!important;
+    border-color: #006e44!important; /*set the color you want here*/
 }
 /*.slide-anim {
     animation-name: slide;
@@ -81,4 +94,15 @@ html * {
 
 .align-right {
     text-align: right !important;
+}
+
+#alert-container {
+    position: absolute;
+    z-index: 999;
+    top: 6rem;
+    width: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /*display: none;*/
+    /*transition: opacity 500ms;*/
 }
