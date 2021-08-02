@@ -1,0 +1,12 @@
+/* Contournement bug btn-group-vertical en mode "radio" */
+.modal-content-with-menu > .col-menu > .btn-group-vertical >.btn:first-of-type{
+    margin-top: 0 !important;
+}
+
+.modal-content-with-menu > .col-content > .modal-div-content{
+    display: none;
+}
+
+.modal-content-with-menu > .col-content > .modal-div-content.show{
+    display: block!important;
+}

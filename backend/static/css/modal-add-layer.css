@@ -1,4 +1,45 @@
-/* Contournement bug btn-group-vertical en mode "radio" */
-#add-layer-menu > .btn:first-of-type{
-    margin-top: 0 !important;
+.accordion-button{
+    font-weight: bold;
 }
+
+.accordion-button:not(.collapsed){
+    background-color: #f7ffe9;
+}
+
+.modal-ref-layer-list{
+    padding: 0;
+    margin: 0;
+}
+
+.modal-ref-layer-item{
+    cursor: pointer;
+    color: #01965e;
+}
+
+.modal-ref-layer-item:hover{
+    cursor: pointer;
+    background-color: moccasin;
+    /*color: mintcream;*/
+}
+
+.modal-ref-layer-item.active{
+    /*cursor: pointer;*/
+    background-color: #01965e!important;
+    color: mintcream;
+}
+
+#add-layer-modal > .modal-dialog{
+    overflow-y: initial !important;
+}
+
+#add-layer-modal > .modal-dialog > .modal-content > .modal-body {
+    height: 79vh;
+    overflow-y: scroll;
+}
+
+#loading-spinner{
+    display: none;
+}
+/*#add-layer-modal > .modal-dialog > .modal-content > .modal-body > .row > .col-content{
+    overflow-y: scroll;
+}*/

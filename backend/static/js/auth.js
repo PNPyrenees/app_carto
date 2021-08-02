@@ -75,7 +75,7 @@ form.addEventListener("submit", function (event) {
 /**
  * Authentification de l'utilisateur auprès du userhub 
  */
-function usershubAuth(login, password){
+ var usershubAuth = function (login, password){
 
     //On masque et supprime le message d'erreur avant la tentative d'authentification
     document.getElementById("form-login-error").style.display = "none"
@@ -161,18 +161,7 @@ btn_logout.addEventListener("click", function (event) {
     })
     .catch(error => {
         error.then(err => { 
-            console.log(err)
-            message_element = document.getElementById("alert-message")
-            message_element.innerHTML = err.message
-
-            alert_container = document.getElementById("alert-container")
-            alert_container.classList.add("show")
-
-            window.setTimeout(function() {
-                alert_container.classList.remove("show")
-            }, 3000);
-            //document.getElementById("form-login-error").innerHTML = err.msg;
-            //document.getElementById("form-login-error").style.display = "block"
+            showAlert(err.message)
         })
     })
 })

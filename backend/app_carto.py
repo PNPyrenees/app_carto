@@ -4,9 +4,10 @@ from flask import Flask, render_template, send_from_directory, request, make_res
 import requests
 import json
 from datetime import datetime
+from sqlalchemy import create_engine, text
 
-from .models import Role
-from .schema import RoleSchema
+from .models import Role, VLayerList, Layer
+from .schema import RoleSchema, VLayerListSchema, LayerSchema
 
 """from requests.api import request"""
 
@@ -21,6 +22,7 @@ config = read_config(CONFIG_FILE)
 app.config.update(config)
 
 db_app.init_app(app)
+db_sig = create_engine(app.config['SQLALCHEMY_SIG_DATABASE_URI'])
 
 @app.route('/')
 def index():
@@ -154,13 +156,56 @@ def logout():
     db_app.session.add(role)
     db_app.session.commit() 
 
-    role_schema = RoleSchema()
-    role_dump = role_schema.dump(role)
+    #role_schema = RoleSchema()
+    #role_dump = role_schema.dump(role)
     return jsonify({
             'status': 'OK',
             'message': 'Token supprimé !'
         })
 
+
+@app.route('/api/layer/get_layers_list', methods=['GET'])
+def get_layers_list():
+    """ Fourni la liste des couches de données
+    disponible pour chaque groupe
+
+    Returns
+    -------
+        JSON
+    """
+    # Nécessite jsonify car on retourne plusieur ligne
+    return jsonify(VLayerListSchema(many=True).dump(VLayerList.query.all()))
+
+
+@app.route('/api/ref_layer/<ref_layer_id>', methods=['GET'])
+def getRefLayerData(ref_layer_id):
+    """ Fourni la données correspondant au ref_layer_id
+    au format geojson
+
+    Returns
+    -------
+        GEOJSON
+    """
+    layer = Layer.query.get(ref_layer_id)
+    layer_schema = LayerSchema().dump(layer)
+
+    statement = text("""
+        SELECT jsonb_build_object('type', 'FeatureCollection', 'features', jsonb_agg(feature)) AS geojson_layer 
+        FROM (
+            SELECT jsonb_build_object(
+                'type', 'Feature', 
+                'geometry', ST_AsGeoJSON(st_transform(geom, 3857))::jsonb, 
+                'properties', to_jsonb(row) - 'geom') AS feature  
+            FROM (select * from {}.{} t ) row
+        ) features
+    """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"]))
+
+    #layer_datas = db_sig.execute(statement).fetchone()._asdict()
+    layer_datas = db_sig.execute(statement).fetchone()._asdict()
+    layer_datas['desc_layer'] = layer_schema
+    #layer_datas.append(layer_schema)
+    #return datas.fetchone()._asdict()
+    return layer_datas
 
 if __name__ == "__main__":
     app.run()

@@ -11,7 +11,10 @@ from backend.utils.config_schema import ConfSchema
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 
+from sqlalchemy import create_engine
+
 db_app = SQLAlchemy()
+#db_sig = create_engine(app.config['SQLALCHEMY_SIG_DATABASE_URI'])
 ma = Marshmallow()
 
 def read_config(toml_conf_file):

@@ -44,3 +44,50 @@ class Role(db_app.Model):
         role_id
     ):
         self.role_id = role_id"""
+
+class Layer(db_app.Model):
+    __tablename__ = 't_layers'
+    __table_args__ = {'schema': 'app_carto'}
+    layer_id = db_app.Column(db_app.Integer, primary_key = True)
+    layer_schema_name = db_app.Column(db_app.String(50))
+    layer_table_name = db_app.Column(db_app.String(50))
+    layer_group = db_app.Column(db_app.String(50))
+    layer_label = db_app.Column(db_app.String(50))
+    layer_is_default = db_app.Column(db_app.Boolean)
+    layer_default_style = db_app.Column(db_app.JSON())
+    layer_is_challenge = db_app.Column(db_app.Boolean)
+
+    def __init__(
+        self,
+        layer_id,
+        layer_schema_name,
+        layer_table_name,
+        layer_group,
+        layer_label,
+        layer_is_default,
+        layer_default_style,
+        layer_is_challenge
+    ):
+        self.layer_id = layer_id
+        self.layer_schema_name = layer_schema_name
+        self.layer_table_name = layer_table_name
+        self.layer_group = layer_group
+        self.layer_label = layer_label
+        self.layer_is_default = layer_is_default
+        self.layer_default_style = layer_default_style
+        self.layer_is_challenge = layer_is_challenge
+
+class VLayerList(db_app.Model):
+    __tablename__ = 'v_layers_list_by_group'
+    __table_args__ = {'schema': 'app_carto'}
+    layer_group = db_app.Column(db_app.String(50), primary_key=True)
+    l_layers = db_app.Column(db_app.JSON())
+
+    def __init__(
+        self,
+        layer_group,
+        l_layers
+        
+    ):
+        self.layer_group = layer_group
+        self.l_layers = l_layers

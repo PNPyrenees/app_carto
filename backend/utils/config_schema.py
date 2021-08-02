@@ -9,6 +9,7 @@ class ConfSchema(Schema):
     APP_NAME = fields.String(required=True)
     APP_URL = fields.String(require=True)
     SQLALCHEMY_DATABASE_URI = fields.String(required=True)
+    SQLALCHEMY_SIG_DATABASE_URI = fields.String(required=True)
     SQLALCHEMY_TRACK_MODIFICATIONS = fields.Boolean(missing=False)
     GEONATURE_URL = fields.String(require=True)
     ID_APPLICATION = fields.Integer(require=True)

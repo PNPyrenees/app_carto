@@ -8,34 +8,62 @@
             <!--<form id="login-form" class="login-validation" novalidate>-->
                 <div class="modal-body">
 
-                    <div class="row">
-                        <div class="col-lg-2">
+                    <div class="row modal-content-with-menu">
+                        <div class="col-lg-2 col-menu">
                             <div id="add-layer-menu" class="btn-group-vertical" role="group">
-                                <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
-                                <label class="btn btn-outline-primary" for="btnradio1">Couches de référence</label>
+                                <input type="radio" class="modal-btn-check btn-check" name="btnradio" id="btn-add-ref-layer" autocomplete="off" target="add-ref-layer" checked>
+                                <label class="btn btn-outline-primary" for="btn-add-ref-layer">Couches de référence</label>
 
-                                <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
-                                <label class="btn btn-outline-primary" for="btnradio2">Données d'observation</label>
+                                <input type="radio" class="modal-btn-check btn-check" name="btnradio" id="btn-add-obs-layer" autocomplete="off" target="add-obs-layer">
+                                <label class="btn btn-outline-primary" for="btn-add-obs-layer">Données d'observation</label>
 
-                                <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
-                                <label class="btn btn-outline-primary" for="btnradio3">Mes couches</label>
+                                <input type="radio" class="modal-btn-check btn-check" name="btnradio" id="btn-add-my-layer" autocomplete="off" target="add-my-layer">
+                                <label class="btn btn-outline-primary" for="btn-add-my-layer">Mes couches</label>
 
-                                <input type="radio" class="btn-check" name="btnradio" id="btnradio4" autocomplete="off">
-                                <label class="btn btn-outline-primary" for="btnradio4">Couches partagées</label>
+                                <input type="radio" class="modal-btn-check btn-check" name="btnradio" id="btn-add-shared-layer" autocomplete="off" target="add-shared-layer">
+                                <label class="btn btn-outline-primary" for="btn-add-shared-layer">Couches partagées</label>
 
-                                <input type="radio" class="btn-check" name="btnradio" id="btnradio5" autocomplete="off">
-                                <label class="btn btn-outline-primary" for="btnradio5">Création</label>
+                                <input type="radio" class="modal-btn-check btn-check" name="btnradio" id="btn-add-new-layer" autocomplete="off" target="add-new-layer">
+                                <label class="btn btn-outline-primary" for="btn-add-new-layer">Création</label>
 
-                                <input type="radio" class="btn-check" name="btnradio" id="btnradio5" autocomplete="off">
-                                <label class="btn btn-outline-primary" for="btnradio5">Importer</label>
-                              </div>
-
+                                <input type="radio" class="modal-btn-check btn-check" name="btnradio" id="btn-add-imported-layer" autocomplete="off" target="add-imported-layer">
+                                <label class="btn btn-outline-primary" for="btn-add-imported-layer">Importer</label>
+                            </div>
                         </div>
-                        <div class="col-lg-10"></div>
+                        <div class="col-lg-10 col-content">
+                            <!-- content = Couche de référence -->
+                            <div id="add-ref-layer" class="modal-div-content show">
+                                <div class="accordion" id="accordion-add-ref-layer" data-prototype="
+                                &lt;div class=&quot;accordion-item&quot;&gt; &lt;h2 class=&quot;accordion-header&quot; id=&quot;__ACCORDION_HEADER_ID__&quot;&gt; &lt;button class=&quot;accordion-button collapsed&quot; type=&quot;button&quot; data-bs-toggle=&quot;collapse&quot; data-bs-target=&quot;#__COLLAPSE_ID__&quot; aria-expanded=&quot;false&quot; aria-controls=&quot;collapseOne&quot;&gt; __GROUP_NAME__ &lt;/button&gt; &lt;/h2&gt; &lt;div id=&quot;__COLLAPSE_ID__&quot; class=&quot;accordion-collapse collapse&quot; aria-labelledby=&quot;__ACCORDION_HEADER_ID__&quot; data-bs-parent=&quot;#accordion-add-ref-layer&quot;&gt; &lt;div class=&quot;accordion-body&quot;&gt; &lt;ul class=&quot;modal-ref-layer-list&quot;&gt; &lt;/ul&gt; &lt;/div&gt; &lt;/div&gt; &lt;/div&gt;">                             
+                                </div>
+                            </div>
+
+
+                            <!-- content = Données d'observation -->
+                            <div id="add-obs-layer" class="modal-div-content">Données d'observation</div>
+
+                            <!-- content = Mes couches -->
+                            <div id="add-my-layer" class="modal-div-content">Mes couches</div>
+
+
+                            <!-- content = Couches partagées -->
+                            <div id="add-shared-layer" class="modal-div-content">Couches partagées</div>
+
+
+                            <!-- content = Création -->
+                            <div id="add-new-layer" class="modal-div-content">Création</div>
+
+
+                            <!-- content = Importer -->
+                            <div id="add-imported-layer" class="modal-div-content">Importer</div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button id="add-layer-submit" type="submit" class="btn btn-primary">Se connecter</button>
+                    <button id="add-layer-submit" type="submit" class="btn btn-primary">
+                        <div id="loading-spinner" class="spinner-grow spinner-grow-sm" role="status"></div>
+                        Ajouter la couche
+                    </button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
                     <!--<div id="form-login-error" class="invalid-feedback"></div>-->
                 </div>

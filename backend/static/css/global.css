@@ -61,6 +61,30 @@ html * {
     background-color: #006e44!important;
     border-color: #006e44!important; /*set the color you want here*/
 }
+
+.btn-secondary, 
+.btn-secondary:active, 
+.btn-secondary.active, 
+.btn-secondary:focus, 
+.btn-check:checked + .btn-outline-secondary,
+.btn-outline-secondary:active,
+.btn-outline-secondary:focus {
+    color: #6c757d!important;
+    background-color: mintcream!important;
+    border-color: mintcream!important;
+    outline: none!important;
+    box-shadow: none!important;
+}
+
+.btn-secondary:hover, 
+.open>.dropdown-toggle.btn-secondary,
+.btn-outline-secondary:hover
+ {
+    color: #e6e6e6!important;
+    background-color: #9facb8!important;
+    border-color: #9facb8!important; /*set the color you want here*/
+}
+
 /*.slide-anim {
     animation-name: slide;
     animation-duration: 2s;
@@ -98,7 +122,7 @@ html * {
 
 #alert-container {
     position: absolute;
-    z-index: 999;
+    z-index: 9999;
     top: 6rem;
     width: 40%;
     left: 50%;
@@ -106,3 +130,40 @@ html * {
     /*display: none;*/
     /*transition: opacity 500ms;*/
 }
+
+/*.modal-div-content{
+    border: 1px solid black;
+    padding: .350em;
+}*/
+
+/**
+ * Style associé au dropdown
+ */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: fixed;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    overflow: auto;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 999;
+}
+
+.dropdown-item {
+    color: black;
+    padding: 5px;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+    border-bottom: 1px solid #e6e6e6;
+}
+
+.dropdown-item:hover {background-color: #ddd;}
+
+.show {display: block !important;}
+.hide {display: none !important;}
