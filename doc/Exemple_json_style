@@ -1,0 +1,118 @@
+/**
+ * Champ attendu selon le type de géométrie
+ */
+Polygon :
+    - fill_color = Couleur de remplissage 
+        ex : rgba(201,241,196,0.5)
+    - stroke_color = Couleur de la bordure 
+        ex : rgba(201,241,196,0.5)
+    - stroke_width = Epaisseur de la bordure (en pixel)
+        ex : 3
+    - stroke_linedash = Bordure en pointillé 
+        ex1 : [] - pas de pointillé; 
+        ex2 : [4] - longueur du pointillé et de l'espacement de 4 pixels
+        ex3 : [4,8] - longueur du pointillé de 4 pixel et logueur de l'espacement de 8 pixel
+
+Line :
+    - stroke_color = Couleur du trait
+        ex : rgba(201,241,196,0.5)
+    - stroke_width = Epaisseur du trait (en pixel)
+        ex : 3
+    - stroke_linedash = Trait en pointillé 
+        ex1 : [] - pas de pointillé; 
+        ex2 : [4] - longueur du pointillé et de l'espacement de 4 pixels
+        ex3 : [4,8] - longueur du pointillé de 4 pixel et logueur de l'espacement de 8 pixel
+
+Point : 
+    - fill_color = Couleur de remplissage
+        ex : rgba(201,241,196,0.5)
+    - stroke_color = Couleur de la bordure
+        ex : rgba(201,241,196,0.5)
+    - stroke_width = Epaisseur de la bordure (en pixel)
+        ex : 3
+    - stroke_linedash =  = Bordure en pointillé 
+        ex1 : [] - pas de pointillé; 
+        ex2 : [4] - longueur du pointillé et de l'espacement de 4 pixels
+        ex3 : [4,8] - longueur du pointillé de 4 pixel et logueur de l'espacement de 8 pixel
+    - radius = Rayon du point (en pixel)
+        ex : 5
+
+/**
+ * Exemple pour avoir la condition ((A == "test") OR ((B == true) AND (C == 1)))
+ */
+[{
+    "geom_type": "Polygon",
+    "styles": [{
+        "fill_color": "rgba(255,0,0,0.5)",
+        "stroke_color": "rgba(255,255,0,0.5)",
+        "stroke_width": 2,
+        "stroke_linedash": [],
+        "filter" : {
+            "left_term": "A",
+            "operator": "==",
+            "right_term": "test",
+            "and": [],
+            "or": [{
+                "left_term": "B",
+                "operator": "==",
+                "right_term": true,
+                "and": [{
+                    "left_term": "C",
+                    "operator": "==",
+                    "right_term": 1,
+                    "and": [],
+                    "or": []
+                }],
+                "or": []
+            }]
+        }
+    }]
+}]
+
+/**
+ * Style simple (sans condition)
+ */
+[{
+    "geom_type": "Polygon",
+    "styles": [{
+		"fill_color": "rgba(145,82,45,0.5)",
+		"stroke_color": "rgba(0,0,0,1)",
+		"stroke_width": 1,
+		"stroke_linedash": [],
+		"filter" : null
+    }]
+}]
+
+/**
+ * Style pour la couche limite_juridique.parc_national_pyrenees
+ * Distinguant zone coeur et aire d'adhésion
+ */
+[{
+    "geom_type": "Polygon",
+    "styles": [{
+		"fill_color": "rgba(2,125,13,0.5)",
+		"stroke_color": "rgba(2,125,13,1)",
+		"stroke_width": 3,
+		"stroke_linedash": [],
+		"filter" : {
+			"left_term": "id_local",
+        	"operator": "==",
+        	"right_term": "ZC_PNP",
+        	"and": [],
+        	"or": []
+      	}
+    },{
+    	"fill_color": "rgba(201,241,196,0.5)",
+		"stroke_color": "rgba(201,241,196,1)",
+		"stroke_width": 3,
+		"stroke_linedash": [],
+		"filter" : {
+			"left_term": "id_local",
+        	"operator": "==",
+        	"right_term": "AA_PNP",
+        	"and": [],
+        	"or": []
+      	}
+    }]
+}]
+
