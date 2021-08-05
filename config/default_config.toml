@@ -23,15 +23,32 @@ GEONATURE_URL = "https://geonature.pyrenees-parcnational.fr"
 # l'application doit préalablement être déclaré dans usershub
 ID_APPLICATION = 
 
-
-
+# Logo de la structure affiché dans l'entête de l'interface
 LOGO_STRUCTURE = "logo_structure.png"
+
+
 
 # Activer le mode développement
 DEBUG = true # true | false
 ENV = "development" # "production" | "development"
-#TEST = "Oh Yeah !"
+
 
 # Configuration de la carte
 CENTER = [<LAT>, <LONG>]
 ZOOM_LEVEL = 10
+
+# Fond de carte
+[[BASEMAPS]]
+    name = "IGN-Orthophotos"
+    url = "https://wxs.ign.fr/decouverte/geoportail/wmts?SERVICE=WMTS&REQUEST=GetCapabilities"
+    layer = "ORTHOIMAGERY.ORTHOPHOTOS"
+    attributions = "©IGN"
+    isDefault = 0
+    format = "image/jpeg"
+[[BASEMAPS]]
+    name = "IGN-Plan"
+    url = "https://wxs.ign.fr/decouverte/geoportail/wmts?SERVICE=WMTS&REQUEST=GetCapabilities"
+    layer = "GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2"
+    attributions = "©IGN"
+    isDefault = 1
+    format = "image/png"

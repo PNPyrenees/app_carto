@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from flask import Flask, render_template, send_from_directory, request, make_response, jsonify
+from flask import Flask, render_template, send_from_directory, request, make_response, jsonify, Markup
 import requests
 import json
 from datetime import datetime
@@ -206,6 +206,27 @@ def getRefLayerData(ref_layer_id):
     #layer_datas.append(layer_schema)
     #return datas.fetchone()._asdict()
     return layer_datas
+
+#@app.route('/api/get_svg/<svg_name>', methods=['GET'])
+#def getSvg(svg_name):
+#    """ Cherche et retourne un svg à partir de son nom (avec extension)
+#
+#    Returns
+#    -------
+#        svg (html)
+#    """
+#
+#    svg_rootdir = "backend/static/images/svg"
+#
+#    f = ""
+#
+#    # On recherche le svg dans les dossiers et sous-dossiers
+#    for root, dirs, files in os.walk(svg_rootdir):
+#        if svg_name in files:
+#            svg_path = os.path.join(root, svg_name)
+#            svg_file = open(svg_path, 'r').read()    
+#
+#    return render_template("svg.html", svg=Markup(svg_file))
 
 if __name__ == "__main__":
     app.run()

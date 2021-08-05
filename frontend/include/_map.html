@@ -1,6 +1,20 @@
 <div id="map-browser" class="d-inline-block">
     <div id="map-block">
-        <div id="map" class="map" tabindex="0"></div>
+        
+
+        <div id="map" class="map" tabindex="0">
+
+            <div id="basemap-selector">
+                <div class="dropdown">
+                    <button class="btn btn-secondary btn-opt-layer bi bi-layers-half btn-dropdown" onclick="openDropdown(this)" title="Fond de carte"></button>
+                    <div id="basemap-dropdown-content" class="dropdown-content hide">
+                            <!--<div class="dropdown-item" onclick="alert('Scan25')">Scan25</div>
+                            <div class="dropdown-item" onclick="alert('Ortho photo')">Ortho photo</div>-->
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
     <div id="data-block">
         DONNEES ATTRIBUTAIRE

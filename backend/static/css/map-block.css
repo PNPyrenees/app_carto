@@ -7,7 +7,7 @@
 
 #map-block{
     width: 100%;
-    background-color: rgb(108, 79, 238);
+    background-color: rgb(255, 255, 255);
     height: 75%;
     vertical-align: top;
 }
@@ -33,4 +33,56 @@
 .ol-zoom{
     left: unset!important;
     right: .5em;
+}
+
+#basemap-selector{
+    position: absolute;
+    right: 3em;
+    top: 3.6em;
+    z-index: 999;
+}
+
+#basemap-selector > .dropdown > .btn {
+    width: 60px;
+    height: 60px;
+    font-size: 30px;
+    color: #FFF!important;
+    background-color: rgba(0,60,136,.5)!important;
+    border: 2px solid rgba(255,255,255,.5);
+}
+
+#basemap-selector > .dropdown > .btn:hover {
+    background-color: rgba(0,60,136,.7)!important;
+    border: 2px solid rgba(255,255,255,.7);
+}
+
+#basemap-selector > .dropdown > .dropdown-content {
+    background-color: rgba(0,60,136,.7)!important;
+    right: 3em;
+    margin-top: -2px;
+    border-radius: .25rem;
+}
+
+#basemap-selector > .dropdown > .dropdown-content > .dropdown-item {
+    color: #FFF!important;
+    border: 2px solid #FFF!important;
+    /*font-weight: bold;*/
+}
+
+#basemap-selector > .dropdown > .dropdown-content > .dropdown-item:not(:first-child) {
+    margin-top: -2px;
+}
+
+#basemap-selector > .dropdown > .dropdown-content > .dropdown-item:first-child {
+    border-top-left-radius: .25rem;
+    border-top-right-radius: .25rem;
+}
+
+#basemap-selector > .dropdown > .dropdown-content > .dropdown-item:last-child {
+    border-bottom-left-radius: .25rem;
+    border-bottom-right-radius: .25rem;
+}
+
+#basemap-selector > .dropdown > .dropdown-content > .dropdown-item:hover {
+    background-color: rgba(0, 39, 90, 0.7)!important;
 }

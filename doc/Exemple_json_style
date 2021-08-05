@@ -37,11 +37,26 @@ Point :
     - radius = Rayon du point (en pixel)
         ex : 5
 
+Icon :
+    - icon_svg_path = Chemin vers le SVG (dans static)
+        ex : static/images/svg/<nom_svg>.svg 
+        Les icones doivent être en svg et placé dans backend/static/images/svg/ 
+        Il est possible des les classer par sous-dossier, dans ce cas, adapter le chemin
+    - icon_color = Couleur de l'image
+        ex : #ff0000 ou rgba(255,0,0,1)
+        La couleur est en réalité une teinte qui s'applique sur le SVG. 
+        S'il est noir, icon_color n'aura aucun impacte sur le rendu.
+    - icon_scale = Coeficient permetant d'agrandir ou réduire la taille du svg
+        ex1 : 0.04 (réduit la taille)
+        ex2 : 2 (augmente la taille)
+    - icon_opacity = Opacité de l'icone sur la carte
+        ex : 0.8
+
 /**
  * Exemple pour avoir la condition ((A == "test") OR ((B == true) AND (C == 1)))
  */
 [{
-    "geom_type": "Polygon",
+    "style_type": "Polygon",
     "styles": [{
         "fill_color": "rgba(255,0,0,0.5)",
         "stroke_color": "rgba(255,255,0,0.5)",
@@ -70,10 +85,10 @@ Point :
 }]
 
 /**
- * Style simple (sans condition)
+ * Remplissage simple de polygone
  */
 [{
-    "geom_type": "Polygon",
+    "style_type": "Polygon",
     "styles": [{
 		"fill_color": "rgba(145,82,45,0.5)",
 		"stroke_color": "rgba(0,0,0,1)",
@@ -88,7 +103,7 @@ Point :
  * Distinguant zone coeur et aire d'adhésion
  */
 [{
-    "geom_type": "Polygon",
+    "style_type": "Polygon",
     "styles": [{
 		"fill_color": "rgba(2,125,13,0.5)",
 		"stroke_color": "rgba(2,125,13,1)",
@@ -116,3 +131,15 @@ Point :
     }]
 }]
 
+/**
+ * Exemple pour la couche "refuge"
+ * utilisant une icone
+[{
+    "style_type": "Icon",
+    "styles": [{
+        "icon_svg_path": "static/images/svg/accommodation/accommodation_shelter2.svg",
+        "icon_color": "rgba(0,0,0,1)",
+        "icon_scale": 0.04,
+        "icon_opacity": 1
+    }]
+}]
