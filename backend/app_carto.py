@@ -166,6 +166,17 @@ def logout():
             'message': 'Token supprimé !'
         })
 
+def check_token(token):
+    # S'il n'y a pas de token alors invalide
+    if (not token):
+        return False
+
+    # Controle de la date d'expiration
+    role = Role.query.filter(Role.role_token == token).one()
+    if (datetime.now() < role.role_token_expiration):
+        return True
+    else :
+        return False
 
 @app.route('/api/layer/get_layers_list', methods=['GET'])
 def get_layers_list():
@@ -176,12 +187,21 @@ def get_layers_list():
     -------
         JSON
     """
+    # Controle de la validité du token
+    token = request.cookies.get('token')
+    if (not check_token(token)):
+        return jsonify({
+            'status': 'error',
+            'message': 'Token invalide'
+        }), 403
+    
+
     # Nécessite jsonify car on retourne plusieur ligne
     return jsonify(VLayerListSchema(many=True).dump(VLayerList.query.all()))
 
 
 @app.route('/api/ref_layer/<ref_layer_id>', methods=['GET'])
-def getRefLayerData(ref_layer_id):
+def get_ref_layer_data(ref_layer_id):
     """ Fourni la données correspondant au ref_layer_id
     au format geojson
 
@@ -189,6 +209,14 @@ def getRefLayerData(ref_layer_id):
     -------
         GEOJSON
     """
+    # Controle de la validité du token
+    token = request.cookies.get('token')
+    if (not check_token(token)):
+        return jsonify({
+            'status': 'error',
+            'message': 'Token invalide'
+        }), 403
+        
     layer = Layer.query.get(ref_layer_id)
     layer_schema = LayerSchema().dump(layer)
 

@@ -170,3 +170,13 @@ html * {
 .hide {display: none !important;}
 
 .clickable { cursor: pointer }
+
+.btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.accordion-button:focus{
+    outline: none;
+    box-shadow: none;
+}

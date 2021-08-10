@@ -158,27 +158,54 @@
     position: absolute;
     z-index: 999;
     right: 1%;
-    height: 45%;
+    max-height: 45%;
     width: 20%;
     border: 1px solid #000000;
     background-color: #e6e6e6;
     color:#666;
     border-radius: .25rem;
     top: 20%;
+}
+
+/*#bloc-clicked-features-attributes*/
+#bloc-clicked-features-attributes-content{
+    /*position: absolute;
+    z-index: 999;
+    right: 1%;
+    max-height: 45%;
+    width: 20%;
+    border: 1px solid #000000;
+    background-color: #e6e6e6;
+    color:#666;
+    border-radius: .25rem;
+    top: 20%;*/
+    max-height: 350px;
     padding: .5%;
     overflow: auto;
 }
 
+
 #close-bloc-clicked-features-attributes{
-    /*position: absolute;*/
-    position: sticky;
-    left: 1%;
-    bottom: 1%;
+    width: 100%;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 /*#bloc-clicked-features-attributes-content{
     margin-top : 9%;
 }*/
+
+.layer-list > .layer-item > span{
+    font-weight: bold;
+}
+
+.layer-list > .layer-item > .feature-list > .feature-item > span {
+    font-style: italic;
+}
+
+.layer-list > .layer-item > .feature-list > .feature-item > .properties-list {
+    border-left: 1px solid #666
+}
 
 .layer-list > .layer-item > .feature-list > .feature-item > .properties-list > .propertie-item {
     white-space: nowrap;
@@ -193,6 +220,11 @@
 /*.layer-list > .layer-item > .feature-list > .feature-item > .properties-list > .propertier-item > .propertie-value{
     float: right;
 }*/
+
+.layer-list > .layer-item > .feature-list > .feature-item > .zoom-to-feature{
+    margin-left: 10px;
+    font-size: 14px;
+}
 
 .zoom-to-feature{
     cursor: pointer;

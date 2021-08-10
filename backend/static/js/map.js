@@ -110,6 +110,7 @@ map = new ol.Map({
     }),
 });
 
+
 /**
  * Déclaration des fonds de cartes 
  */
@@ -555,30 +556,51 @@ function buildFilter(filter, str_filter="", logic_operator=""){
  * Suppression d'une couche sur la carte
  */
 removeLayer = function(layer_uid){
-    map.getLayers().forEach(layer => {
-        
-        current_layer_uid = ol.util.getUid(layer)
-        if (current_layer_uid == layer_uid){
-            map.removeLayer(layer)
-            document.querySelector("#layer_list li[layer-uid='" + layer_uid + "']").remove()
-            
-            // On efface la table attributaire s'il est ouvert
-            tab_id = "layer-data-table-" + current_layer_uid
-            if (document.querySelector(".nav-layer-item[target=" + tab_id + "]")){               
-                document.getElementById(tab_id).remove()
-                document.querySelector(".nav-layer-item[target=" + tab_id + "]").remove()
-            }
 
-            // On efface le ou les features de la couche qui sont dans selectedVectorSource
-            selectedVectorSource.getFeatures().forEach(feature => {
-                console.log(feature)
-                if (feature.orginalLayerUid == layer_uid){
-                    selectedVectorSource.removeFeature(feature)
-                }
-            })
+    //On recherche la couche
+    var layer = null
+    map.getLayers().forEach(tmp_layer => {
+        current_layer_uid = ol.util.getUid(tmp_layer)
+        if (current_layer_uid == layer_uid){
+            layer = tmp_layer
             return
         }
-    });
+    })
+
+    // puis on la supprime
+    if (layer){
+        map.removeLayer(layer)
+        document.querySelector("#layer_list li[layer-uid='" + layer_uid + "']").remove()
+        
+        // On efface la table attributaire s'il est ouvert
+        tab_id = "layer-data-table-" + current_layer_uid
+        if (document.querySelector(".nav-layer-item[target=" + tab_id + "]")){               
+            document.getElementById(tab_id).remove()
+            document.querySelector(".nav-layer-item[target=" + tab_id + "]").remove()
+        }
+
+        // On efface le ou les features de la couche qui sont dans selectedVectorSource
+        selectedVectorSource.getFeatures().forEach(feature => {
+            //console.log(feature)
+            if (feature.orginalLayerUid == layer_uid){
+                selectedVectorSource.removeFeature(feature)
+            }
+        })
+
+        // On supprime les entré de cette couche dans 
+        // le fenêtre d'affichage des données attributaire
+        // (celle qui s'ouvre quand on clique sur la carte)
+        attr_data = document.getElementById("bloc-clicked-features-attributes").querySelector(".layer-item[layer-uid=\"" + layer_uid + "\"]")
+        if (attr_data){
+            attr_data.remove()
+
+            // S'il n'y a plus de données dans le bloc attributaire, on le ferme
+            if (attr_data = document.getElementById("bloc-clicked-features-attributes").querySelector(".layer-item") == null){
+                hideBlockClickedFeaturesAttributes()
+            }
+                
+        }
+    }
 }
 
 /**
@@ -589,7 +611,7 @@ var table
 getFullDataTable = function(layer_uid){
     map.getLayers().forEach(layer => {
         if (ol.util.getUid(layer) == layer_uid){
-            console.log(layer.getSource().getKeys())
+            //console.log(layer.getSource().getKeys())
             var first_iteration = true
             data = []
             layer.getSource().getFeatures().forEach(feature => {
@@ -609,7 +631,7 @@ getFullDataTable = function(layer_uid){
             })
 
             layer_name = layer.get("layer_name")
-            create_attribute_table(layer_name, layer_uid, data)
+            createAttributeTable(layer_name, layer_uid, data)
         }
     })
 }
@@ -617,7 +639,7 @@ getFullDataTable = function(layer_uid){
 /**
  * Créer la table attributaire html
  */
-create_attribute_table = function(layer_name, layer_uid, data){
+createAttributeTable = function(layer_name, layer_uid, data){
 
     tab_id = "layer-data-table-" + layer_uid //+ '-' + date_id
 
@@ -671,8 +693,11 @@ create_attribute_table = function(layer_name, layer_uid, data){
             //let layer_uid = table.layeruid
             let layer_uid = row.getTable().layeruid
             let feature_uid = row.getData().ol_uid
+            // On ferme la fenetre affichant les données attributaire lors d'un clic sur la carte
+            hideBlockClickedFeaturesAttributes()
             //On highlight le feature
             highlightFeature(layer_uid, feature_uid)
+            
         },
         // Action lors de la désélection d'un ligne
         rowDeselected:function(row){
@@ -833,6 +858,12 @@ for (var i = 0; i < tests.length; i++) {
         let layer_uid = ol.util.getUid(layer)
         let feature_uid = ol.util.getUid(feature)
 
+        //on s'assure de ne pas être sur un feature de la couche de sélection
+        // ça arrive des fois...
+        if (layer_uid == ol.util.getUid(selectedVectorLayer)){
+            return
+        }
+
         // Dans ce cas, on veut highlight tous les features cliqués
         // sans zommer dessus
         highlightFeature(layer_uid, feature_uid, false, false)
@@ -841,9 +872,9 @@ for (var i = 0; i < tests.length; i++) {
         // Si c'est une nouvelle couche, on créé l'élément .layer-item
         if (layer_uid != previous_layer){
 
-            var li_layer_item = document.createElement("li")
+            li_layer_item = document.createElement("li")
             li_layer_item.classList.add("layer-item")
-            li_layer_item.setAttribute("layerUid", layer_uid)
+            li_layer_item.setAttribute("layer-uid", layer_uid)
 
             //On créé l'objet span contenant le nom de la couche
             var span_layer_item = document.createElement("span")
@@ -856,7 +887,7 @@ for (var i = 0; i < tests.length; i++) {
             // On créer l'objet recevant la liste des features
             var ul_feature_list = document.createElement("ul")
             ul_feature_list.classList.add("feature-list")
-            ul_feature_list.classList.add("hide")
+            //ul_feature_list.classList.add("hide")
 
             li_layer_item.append(ul_feature_list)
         
@@ -882,11 +913,16 @@ for (var i = 0; i < tests.length; i++) {
         i_zoom_to_feature.classList.add("zoom-to-feature")
         //i_zoom_to_feature.addEventListener("click", zoomToFeature(this))
         i_zoom_to_feature.setAttribute("onclick", "zoomToFeature(this)")
+        // On ajoute un tooltip sur l'icone
+        i_zoom_to_feature.setAttribute("toggle-tooltip", "tooltip")
+        i_zoom_to_feature.setAttribute("data-bs-placement", "right")
+        i_zoom_to_feature.setAttribute("data-bs-trigger", "hover")
+        i_zoom_to_feature.setAttribute("title", "Zoomer sur l'entité")
 
         li_feature_item.append(i_zoom_to_feature)
         
 
-        //On créé la liste recevnat les propriétés du feature
+        //On créé la liste recevant les propriétés du feature
         var ul_properties_list = document.createElement("ul")
         ul_properties_list.classList.add("properties-list")
         ul_properties_list.classList.add("hide")
@@ -897,7 +933,7 @@ for (var i = 0; i < tests.length; i++) {
         var properties = feature.getProperties()
         for (var key in properties){
             let value = properties[key]
-            console.log(key)
+
             // On n'affiche pas la géométrie
             if (key != "geometry"){
                 
@@ -937,13 +973,19 @@ for (var i = 0; i < tests.length; i++) {
     document.getElementById("bloc-clicked-features-attributes-content").innerHTML = ""
     document.getElementById("bloc-clicked-features-attributes-content").append(ul_layer_list)
 
+    //On active les tooltip
+    let tooltipTriggerList = [].slice.call(document.querySelectorAll('.zoom-to-feature[toggle-tooltip="tooltip"]'))
+    let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+
     if (has_feature){
         if (document.getElementById("bloc-clicked-features-attributes").classList.contains("hide")){
             document.getElementById("bloc-clicked-features-attributes").classList.remove("hide")
             document.getElementById("bloc-clicked-features-attributes").classList.add("show")
         }
     } else {
-        hideBlocClickedFeaturesAttributes()
+        hideBlockClickedFeaturesAttributes()
     }
 }));
 
@@ -984,12 +1026,9 @@ showPropertiesList = function(element){
  */
 zoomToFeature = function(element){
     // Récupération de l'uid du layer
-    layer_uid = element.closest(".layer-item").getAttribute("layerUid")
+    layer_uid = element.closest(".layer-item").getAttribute("layer-uid")
     //récupération de l'uid du feature
     feature_uid = element.parentNode.getAttribute("featureUid")
-
-    console.log("layer_uid : " + layer_uid)
-    console.log("feature_uid : " + feature_uid)
 
     //Recherche du feature et zoom sur l'extent de l'objet
     map.getLayers().forEach(layer => {
@@ -1006,10 +1045,11 @@ zoomToFeature = function(element){
     })
 }
 
-hideBlocClickedFeaturesAttributes = function(){
+hideBlockClickedFeaturesAttributes = function(){
     document.getElementById("bloc-clicked-features-attributes").classList.add("hide")
     document.getElementById("bloc-clicked-features-attributes").classList.remove("show")
+
     clearSelectedSource()
 }
 
-document.getElementById("close-bloc-clicked-features-attributes").addEventListener("click", hideBlocClickedFeaturesAttributes)
+document.getElementById("close-bloc-clicked-features-attributes-btn").addEventListener("click", hideBlockClickedFeaturesAttributes)
