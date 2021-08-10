@@ -6,6 +6,8 @@
 
         {# lien CSS #}
         <link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap-5.0.2-dist/css/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='lib/tabulator-4.9/dist/css/tabulator.min.css') }}">
+        <!--<link rel="stylesheet" href="{{ url_for('static', filename='lib/resizable/resizable-style.css') }}">-->
         <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/toolbar.css') }}">
@@ -29,7 +31,7 @@
         <div id="container">
             {% include 'include/_header.html' %}
 
-            <div class="app-content">
+            <div id="app-content" class="app-content">
                 {% include 'include/_responsive_button.html' %}
                 {% include 'include/_toolbar.html' %}<!--Contournement white-space entre deux inline-block
                 -->{% include 'include/_layerbar.html' %}<!--Contournement white-space entre deux inline-block
@@ -47,6 +49,8 @@
 
         {# lien JS #}
         <script type="text/javascript" src="{{ url_for('static', filename='lib/bootstrap-5.0.2-dist/js/bootstrap.bundle.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='lib/tabulator-4.9/dist/js/tabulator.js') }}"></script>
+        <!--<script type="text/javascript" src="{{ url_for('static', filename='lib/resizable/resizable.js') }}"></script>-->
         <script type="text/javascript" src="{{ url_for('static', filename='js/init.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/responsive.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/auth.js') }}"></script>

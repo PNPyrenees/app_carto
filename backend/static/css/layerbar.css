@@ -6,6 +6,7 @@
     /*box-sizing: border-box;*/
     /*overflow-x: scroll;*/
     overflow-y: auto;
+    /*opacity: 0.5;*/
 }
 
 #layerbar > ul {
@@ -44,6 +45,7 @@
         width: 12%;
         position: relative;
         display: inline-block !important;
+        overflow-x: hidden;
     }
 }
 

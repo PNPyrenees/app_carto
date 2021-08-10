@@ -13,7 +13,8 @@
 
 html * {
     font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-    overflow: hidden;
+    max-width: 100vw;
+    max-height: 100vh;
     font-size: 2vh;
 }
 
@@ -167,3 +168,5 @@ html * {
 
 .show {display: block !important;}
 .hide {display: none !important;}
+
+.clickable { cursor: pointer }

@@ -21,6 +21,9 @@ CONFIG_FILE = Path(__file__).absolute().parent.parent / "config/config.toml"
 config = read_config(CONFIG_FILE)
 app.config.update(config)
 
+# On force le fait de ne pas trier les json par keyname
+app.config['JSON_SORT_KEYS'] = False
+
 db_app.init_app(app)
 db_sig = create_engine(app.config['SQLALCHEMY_SIG_DATABASE_URI'])
 

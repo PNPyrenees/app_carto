@@ -2,7 +2,7 @@ window.addEventListener('load', (event) => {
     /** 
      * On lance l'initialisation de la carte
      */
-    initMap()
+    //initMap()
 
     /**
      * Si valide, contrôle l'existance d'un cookie à l'ouverture
