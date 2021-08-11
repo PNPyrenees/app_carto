@@ -86,16 +86,6 @@ html * {
     border-color: #9facb8!important; /*set the color you want here*/
 }
 
-/*.slide-anim {
-    animation-name: slide;
-    animation-duration: 2s;
-}
-
-@keyframes slide {
-    from {  margin-left: 0;}
-    to { margin-left: 100vw;}
-}*/
-
 @media(min-width: 1500px){
     .responsive-btn-close{
         display: none;
@@ -124,18 +114,11 @@ html * {
 #alert-container {
     position: absolute;
     z-index: 9999;
-    top: 6rem;
+    top: 4rem;
     width: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
-    /*display: none;*/
-    /*transition: opacity 500ms;*/
 }
-
-/*.modal-div-content{
-    border: 1px solid black;
-    padding: .350em;
-}*/
 
 /**
  * Style associé au dropdown

@@ -43,6 +43,33 @@ addLayerModalEl.addEventListener('hidden.bs.modal', function (event) {
     element.dispatchEvent(evt);
 })*/
 
+/**
+ * Fonction permettant de gérer les erreurs
+ * lors des appel à l'API
+ */
+apiCallErrorCatcher = function(error, default_message = null) {
+    if (error.status == 403){
+        // Ici, le token n'est plus valide côté serveur
+        // Donc on ferme le modal courant et on ouvre le modal d'authentification
+        // On retarde l'action car le modal doit être  
+        // totallement ouvert pour pouvoir être fermé
+        setTimeout(function(){
+            addLayerModal.hide()
+            openLoginModal()
+        }, 500)  
+    }
+
+    // Gestion de l'affichage du message d'erreur
+    err = error.json()
+    err.then(err => { 
+        if (err.message != undefined){
+            message = err.message
+            showAlert(message)    
+        } else {
+            showAlert(default_message)
+        }
+    })
+}
 
 
 /**

@@ -42,22 +42,33 @@ def valid_token_required(f):
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        error_json_message = jsonify({
-            'status': 'error',
-            'message': 'Token invalide'
-        }), 403
 
         token = request.cookies.get('token')
         # S'il n'y a pas de token alors invalide
         if (not token):
-            return error_json_message
+            return jsonify({
+                "status": "error",
+                "message": "[Erreur 403-1] - Aucune clés d'authentification trouvée, veuillez vous identifier"
+            }), 403
 
         # Controle de la date d'expiration
-        role = Role.query.filter(Role.role_token == token).one()
+        role = Role.query.filter(Role.role_token == token)
+        # Controle que le token correspond bien à un utilisateur
+        if (role.first() is None):
+            return jsonify({
+                "status": "error",
+                "message": "[Erreur 403-2] - La clés d'authentification est incorrecte, veuillez vous identifier"
+            }), 403
+
+        role = role.one()
+        # Controle que la date d'expiration n'est pas dépassé
         if (datetime.now() < role.role_token_expiration):
             return f(*args, **kwargs)
         else :
-            return error_json_message
+            return jsonify({
+                "status": "error",
+                "message": "[Erreur 403-3] - La clés d'authentification n'est plus valide, veuillez vous identifier"
+            }), 403
     return decorated_function
 
 @app.route('/')

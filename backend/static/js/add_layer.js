@@ -17,7 +17,7 @@ document.getElementById("add-layer-modal").addEventListener('show.bs.modal', eve
 })
 
 /**
- * Gestion de la'action à réalisé après un click 
+ * Gestion de l'action à réalisé après un click 
  * sur le bouton d'ajout d'une couche
  */
 document.getElementById("add-layer-submit").addEventListener('click', event => {
@@ -48,18 +48,36 @@ var getRefLayerList = function(){
         credentials: "same-origin"
     })
     .then(res => {
-        //console.log(res)
         if (res.status != 200){
-            throw res.json();
+            throw res/*.json();*/
         } else {
             return res.json()
         }
     })
     .catch(error => {
-        error.then(err => { 
-            console.log(err)
-            showAlert("Erreur lors de la récupération de la liste des couches de référence")
-        })
+        default_message = "Erreur lors de la récupération de la liste des couches de référence"
+        apiCallErrorCatcher(error, default_message)
+        /*if (error.status == 403){
+            // Ici, le token n'est plus valide côté serveur
+            // Donc on ferme le modal courant et on ouvre le modal d'authentification
+            // On retarde l'action car le modal doit être  
+            // totallement ouvert pour pouvoir être fermé
+            setTimeout(function(){
+                addLayerModal.hide()
+                forceOpenLoginModal()
+            }, 500)  
+        }
+
+        // Gestion de l'affichage du message d'erreur
+        err = error.json()
+        err.then(err => { 
+            if (err.message != undefined){
+                message = err.message
+                showAlert(message)    
+            } else {
+                showAlert("Erreur lors de la récupération de la liste des couches de référence")
+            }
+        })*/
     })
 }
 
@@ -68,6 +86,10 @@ var getRefLayerList = function(){
  */
 var buildAddRefLayerContent = function(){
     getRefLayerList().then(layer_list => {
+        //Si getRefLayerList ne retourne rien alors on ne va pas plus loin
+        if (!layer_list){
+            return
+        }
 
         var accordion_add_ref_layer_bloc = document.getElementById('accordion-add-ref-layer')
 
@@ -163,8 +185,35 @@ addRefLayerToMap = function(){
     })
     .catch(error => {
         document.getElementById('loading-spinner').style.display = 'none'
-        console.log(error)
-        showAlert("Erreur lors de la récupération de la couche de référence")
+
+        default_message = "Erreur lors de la récupération de la liste des couches de référence"
+        apiCallErrorCatcher(error, default_message)
+
+
+        
+        /*//console.log(error)
+        //showAlert("Erreur lors de la récupération de la couche de référence")
+        if (error.status == 403){
+            // Ici, le token n'est plus valide côté serveur
+            // Donc on ferme le modal courant et on ouvre le modal d'authentification
+            // On retarde l'action car le modal doit être  
+            // totallement ouvert pour pouvoir être fermé
+            setTimeout(function(){
+                addLayerModal.hide()
+                forceOpenLoginModal()
+            }, 500)  
+        }
+
+        // Gestion de l'affichage du message d'erreur
+        err = error.json()
+        err.then(err => { 
+            if (err.message != undefined){
+                message = err.message
+                showAlert(message)    
+            } else {
+                showAlert("Erreur lors de la récupération de la liste des couches de référence")
+            }
+        })*/
     })
 }
 

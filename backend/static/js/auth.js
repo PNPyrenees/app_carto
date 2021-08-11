@@ -50,6 +50,28 @@ function checkToken(){
 
     return true
 }
+
+/**
+ * Fonction permettant d'ouvrir la fenêtre d'authentification
+ * Utile dans le cas ou le serveur retourne une erreur 403 - Token invalid
+ */
+var forceOpenLoginModal = function(){
+
+    // Ouverture du modal d'authentification
+    loginModal.show()
+    // Gestion affichage "Se connecter" / "Se déconnecter"
+    document.getElementById("btn-login").classList.add("active")
+    document.getElementById("icon-login").classList.add("active")
+    document.getElementById("btn-logout").classList.remove("active")
+    document.getElementById("icon-logout").classList.remove("active")
+    document.getElementById("username-label").innerHTML = ""
+
+    // Si on ouvre la fenêtre modal c'est que l'utilisateur n'est plus authentifié
+    // donc on purge le cookie
+    /*deleteCookie("username")
+    deleteCookie("token")
+    deleteCookie("expiration")*/
+}
     
 /**
  * Validation du formulaire de login
@@ -96,7 +118,7 @@ form.addEventListener("submit", function (event) {
         })
     })
     .then(res => {
-        console.log(res)
+        //console.log(res)
         if (res.status != 200){
             // En envoi l"erreur dans le catch
             throw res.json();
@@ -170,15 +192,15 @@ btn_logout.addEventListener("click", function (event) {
  * Si valide, contrôle l'existance d'un cookie à l'ouverture
  */
 window.addEventListener('load', (event) => {  
-    console.log(checkToken())
+    //console.log(checkToken())
     if (checkToken() === true) {
         var username = getCookie('username')
         if(username){
             document.getElementById('btn-login').classList.remove("active")
-                document.getElementById('icon-login').classList.remove("active")
-                document.getElementById('btn-logout').classList.add("active")
-                document.getElementById('icon-logout').classList.add("active")
-                document.getElementById('username-label').innerHTML = username.replace(/"/g, '')
+            document.getElementById('icon-login').classList.remove("active")
+            document.getElementById('btn-logout').classList.add("active")
+            document.getElementById('icon-logout').classList.add("active")
+            document.getElementById('username-label').innerHTML = username.replace(/"/g, '')
         }
     }
 });
@@ -204,3 +226,4 @@ for (var i = 0; i < check_auth_button.length; i++) {
         } 
     })
 }
+

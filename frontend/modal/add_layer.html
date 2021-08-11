@@ -16,18 +16,23 @@
 
                                 <input type="radio" class="modal-btn-check btn-check" name="btnradio" id="btn-add-obs-layer" autocomplete="off" target="add-obs-layer">
                                 <label class="btn btn-outline-primary" for="btn-add-obs-layer">Données d'observation</label>
-
+                                
+                                {#
                                 <input type="radio" class="modal-btn-check btn-check" name="btnradio" id="btn-add-my-layer" autocomplete="off" target="add-my-layer">
                                 <label class="btn btn-outline-primary" for="btn-add-my-layer">Mes couches</label>
-
+                                #}
+                                {#
                                 <input type="radio" class="modal-btn-check btn-check" name="btnradio" id="btn-add-shared-layer" autocomplete="off" target="add-shared-layer">
                                 <label class="btn btn-outline-primary" for="btn-add-shared-layer">Couches partagées</label>
-
+                                #}
+                                {#
                                 <input type="radio" class="modal-btn-check btn-check" name="btnradio" id="btn-add-new-layer" autocomplete="off" target="add-new-layer">
                                 <label class="btn btn-outline-primary" for="btn-add-new-layer">Création</label>
-
+                                #}
+                                {#
                                 <input type="radio" class="modal-btn-check btn-check" name="btnradio" id="btn-add-imported-layer" autocomplete="off" target="add-imported-layer">
                                 <label class="btn btn-outline-primary" for="btn-add-imported-layer">Importer</label>
+                                #}
                             </div>
                         </div>
                         <div class="col-lg-10 col-content">
@@ -40,7 +45,31 @@
 
 
                             <!-- content = Données d'observation -->
-                            <div id="add-obs-layer" class="modal-div-content">Données d'observation</div>
+                            <div id="add-obs-layer" class="modal-div-content">
+                                <form id="form-add-obs-layer">
+                                    <div class="row">
+                                        <!-- Bloc de gauche -->
+                                        <div class="col-lg-6">
+                                            <div class="form-group ">
+                                                <input type="text" class="form-control form-control-lg" id="form-add-obs-layer-taxon-input" aria-describedby="login-help" placeholder="Taxon" required>
+                                                <input type="hidden" id="form-add-obs-layer-taxon-value">
+                                                <input type="checkbox" id="form-add-obs-layer-infrataxon-checkbox"> 
+                                                <label for="form-add-obs-layer-infrataxon-checkbox">
+                                                    Inclure les infra-taxons
+                                                </label>
+                                            </div>
+
+                                            <div class="form-group ">
+                                                <select class="form-select"
+                                            </div>
+                                        </div>
+                                        <!-- Bloc de droite -->
+                                        <div class="col-lg-6">
+
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
 
                             <!-- content = Mes couches -->
                             <div id="add-my-layer" class="modal-div-content">Mes couches</div>
