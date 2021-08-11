@@ -49,22 +49,154 @@
                                 <form id="form-add-obs-layer">
                                     <div class="row">
                                         <!-- Bloc de gauche -->
-                                        <div class="col-lg-6">
+                                        <div class="col-lg-6 border-end">
                                             <div class="form-group ">
-                                                <input type="text" class="form-control form-control-lg" id="form-add-obs-layer-taxon-input" aria-describedby="login-help" placeholder="Taxon" required>
+                                                <input type="text" class="form-control form-control-lg" id="search-taxon-input" aria-describedby="login-help" placeholder="Taxon" required>
                                                 <input type="hidden" id="form-add-obs-layer-taxon-value">
-                                                <input type="checkbox" id="form-add-obs-layer-infrataxon-checkbox"> 
-                                                <label for="form-add-obs-layer-infrataxon-checkbox">
-                                                    Inclure les infra-taxons
-                                                </label>
+                                                <input type="checkbox" id="form-control form-add-obs-layer-infrataxon-checkbox"> 
+                                                <label for="form-add-obs-layer-infrataxon-checkbox">Inclure les infra-taxons</label>
                                             </div>
 
-                                            <div class="form-group ">
-                                                <select class="form-select"
+                                            <div class="form-group">
+                                                <label for="form-add-obs-layer-select-grp-tax" class="form-label fw-bold mb-0 mt-2">Groupe(s) taxonomique(s) :</label>
+                                                <span id="form-add-obs-layer-select-grp-tax"></span>
+                                                <input type="hidden" id="form-add-obs-layer-grp-tax-value">
                                             </div>
+
+                                            <div class="form-group">
+                                                <label class="form-label fw-bold mb-0 mt-2">Date d'observation :</label>
+                                                <div class="row ps-2">
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label for="form-add-obs-layer-date-start" class="form-label">Date min :</label>
+                                                            <input type="date" id="form-add-obs-layer-date-start" class="form-control form-control-lg">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label for="form-add-obs-layer-date-end" class="form-label">Date max :</label>
+                                                            <input type="date" id="form-add-obs-layer-date-end" class="form-control form-control-lg">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="form-label fw-bold mb-0 mt-2">Période d'observation :</label>
+                                                <div class="row ps-2">
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group pl-1">
+                                                            <label for="form-add-obs-layer-periode-start" class="form-label">Début :</label>
+                                                            <input type="text" id="form-add-obs-layer-periode-start" placeholder="jj/mm" class="form-control form-control-lg">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group pl-1">
+                                                            <label for="form-add-obs-layer-periode-end" class="form-label">Fin :</label>
+                                                            <input type="text" id="form-add-obs-layer-periode-end" placeholder="jj/mm" class="form-control form-control-lg">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="form-add-obs-layer-select-statut" class="form-label fw-bold mb-0 mt-2">Statut(s) :</label>
+                                                <span id="form-add-obs-layer-select-statut"></span>
+                                                <input type="hidden" id="form-add-obs-layer-statut-value">
+
+                                                <div class="form-group">
+                                                    <input type="checkbox" id="form-control form-add-obs-esp-prot-checkbox"> 
+                                                    <label  
+                                                        for="form-add-obs-layer-esp-prot-checkbox" 
+                                                        toggle-tooltip="tooltip" 
+                                                        data-bs-placement="right" 
+                                                        data-bs-trigger="hover" 
+                                                        title="Protection nationale (art I / II / III) + Listes régionales + Listes départementales"
+                                                        >
+                                                        Espèces protégées
+                                                    </label>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <input type="checkbox" id="form-control form-add-obs-esp-men-checkbox"> 
+                                                    <label 
+                                                        for="form-add-obs-layer-esp-men-checkbox"
+                                                        toggle-tooltip="tooltip" 
+                                                        data-bs-placement="right" 
+                                                        data-bs-trigger="hover" 
+                                                        title="Liste rouge (France et régionale) - catégorie 'CR', 'VU', 'EN'"
+                                                        >
+                                                        Espèces menacées
+                                                    </label>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <input type="checkbox" id="form-control form-add-obs-esp-quasi-men-checkbox"> 
+                                                    <label 
+                                                        for="form-add-obs-layer-esp-quasi-men-checkbox"
+                                                        toggle-tooltip="tooltip" 
+                                                        data-bs-placement="right" 
+                                                        data-bs-trigger="hover" 
+                                                        title="Liste rouge (France et régionale) - catégorie 'NT'"
+                                                        >
+                                                        Espèces quasi-menacées
+                                                    </label>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <input type="checkbox" id="form-control form-add-obs-eee-checkbox"> 
+                                                    <label 
+                                                        for="form-add-obs-layer-eee-checkbox"
+                                                        toggle-tooltip="tooltip" 
+                                                        data-bs-placement="right" 
+                                                        data-bs-trigger="hover" 
+                                                        title="Espèces exotiques envahissantes avérées, potentielles, emergentes et à surveiller"
+                                                        >
+                                                        Espèces envahissantes
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            
                                         </div>
                                         <!-- Bloc de droite -->
                                         <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label for="form-add-obs-layer-select-commune" class="form-label fw-bold mb-0 mt-2">Commune(s) :</label>
+                                                <span id="form-add-obs-layer-select-commune"></span>
+                                                <input type="hidden" id="form-add-obs-layer-commune-value">
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="form-label fw-bold mb-0 mt-2">Altitude :</label>
+                                                <div class="row ps-2">
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group pl-1">
+                                                            <label for="form-add-obs-layer-alitude-min" class="form-label">min :</label>
+                                                            <input type="text" id="form-add-obs-layer-altitude-min" class="form-control form-control-lg">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group pl-1">
+                                                            <label for="form-add-obs-layer-altitude-max" class="form-label">max :</label>
+                                                            <input type="text" id="form-add-obs-layer-altitude-max" class="form-control form-control-lg">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="form-add-obs-layer-select-restitution" class="form-label fw-bold mb-0 mt-2">Type de restitution :</label>
+                                                <span id="form-add-obs-layer-select-restitution"></span>
+                                                <input type="hidden" id="form-add-obs-layer-restitution-value">
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="form-add-obs-layer-select-echelle" class="form-label fw-bold mb-0 mt-2">Echelle :</label>
+                                                <span id="form-add-obs-layer-select-echelle"></span>
+                                                <input type="hidden" id="form-add-obs-layer-echelle-value">
+                                            </div>
+
 
                                         </div>
                                     </div>

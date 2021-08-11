@@ -55,7 +55,7 @@ apiCallErrorCatcher = function(error, default_message = null) {
         // totallement ouvert pour pouvoir être fermé
         setTimeout(function(){
             addLayerModal.hide()
-            openLoginModal()
+            forceOpenLoginModal()
         }, 500)  
     }
 

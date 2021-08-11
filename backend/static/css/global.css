@@ -152,7 +152,25 @@ html * {
 .show {display: block !important;}
 .hide {display: none !important;}
 
-.clickable { cursor: pointer }
+.clickable { cursor: pointer; }
+
+.border-end { border-color: #666!important; }
+
+input[type="date"]{
+    border: 1px solid #ced4da;
+    min-height: 48px;
+    border-radius: 4px;
+    color: #8e8e8e
+}
+
+input[type="date"] > span.datetime-edit-field {
+    color: #f00;
+}
+
+::placeholder { 
+    color: #8e8e8e!important; 
+    font-size: 1.25rem!important;
+}
 
 .btn:focus {
     outline: none;

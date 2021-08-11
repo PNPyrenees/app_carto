@@ -1,3 +1,5 @@
+//import '../lib/node_modules/select-pure/dist/index.js';
+//import 'select-pure'
 /**
  * Chargement du content correspondant au
  * menu actif à l'ouverture du modal
@@ -156,7 +158,7 @@ document.getElementById('btn-add-ref-layer').addEventListener('click', event => 
 /**
  * Ajoute une couch de référence à la carte
  */
-addRefLayerToMap = function(){
+var addRefLayerToMap = function(){
     document.getElementById('loading-spinner').style.display = 'inline-block'
 
     let active_layer = document.querySelector('.modal-ref-layer-item.active')
@@ -217,4 +219,218 @@ addRefLayerToMap = function(){
     })
 }
 
+/**
+ * Gestion du formulaire de recherche de données d'observation
+ */
 
+/**
+ * Récupération de la liste des groupes taxonomiques 
+ * et remplissage du select
+ */
+const l_grp_tax = [
+    {
+      label: "New York",
+      value: 'NY',
+    },
+    {
+      label: "Washington",
+      value: "WA",
+    },
+    {
+      label: "California",
+      value: "CA",
+    },
+    {
+      label: "New Jersey",
+      value: 'NJ',
+    },
+    {
+      label: "North Carolina",
+      value: "NC",
+    },
+    {
+      label: "TEST",
+      value: "TST",
+    },
+]
+
+var select_pure_grp_tax = new SelectPure("#form-add-obs-layer-select-grp-tax", {
+    /*placeholder: "Groupe taxonomique",*/ // Probleme, le placholder ne s'efface pas quand il y a des valeur...
+    options: l_grp_tax,
+    multiple: true,
+    icon: "bi bi-x",
+    inlineIcon: false,
+    onChange: values => {
+        document.getElementById("form-add-obs-layer-grp-tax-value").value = JSON.stringify(values)
+    }
+});
+
+/**
+ * Gestion / initialisation des champs date
+ */
+// Formatage de la date du jour pour l'input
+var today = new Date();
+var dd = today.getDate();
+var mm = today.getMonth()+1; //January is 0!
+var yyyy = today.getFullYear();
+if(dd<10){
+        dd='0'+dd
+} 
+if(mm<10){
+    mm='0'+mm
+}
+today = yyyy + "-" + mm + "-" + dd
+
+// On détermine la date max
+document.getElementById("form-add-obs-layer-date-start").setAttribute("max", today )
+document.getElementById("form-add-obs-layer-date-end").setAttribute("max", today)
+
+// Lorsque date min change, on modifie la valeur mini de date-end
+document.getElementById("form-add-obs-layer-date-start").addEventListener("change", event => {
+    if (event.target.value){
+        document.getElementById("form-add-obs-layer-date-start").style.color = "#000"
+        document.getElementById("form-add-obs-layer-date-end").setAttribute("min", event.target.value)
+    } else {
+        document.getElementById("form-add-obs-layer-date-start").style.color = "#8e8e8e"
+        document.getElementById("form-add-obs-layer-date-end").setAttribute("min", "")
+    }
+})
+
+document.getElementById("form-add-obs-layer-date-end").addEventListener("change", event => {
+    if (event.target.value){
+        document.getElementById("form-add-obs-layer-date-end").style.color = "#000"
+        document.getElementById("form-add-obs-layer-date-start").setAttribute("max", event.target.value)
+    } else {
+        document.getElementById("form-add-obs-layer-date-end").style.color = "#8e8e8e"
+        document.getElementById("form-add-obs-layer-date-start").setAttribute("max", today)
+    }
+})
+
+/**
+ * Récupération de la liste des status 
+ * et remplissage du select
+ */
+ const l_statut = [
+    {
+      label: "Liste rouge - VU",
+      value: 'lr-vu',
+    },
+    {
+      label: "Liste rouge - EN",
+      value: "lr-en",
+    },
+    {
+      label: "Liste rouge - CR",
+      value: "lr-cr",
+    },
+]
+
+var select_pure_grp_tax = new SelectPure("#form-add-obs-layer-select-statut", {
+    /*placeholder: "Groupe taxonomique",*/ // Probleme, le placholder ne s'efface pas quand il y a des valeur...
+    options: l_statut,
+    multiple: true,
+    icon: "bi bi-x",
+    inlineIcon: false,
+    onChange: values => {
+        document.getElementById("form-add-obs-layer-statut-value").value = JSON.stringify(values)
+    }
+});
+
+/**
+ * Récupération de la liste des communes 
+ * et remplissage du select
+ */
+ const l_commune = [
+    {
+      label: "Luz-Saint-Sauveur",
+      value: 'lr-vu',
+    },
+    {
+      label: "Cauterets",
+      value: "lr-en",
+    },
+    {
+      label: "Arrens-Marsous",
+      value: "lr-cr",
+    },
+]
+
+var select_pure_grp_tax = new SelectPure("#form-add-obs-layer-select-commune", {
+    options: l_commune,
+    multiple: true,
+    icon: "bi bi-x",
+    inlineIcon: false,
+    onChange: values => {
+        document.getElementById("form-add-obs-layer-commune-value").value = JSON.stringify(values)
+    }
+});
+
+/**
+ * Récupération de la liste des type de restitution 
+ * et remplissage du select
+ */
+ const l_restitutions = [
+    {
+      label: "Richesse taxonomique",
+      value: 'rt',
+    },
+    {
+      label: "Pression d'observation",
+      value: "po",
+    },
+    {
+      label: "Répartition",
+      value: "re",
+    },
+]
+
+var select_pure_grp_tax = new SelectPure("#form-add-obs-layer-select-restitution", {
+    options: l_restitutions,
+    multiple: false,
+    icon: "bi bi-x",
+    inlineIcon: false,
+    onChange: values => {
+        document.getElementById("form-add-obs-layer-restitution-value").value = JSON.stringify(values)
+    }
+});
+
+/**
+ * Récupération de la liste des echelles 
+ * et remplissage du select
+ */
+ const l_echelles = [
+    {
+      label: "Maille 5km",
+      value: 'm5',
+    },
+    {
+      label: "Maille 2km",
+      value: "m2",
+    },
+    {
+      label: "Maille 1km",
+      value: "m1",
+    },
+    {
+      label: "Maille 500m",
+      value: "m500",
+    },
+    {
+      label: "Maille 100m",
+      value: "m100",
+    },
+    {
+      label: "Données brutes",
+      value: "brut",
+    },
+]
+
+var select_pure_grp_tax = new SelectPure("#form-add-obs-layer-select-echelle", {
+    options: l_echelles,
+    multiple: false,
+    icon: "bi bi-x",
+    inlineIcon: false,
+    onChange: values => {
+        document.getElementById("form-add-obs-layer-echelle-value").value = JSON.stringify(values)
+    }
+});
