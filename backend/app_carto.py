@@ -5,6 +5,7 @@ import requests
 import json
 from datetime import datetime
 from sqlalchemy import create_engine, text
+from functools import wraps
 
 from .models import Role, VLayerList, Layer
 from .schema import RoleSchema, VLayerListSchema, LayerSchema
@@ -26,6 +27,38 @@ app.config['JSON_SORT_KEYS'] = False
 
 db_app.init_app(app)
 db_sig = create_engine(app.config['SQLALCHEMY_SIG_DATABASE_URI'])
+
+def valid_token_required(f):
+    """ Fonction de type décorateur permettant 
+    de controler la validité d'un token
+
+    Parameters
+    ----------
+    f : je pense que c'est la fonction d'origine
+    Returns
+    -------
+    403 si token invalide
+    sinon on retourne dans la fonction de la route
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        error_json_message = jsonify({
+            'status': 'error',
+            'message': 'Token invalide'
+        }), 403
+
+        token = request.cookies.get('token')
+        # S'il n'y a pas de token alors invalide
+        if (not token):
+            return error_json_message
+
+        # Controle de la date d'expiration
+        role = Role.query.filter(Role.role_token == token).one()
+        if (datetime.now() < role.role_token_expiration):
+            return f(*args, **kwargs)
+        else :
+            return error_json_message
+    return decorated_function
 
 @app.route('/')
 def index():
@@ -166,19 +199,8 @@ def logout():
             'message': 'Token supprimé !'
         })
 
-def check_token(token):
-    # S'il n'y a pas de token alors invalide
-    if (not token):
-        return False
-
-    # Controle de la date d'expiration
-    role = Role.query.filter(Role.role_token == token).one()
-    if (datetime.now() < role.role_token_expiration):
-        return True
-    else :
-        return False
-
 @app.route('/api/layer/get_layers_list', methods=['GET'])
+@valid_token_required
 def get_layers_list():
     """ Fourni la liste des couches de données
     disponible pour chaque groupe
@@ -186,21 +208,14 @@ def get_layers_list():
     Returns
     -------
         JSON
-    """
-    # Controle de la validité du token
-    token = request.cookies.get('token')
-    if (not check_token(token)):
-        return jsonify({
-            'status': 'error',
-            'message': 'Token invalide'
-        }), 403
-    
+    """    
 
     # Nécessite jsonify car on retourne plusieur ligne
     return jsonify(VLayerListSchema(many=True).dump(VLayerList.query.all()))
 
 
 @app.route('/api/ref_layer/<ref_layer_id>', methods=['GET'])
+@valid_token_required
 def get_ref_layer_data(ref_layer_id):
     """ Fourni la données correspondant au ref_layer_id
     au format geojson
@@ -209,14 +224,7 @@ def get_ref_layer_data(ref_layer_id):
     -------
         GEOJSON
     """
-    # Controle de la validité du token
-    token = request.cookies.get('token')
-    if (not check_token(token)):
-        return jsonify({
-            'status': 'error',
-            'message': 'Token invalide'
-        }), 403
-        
+
     layer = Layer.query.get(ref_layer_id)
     layer_schema = LayerSchema().dump(layer)
 
@@ -237,27 +245,6 @@ def get_ref_layer_data(ref_layer_id):
     #layer_datas.append(layer_schema)
     #return datas.fetchone()._asdict()
     return layer_datas
-
-#@app.route('/api/get_svg/<svg_name>', methods=['GET'])
-#def getSvg(svg_name):
-#    """ Cherche et retourne un svg à partir de son nom (avec extension)
-#
-#    Returns
-#    -------
-#        svg (html)
-#    """
-#
-#    svg_rootdir = "backend/static/images/svg"
-#
-#    f = ""
-#
-#    # On recherche le svg dans les dossiers et sous-dossiers
-#    for root, dirs, files in os.walk(svg_rootdir):
-#        if svg_name in files:
-#            svg_path = os.path.join(root, svg_name)
-#            svg_file = open(svg_path, 'r').read()    
-#
-#    return render_template("svg.html", svg=Markup(svg_file))
 
 if __name__ == "__main__":
     app.run()
