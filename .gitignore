@@ -5,6 +5,7 @@ config/config.toml
 **/config.toml
 
 log/*
+!log/.gitkeep
 .vscode/
 
 config.py
@@ -149,3 +150,4 @@ install_all/install_all.log
 
 # SVG
 backend/static/images/svg/*
+!backend/static/images/svg/.gitkeep

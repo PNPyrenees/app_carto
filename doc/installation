@@ -1,0 +1,80 @@
+# Installer python3
+    Controler si python3 est déjà installé
+    $ python3 -V
+    
+    Si la réponse n'est pas positive alors insttaller python 3
+    $ sudo apt-get install python3
+
+# Installation des dépendance
+    $ sudo apt-get install apache2 supervisor git
+
+# Télécharger le code source
+    $ git clone https://github.com/PNPyrenees/app_carto.git
+
+    TODO : Pour récupérer la version de dev
+    $ cd app_carto
+    $ git checkout dev
+
+# Installation de l'environnement virtuel
+    $ sudo apt-get install python3-venv
+
+    $ python3 -m venv venv
+    $ source venv/bin/activate
+
+# Installation des bibliothèque python
+    $ sudo apt-get install build-essential libpq-dev python3-dev python3-psycopg2
+    $ pip install -r install/requirement.txt
+
+# Copier le fichier de configuration
+    $ cp config/default_config.toml config/config.toml
+    Puir l'éditer en fonction des besoins
+
+# installer la base de données
+    Exécuter le code SQL de install/install_db.sql
+
+# configurer le superviseur
+    $ sudo vim /etc/supervisor/conf.d/app_carto.conf
+
+    Renseigner les infos suivantes (en remplaçant <carto> par le "home" correspondant) :
+    [program:app_carto]
+    command = /home/<carto>/app_carto/start_gunicorn.sh
+    autostart=true
+    autorestart=true
+    stdout_logfile = /home/<carto>/app_carto/logs/app_carto_errors.log
+    redirect_stderr = true
+
+# Activer les module apache2
+    $ sudo a2enmod proxy proxy_ajp proxy_http rewrite deflate headers proxy_balancer proxy_connect proxy_html
+
+# configurer apache2
+    $ vim /etc/apache2/sites-available/app_carto.conf
+
+    Renseigner les information suivantes
+    <VirtualHost *:80>
+        ServerAdmin webmaster@localhost
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+        <Proxy *>
+                Order deny,allow
+                Allow from all
+        </Proxy>
+        ProxyPreserveHost On
+        <Location "/">
+                ProxyPass "http://127.0.0.1:5000/"
+                ProxyPassReverse "http://127.0.0.1:5000/"
+        </Location>
+    </VirtualHost>
+
+    # Desactiver le site par défaut d'apache2
+    $ sudo a2dissite 000-default.conf 
+
+    Puis activer la configuration
+    $ sudo a2ensite app_carto.conf
+
+# Redémarrer les services
+    $ sudo systemctl restart apache2
+    $ sudo supervisor reload
+    $ sudo supervisorctl restart app_carto
+
+# Vous devriez accéder à l'application via l'url renseigné dans la configuration de app_carto
