@@ -167,6 +167,15 @@ input[type="date"] > span.datetime-edit-field {
     color: #f00;
 }
 
+.form-control:focus{
+    color: #212529;
+    background-color: #fff;
+    border-color: #ced4da;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+
 ::placeholder { 
     color: #8e8e8e!important; 
     font-size: 1.25rem!important;

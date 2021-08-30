@@ -18,6 +18,15 @@
     pointer-events: none;
 }
 
+/*#layer_list > li > .row {
+    border-bottom: 1px dotted #000;
+}*/
+
+#layer_list > li > .row > .col-lg-7{
+    font-size: 1.5vh;
+    font-weight: bold;
+}
+
 #layer_list > li > .row > .col-lg-2 > input,
 #layer_list > li > .row > .col-lg-3 > .dropdown * {
     pointer-events: initial;
@@ -64,3 +73,61 @@
         width: 50%;
     }
 }
+
+/*.layer-legend > .row {
+    min-height: 25px;
+}*/
+
+.layer-legend{
+    padding-bottom: 5px;
+    border-top: 1px dotted #000;
+}
+
+.legend-row {
+    display: flex;
+    margin-top: 5px;
+}
+
+.legend-row > .legend-col-symbol{
+    width: 15%;
+}
+
+.legend-row > .legend-col-label {
+    width: 85%;
+    font-size: 1.5vh;
+    margin-left: 5px;
+}
+
+.legend-poly{
+    /*background: #c8c82c;*/
+    height: 20px;
+    width: 100%;
+    border-style: solid;
+    /*border-width: 1px;*/
+    /*border-color: #000;*/
+}
+
+.legend-line{
+    border-top: 1px solid black;
+    background: black;
+    width: 100%;
+}
+
+.legend-point {
+    /*background: #c8c82c;*/
+    height: 15px;
+    width: 15px;
+    border-radius: 50%;
+    border-style: solid;
+    /*border-width: 1px;*/
+    /*border-color: #000;*/
+}
+
+/*.legend-icon{*/
+    /*mask-image: url(../images/svg/accommodation/accommodation_house2.svg);*/
+    /*background-color: #000;*/
+    /*-webkit-mask-image: url(../images/svg/accommodation/accommodation_house2.svg);*/
+    /*background: url("image-de-secours.png");*/
+    /*background-image: url(../images/svg/accommodation/accommodation_house2.svg);*/
+    /*background-size: contain;*/
+/*}*/

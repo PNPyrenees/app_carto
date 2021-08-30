@@ -5,6 +5,10 @@
     vertical-align: top;
 }
 
+#toolbar > .btn-group-vertical{
+    margin-top: 10px;
+}
+
 @media(min-width: 1500px) {
     #toolbar{
         width: 3%;

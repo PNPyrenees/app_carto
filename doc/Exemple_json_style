@@ -53,11 +53,18 @@ Icon :
         ex : 0.8
 
 /**
+ * Libéllé du style
+ */
+"style_name": "nomDuStyle" peut être null. Il est conseillé de le renseigner quand des 
+styles différents sont appliqués sur une même couche (catégorisé selon la valeur d'un champ par exemple)
+
+/**
  * Exemple pour avoir la condition ((A == "test") OR ((B == true) AND (C == 1)))
  */
 [{
     "style_type": "Polygon",
     "styles": [{
+        "style_name": "nomDuStyle"
         "fill_color": "rgba(255,0,0,0.5)",
         "stroke_color": "rgba(255,255,0,0.5)",
         "stroke_width": 2,
@@ -90,6 +97,7 @@ Icon :
 [{
     "style_type": "Polygon",
     "styles": [{
+        "style_name": "nomDuStyle"
 		"fill_color": "rgba(145,82,45,0.5)",
 		"stroke_color": "rgba(0,0,0,1)",
 		"stroke_width": 1,
@@ -105,6 +113,7 @@ Icon :
 [{
     "style_type": "Polygon",
     "styles": [{
+        "style_name": "Zone Coeur"
 		"fill_color": "rgba(2,125,13,0.5)",
 		"stroke_color": "rgba(2,125,13,1)",
 		"stroke_width": 3,
@@ -117,6 +126,7 @@ Icon :
         	"or": []
       	}
     },{
+        "style_name": "Aire d'adhésion"
     	"fill_color": "rgba(201,241,196,0.5)",
 		"stroke_color": "rgba(201,241,196,1)",
 		"stroke_width": 3,
@@ -137,6 +147,7 @@ Icon :
 [{
     "style_type": "Icon",
     "styles": [{
+        "style_name": "nomDuStyle"
         "icon_svg_path": "static/images/svg/accommodation/accommodation_shelter2.svg",
         "icon_color": "rgba(0,0,0,1)",
         "icon_scale": 0.04,

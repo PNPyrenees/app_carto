@@ -286,99 +286,99 @@ const getDefaultStyle = function(){
  * Construction d'un style openlayers à partir d'un json
  */
 const getStyleFromJson = function(json_styles){
-  
-// On retourne une fonction interprétable par openLayers
-return function (feature, resolution) {
+    //console.log("getStyleFromJson")  
+    //console.log(JSON.stringify(json_styles))
+    // On retourne une fonction interprétable par openLayers
+    return function (feature, resolution) {
 
-    var feature_style
+        var feature_style
 
-    // On boucle sur les types de géométrie
-    json_styles.forEach(json_geom_style => {
+        // On boucle sur les types de géométrie
+        json_styles.forEach(json_geom_style => {
+            switch (json_geom_style.style_type) {
+                case 'Polygon':
+                    // On bloucle dur les filtres
+                    json_geom_style.styles.forEach(style => {
+                        //Si la condition du style est respecté
+                        if(eval(buildFilter(style.filter))){
+                            //On retourne le style
+                            feature_style = [new ol.style.Style({
+                                stroke: new ol.style.Stroke({
+                                    color: style.stroke_color,
+                                    lineDash: style.stroke_linedash,
+                                    width: style.stroke_width,
+                                }),
+                                fill: new ol.style.Fill({
+                                    color: style.fill_color,
+                                }),
+                            })]
+                        }
+                    })
+                    break
+                case 'Point':
+                    json_geom_style.styles.forEach(style => {
+                        //Si la condition du style est respecté
+                        if(eval(buildFilter(style.filter))){
+                            //On retourne le style
+                            feature_style = [new ol.style.Style({
+                                image: new ol.style.Circle({
+                                    radius: 5,
+                                    fill: new ol.style.Fill({
+                                        color: style.fill_color,
+                                    }),
+                                    stroke: new ol.style.Stroke({
+                                        color: style.stroke_color, 
+                                        lineDash: style.stroke_linedash,
+                                        width: style.stroke_width
+                                    }),
+                                })
+                            })]
+                        }
+                    })
+                    break
+                case 'Line':
+                    json_geom_style.styles.forEach(style => {
+                        //Si la condition du style est respecté
+                        if(eval(buildFilter(style.filter))){
+                            //On retourne le style
+                            feature_style = [new ol.style.Style({
+                                stroke: new ol.style.Stroke({
+                                    color: style.stroke_color, 
+                                    lineDash: style.stroke_linedash,
+                                    width: style.stroke_width
+                                })
+                            })]
+                        }
+                    })
+                    break
+                case 'Icon':
+                    json_geom_style.styles.forEach(style => {
+                        //Si la condition du style est respecté
+                        if(eval(buildFilter(style.filter))){
+                            //On retourne le style
+                            feature_style = [new ol.style.Style({
+                                image: new ol.style.Icon({
+                                    src: style.icon_svg_path, 
+                                    color:  style.icon_color,
+                                    scale: style.icon_scale,
+                                    opacity: style.icon_opacity
+                                })
+                            })]
+                        }
+                    })
+                    break
+            }
+        })
 
-    switch (json_geom_style.style_type) {
-        case 'Polygon':
-            // On bloucle dur les filtres
-            json_geom_style.styles.forEach(style => {
-                //Si la condition du style est respecté
-                if(eval(buildFilter(style.filter))){
-                    //On retourne le style
-                    feature_style = [new ol.style.Style({
-                        stroke: new ol.style.Stroke({
-                            color: style.stroke_color,
-                            lineDash: style.stroke_linedash,
-                            width: style.stroke_width,
-                        }),
-                        fill: new ol.style.Fill({
-                            color: style.fill_color,
-                        }),
-                    })]
-                }
-            })
-            break
-        case 'Point':
-            json_geom_style.styles.forEach(style => {
-                //Si la condition du style est respecté
-                if(eval(buildFilter(style.filter))){
-                    //On retourne le style
-                    feature_style = [new ol.style.Style({
-                        image: new ol.style.Circle({
-                            radius: style.radius,
-                            fill: new ol.style.Fill({
-                                color: style.fill_color,
-                            }),
-                            stroke: new ol.style.Stroke({
-                                color: style.stroke_color, 
-                                lineDash: style.stroke_linedash,
-                                width: style.stroke_width
-                            }),
-                        })
-                    })]
-                }
-            })
-            break
-        case 'Line':
-            json_geom_style.styles.forEach(style => {
-                //Si la condition du style est respecté
-                if(eval(buildFilter(style.filter))){
-                    //On retourne le style
-                    feature_style = [new ol.style.Style({
-                        stroke: new ol.style.Stroke({
-                            color: style.stroke_color, 
-                            lineDash: style.stroke_linedash,
-                            width: style.stroke_width
-                        })
-                    })]
-                }
-            })
-            break
-        case 'Icon':
-            json_geom_style.styles.forEach(style => {
-                //Si la condition du style est respecté
-                if(eval(buildFilter(style.filter))){
-                    //On retourne le style
-                    feature_style = [new ol.style.Style({
-                        image: new ol.style.Icon({
-                            src: style.icon_svg_path, 
-                            color:  style.icon_color,
-                            scale: style.icon_scale,
-                            opacity: style.icon_opacity
-                        })
-                    })]
-                }
-            })
-            break
+        // Si on a pas récupéré de style depuis 
+        // le json alors on attribut le style par défaut 
+        // pour l'objet courant
+        if (feature_style){
+            return feature_style
+        } else {
+            return getDefaultStyle()
         }
-    })
-
-    // Si on a pas récupéré de style depuis 
-    // le json alors on attribut le style par défaut 
-    // pour l'objet courant
-    if (feature_style){
-        return feature_style
-    } else {
-        return getDefaultStyle()
     }
-  }
 };
 
 /**
@@ -386,6 +386,7 @@ return function (feature, resolution) {
  * sinon on retourne le style par défaut pour la couche
  */
 var buildStyle = function(json_style){
+    //console.log(json_style)
     if (json_style) {
         return getStyleFromJson(json_style)
     } else {
@@ -396,13 +397,78 @@ var buildStyle = function(json_style){
 /**
  * Fonction ajoutant une couche à la carte
  */
-var addGeojsonLayer = function(data){
+var addGeojsonLayer = function(data, additional_data = null){
 
     geojson = data.geojson_layer
 
     let layer_default_style = data.desc_layer.layer_default_style
+
+    // Création d'un stryle json par défaut s'il n'y en a pas déjà un
+    if (! layer_default_style){
+        // Création des couleurs aléatoires
+        let fill_color = random_rgba(0.5)
+        let stroke_color = random_rgba(1)
+
+        // On récupère analyse les feature our connaitre les différentes géométrye
+        var has_polygon = false
+        var has_Line = false
+        var has_point = false
+        geojson.features.forEach(feature => {
+            if (feature.geometry){
+                if (feature.geometry.type == "Polygon" || feature.geometry.type == "MultiPolygon"){
+                    has_polygon = true
+                }
+                else if (feature.geometry.type == "LineString" || feature.geometry.type == "MultiLineString"){
+                    has_Line = true
+                }
+                else if (feature.geometry.type == "Point" || feature.geometry.type == "MultiPoint"){
+                    has_point = true
+                }
+            }
+        })
+
+        layer_default_style = []
+        if (has_polygon){
+            tmp_style = {
+                "style_type": "Polygon",
+                "styles": [{
+                    "fill_color": fill_color,
+                    "stroke_color": "rgba(0,0,0,1)",
+                    "stroke_width": 1,
+                    "stroke_linedash": [],
+                    "filter" : null
+                }]
+            }
+            layer_default_style.push(tmp_style)
+        }
+        if (has_Line){
+            tmp_style = {
+                "style_type": "Line",
+                "styles": [{
+                    "stroke_color": stroke_color,
+                    "stroke_width": 1,
+                    "stroke_linedash": [],
+                    "filter" : null
+                }]
+            }
+            layer_default_style.push(tmp_style)
+        }
+        if (has_point){
+            tmp_style = {
+                "style_type": "Point",
+                "styles": [{
+                    "fill_color": fill_color,
+                    "stroke_color": "rgba(0,0,0,1)",
+                    "stroke_width": 1,
+                    "stroke_linedash": [],
+                    "filter" : null
+                }]
+            }
+            layer_default_style.push(tmp_style)
+        }
+    }
+
     // Récupération de la fonction devant attribuer le style
-    /*var style = buildStyle(data.desc_layer.layer_default_style)    */
     var style = buildStyle(layer_default_style)
 
     // Ajoute les données du geoJson dans un ol.source 
@@ -422,6 +488,7 @@ var addGeojsonLayer = function(data){
         style: style,
         zIndex: zindex,
         json_style: layer_default_style,
+        additional_data: additional_data,
     })
 
     // Ajout du layer sur la carte
@@ -459,6 +526,126 @@ var addLayerInLayerBar = function(vectorLayer){
     })
 
     document.getElementById("layer_list").prepend(template.content)
+
+    // Construction de la légende de la couche
+    json_style = vectorLayer.get('json_style')
+    if (json_style){
+        buildLegendForLayer(layer_uid, json_style)
+        console.log(json_style)
+    }
+    //console.log(vectorLayer.get('additional_data'))
+}
+
+buildLegendForLayer = function(layer_uid, json_style){
+
+    // Récupération de l'objet associé à la légende de la couche layer_uid
+    layer_legend = document.getElementById("layer-legend-"+layer_uid)
+    // On vide le contenu de la légende actuelle
+    layer_legend.innerHTML = ""
+
+    json_style.forEach(tmp_json_style => {
+        geom_type = tmp_json_style.style_type
+
+        legends = []
+        tmp_json_style.styles.forEach(style => {
+            // Création de la ligne
+            legend_row = document.createElement("div")
+            legend_row.classList.add("legend-row")
+
+            // Création de la colonne recevant le symbol graphique
+            legend_col_symbol = document.createElement("div")
+            legend_col_symbol.classList.add("legend-col-symbol")
+            legend_col_symbol.classList.add("m-auto")
+            legend_col_symbol.classList.add("mb-auto")
+            legend_col_symbol.classList.add("d-flex")
+            legend_col_symbol.classList.add("justify-content-center")
+
+            // Création du symbol
+            div_symbol = document.createElement("div")            
+
+            switch (geom_type){
+                case 'Polygon':
+                    div_symbol.classList.add("legend-poly")
+                    div_symbol.style.borderColor = style.stroke_color
+                    div_symbol.style.borderWidth = style.stroke_width + "px"
+                    div_symbol.style.background = style.fill_color
+                    
+                    if (style.stroke_linedash) {
+                        div_symbol.style.broderStyle = "dashed"
+                    }
+                    break
+                case 'Line':
+                    div_symbol.classList.add("legend-line")
+                    div_symbol.style.borderColor = style.stroke_color
+                    div_symbol.style.borderWidth = style.stroke_width + "px"
+                    
+                    if (style.stroke_linedash) {
+                        div_symbol.style.broderStyle = "dashed"
+                    }
+                    break
+                case 'Point':
+                    div_symbol.classList.add("legend-point")
+                    div_symbol.style.borderColor = style.stroke_color
+                    div_symbol.style.borderWidth = style.stroke_width + "px"
+                    div_symbol.style.background = style.fill_color
+                    
+                    if (style.stroke_linedash) {
+                        div_symbol.style.broderStyle = "dashed"
+                    }
+                    break
+                case 'Icon':
+                    svgImage = document.createElement("img")
+                    svgImage.setAttribute("src", style.icon_svg_path)
+                    svgImage.style.fill = style.icon_color
+                    svgImage.setAttribute("width", "30px")
+                    svgImage.setAttribute("height", "30px")
+
+                    // On utilise svgInject pour transformer la balise img en balise svg 
+                    // et ainsi pouvoir attribuer la couleur à l'icône
+                    SVGInject(svgImage, {
+                        afterInject: function(img, svg){
+                            svg.querySelector("path").style.fill = style.icon_color
+                        }
+                    })
+                    
+                    div_symbol.append(svgImage)
+                    
+                    break
+            }
+
+            // Création du label associé au style
+            legend_col_label = document.createElement("div")
+            legend_col_label.classList.add("legend-col-label")
+            legend_col_label.classList.add("mt-auto")
+            legend_col_label.classList.add("mb-auto")
+            
+            if (style.style_name) {
+                legend_col_label.innerHTML = style.style_name
+            } /*else {
+                legend_col_label.innerHTML = ""
+            }*/
+
+            // Assemblage des divs
+            legend_col_symbol.append(div_symbol)
+            legend_row.append(legend_col_symbol)
+            legend_row.append(legend_col_label)
+
+            legends.push(legend_row)
+        })        
+    })
+
+    legends.forEach(legend => {
+            // On ajoute le style à la liste
+            layer_legend.append(legend)
+    })
+    
+}
+
+/**
+ * Affiche ou maque la légende
+ */
+toggleLegend = function(layer_uid){
+    document.getElementById("layer-legend-"+layer_uid).classList.toggle("hide")
 }
 
 /**
@@ -967,8 +1154,6 @@ for (var i = 0; i < tests.length; i++) {
         // On conserve le nom de la couche courante
         previous_layer = layer_uid
     })
-
-    //console.log(ul_layer_list)
 
     document.getElementById("bloc-clicked-features-attributes-content").innerHTML = ""
     document.getElementById("bloc-clicked-features-attributes-content").append(ul_layer_list)

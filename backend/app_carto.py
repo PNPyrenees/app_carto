@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 from flask import Flask, render_template, send_from_directory, request, make_response, jsonify, Markup
 import requests
@@ -7,7 +8,7 @@ from datetime import datetime
 from sqlalchemy import create_engine, text
 from functools import wraps
 
-from .models import Role, VLayerList, Layer
+from .models import Role, VLayerList, Layer, BibStatusType, VGroupTaxoList, BibCommune, BibMeshScale, BibGroupStatus
 from .schema import RoleSchema, VLayerListSchema, LayerSchema
 
 """from requests.api import request"""
@@ -250,12 +251,621 @@ def get_ref_layer_data(ref_layer_id):
         ) features
     """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"]))
 
-    #layer_datas = db_sig.execute(statement).fetchone()._asdict()
     layer_datas = db_sig.execute(statement).fetchone()._asdict()
     layer_datas['desc_layer'] = layer_schema
-    #layer_datas.append(layer_schema)
-    #return datas.fetchone()._asdict()
     return layer_datas
+
+@app.route('/api/layer/get_statut_list', methods=['GET'])
+@valid_token_required
+def get_status_list():
+    """ Fourni la liste des statuts taxonomiques
+
+    Returns
+    -------
+        JSON
+    """    
+    bibStatusType = BibStatusType.query.filter(BibStatusType.active == True).order_by(BibStatusType.status_type_label)
+    
+    statut_list = []
+    for statut in bibStatusType:
+        # On cast l'id car de l'autre côté select_pure ne prends que du texte
+        statut_list.append({"label": statut.status_type_label, "value": str(statut.status_type_id)})
+    
+    return jsonify(statut_list)
+
+@app.route('/api/layer/get_group_taxo_list', methods=['GET'])
+@valid_token_required
+def get_group_taxo_list():
+    """ Fourni la liste des groupes taxonomiques
+
+    Returns
+    -------
+        JSON
+    """    
+    vGroupTaxoList = VGroupTaxoList.query.all()
+    
+    group_taxo_list = []
+    for groupTaxo in vGroupTaxoList:
+        group_taxo_list.append({"label": groupTaxo.group_label, "value": groupTaxo.group_label})
+    
+    return jsonify(group_taxo_list)
+
+@app.route('/api/layer/get_commune_list', methods=['GET'])
+@valid_token_required
+def get_commune_list():
+    """ Fourni la liste des communes
+
+    Returns
+    -------
+        JSON
+    """    
+    CommuneList = BibCommune.query.order_by(BibCommune.nom_com).all()
+    
+    commune_list = []
+    for commune in CommuneList:
+        commune_list.append({"label": commune.nom_com, "value": commune.insee_com})
+    
+    return jsonify(commune_list)
+
+@app.route('/api/layer/get_scale_list', methods=['GET'])
+@valid_token_required
+def get_scale_list():
+    """ Fourni la liste des echelle de restitution
+
+    Returns
+    -------
+        JSON
+    """    
+    bibMeshScale = BibMeshScale.query.filter(BibMeshScale.active == True).order_by(BibMeshScale.mesh_scale_id)
+    
+    scale_list = []
+    for meshScale in bibMeshScale:
+        scale_list.append({"label": meshScale.mesh_scale_label, "value": meshScale.mesh_scale_id})
+    
+    return jsonify(scale_list)
+
+@app.route('/api/layer/get_group_statut_list', methods=['GET'])
+@valid_token_required
+def get_group_statut_list():
+    """ Fourni la liste des grope de statuts
+
+    Returns
+    -------
+        JSON
+    """    
+    bibGroupStatus = BibGroupStatus.query.filter(BibGroupStatus.active == True)
+    
+    groupStatus_list = []
+    for groupStatus in bibGroupStatus:
+        groupStatus_list.append({"label": groupStatus.groupe_status_label, "value": groupStatus.group_status_id, "description": groupStatus.groupe_status_description})
+    
+    return jsonify(groupStatus_list)
+
+
+def check_obs_form_data(postdata):
+    """ Contrôle la validité des valeur des filtres 
+
+    Returns
+    -------
+        array (tableau contenant la liste des erreur en json)
+    """    
+
+    # Controle des paramètres envoyés par le client 
+    error = []
+
+    # Controle de la iste des cd_nom
+    for cd_nom in postdata["cd_nom_list"]:
+        if not isinstance(cd_nom, int):
+            message = "Erreur dans la liste de taxon (cd_nom <{}> incorrect)".format(cd_nom)
+            error.append({
+                "field": "cd_nom_list",
+                "message": message
+            })
+
+    # controle de la valeur du filtre include_infra_taxon
+    if not isinstance(postdata["include_infra_taxon"], bool):
+        error.append({
+            "field": "include_infra_taxon",
+            "message": "Valeur incorrect, booléen attendu"
+        })
+
+    # controle de la liste des groupe taxonomique
+    for grp_taxon in postdata["grp_taxon_list"]:
+        if not isinstance(grp_taxon, str):
+            error.append({
+                "field": "grp_taxon_list",
+                "message": "Valeur incorrect, Chaine de caractère attendu (correspondant au group2_inpn)"
+            })
+
+    # Controle des dates
+    datemin_is_valid = False
+    if postdata["date_min"]:
+        if not re.match("(\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))", postdata["date_min"]):
+            error.append({
+                "field": "date_min",
+                "message": "Format date incorrect, yyyy-mm-dd attendu"
+            })
+        else :
+            datemin_is_valid = True
+            date_min = datetime(*[int(item) for item in postdata["date_min"].split('-')])
+    
+
+    datemax_is_valid = False
+    if postdata["date_max"]:
+        if not re.match("(\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))", postdata["date_max"]):
+            error.append({
+                "field": "date_max",
+                "message": "Format date incorrect, yyyy-mm-dd attendu"
+            })
+        else :
+            datemax_is_valid = True
+            date_max = datetime(*[int(item) for item in postdata["date_max"].split('-')])
+
+    if postdata["date_min"] and postdata["date_max"] and datemin_is_valid and datemax_is_valid:
+        if date_min > date_max:
+            error.append({
+                "field": "date",
+                "message": "Le champ date_min est supérieur à date_max"
+            })
+
+    # Controle des périodes
+    if (postdata["periode_min"] and not postdata["periode_max"]) or (not postdata["periode_min"] and postdata["periode_max"]):
+        # Ici, l'une des deux période n'est pas renseigné
+        error.append({
+            "field": "periode",
+            "message": "Periode_min et periode_max doivent être renseigné"
+        })
+    elif postdata["periode_min"] and postdata["periode_max"] :
+        # Ici, on a bien deux période de renseigné, on controle la syntaxe
+        periode_min_is_valid = False
+        if not re.match("((0[1-9]|[12]\d|3[01])/(0[1-9]|1[0-2]))", postdata["periode_min"]):
+            error.append({
+                "field": "periode_min",
+                "message": "Format de la période incorrect, dd/mm attendu"
+            })
+        else:
+            periode_min_is_valid = True
+
+        periode_max_is_valid = False
+        if not re.match("((0[1-9]|[12]\d|3[01])/(0[1-9]|1[0-2]))", postdata["periode_max"]):
+            error.append({
+                "field": "periode_max",
+                "message": "Format de la période incorrect, dd/mm attendu"
+            })
+        else:
+            periode_max_is_valid = True
+        
+        if periode_min_is_valid and periode_max_is_valid:
+            # Ici, on a deux période avec une syntaxe correct, on contrôle que 
+            # periode_min est bien inféreiru à période_max
+            periode_min_day = postdata["periode_min"].split('/')[0]
+            periode_min_month = postdata["periode_min"].split('/')[1]
+
+            periode_max_day = postdata["periode_max"].split('/')[0]
+            periode_max_month = postdata["periode_max"].split('/')[1]
+
+            if periode_max_month < periode_min_month or (periode_max_month == periode_min_month and periode_max_day < periode_min_day) :
+                # ici periode_max est supérieur à periode_min
+                error.append({
+                "field": "periode",
+                "message": "Le champ periode_min est supérieur à periode_max"
+            })
+
+    # Controle de la liste des statuts
+    for status in postdata["status_list"]:
+        if not isinstance(status, int):
+            message = "Erreur dans la liste des status : id_statut <{}> incorrect".format(status)
+            error.append({
+                "field": "status_list",
+                "message": message
+            })
+
+    # Controle de la liste des groupes de statut
+    for grp_status in postdata["grp_status_list"]:
+        if not isinstance(grp_status, int):
+            print(grp_status)
+            message = "Erreur dans la liste des groupe de statuts : id_grp_statut <{}> incorrect".format(grp_status)
+            error.append({
+                "field": "grp_status_list",
+                "message": message
+            })
+
+    # Controle de la liste des communes
+    for commune in postdata["commune_list"]:
+        if not re.match("(\d{4})", commune):
+            message = "Erreur dans la liste des commune : code insee <{}> incorrect".format(commune)
+            error.append({
+                "field": "commune_list",
+                "message": message
+            })
+
+    # Controle des valeurs d'altitude
+    altitude_min_is_valid = False
+    if postdata["altitude_min"] is not None:
+        if isinstance(postdata["altitude_min"], int):
+            altitude_min_is_valid = True
+        else :
+            error.append({
+                "field": "altitude_min",
+                "message": "Valeur incorrect, entier attendu"
+            })
+
+    altitude_max_is_valid = False
+    if postdata["altitude_max"] is not None:
+        if isinstance(postdata["altitude_max"], int):
+            altitude_max_is_valid = True
+        else :
+            error.append({
+                "field": "altitude_max",
+                "message": "Valeur incorrect, entier attendu"
+            })
+    
+    if postdata["altitude_min"] is not None and postdata["altitude_max"] is not None and altitude_min_is_valid and altitude_max_is_valid:
+        if postdata["altitude_min"] > postdata["altitude_max"]:
+            error.append({
+                "field": "altitude",
+                "message": "Le champ altitude_min doit être inféreur ou égal à altitude_max"
+            })
+
+    # Controle du type de restitution
+    if postdata["restitution"] is not None:
+        if postdata["restitution"] not in ["rt", "po", "re"]:
+            message = "Le type de restituion demandé <{}> n'est pas valide. Valeur attendu : 'rt' = Richesse taxonomique, 'po' = Pression d'observation, 're' = Répartition".format(postdata["restitution"])
+            error.append({
+                "field": "restitution",
+                "message": message
+            })
+    else :
+        error.append({
+            "field": "restitution",
+            "message": "Le type de restitution est obligatoire"
+        })
+
+    # Controle de l'echelle demandé
+    if postdata["scale"] is not None:
+        if not isinstance(postdata["altitude_max"], int):
+            message = "L'echelle de restitution demandé <{}> est incorrect".format(postdata["scale"])
+            error.append({
+                "field": "scale",
+                "message": message
+            })
+    else :
+        error.append({
+            "field": "scale",
+            "message": "L'echelle de restitution est obligatoire"
+        })
+
+    return error
+
+def build_query(postdata):
+    # Construction du select
+    query_select = ""
+    if postdata["restitution"] == "rt":
+        query_select = """ 
+            SELECT 
+                m.mesh_id, 
+                m.geom,
+                count(DISTINCT o.cd_ref) AS nb_taxon
+        """
+
+    if postdata["restitution"] == "po":
+        query_select = """ 
+            SELECT 
+                m.mesh_id, 
+                m.geom,
+                count(DISTINCT o.obs_id) AS nb_observation
+        """
+
+    if postdata["restitution"] == "re":
+        query_select = """ 
+            SELECT 
+                m.mesh_id, 
+                m.geom
+        """
+
+    # Construction du from
+    query_from = """
+        FROM
+            app_carto.t_observations o
+            LEFT JOIN app_carto.cor_observation_mesh com ON o.obs_id = com.obs_id
+            LEFT JOIN app_carto.bib_mesh m ON com.mesh_id = m.mesh_id
+    """
+
+    if postdata["status_list"] or postdata["grp_status_list"]:
+        query_from += """
+	        LEFT JOIN app_carto.cor_observation_status cos ON o.obs_id = cos.obs_id
+	        LEFT JOIN app_carto.bib_status_type bst ON cos.status_type_id = bst.status_type_id
+        """
+
+    if postdata["commune_list"]:
+        query_from += """
+	        LEFT JOIN app_carto.cor_observation_commune coc ON o.obs_id = coc.obs_id
+        """
+
+    # Construction du where
+    query_where = """
+        WHERE
+            m.mesh_scale_id = {}
+    """.format(postdata["scale"])
+
+    if postdata["cd_nom_list"]:
+        query_where += """
+            AND o.cd_ref in ({})
+        """.format(', '.join(str(x) for x in postdata["cd_nom_list"]))
+
+    if postdata["grp_taxon_list"]:
+        query_where += """
+            AND o.group2_inpn in ('{}')
+        """.format("', '".join(postdata["grp_taxon_list"]))
+    
+    if postdata["date_min"]:
+        date_min = datetime(*[int(item) for item in postdata["date_min"].split('-')])
+
+        query_where += """
+            AND o.date_min > '{}'
+        """.format(date_min.strftime("%Y-%m-%d"))
+
+    if postdata["date_max"]:
+        date_max = datetime(*[int(item) for item in postdata["date_max"].split('-')])
+
+        query_where += """
+            AND o.date_max < '{}'
+        """.format(date_max.strftime("%Y-%m-%d"))
+
+    if postdata["periode_min"]:
+        periode_min_day = postdata["periode_min"].split('/')[0]
+        periode_min_month = postdata["periode_min"].split('/')[1]
+
+        if periode_min_day.startswith('0'):
+            periode_min_day = periode_min_day[1:]
+
+        if periode_min_month.startswith('0'):
+            periode_min_month = periode_min_month[1:]
+
+        query_where += """
+            AND EXTRACT(DAY FROM o.date_min) > {} AND EXTRACT(MONTH FROM o.date_min) > {}
+        """.format(periode_min_day, periode_min_month)
+
+    if postdata["periode_max"]:
+        periode_max_day = postdata["periode_max"].split('/')[0]
+        periode_max_month = postdata["periode_max"].split('/')[1]
+
+        if periode_max_day.startswith('0'):
+            periode_max_day = periode_max_day[1:]
+
+        if periode_max_month.startswith('0'):
+            periode_max_month = periode_max_month[1:]
+
+        query_where += """
+            AND EXTRACT(DAY FROM o.date_max) < {} AND (EXTRACT(MONTH FROM o.date_max) + 1) < {}
+        """.format(int(periode_max_day), int(periode_max_month))
+
+    if postdata["status_list"]:
+        query_where += """
+            AND cos.statut_type_id in ({})
+        """.format(', '.join(str(x) for x in postdata["status_list"]))
+
+    if postdata["grp_status_list"]:
+        query_where += """
+            AND bst.group_status_id in ({})
+        """.format(', '.join(str(x) for x in postdata["grp_status_list"]))
+
+    if postdata["commune_list"]:
+        query_where += """
+            AND coc.insee_com in ('{}')
+        """.format("', '".join(postdata["commune_list"]))
+
+    if postdata["altitude_min"]:
+        query_where += """
+            AND o.altitude_min > {}
+        """.format(postdata["altitude_min"])
+
+    if postdata["altitude_max"]:
+        query_where += """
+            AND o.altitude_max > {}
+        """.format(postdata["altitude_max"])
+
+    query_groupby = """
+        GROUP BY 
+            m.mesh_id, 
+            m.geom
+    """
+
+    return query_select + query_from + query_where + query_groupby
+
+def getObsLayerStyle(restituion_type, query):
+    """ Retourne un json correspondant au style 
+    à appliquer en fonction de la requête (query)
+    et du type de restitution (restituion_type)
+
+    Returns
+    -------
+        JSON
+    """    
+
+    # cette requête permet de récupérer les bornes des classe
+    if restituion_type == "re":
+        # Pour la répartition, on applique un applat unique
+        style = [{
+            "style_type": "Polygon",
+            "styles": [{
+                "style_name": "Zone de présence",
+                "filter": "",
+                "fill_color": "rgba(0, 255, 81, 0.5)",
+                "stroke_color": "rgba(0, 0, 0, 1)",
+                "stroke_width": 2,
+                "stroke_linedash": []
+            }]
+        }]
+    else:
+        
+        # pour les autres restitution, on créer 5 classes
+        if restituion_type == "rt":
+            style_field_filter = "nb_taxon"
+            legend_alias = "taxons"
+        elif restituion_type == "po": 
+            style_field_filter = "nb_observation"
+            legend_alias = "observations"
+
+        # Construction de la requête identifiant les bornes à partir des données
+        # retournées par la requête d'interrogation des données
+        bornes_query = ""
+        i = 0
+        for borne in app.config['OBS_LAYER_CLASSIFICATION_BORNE']:
+            if bornes_query:
+                bornes_query += ","
+            bornes_query += """
+                percentile_disc({}) WITHIN GROUP (ORDER BY {}) as borne_{}""".format(float(borne), str(style_field_filter), str(i))
+            i += 1
+
+        style_query = """
+            SELECT 
+                {}
+            FROM ({}) a
+        """.format(bornes_query, query)
+
+        style_query_datas = db_app.engine.execute(style_query).fetchone()._asdict()
+
+        # On évite que les bornes soient identique
+        i = 0
+        for borne in app.config['OBS_LAYER_CLASSIFICATION_BORNE']:
+            if i > 0:
+                if style_query_datas["borne_" + str(i)] <= style_query_datas["borne_"+ str(i -1)]:
+                    style_query_datas["borne_" + str(i)] = style_query_datas["borne_" + str(i -1)] + 1
+            i += 1
+
+        style = [{
+            "style_type": "Polygon",
+            "styles": []
+        }]
+        i = 0
+        for borne in app.config['OBS_LAYER_CLASSIFICATION_BORNE']:
+            # Création de la première classe
+            if i == 0:
+                tmp_style = {
+                    "style_name": "Moins de " + str(style_query_datas["borne_" + str(i)]) + " " + legend_alias,
+                    "filter": {
+                        "operator": "<=",
+                        "left_term": style_field_filter,
+                        "right_term": style_query_datas["borne_" + str(i)],
+                        "or": [],
+                        "and": []
+                    },
+                    "fill_color": app.config['OBS_LAYER_CLASS_COLOR'][i],
+                    "stroke_color": "rgba(0, 0, 0, 1)",
+                    "stroke_width": 1,
+                    "stroke_linedash": []
+                }
+            
+            #Création des classe "classique"
+            if i > 0 :
+                tmp_style = {
+                    "style_name": "De " + str(style_query_datas["borne_" + str(i - 1)]) + " à " + str(style_query_datas["borne_" + str(i)]) + " " + legend_alias,
+                    "filter": {
+                        "operator": ">",
+                        "left_term": style_field_filter,
+                        "right_term": style_query_datas["borne_" + str(i -1)],
+                        "or": [],
+                        "and": [{
+                            "left_term": style_field_filter,
+                            "operator": "<=",
+                            "right_term": style_query_datas["borne_" + str(i)],
+                            "and": [],
+                            "or": []
+                        }]
+                    },
+                    "fill_color": app.config['OBS_LAYER_CLASS_COLOR'][i],
+                    "stroke_color": "rgba(0, 0, 0, 1)",
+                    "stroke_width": 1,
+                    "stroke_linedash": []
+                }
+
+            style[0]["styles"].append(tmp_style)
+
+            # Création de la dernière classe
+            if i == len(app.config['OBS_LAYER_CLASSIFICATION_BORNE']) -1:
+                tmp_style = {
+                    "style_name": "Plus de " + str(style_query_datas["borne_" + str(i)]) + " " + legend_alias,
+                    "filter": {
+                        "operator": ">",
+                        "left_term": style_field_filter,
+                        "right_term": style_query_datas["borne_" + str(i)],
+                        "or": [],
+                        "and": []
+                    },
+                    "fill_color": app.config['OBS_LAYER_CLASS_COLOR'][i + 1],
+                    "stroke_color": "rgba(0, 0, 0, 1)",
+                    "stroke_width": 1,
+                    "stroke_linedash": []
+                }
+                style[0]["styles"].append(tmp_style)
+            i += 1
+    
+    return style
+
+def builLayerLabel(postdata):
+
+    if postdata["restitution"] == "rt":
+        restitution = "Richesse taxonomique"
+    if postdata["restitution"] == "po":
+        restitution = "Pression d'observation"
+    if postdata["restitution"] == "re":
+        restitution = "Répartition"
+
+    mesh_scale = BibMeshScale.query.get(postdata["scale"])
+
+    return  restitution + " - " + mesh_scale.mesh_scale_label
+    
+
+@app.route('/api/layer/get_obs_layer_data', methods=['POST'])
+@valid_token_required
+def get_obs_layer_data():
+    """ Retourne une couche geojson des données d'observation
+    en fonction des filtres paramétrés
+
+    Returns
+    -------
+        GEOJSON
+    """    
+    postdata = request.json
+
+    # On cotrôle la validité des filtres
+    error = check_obs_form_data(postdata)
+    # S'il les données envoyées comportent un erreur, 
+    # on retourne les erreurs avec un code http:400
+    if error :
+        return jsonify({
+            'status': 'error',
+            'message': error
+        }), 400
+    
+    # Construction de la requête SQL
+    query = build_query(postdata)
+
+    geojson_query = text("""SELECT jsonb_build_object('type', 'FeatureCollection', 'features', jsonb_agg(feature)) AS geojson_layer 
+        FROM (
+            SELECT jsonb_build_object(
+                'type', 'Feature', 
+                'geometry', ST_AsGeoJSON(st_transform(geom, 3857))::jsonb, 
+                'properties', to_jsonb(row) - 'geom') AS feature  
+            FROM ({}) row
+        ) features""".format(query))
+
+    # Execution de la requête récupérant le GeoJson
+    obs_layer_datas = db_app.engine.execute(geojson_query).fetchone()._asdict()
+
+    # Récupération du style associé
+    default_style = getObsLayerStyle(postdata["restitution"], query)
+
+    layer_label = builLayerLabel(postdata)
+
+    obs_layer_datas['desc_layer'] = {
+        "layer_default_style": default_style,
+        "layer_label": layer_label
+    }
+
+    return obs_layer_datas
+
 
 if __name__ == "__main__":
     app.run()

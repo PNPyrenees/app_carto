@@ -145,3 +145,61 @@ window.onclick = function(event) {
         }
     }
 }
+
+/**
+ * Fonction globale de vérification des champ d'un formulaire
+ */
+// Contrôle que toutes les valeurs d'une liste sont bien dans le bon type (datatype)
+/*checkListValue = function(listOfValue, dataType){
+    var isValid = true
+    listOfValue.forEach(value => {
+        switch (dataType){
+            case "integer":
+                if (! Number.isInteger(value)){
+                    isValid = false
+                }
+                break
+            case "float":
+                if (typeof value !="number"){
+                    isValid = false
+                }
+                break
+            case "string":
+                if (typeof value != "string"){
+                    isValid = false
+                }
+                break
+            case "boolean":
+                if (typeof value != "boolean"){
+                    isValid = false
+                }
+                break
+        }
+    })
+    return isValid
+}
+
+// Controle que la valeur min n'est pas supérieur à la valeur max
+checkMinMax = function(minValue, maxValue){
+    var isValid = true
+    if (minValue > maxValue){
+        isValid = false
+    }
+    return isValid
+}
+*/
+// Controle que valeur est bien définit
+checkRequired = function(value){
+    if (value){
+        return true
+    } else {
+        return false
+    }
+
+}
+
+/**
+ * Gestion de l'annulation d'un appel à l'API
+ */
+const controller = new AbortController()
+const signal = controller.signal

@@ -11,6 +11,8 @@ document.getElementById("add-layer-modal").addEventListener('show.bs.modal', eve
             buildAddRefLayerContent()
             break
         case 'add-obs-layer':
+            buildAddObsLayerForm()
+            break
         case 'add-my-layer':
         case 'add-shared-layer':
         case 'add-new-layer':
@@ -29,6 +31,8 @@ document.getElementById("add-layer-submit").addEventListener('click', event => {
             addRefLayerToMap()
             break
         case 'add-obs-layer':
+            addObsLayerForm()
+            break
         case 'add-my-layer':
         case 'add-shared-layer':
         case 'add-new-layer':
@@ -148,11 +152,16 @@ var buildAddRefLayerContent = function(){
 }
 
 /**
- * Action de cliquer sur "btn-add-ref-layer"
- * pour charger la liste des couche de référence
+ * Action de cliquer sur les boutons de selection 
+ * du type de couche
  */
+/* btn-add-ref-layer */
 document.getElementById('btn-add-ref-layer').addEventListener('click', event => {
     buildAddRefLayerContent()
+})
+/* btn-add-ref-layer */
+document.getElementById('btn-add-obs-layer').addEventListener('click', event => {
+    buildAddObsLayerForm()
 })
 
 /**
@@ -183,39 +192,14 @@ var addRefLayerToMap = function(){
         addGeojsonLayer(data)
         addLayerModal.hide()
         document.getElementById('loading-spinner').style.display = 'none'
-        //console.log(data)
+        //console.log(data.desc_layer)
     })
     .catch(error => {
+        console.log(error)
         document.getElementById('loading-spinner').style.display = 'none'
 
         default_message = "Erreur lors de la récupération de la liste des couches de référence"
         apiCallErrorCatcher(error, default_message)
-
-
-        
-        /*//console.log(error)
-        //showAlert("Erreur lors de la récupération de la couche de référence")
-        if (error.status == 403){
-            // Ici, le token n'est plus valide côté serveur
-            // Donc on ferme le modal courant et on ouvre le modal d'authentification
-            // On retarde l'action car le modal doit être  
-            // totallement ouvert pour pouvoir être fermé
-            setTimeout(function(){
-                addLayerModal.hide()
-                forceOpenLoginModal()
-            }, 500)  
-        }
-
-        // Gestion de l'affichage du message d'erreur
-        err = error.json()
-        err.then(err => { 
-            if (err.message != undefined){
-                message = err.message
-                showAlert(message)    
-            } else {
-                showAlert("Erreur lors de la récupération de la liste des couches de référence")
-            }
-        })*/
     })
 }
 
@@ -224,46 +208,272 @@ var addRefLayerToMap = function(){
  */
 
 /**
- * Récupération de la liste des groupes taxonomiques 
- * et remplissage du select
+ * Appel API pour récupérer la liste des groupe taxonomique
  */
-const l_grp_tax = [
-    {
-      label: "New York",
-      value: 'NY',
-    },
-    {
-      label: "Washington",
-      value: "WA",
-    },
-    {
-      label: "California",
-      value: "CA",
-    },
-    {
-      label: "New Jersey",
-      value: 'NJ',
-    },
-    {
-      label: "North Carolina",
-      value: "NC",
-    },
-    {
-      label: "TEST",
-      value: "TST",
-    },
-]
+var getGroupTaxoList = function(){
+    return fetch(APP_URL + "/api/layer/get_group_taxo_list", {
+        method: "GET",
+        headers: { 
+            "Accept": "application/json", 
+            "Content-Type": "application/json" 
+        },
+        credentials: "same-origin"
+    })
+    .then(res => {
+        if (res.status != 200){
+            throw res
+        } else {
+            return res.json()
+        }
+    })
+    .catch(error => {
+        default_message = "Erreur lors de la récupération de la liste des groupes taxonomiques"
+        apiCallErrorCatcher(error, default_message)
+    })
+}
 
-var select_pure_grp_tax = new SelectPure("#form-add-obs-layer-select-grp-tax", {
-    /*placeholder: "Groupe taxonomique",*/ // Probleme, le placholder ne s'efface pas quand il y a des valeur...
-    options: l_grp_tax,
-    multiple: true,
-    icon: "bi bi-x",
-    inlineIcon: false,
-    onChange: values => {
-        document.getElementById("form-add-obs-layer-grp-tax-value").value = JSON.stringify(values)
+/**
+ * Appel API pour la récupération de la liste des status
+ */
+var getStatutList = function(){
+    return fetch(APP_URL + "/api/layer/get_statut_list", {
+        method: "GET",
+        headers: { 
+            "Accept": "application/json", 
+            "Content-Type": "application/json" 
+        },
+        credentials: "same-origin"
+    })
+    .then(res => {
+        if (res.status != 200){
+            throw res
+        } else {
+            return res.json()
+        }
+    })
+    .catch(error => {
+        default_message = "Erreur lors de la récupération de la liste des statuts"
+        apiCallErrorCatcher(error, default_message)
+    })
+}
+
+/**
+ * Appel API pour la récupération de la liste des communes
+ */
+var getCommuneList = function(){
+    return fetch(APP_URL + "/api/layer/get_commune_list", {
+        method: "GET",
+        headers: { 
+            "Accept": "application/json", 
+            "Content-Type": "application/json" 
+        },
+        credentials: "same-origin"
+    })
+    .then(res => {
+        if (res.status != 200){
+            throw res
+        } else {
+            return res.json()
+        }
+    })
+    .catch(error => {
+        default_message = "Erreur lors de la récupération de la liste des commune"
+        apiCallErrorCatcher(error, default_message)
+    })
+}
+
+/**
+ * Appel API pour la récupération de la liste des echelles de restitution
+ */
+var getScaleList = function(){
+    return fetch(APP_URL + "/api/layer/get_scale_list", {
+        method: "GET",
+        headers: { 
+            "Accept": "application/json", 
+            "Content-Type": "application/json" 
+        },
+        credentials: "same-origin"
+    })
+    .then(res => {
+        if (res.status != 200){
+            throw res
+        } else {
+            return res.json()
+        }
+    })
+    .catch(error => {
+        default_message = "Erreur lors de la récupération de la liste des échelles de restitution"
+        apiCallErrorCatcher(error, default_message)
+    })
+}
+
+/**
+ * Création de la liste des cases à cocher des groupes de statuts
+ */
+var getGroupStatusList = function(){
+    return fetch(APP_URL + "/api/layer/get_group_statut_list", {
+        method: "GET",
+        headers: { 
+            "Accept": "application/json", 
+            "Content-Type": "application/json" 
+        },
+        credentials: "same-origin"
+    })
+    .then(res => {
+        if (res.status != 200){
+            throw res
+        } else {
+            return res.json()
+        }
+    })
+    .catch(error => {
+        default_message = "Erreur lors de la récupération de la liste des groupe de statut"
+        apiCallErrorCatcher(error, default_message)
+    })
+}
+
+/**
+ * Initialisation des liste déroulante
+ */
+var buildAddObsLayerForm = function(){
+    // ré-initialisation du formulaire
+    document.getElementById("selected-taxon").innerHTML = ""
+    document.getElementById("form-add-obs-layer-infrataxon-checkbox").checked = false
+    document.getElementById("form-add-obs-layer-grp-tax-value").value = ""
+    document.getElementById("form-add-obs-layer-date-start").value = ""
+    document.getElementById("form-add-obs-layer-date-end").value = ""
+    document.getElementById("form-add-obs-layer-periode-start").value = ""
+    document.getElementById("form-add-obs-layer-periode-end").value = ""
+    document.getElementById("form-add-obs-layer-statut-value").value = ""
+    let checkboxes = document.getElementById("form-group-status-checkboxes").querySelectorAll("input[type=checkbox]")
+    for (var i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].checked = false
     }
-});
+    document.getElementById("form-add-obs-layer-commune-value").value = ""
+    document.getElementById("form-add-obs-layer-altitude-min").value = ""
+    document.getElementById("form-add-obs-layer-altitude-max").value = ""
+    document.getElementById("form-add-obs-layer-restitution-value").value = ""
+    document.getElementById("form-add-obs-layer-scale-value").value = ""
+
+    // Liste des statuts
+    getStatutList().then(statut_list => {
+        document.getElementById("form-add-obs-layer-select-statut").innerHTML = "";
+        new SelectPure("#form-add-obs-layer-select-statut", {
+            options: statut_list,
+            multiple: true,
+            icon: "bi bi-x",
+            inlineIcon: false,
+            onChange: values => {
+                document.getElementById("form-add-obs-layer-statut-value").value = JSON.stringify(values)
+            }
+        });
+    })
+
+    // Liste des groupes taxonomiques
+    getGroupTaxoList().then(group_taxo_list => {
+        document.getElementById("form-add-obs-layer-select-grp-tax").innerHTML = "";
+        new SelectPure("#form-add-obs-layer-select-grp-tax", {
+            options: group_taxo_list,
+            multiple: true,
+            icon: "bi bi-x",
+            inlineIcon: false,
+            onChange: values => {
+                document.getElementById("form-add-obs-layer-grp-tax-value").value = JSON.stringify(values)
+            }
+        });
+    })
+
+    // Liste des communes
+    getCommuneList().then(commune_list => {
+        document.getElementById("form-add-obs-layer-select-commune").innerHTML = "";
+        new SelectPure("#form-add-obs-layer-select-commune", {
+            options: commune_list,
+            multiple: true,
+            icon: "bi bi-x",
+            inlineIcon: false,
+            onChange: values => {
+                document.getElementById("form-add-obs-layer-commune-value").value = JSON.stringify(values)
+            }
+        });
+    })
+
+    // Liste des type de restitution
+    const l_restitutions = [
+        {
+        label: "Richesse taxonomique",
+        value: "rt",
+        },
+        {
+        label: "Pression d'observation",
+        value: "po",
+        },
+        {
+        label: "Répartition",
+        value: "re",
+        },
+    ]
+    document.getElementById("form-add-obs-layer-select-restitution").innerHTML = "";
+    new SelectPure("#form-add-obs-layer-select-restitution", {
+        options: l_restitutions,
+        multiple: false,
+        icon: "bi bi-x",
+        inlineIcon: false,
+        onChange: values => {
+            document.getElementById("form-add-obs-layer-restitution-value").value = String(values)
+        }
+    });
+
+    // Liste des echelles de restitution
+    getScaleList().then(commune_list => {
+        document.getElementById("form-add-obs-layer-select-scale").innerHTML = "";
+        new SelectPure("#form-add-obs-layer-select-scale", {
+            options: commune_list,
+            multiple: false,
+            icon: "bi bi-x",
+            inlineIcon: false,
+            onChange: values => {
+                document.getElementById("form-add-obs-layer-scale-value").value = JSON.stringify(values)
+            }
+        }); 
+    })
+
+    // Liste de checkbox des groupe de statuts
+    getGroupStatusList().then(group_status_list => {
+
+        document.getElementById("form-group-status-checkboxes").innerHTML = "";
+
+
+        group_status_list.forEach(group_status => {
+
+            var div = document.createElement("div")
+            div.classList.add("form-group")
+
+            var input = document.createElement("input")
+            input.setAttribute("type", "checkbox")
+            input.setAttribute("data-value", group_status.value)
+            input.setAttribute("id", "form-add-obs-checkbox-group-statut-" + group_status.value)
+            div.append(input)
+
+            var label = document.createElement("label")
+            label.setAttribute("for", "form-add-obs-checkbox-group-statut-" + group_status.value)
+            label.setAttribute("toggle-tooltip", "tooltip")
+            label.setAttribute("data-bs-placement", "right")
+            label.setAttribute("data-bs-trigger", "hover")
+            label.setAttribute("title", group_status.description)
+            label.innerHTML= group_status.label
+            div.append(label)
+
+            document.getElementById("form-group-status-checkboxes").append(div)
+
+            // Activation du tooltip
+            new bootstrap.Tooltip(label)
+            
+
+        })
+
+        
+    })
+}
 
 /**
  * Gestion / initialisation des champs date
@@ -307,130 +517,253 @@ document.getElementById("form-add-obs-layer-date-end").addEventListener("change"
 })
 
 /**
- * Récupération de la liste des status 
- * et remplissage du select
+ * Gestion du champ taxon
+ * appel à l'API GeoNature pour autocomplétion
  */
- const l_statut = [
-    {
-      label: "Liste rouge - VU",
-      value: 'lr-vu',
-    },
-    {
-      label: "Liste rouge - EN",
-      value: "lr-en",
-    },
-    {
-      label: "Liste rouge - CR",
-      value: "lr-cr",
-    },
-]
+// https://geonature.pyrenees-parcnational.fr/geonature/api/synthese/taxons_autocomplete?search_name=aquil%20ch&limit=20 
+// GEONATURE_URL
 
-var select_pure_grp_tax = new SelectPure("#form-add-obs-layer-select-statut", {
-    /*placeholder: "Groupe taxonomique",*/ // Probleme, le placholder ne s'efface pas quand il y a des valeur...
-    options: l_statut,
-    multiple: true,
-    icon: "bi bi-x",
-    inlineIcon: false,
-    onChange: values => {
-        document.getElementById("form-add-obs-layer-statut-value").value = JSON.stringify(values)
+// Fonction réalisant l'appel API pour l'auto complétion
+var getAutocompleteTaxon = function(search_name){
+    return fetch(GEONATURE_URL + "/geonature/api/synthese/taxons_autocomplete?search_name=" + search_name + "&limit=20", {
+        method: "GET",
+        signal: signal,
+        headers: { 
+            "Accept": "application/json", 
+            "Content-Type": "application/json" 
+        },
+        credentials: "same-origin"
+    })
+    .then(res => {
+        if (res.status != 200){
+            throw res
+        } else {
+            return res.json()
+        }
+    })
+    .catch(error => {
+        default_message = "Erreur lors de l'autocompétion du taxon"
+
+        console.log(error)
+        //apiCallErrorCatcher(error, default_message)
+    })
+}
+
+// Lancement de la recherche d'auto-complétion
+document.getElementById("search-taxon-input").addEventListener("keyup", event => {
+    
+    //On vide le bloc affichant le résultat de la recherche
+    document.getElementById("taxon-autocomplete").innerHTML = ""
+    
+    var search_name = event.target.value
+
+    document.getElementById("taxon-autocomplete-spinner").style.display = "block"
+
+    // On lance la recherche s'l y a plus de trois caractère de tapé
+    if (search_name.length >= 3) {
+
+        //controller.abort()
+        getAutocompleteTaxon(search_name).then(taxon_list => {
+            // On aliment le bloc d'affichage des résultat que s'il y a des résultat
+            if (taxon_list){                
+                //Création des élément HTML de la liste des résultats
+                taxon_list.forEach(taxon => {
+                    var div = document.createElement('div')
+                    div.classList.add("taxon-autocomplete-option")
+                    div.setAttribute("data-value", taxon.cd_nom)
+                    div.setAttribute("lb-nom", taxon.lb_nom)
+                    div.innerHTML = taxon.search_name
+
+                    // On ajoute un listener lors d'un clique sur un des éléments
+                    // qui ajoute le taxon cliqué dans la lsite des taxon sélectionné
+                    div.addEventListener('click', (event) =>{
+                        var li = document.createElement("li")
+                        li.setAttribute("cdnom", event.target.getAttribute("data-value"))
+                        
+                        var i = document.createElement("i")
+                        i.classList.add("bi")
+                        i.classList.add("bi-trash")
+                        i.setAttribute("title", "Retirer le taxon des filtres")
+                        i.addEventListener("click", event => {
+                            event.target.parentNode.remove()
+                        })
+
+                        li.append(i)
+
+                        text = document.createTextNode(" "+event.target.getAttribute("lb-nom"));
+                        li.append(text)
+
+                        document.getElementById("selected-taxon").append(li)
+
+                        document.getElementById("search-taxon-input").value = ""
+                    })
+
+                    document.getElementById("taxon-autocomplete").append(div)
+                })
+                //On affiche le div recevant le réseultat de la recherche
+                document.getElementById("taxon-autocomplete").style.display = "block"
+            }
+            // On arrête le spinner
+            document.getElementById("taxon-autocomplete-spinner").style.display = "none"
+        })
+    } else {
+        // On arrête le spinner s'il y a moins de 3 caractères
+        document.getElementById("taxon-autocomplete-spinner").style.display = "none"
     }
-});
+})
+
+// Gestion de la fermeture de la liste des propositions de taxon
+document.onclick = function(e){
+    if(e.target.id !== 'taxon-autocomplete'){
+      //element clicked wasn't the div; hide the div
+      document.getElementById("taxon-autocomplete").style.display = 'none';
+    }
+};
 
 /**
- * Récupération de la liste des communes 
- * et remplissage du select
+ * Fonction ajoutant une couche à partir des données d'observation
+ * en fonction du paramétrage des filtres
  */
- const l_commune = [
-    {
-      label: "Luz-Saint-Sauveur",
-      value: 'lr-vu',
-    },
-    {
-      label: "Cauterets",
-      value: "lr-en",
-    },
-    {
-      label: "Arrens-Marsous",
-      value: "lr-cr",
-    },
-]
 
-var select_pure_grp_tax = new SelectPure("#form-add-obs-layer-select-commune", {
-    options: l_commune,
-    multiple: true,
-    icon: "bi bi-x",
-    inlineIcon: false,
-    onChange: values => {
-        document.getElementById("form-add-obs-layer-commune-value").value = JSON.stringify(values)
+var addObsLayerForm = function (){
+    //Vérification de la validité du formulaire
+    if (checkFormAddObsLayerRequiredField()){
+        formdata = buildObsLayerFormData()
+        // On affiche le spinner
+        document.getElementById('loading-spinner').style.display = 'inline-block'
+        
+        getObsLayerGeojson(formdata).then(data => {
+            //On masque le spinner
+            document.getElementById('loading-spinner').style.display = 'none'
+        })
     }
-});
+}
 
-/**
- * Récupération de la liste des type de restitution 
- * et remplissage du select
- */
- const l_restitutions = [
-    {
-      label: "Richesse taxonomique",
-      value: 'rt',
-    },
-    {
-      label: "Pression d'observation",
-      value: "po",
-    },
-    {
-      label: "Répartition",
-      value: "re",
-    },
-]
+var buildObsLayerFormData = function(){
+    cd_nom_list = []
+    document.getElementById("selected-taxon").querySelectorAll("li").forEach(li => {
+        cd_nom_list.push(Number(li.getAttribute("cdnom")))
+    })
 
-var select_pure_grp_tax = new SelectPure("#form-add-obs-layer-select-restitution", {
-    options: l_restitutions,
-    multiple: false,
-    icon: "bi bi-x",
-    inlineIcon: false,
-    onChange: values => {
-        document.getElementById("form-add-obs-layer-restitution-value").value = JSON.stringify(values)
+    include_infra_taxon = document.getElementById("form-add-obs-layer-infrataxon-checkbox").checked
+
+    grp_taxon_list = []
+    if (document.getElementById("form-add-obs-layer-grp-tax-value").value){
+        grp_taxon_list = JSON.parse(document.getElementById("form-add-obs-layer-grp-tax-value").value)
     }
-});
 
-/**
- * Récupération de la liste des echelles 
- * et remplissage du select
- */
- const l_echelles = [
-    {
-      label: "Maille 5km",
-      value: 'm5',
-    },
-    {
-      label: "Maille 2km",
-      value: "m2",
-    },
-    {
-      label: "Maille 1km",
-      value: "m1",
-    },
-    {
-      label: "Maille 500m",
-      value: "m500",
-    },
-    {
-      label: "Maille 100m",
-      value: "m100",
-    },
-    {
-      label: "Données brutes",
-      value: "brut",
-    },
-]
+    date_min = document.getElementById("form-add-obs-layer-date-start").value
+    date_max = document.getElementById("form-add-obs-layer-date-end").value
 
-var select_pure_grp_tax = new SelectPure("#form-add-obs-layer-select-echelle", {
-    options: l_echelles,
-    multiple: false,
-    icon: "bi bi-x",
-    inlineIcon: false,
-    onChange: values => {
-        document.getElementById("form-add-obs-layer-echelle-value").value = JSON.stringify(values)
+    periode_min = document.getElementById("form-add-obs-layer-periode-start").value
+    periode_max = document.getElementById("form-add-obs-layer-periode-end").value
+
+    status_list = []
+    if (document.getElementById("form-add-obs-layer-statut-value").value){
+        JSON.parse(document.getElementById("form-add-obs-layer-statut-value").value).forEach(status => {
+            status_list.push(Number(status))
+        })
     }
-});
+
+    grp_status_list = []
+    document.getElementById("form-group-status-checkboxes").querySelectorAll("input").forEach(checkbox => {
+        if (checkbox.checked){
+            grp_status_list.push(Number(checkbox.getAttribute("data-value")))
+        }
+    })
+
+    commune_list = []
+    if (document.getElementById("form-add-obs-layer-commune-value").value){
+        commune_list = JSON.parse(document.getElementById("form-add-obs-layer-commune-value").value)
+    }
+    
+    altitude_min = Number(document.getElementById("form-add-obs-layer-altitude-min").value)
+    altitude_max = Number(document.getElementById("form-add-obs-layer-altitude-max").value)
+    
+    restitution = String(document.getElementById("form-add-obs-layer-restitution-value").value)
+
+    scale = Number(document.getElementById("form-add-obs-layer-scale-value").value)
+
+    formdata = {
+        "cd_nom_list": cd_nom_list,
+        "include_infra_taxon" : include_infra_taxon,
+        "grp_taxon_list" : grp_taxon_list,
+        "date_min": date_min,
+        "date_max": date_max,
+        "periode_min": periode_min,
+        "periode_max": periode_max,
+        "status_list": status_list,
+        "grp_status_list": grp_status_list,
+        "commune_list": commune_list,
+        "altitude_min": altitude_min,
+        "altitude_max": altitude_max,
+        "restitution": restitution,
+        "scale": scale
+    }
+    return formdata
+}
+
+var checkFormAddObsLayerRequiredField = function(){
+    var form = document.getElementById("form-add-obs-layer")
+
+    var formIsValid = true
+    
+    // Vérification que le ype de restitution est renseigné
+    form_field = form.querySelector("#form-add-obs-layer-restitution-value")
+    form_field.parentNode.querySelector("label").style.color = "#000"
+    if (! checkRequired(form_field.value)){
+        form_field.parentNode.querySelector("label").style.color = "#f00"
+        formIsValid = false
+    }
+
+    // Vérification que l'echelle de restitution est renseigné
+    form_field = form.querySelector("#form-add-obs-layer-scale-value")
+    form_field.parentNode.querySelector("label").style.color = "#000"
+    if (! checkRequired(form_field.value)){
+        form_field.parentNode.querySelector("label").style.color = "#f00"
+        formIsValid = false
+    }
+
+    return formIsValid
+}
+
+var getObsLayerGeojson = function(formdata) {
+    return fetch(APP_URL + "/api/layer/get_obs_layer_data", {
+        method: "POST",
+        headers: { 
+            "Accept": "application/json", 
+            "Content-Type": "application/json" 
+        },
+        credentials: "same-origin",
+        body: JSON.stringify(formdata)
+    })
+    .then(res => {
+        if (res.status != 200){
+            // En envoi l"erreur dans le catch
+            throw res;
+        } else {
+            return res.json()
+        }
+    })
+    .then(data => {
+        //console.log(data)
+        additional_data = {"formdata": formdata,}
+        addGeojsonLayer(data, additional_data)
+        addLayerModal.hide()
+        document.getElementById('loading-spinner').style.display = 'none'
+        //console.log(data)
+    })
+    .catch(error => {
+
+        console.log(error)
+        /*document.getElementById('loading-spinner').style.display = 'none'
+
+        default_message = "Erreur lors de la récupération de la couche de donénes d'observation"
+        apiCallErrorCatcher(error, default_message)*/
+
+        /*error.then(err => { 
+            default_message = "Erreur lors de la récupération de la couche de donénes d'observation"
+            apiCallErrorCatcher(error, default_message)
+        })*/
+    })
+}

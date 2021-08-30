@@ -1,6 +1,8 @@
 from requests import api
 from .utils.env import db_app
 from datetime import datetime
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
 
 class Role(db_app.Model):
     __tablename__ = 't_roles'
@@ -91,3 +93,97 @@ class VLayerList(db_app.Model):
     ):
         self.layer_group = layer_group
         self.l_layers = l_layers
+
+class BibGroupStatus(db_app.Model):
+    __tablename__ = 'bib_group_status'
+    __table_args__ = {'schema': 'app_carto'}
+    group_status_id = db_app.Column(db_app.Integer, primary_key=True)
+    groupe_status_label = db_app.Column(db_app.String(50))
+    groupe_status_description = db_app.Column(db_app.Text)
+    active = db_app.Column(db_app.Boolean)
+    
+    status = relationship("BibStatusType")
+
+    def __init__(
+        self,
+        group_status_id,
+        groupe_status_label,
+        groupe_status_description,
+        status,
+        active
+        
+    ):
+        self.group_status_id = group_status_id
+        self.groupe_status_label = groupe_status_label
+        self.groupe_status_description = groupe_status_description
+        self.status = status
+        self.active = active
+
+class BibStatusType(db_app.Model):
+    __tablename__ = 'bib_status_type'
+    __table_args__ = {'schema': 'app_carto'}
+    status_type_id = db_app.Column(db_app.Integer, primary_key=True)
+    status_type_label = db_app.Column(db_app.String(50))
+    group_status_id = db_app.Column(db_app.Integer, ForeignKey('app_carto.bib_group_status.group_status_id'))
+    active = db_app.Column(db_app.Boolean)
+
+    group_status = relationship("BibGroupStatus", back_populates="status")
+
+    def __init__(
+        self,
+        status_type_id,
+        status_type_label,
+        group_status_id,
+        active
+        
+    ):
+        self.status_type_id = status_type_id
+        self.status_type_label = status_type_label
+        self.group_status_id = group_status_id
+        self.active = active
+
+class VGroupTaxoList(db_app.Model):
+    __tablename__ = 'v_group_taxo_list'
+    __table_args__ = {'schema': 'app_carto'}
+    group_label = db_app.Column(db_app.String(50), primary_key=True)
+
+    def __init__(
+        self,
+        group_label
+        
+    ):
+        self.group_label = group_label
+
+class BibCommune(db_app.Model):
+    __tablename__ = 'bib_commune'
+    __table_args__ = {'schema': 'app_carto'}
+    insee_com = db_app.Column(db_app.String(5), primary_key=True)
+    nom_com = db_app.Column(db_app.String(200))
+
+    def __init__(
+        self,
+        insee_com,
+        nom_com
+        
+    ):
+        self.insee_com = insee_com
+        self.nom_com = nom_com
+
+class BibMeshScale(db_app.Model):
+    __tablename__ = 'bib_mesh_scale'
+    __table_args__ = {'schema': 'app_carto'}
+    mesh_scale_id = db_app.Column(db_app.Integer, primary_key=True)
+    mesh_scale_label = db_app.Column(db_app.String(50))
+    active = db_app.Column(db_app.Boolean)
+
+    def __init__(
+        self,
+        mesh_scale_id,
+        mesh_scale_label,
+        active
+        
+    ):
+        self.mesh_scale_id = mesh_scale_id
+        self.mesh_scale_label = mesh_scale_label
+        self.active = active
+    

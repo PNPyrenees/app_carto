@@ -1,0 +1,8 @@
+1- 
+Par défaut, la table app_carto.bib_mesh contenant les mailles (= grille) est vide. 
+Elle doit doit être alimenté en associant l'identifiant de "l'echelle de maille" (app_carto.bib_mesh_scale)
+
+Il est possible de désactiver certain niveau de restitution en passant app_carto.bib_mesh_scale.active à false.
+
+2-
+Peupler la table commune
