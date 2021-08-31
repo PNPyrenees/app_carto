@@ -6,13 +6,13 @@
     $ sudo apt-get install python3
 
 # Installation des dépendance
-    $ sudo apt-get install apache2 supervisor git
+    $ sudo apt-get install apache2 supervisor git build-essential libpq-dev python3-dev python3-psycopg2
 
 # Télécharger le code source
     $ git clone https://github.com/PNPyrenees/app_carto.git
-
-    TODO : Pour récupérer la version de dev
     $ cd app_carto
+    
+    TODO : Pour récupérer la version de dev
     $ git checkout dev
 
 # Installation de l'environnement virtuel
@@ -22,7 +22,6 @@
     $ source venv/bin/activate
 
 # Installation des bibliothèque python
-    $ sudo apt-get install build-essential libpq-dev python3-dev python3-psycopg2
     $ pip install -r install/requirement.txt
     
     Ignorer les erreurs lors de l'installation de psycopg !(c'est du bluff)
@@ -45,11 +44,16 @@
     stdout_logfile = /home/<carto>/app_carto/logs/app_carto_errors.log
     redirect_stderr = true
 
+# editer start_gunicorn.sh pour adapter le home
+    $ vim start_gunicorn.sh
+
+    ex : cd /home/carto/app_carto devient cd /home/<nomHome>/app_carto
+
 # Activer les module apache2
     $ sudo a2enmod proxy proxy_ajp proxy_http rewrite deflate headers proxy_balancer proxy_connect proxy_html
 
 # configurer apache2
-    $ vim /etc/apache2/sites-available/app_carto.conf
+    $ sudo vim /etc/apache2/sites-available/app_carto.conf
 
     Renseigner les information suivantes
     <VirtualHost *:80>
@@ -76,7 +80,7 @@
 
 # Redémarrer les services
     $ sudo systemctl restart apache2
-    $ sudo supervisor reload
+    $ sudo supervisorctl reload
     $ sudo supervisorctl restart app_carto
 
 # Vous devriez accéder à l'application via l'url renseigné dans la configuration de app_carto

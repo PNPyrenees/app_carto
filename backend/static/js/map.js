@@ -291,6 +291,10 @@ const getStyleFromJson = function(json_styles){
     // On retourne une fonction interprétable par openLayers
     return function (feature, resolution) {
 
+        if (feature.visible == false){
+            return null
+        }
+
         var feature_style
 
         // On boucle sur les types de géométrie
@@ -973,6 +977,8 @@ filterFeature = function(layer_uid, l_feature_uid){
                         //console.log(layer)
                         //feature.setStyle(buildStyle(layer.jsonStyle))
                         feature["visible"] = false
+
+                        console.log("here i am")
                     }
                     source.dispatchEvent('change');
                     //console.log(feature)

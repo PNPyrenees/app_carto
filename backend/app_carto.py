@@ -693,7 +693,7 @@ def getObsLayerStyle(restituion_type, query):
                 "filter": "",
                 "fill_color": "rgba(0, 255, 81, 0.5)",
                 "stroke_color": "rgba(0, 0, 0, 1)",
-                "stroke_width": 2,
+                "stroke_width": 1,
                 "stroke_linedash": []
             }]
         }]
