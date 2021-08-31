@@ -746,24 +746,27 @@ var getObsLayerGeojson = function(formdata) {
         }
     })
     .then(data => {
-        //console.log(data)
-        additional_data = {"formdata": formdata,}
-        addGeojsonLayer(data, additional_data)
-        addLayerModal.hide()
-        document.getElementById('loading-spinner').style.display = 'none'
-        //console.log(data)
+        console.log(data)
+        if (data.geojson_layer.features){
+            additional_data = {"formdata": formdata,}
+            addGeojsonLayer(data, additional_data)
+            addLayerModal.hide()
+            document.getElementById('loading-spinner').style.display = 'none'
+            //console.log(data)
+        } else {
+            throw "Aucune donnée trouvée";
+        }
     })
     .catch(error => {
 
-        console.log(error)
-        /*document.getElementById('loading-spinner').style.display = 'none'
-
-        default_message = "Erreur lors de la récupération de la couche de donénes d'observation"
-        apiCallErrorCatcher(error, default_message)*/
-
-        /*error.then(err => { 
-            default_message = "Erreur lors de la récupération de la couche de donénes d'observation"
-            apiCallErrorCatcher(error, default_message)
-        })*/
+        //console.log(error)
+        if (typeof error == "string") {
+            apiCallErrorCatcher(error, error)
+        } else {
+            error.then(err => { 
+                default_message = "Erreur lors de la récupération de la couche de donénes d'observation"
+                apiCallErrorCatcher(error, default_message)
+            })
+        }        
     })
 }

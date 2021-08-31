@@ -60,15 +60,19 @@ apiCallErrorCatcher = function(error, default_message = null) {
     }
 
     // Gestion de l'affichage du message d'erreur
-    err = error.json()
-    err.then(err => { 
-        if (err.message != undefined){
-            message = err.message
-            showAlert(message)    
-        } else {
-            showAlert(default_message)
-        }
-    })
+    if (typeof error == "string") {
+        showAlert(default_message)
+    } else { 
+        err = error.json()
+        err.then(err => { 
+            if (err.message != undefined){
+                message = err.message
+                showAlert(message)    
+            } else {
+                showAlert(default_message)
+            }
+        })
+    }
 }
 
 
