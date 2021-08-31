@@ -117,8 +117,9 @@ CREATE TABLE app_carto.cor_observation_mesh (
 /* nb : Les groupes de status s'affiche sous forme de case à cocher */
 CREATE TABLE app_carto.bib_group_status (
     group_status_id serial NOT NULL PRIMARY KEY,
-    groupe_status_label varchar(50),
-    groupe_status_description text,
+    group_status_label varchar(50),
+    group_status_description text,
+    group_status_is_challenge boolean,
     active boolean
 );
 

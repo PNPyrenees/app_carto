@@ -337,7 +337,7 @@ def get_group_statut_list():
     
     groupStatus_list = []
     for groupStatus in bibGroupStatus:
-        groupStatus_list.append({"label": groupStatus.groupe_status_label, "value": groupStatus.group_status_id, "description": groupStatus.groupe_status_description})
+        groupStatus_list.append({"label": groupStatus.group_status_label, "value": groupStatus.group_status_id, "description": groupStatus.group_status_description})
     
     return jsonify(groupStatus_list)
 

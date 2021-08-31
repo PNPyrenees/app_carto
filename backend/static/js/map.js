@@ -535,7 +535,7 @@ var addLayerInLayerBar = function(vectorLayer){
     json_style = vectorLayer.get('json_style')
     if (json_style){
         buildLegendForLayer(layer_uid, json_style)
-        console.log(json_style)
+        //console.log(json_style)
     }
     //console.log(vectorLayer.get('additional_data'))
 }

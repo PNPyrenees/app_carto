@@ -98,8 +98,8 @@ class BibGroupStatus(db_app.Model):
     __tablename__ = 'bib_group_status'
     __table_args__ = {'schema': 'app_carto'}
     group_status_id = db_app.Column(db_app.Integer, primary_key=True)
-    groupe_status_label = db_app.Column(db_app.String(50))
-    groupe_status_description = db_app.Column(db_app.Text)
+    group_status_label = db_app.Column(db_app.String(50))
+    group_status_description = db_app.Column(db_app.Text)
     active = db_app.Column(db_app.Boolean)
     
     status = relationship("BibStatusType")
@@ -107,15 +107,15 @@ class BibGroupStatus(db_app.Model):
     def __init__(
         self,
         group_status_id,
-        groupe_status_label,
-        groupe_status_description,
+        group_status_label,
+        group_status_description,
         status,
         active
         
     ):
         self.group_status_id = group_status_id
-        self.groupe_status_label = groupe_status_label
-        self.groupe_status_description = groupe_status_description
+        self.group_status_label = group_status_label
+        self.group_status_description = group_status_description
         self.status = status
         self.active = active
 
