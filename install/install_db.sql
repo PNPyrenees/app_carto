@@ -21,7 +21,7 @@ CREATE TABLE app_carto.t_layers (
     layer_label varchar(50) NOT NULL,
     layer_is_default boolean,
     layer_default_style jsonb,
-    layer_is_challenge boolean
+    layer_is_warning boolean
 );
 
 CREATE VIEW app_carto.v_layers_list_by_group AS
@@ -119,22 +119,23 @@ CREATE TABLE app_carto.bib_group_status (
     group_status_id serial NOT NULL PRIMARY KEY,
     group_status_label varchar(50),
     group_status_description text,
-    group_status_is_challenge boolean,
+    group_status_is_warning boolean,
     active boolean
 );
 
 INSERT INTO app_carto.bib_group_status (
     groupe_status_label,
     groupe_status_description, 
+    group_status_is_warning,
     active
 )
 VALUES 
-    ('Espèce protégées', 'Protection nationale (art I / II / III) + Listes régionales + Listes départementales', true),--1
-    ('Espèces menacées', 'Liste rouge (France et régionale) - catégorie ''CR'', ''VU'', ''EN''', true),--2
-    ('Espèces quasi-menacées', 'Liste rouge (France et régionale) - catégorie ''NT''', true),--3
-    ('Espèces envahissante', NULL, false),--4
-    ('Espèces réglementaire', NULL, false),--5
-    ('Natura 2000', NULL, false)--6
+    ('Espèce protégées', 'Protection nationale (art I / II / III) + Listes régionales + Listes départementales', true, true),--1
+    ('Espèces menacées', 'Liste rouge (France et régionale) - catégorie ''CR'', ''VU'', ''EN''', true, true),--2
+    ('Espèces quasi-menacées', 'Liste rouge (France et régionale) - catégorie ''NT''', false, true),--3
+    ('Espèces envahissante', NULL, false, false),--4
+    ('Espèces réglementaire', NULL, false, false),--5
+    ('Natura 2000', NULL, false, false)--6
 ;
 
 /* Table permettant de déclarer les status */ 
