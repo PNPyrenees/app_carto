@@ -207,3 +207,15 @@ checkRequired = function(value){
  */
 const controller = new AbortController()
 const signal = controller.signal
+
+/**
+ * Gestion du clique sur un bouton devant faire apparaitre un sous-groupe de bouton
+ */
+/*var l_btn_toggle_sub_group = document.getElementsByClassName('toogle-sub-btn-group')
+for (var i = 0; i < l_btn_toggle_sub_group.length; i++) {
+    l_btn_toggle_sub_group[i].addEventListener("click", event => {
+        let target = event.currentTarget.getAttribute("sub-btn-group-target")
+        document.getElementById(target).classList.toggle("hide")
+        event.currentTarget.classList.toggle("btn-open")
+    });
+}*/

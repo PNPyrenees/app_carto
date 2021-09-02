@@ -220,9 +220,11 @@ for (var i = 0; i < check_auth_button.length; i++) {
         } else {
             // Utilisateur connecté => On ouvre la modal cible
             let target = event.currentTarget.getAttribute('modal-target')
-            target = document.getElementById(target)
-            target = bootstrap.Modal.getInstance(target)
-            target.show()
+            if (target) {
+                target = document.getElementById(target)
+                target = bootstrap.Modal.getInstance(target)
+                target.show()
+            }
         } 
     })
 }

@@ -9,17 +9,19 @@ let blank_obj = document.createElement('li');
 blank_obj.id = "drag_and_drop_blank"
 
 function dragOver(e) {
-  if (selected != e.target){
-    if (isBefore(selected, e.target)) {
-      e.target.parentNode.insertBefore(blank_obj, e.target)
-    } else {
-      e.target.parentNode.insertBefore(blank_obj, e.target.nextSibling)
+    if (e.target.classList.contains("btn") == false){ // Controunement bug déplacement sur bouton
+        if (selected != e.target){
+            if (isBefore(selected, e.target)) {
+                e.target.parentNode.insertBefore(blank_obj, e.target)
+            } else {
+                e.target.parentNode.insertBefore(blank_obj, e.target.nextSibling)
+            }
+        } else {
+            if (document.getElementById("drag_and_drop_blank")){
+                document.getElementById("drag_and_drop_blank").remove()
+            }
+        }
     }
-  } else {
-    if (document.getElementById("drag_and_drop_blank")){
-      document.getElementById("drag_and_drop_blank").remove()
-    }
-  }
 }
 
 function dragEnd(e) {
@@ -31,7 +33,10 @@ function dragEnd(e) {
     }
   }
   selected.style.opacity = 1
-  document.getElementById("drag_and_drop_blank").remove()
+  
+  if(document.getElementById("drag_and_drop_blank")){
+    document.getElementById("drag_and_drop_blank").remove()
+  }
 
   changeLayerOrder()
 

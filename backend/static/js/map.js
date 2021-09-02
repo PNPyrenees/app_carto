@@ -1033,6 +1033,15 @@ for (var i = 0; i < tests.length; i++) {
  */
  map.on('singleclick', (event => {
 
+    // Si on est en édition, on ne fait rien
+    is_editing_active = false
+    map.getInteractions().forEach(interaction => {
+        if (interaction instanceof ol.interaction.Draw) {
+            is_editing_active = true
+        }
+    })
+    if (is_editing_active) return;
+
     // On commence par vider tous les feature dans
     // la couche de sélection
     clearSelectedSource()
@@ -1244,3 +1253,132 @@ hideBlockClickedFeaturesAttributes = function(){
 }
 
 document.getElementById("close-bloc-clicked-features-attributes-btn").addEventListener("click", hideBlockClickedFeaturesAttributes)
+
+/**
+ * Couche de dessin pour la calculette des enjeux
+ */
+var warning_calculator_source = new ol.source.Vector();
+var warning_calculator_layer = new ol.layer.Vector({
+    layer_name: "Périmètre pour le calcul d'enjeux",
+    is_editing: false,
+    source: warning_calculator_source,
+    style: new ol.style.Style({
+        fill: new ol.style.Fill({
+            color: 'rgba(255, 255, 255, 0.2)',
+        }),
+        stroke: new ol.style.Stroke({
+            color: '#ffcc33',
+            width: 2,
+        }),
+        image: new ol.style.Circle({
+            radius: 7,
+            fill: new ol.style.Fill({
+                color: '#ffcc33',
+            }),
+        }),
+    }),
+});
+
+map.addLayer(warning_calculator_layer)
+
+/**
+ * Activation de l'édition de la couche
+ */
+var enableLayerEditing = function(layer){
+    // Récupérationde la source
+    source = layer.getSource()
+
+    // On désactive les intéraction en cours
+    disableLayerEditing()
+
+    // Création des intéraction pour la source
+    draw_interaction = new ol.interaction.Draw({
+        source: source,
+        type: "Polygon",
+    })
+    
+    snap_interaction = new ol.interaction.Snap({
+        source: source,
+    })
+    
+    modify_interaction = new ol.interaction.Modify({
+        source: source
+    })
+
+    // Ajout des intéractions à la carte
+    draw_interaction.setActive(true)
+    map.addInteraction(draw_interaction)
+    map.addInteraction(snap_interaction)
+    map.addInteraction(modify_interaction)
+
+    layer.set("is_editing", true)
+}
+
+/**
+ *  Désactivation de l'édition de la couche
+ */
+ var disableLayerEditing = function(){
+    map.getInteractions().forEach(interaction => {
+        if (interaction instanceof ol.interaction.Draw){
+            map.removeInteraction(interaction)
+        }if (interaction instanceof ol.interaction.Snap){
+            map.removeInteraction(interaction)
+        }if (interaction instanceof ol.interaction.Modify){
+            map.removeInteraction(interaction)
+        }
+    })
+
+    map.getLayers().forEach(layer => {
+        layer.set("is_editing", false)
+    })
+} 
+
+/**
+ * Controle si une source a des features
+ */
+var layerHasFeature = function (layer){
+    if (layer.getSource().getFeatures()){
+        return true
+    } else {
+        return false 
+    }
+}
+
+/**
+ * supprime un feature sélectionner pour une certaine source
+ */
+var removeSelectedFeaturesInLayer = function(layer){
+    selectedVectorLayer.getSource().getFeatures().forEach(feature => {
+        console.log(feature.getId())
+        if (layer.getSource().getFeatureById(feature.getId())){
+            layer.getSource().removeFeature(feature)
+            selectedVectorLayer.getSource().removeFeature(feature)
+        }
+    })
+
+}
+
+/*removeFeature = function(source, feature){
+    source.removeFeature(feature)
+}*/
+
+
+// Activation et desactivation de la numérisation
+/*document.getElementById("btn-chanllenge-calculator").addEventListener("click", event => {
+    // Si le boutton possède la class runing
+    if (event.currentTarget.classList.contains("running")){
+        // On désactive la numérisation
+        warning_calculator_draw.setActive(false)
+        map.removeInteraction(warning_calculator_draw)   
+        map.removeInteraction(warning_calculator_snap)  
+        map.removeInteraction(warning_calculator_modify)
+    } else {
+        // Sinon, on active la numérisation
+        warning_calculator_draw.setActive(true)
+        map.addInteraction(warning_calculator_draw)
+        map.addInteraction(warning_calculator_snap)
+        map.addInteraction(warning_calculator_modify)
+    }
+
+    event.currentTarget.classList.toggle("running")
+})*/

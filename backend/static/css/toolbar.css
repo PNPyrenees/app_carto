@@ -32,3 +32,28 @@
         width: 50%;
     }
 }
+
+.drawing,
+.btn-open{
+    background-color: #ffca2c!important;
+    border-color: #ffca2c!important;
+}
+
+.drawing:hover,
+.btn-open:hover{
+    background-color: #c79f28!important;
+    border-color: #c79f28!important;
+}
+
+/*#toolbar > .sub-btn-group{
+    width: 58px;
+    position: absolute;
+    left: 58px;
+    z-index: 999;
+    background-color: moccasin;
+    padding: 10px 5px;
+}
+
+#toolbar > .sub-btn-group > .btn-group-vertical:not(:first-child){
+    margin-top: 10px;
+}*/
