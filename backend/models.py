@@ -154,6 +154,18 @@ class VGroupTaxoList(db_app.Model):
     ):
         self.group_label = group_label
 
+class VRegneList(db_app.Model):
+    __tablename__ = 'v_regne_list'
+    __table_args__ = {'schema': 'app_carto'}
+    group_label = db_app.Column(db_app.String(50), primary_key=True)
+
+    def __init__(
+        self,
+        group_label
+        
+    ):
+        self.group_label = group_label
+
 class BibCommune(db_app.Model):
     __tablename__ = 'bib_commune'
     __table_args__ = {'schema': 'app_carto'}

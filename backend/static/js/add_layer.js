@@ -205,7 +205,30 @@ var addRefLayerToMap = function(){
 
 /**
  * Gestion du formulaire de recherche de données d'observation
+ *//**
+ * Appel API pour récupérer la liste des groupe taxonomique
  */
+var getRegneList = function(){
+    return fetch(APP_URL + "/api/layer/get_regne_list", {
+        method: "GET",
+        headers: { 
+            "Accept": "application/json", 
+            "Content-Type": "application/json" 
+        },
+        credentials: "same-origin"
+    })
+    .then(res => {
+        if (res.status != 200){
+            throw res
+        } else {
+            return res.json()
+        }
+    })
+    .catch(error => {
+        default_message = "Erreur lors de la récupération de la liste des regnes"
+        apiCallErrorCatcher(error, default_message)
+    })
+}
 
 /**
  * Appel API pour récupérer la liste des groupe taxonomique
@@ -339,6 +362,7 @@ var buildAddObsLayerForm = function(){
     // ré-initialisation du formulaire
     document.getElementById("selected-taxon").innerHTML = ""
     document.getElementById("form-add-obs-layer-infrataxon-checkbox").checked = false
+    document.getElementById("form-add-obs-layer-regne-value").value = ""
     document.getElementById("form-add-obs-layer-grp-tax-value").value = ""
     document.getElementById("form-add-obs-layer-date-start").value = ""
     document.getElementById("form-add-obs-layer-date-end").value = ""
@@ -365,6 +389,20 @@ var buildAddObsLayerForm = function(){
             inlineIcon: false,
             onChange: values => {
                 document.getElementById("form-add-obs-layer-statut-value").value = JSON.stringify(values)
+            }
+        });
+    })
+
+    // Liste des groupes taxonomiques
+    getRegneList().then(regne_list => {
+        document.getElementById("form-add-obs-layer-select-regne").innerHTML = "";
+        new SelectPure("#form-add-obs-layer-select-regne", {
+            options: regne_list,
+            multiple: true,
+            icon: "bi bi-x",
+            inlineIcon: false,
+            onChange: values => {
+                document.getElementById("form-add-obs-layer-regne-value").value = JSON.stringify(values)
             }
         });
     })
@@ -400,16 +438,16 @@ var buildAddObsLayerForm = function(){
     // Liste des type de restitution
     const l_restitutions = [
         {
-        label: "Richesse taxonomique",
-        value: "rt",
+            label: "Nombre de taxons",
+            value: "rt",
         },
         {
-        label: "Pression d'observation",
-        value: "po",
+            label: "Nombre d'observation",
+            value: "po",
         },
         {
-        label: "Répartition",
-        value: "re",
+            label: "Répartition",
+            value: "re",
         },
     ]
     document.getElementById("form-add-obs-layer-select-restitution").innerHTML = "";
@@ -647,6 +685,11 @@ var buildObsLayerFormData = function(){
 
     include_infra_taxon = document.getElementById("form-add-obs-layer-infrataxon-checkbox").checked
 
+    regne_list = []
+    if (document.getElementById("form-add-obs-layer-regne-value").value){
+        regne_list = JSON.parse(document.getElementById("form-add-obs-layer-regne-value").value)
+    }
+
     grp_taxon_list = []
     if (document.getElementById("form-add-obs-layer-grp-tax-value").value){
         grp_taxon_list = JSON.parse(document.getElementById("form-add-obs-layer-grp-tax-value").value)
@@ -687,6 +730,7 @@ var buildObsLayerFormData = function(){
     formdata = {
         "cd_nom_list": cd_nom_list,
         "include_infra_taxon" : include_infra_taxon,
+        "regne_list": regne_list,
         "grp_taxon_list" : grp_taxon_list,
         "date_min": date_min,
         "date_max": date_max,
