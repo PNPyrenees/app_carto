@@ -84,11 +84,7 @@ CREATE TABLE app_carto.t_observations (
     cd_ref integer,
     nom_valide varchar(500),
     nom_vern varchar(1000),
-<<<<<<< HEAD
     regne varchar(20),
-=======
-    regne varcahr(20),
->>>>>>> dev
     group2_inpn varchar(200),
     date_min timestamp without time zone NOT NULL,
     date_max timestamp without time zone NOT NULL,
