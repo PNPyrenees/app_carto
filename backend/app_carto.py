@@ -8,7 +8,7 @@ from datetime import datetime
 from sqlalchemy import create_engine, text
 from functools import wraps
 
-from .models import Role, VLayerList, Layer, BibStatusType, VGroupTaxoList, BibCommune, BibMeshScale, BibGroupStatus
+from .models import Role, VLayerList, Layer, BibStatusType, VRegneList, VGroupTaxoList, BibCommune, BibMeshScale, BibGroupStatus
 from .schema import RoleSchema, VLayerListSchema, LayerSchema
 
 """from requests.api import request"""
@@ -273,6 +273,23 @@ def get_status_list():
     
     return jsonify(statut_list)
 
+@app.route('/api/layer/get_regne_list', methods=['GET'])
+@valid_token_required
+def get_regne_list():
+    """ Fourni la liste des groupes taxonomiques
+
+    Returns
+    -------
+        JSON
+    """    
+    vRegneList = VRegneList.query.all()
+    
+    regne_list = []
+    for regneList in vRegneList:
+        regne_list.append({"label": regneList.group_label, "value": regneList.group_label})
+    
+    return jsonify(regne_list)
+
 @app.route('/api/layer/get_group_taxo_list', methods=['GET'])
 @valid_token_required
 def get_group_taxo_list():
@@ -368,6 +385,14 @@ def check_obs_form_data(postdata):
             "field": "include_infra_taxon",
             "message": "Valeur incorrect, booléen attendu"
         })
+        
+    # controle de la liste des groupe taxonomique
+    for regne in postdata["regne_list"]:
+        if not isinstance(regne, str):
+            error.append({
+                "field": "regne_list",
+                "message": "Valeur incorrect, Chaine de caractère attendu (correspondant au regne)"
+            })
 
     # controle de la liste des groupe taxonomique
     for grp_taxon in postdata["grp_taxon_list"]:
@@ -593,6 +618,11 @@ def build_query(postdata):
             AND o.cd_ref in ({})
         """.format(', '.join(str(x) for x in postdata["cd_nom_list"]))
 
+    if postdata["regne_list"]:
+        query_where += """
+            AND o.regne in ('{}')
+        """.format("', '".join(postdata["regne_list"]))
+
     if postdata["grp_taxon_list"]:
         query_where += """
             AND o.group2_inpn in ('{}')
@@ -742,8 +772,13 @@ def getObsLayerStyle(restituion_type, query):
         for borne in app.config['OBS_LAYER_CLASSIFICATION_BORNE']:
             # Création de la première classe
             if i == 0:
+                if style_query_datas["borne_" + str(i)] == 1:
+                    style_name = "1 taxon"
+                else:
+                    style_name = "De 1 à " + str(style_query_datas["borne_" + str(i)]) + " " + legend_alias,
+                
                 tmp_style = {
-                    "style_name": "Moins de " + str(style_query_datas["borne_" + str(i)]) + " " + legend_alias,
+                    "style_name": style_name,
                     "filter": {
                         "operator": "<=",
                         "left_term": style_field_filter,

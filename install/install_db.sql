@@ -84,6 +84,7 @@ CREATE TABLE app_carto.t_observations (
     cd_ref integer,
     nom_valide varchar(500),
     nom_vern varchar(1000),
+    regne varcahr(20),
     group2_inpn varchar(200),
     date_min timestamp without time zone NOT NULL,
     date_max timestamp without time zone NOT NULL,
@@ -96,6 +97,13 @@ CREATE VIEW app_carto.v_group_taxo_list AS
     FROM app_carto.t_observations
 	WHERE group2_inpn IS NOT NULL
     ORDER BY group2_inpn
+;
+
+CREATE VIEW app_carto.v_regne_list AS 
+    SELECT DISTINCT regne AS group_label
+    FROM app_carto.t_observations
+	WHERE regne IS NOT NULL
+    ORDER BY regne
 ;
 /* Table de correspondance entre une observation et les mailles */ 
 CREATE TABLE app_carto.cor_observation_mesh (
@@ -112,6 +120,7 @@ CREATE TABLE app_carto.cor_observation_mesh (
 			ON UPDATE CASCADE
 			ON DELETE NO ACTION
 );
+CREATE INDEX idx_cor_observations_mesh_id_obs ON app_carto.cor_observation_mesh(obs_id);
 
 /* Table permettant de gérer les groupes de status */ 
 /* nb : Les groupes de status s'affiche sous forme de case à cocher */
@@ -201,6 +210,7 @@ CREATE TABLE app_carto.cor_observation_status (
 			ON UPDATE CASCADE
 			ON DELETE NO ACTION
 );
+CREATE INDEX idx_cor_observations_status_id_obs ON app_carto.cor_observation_status(obs_id);
 
 /* Création de la table commune */
 CREATE TABLE app_carto.bib_commune (
@@ -223,3 +233,4 @@ CREATE TABLE app_carto.cor_observation_commune (
 			ON UPDATE CASCADE
 			ON DELETE NO ACTION
 );
+CREATE INDEX idx_cor_observations_commune_id_obs ON app_carto.cor_observation_commune(obs_id);
