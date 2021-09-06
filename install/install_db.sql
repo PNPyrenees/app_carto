@@ -79,6 +79,7 @@ CREATE TABLE app_carto.bib_mesh (
 /* Création de la table recevant les observations */
 CREATE TABLE app_carto.t_observations (
     obs_id integer NOT NULL PRIMARY KEY,
+    geom geometry(Geometry,2154), /* Remplacer le code de la projection par la géométrie locale */
     obs_uuid uuid NOT NULL,
     nom_cite varchar(1000),
     cd_ref integer,

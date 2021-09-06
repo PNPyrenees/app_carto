@@ -26,16 +26,16 @@ ID_APPLICATION =
 # Logo de la structure affiché dans l'entête de l'interface
 LOGO_STRUCTURE = "logo_structure.png"
 
-
-
 # Activer le mode développement
 DEBUG = true # true | false
 ENV = "development" # "production" | "development"
 
-
 # Configuration de la carte
 CENTER = [<LAT>, <LONG>]
 ZOOM_LEVEL = 10
+
+# Projection des données
+SRID = 2154
 
 # Définition des bornes des classes pour les données d'observations (richesse taxonomique et pression d'observation)
 # les classes sont défini en percentile (de 0 à 1) dans une limite de 4 bornes

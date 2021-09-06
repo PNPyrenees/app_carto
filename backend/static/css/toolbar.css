@@ -33,14 +33,12 @@
     }
 }
 
-.drawing,
-.btn-open{
+.btn-active{
     background-color: #ffca2c!important;
     border-color: #ffca2c!important;
 }
 
-.drawing:hover,
-.btn-open:hover{
+.btn-active:hover{
     background-color: #c79f28!important;
     border-color: #c79f28!important;
 }

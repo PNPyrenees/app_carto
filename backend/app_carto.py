@@ -6,6 +6,7 @@ import requests
 import json
 from datetime import datetime
 from sqlalchemy import create_engine, text
+#from sqlalchemy.sql.expression import true
 from functools import wraps
 
 from .models import Role, VLayerList, Layer, BibStatusType, VRegneList, VGroupTaxoList, BibCommune, BibMeshScale, BibGroupStatus
@@ -488,7 +489,7 @@ def check_obs_form_data(postdata):
     # Controle de la liste des groupes de statut
     for grp_status in postdata["grp_status_list"]:
         if not isinstance(grp_status, int):
-            print(grp_status)
+            #print(grp_status)
             message = "Erreur dans la liste des groupe de statuts : id_grp_statut <{}> incorrect".format(grp_status)
             error.append({
                 "field": "grp_status_list",
@@ -841,9 +842,9 @@ def getObsLayerStyle(restituion_type, query):
 def builLayerLabel(postdata):
 
     if postdata["restitution"] == "rt":
-        restitution = "Richesse taxonomique"
+        restitution = "Nombre de taxon"
     if postdata["restitution"] == "po":
-        restitution = "Pression d'observation"
+        restitution = "Nombre d'observation"
     if postdata["restitution"] == "re":
         restitution = "Répartition"
 
@@ -900,6 +901,165 @@ def get_obs_layer_data():
     }
 
     return obs_layer_datas
+
+@app.route('/api/get_warning_calculator_data', methods=['POST'])
+@valid_token_required
+def get_warning_calculator_data():
+    """ Retourne les données géographique pour couches 
+    déclaré comme étant des couche à enjeux 
+    Ainsi que la couche (précise) des données d'observation 
+    des taxons dont leur statut est déclaré comme étant à enjeux
+
+    Returns
+    -------
+        Array<GEOJSON>
+    """
+
+    geojson = request.json
+
+    ##
+    # Récupération des objets des couches déclaré d'enjeux
+    # intersectant le geojson envoyé
+    ##
+    warning_layers = Layer.query.filter(Layer.layer_is_warning == True)
+
+    warning_result_layers = []
+    for warning_layer in warning_layers:
+
+        warning_layer_schema = LayerSchema().dump(warning_layer)
+        
+        statement = text("""
+            SELECT jsonb_build_object('type', 'FeatureCollection', 'features', jsonb_agg(feature)) AS geojson_layer 
+            FROM (
+                WITH data AS (
+                    SELECT '{}'::json AS fc
+                ),            
+                geom AS(
+                    SELECT
+                        ST_Transform(ST_SetSRID(ST_Union(ST_GeomFromGeoJSON(feat->>'geometry')), 3857), {}) AS geom
+                    FROM (
+                        SELECT 
+                            json_array_elements(fc->'features') AS feat
+                        FROM 
+                            data
+                    ) a
+                )
+                SELECT jsonb_build_object(
+                    'type', 'Feature', 
+                    'geometry', ST_AsGeoJSON(st_transform(geom, 3857))::jsonb, 
+                    'properties', to_jsonb(row) - 'geom') AS feature  
+                FROM (
+                    SELECT t.* 
+                    FROM {}.{} t 
+                    INNER JOIN geom g ON ST_Intersects(t.geom, g.geom)
+                ) row
+            ) features
+        """.format(json.dumps(geojson), app.config['SRID'], warning_layer_schema["layer_schema_name"], warning_layer_schema["layer_table_name"]))
+
+        layer_datas = db_sig.execute(statement).fetchone()._asdict()
+
+        # On ajoute uniquement les résultats non vide !
+        if layer_datas['geojson_layer']['features']:
+            layer_datas['desc_layer'] = warning_layer_schema
+            warning_result_layers.append(layer_datas)
+
+
+    ##
+    # Récupération des observation à enjeux
+    # intersectant le geojson envoyé
+    ##
+    obs_query = text("""SELECT jsonb_build_object('type', 'FeatureCollection', 'features', jsonb_agg(feature)) AS geojson_layer 
+        FROM (
+            SELECT jsonb_build_object(
+                'type', 'Feature', 
+                'geometry', ST_AsGeoJSON(st_transform(geom, 3857))::jsonb, 
+                'properties', to_jsonb(row) - 'geom') AS feature  
+            FROM (
+                WITH data AS (
+                    SELECT '{}'::json AS fc
+                ),            
+                geom AS(
+                    SELECT
+                        ST_Transform(ST_SetSRID(ST_Union(ST_GeomFromGeoJSON(feat->>'geometry')), 3857), {}) AS geom
+                    FROM (
+                        SELECT 
+                            json_array_elements(fc->'features') AS feat
+                        FROM 
+                            data
+                    ) a
+                )
+                SELECT DISTINCT
+                    o.obs_id, 
+                    o.geom,
+                    o.cd_ref, 
+                    o.regne, 
+                    o.group2_inpn, 
+                    o.nom_valide, 
+                    o.nom_vern, 
+                    to_char(date_min, 'DD-MM-YYYY') AS date_min,
+                    to_char(date_max, 'DD-MM-YYYY') AS date_max
+                FROM
+                    app_carto.t_observations o
+                    INNER JOIN geom g ON ST_Intersects(o.geom, g.geom)
+                    LEFT JOIN app_carto.cor_observation_status cos USING(obs_id)
+                    LEFT JOIN app_carto.bib_status_type st USING(status_type_id)
+                    LEFT JOIN app_carto.bib_group_status gs USING(group_status_id)
+                WHERE
+                    gs.group_status_is_warning = TRUE
+            ) row
+        ) features""".format(json.dumps(geojson), app.config['SRID']))
+
+
+    # Execution de la requête récupérant le GeoJson
+    obs_layer_datas = db_app.engine.execute(obs_query).fetchone()._asdict()
+
+    if obs_layer_datas['geojson_layer']['features']:
+        # Récupération du style de type "répartition"
+        default_style = [
+            {
+                "style_type": "Polygon",
+                "styles": [{
+                    "style_name": "Zone d'observation",
+                    "filter": "",
+                    "fill_color": "rgba(0, 255, 81, 0.5)",
+                    "stroke_color": "rgba(0, 0, 0, 1)",
+                    "stroke_width": 1,
+                    "stroke_linedash": []
+                }]
+            },{
+                "style_type": "Line",
+                "styles": [{
+                    "style_name": "Zone d'observation",
+                    "filter": "",
+                    "stroke_color": "rgba(0, 255, 81, 1)",
+                    "stroke_width": 2,
+                    "stroke_linedash": []
+                }],
+            }, {
+                "style_type": "Point",
+                "styles": [{
+                    "style_name": "Zone d'observation",
+                    "filter": "",
+                    "fill_color": "rgba(0, 255, 81, 0.5)",
+                    "stroke_color": "rgba(0, 0, 0, 1)",
+                    "stroke_width": 1,
+                    "stroke_linedash": [],
+                    "radius": 5
+                }]
+            }
+        ]
+
+        layer_label = "Observation d'espèces à enjeux"
+
+        obs_layer_datas['desc_layer'] = {
+            "layer_default_style": default_style,
+            "layer_label": layer_label
+        }
+
+        warning_result_layers.append(obs_layer_datas)
+
+    # On retourne l'ensemble des couche à enjeux
+    return json.dumps(warning_result_layers)
 
 
 if __name__ == "__main__":

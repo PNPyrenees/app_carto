@@ -1,4 +1,8 @@
 /**
+ * On déclare la projection EPSG:2154
+ */
+
+/**
  * Style par défaut
  */        
 const selectedStyles = function(feature, resolution) {
@@ -128,6 +132,7 @@ BASEMAPS.forEach(basemap => {
     let basemap_layer = new ol.layer.Tile({
         opacity: 1,
         visible: parseInt(basemap.isDefault),
+        isEditing: false,
         isBasemap: true,
         source: new ol.source.WMTS({
             attributions: basemap.attribution,
@@ -290,13 +295,38 @@ const getStyleFromJson = function(json_styles){
     //console.log(JSON.stringify(json_styles))
     // On retourne une fonction interprétable par openLayers
     return function (feature, resolution) {
-
+        // Pas de style si le feature est déclaré comme non visible (=filtré)
         if (feature.visible == false){
             return null
         }
 
-        var feature_style
+        var feature_style = {}
+        //var feature_style 
 
+        /*'MultiPoint': new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: 5,
+                fill: null,
+                stroke: new ol.style.Stroke({
+                    color: stroke_color,
+                    width: 2
+                }),
+            })
+        }),
+        'MultiPolygon': new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: 'rgba(0, 0, 0, 1)',
+                width: 1,
+            }),
+            fill: new ol.style.Fill({
+                color: fill_color,
+            }),
+        }),*/
+
+        var polygon_style
+        var line_style
+        var point_style
+        var icon_style
         // On boucle sur les types de géométrie
         json_styles.forEach(json_geom_style => {
             switch (json_geom_style.style_type) {
@@ -306,7 +336,8 @@ const getStyleFromJson = function(json_styles){
                         //Si la condition du style est respecté
                         if(eval(buildFilter(style.filter))){
                             //On retourne le style
-                            feature_style = [new ol.style.Style({
+                            //feature_style = [new ol.style.Style({
+                            polygon_style = [new ol.style.Style({
                                 stroke: new ol.style.Stroke({
                                     color: style.stroke_color,
                                     lineDash: style.stroke_linedash,
@@ -324,7 +355,8 @@ const getStyleFromJson = function(json_styles){
                         //Si la condition du style est respecté
                         if(eval(buildFilter(style.filter))){
                             //On retourne le style
-                            feature_style = [new ol.style.Style({
+                            //feature_style = [new ol.style.Style({
+                            point_style = [new ol.style.Style({
                                 image: new ol.style.Circle({
                                     radius: 5,
                                     fill: new ol.style.Fill({
@@ -345,7 +377,8 @@ const getStyleFromJson = function(json_styles){
                         //Si la condition du style est respecté
                         if(eval(buildFilter(style.filter))){
                             //On retourne le style
-                            feature_style = [new ol.style.Style({
+                            //feature_style = [new ol.style.Style({
+                            line_style = [new ol.style.Style({
                                 stroke: new ol.style.Stroke({
                                     color: style.stroke_color, 
                                     lineDash: style.stroke_linedash,
@@ -360,7 +393,8 @@ const getStyleFromJson = function(json_styles){
                         //Si la condition du style est respecté
                         if(eval(buildFilter(style.filter))){
                             //On retourne le style
-                            feature_style = [new ol.style.Style({
+                            //feature_style = [new ol.style.Style({
+                            icon_style = [new ol.style.Style({
                                 image: new ol.style.Icon({
                                     src: style.icon_svg_path, 
                                     color:  style.icon_color,
@@ -374,11 +408,34 @@ const getStyleFromJson = function(json_styles){
             }
         })
 
+        if (polygon_style){
+            feature_style['Polygon'] = polygon_style
+            feature_style['MultiPolygon'] = polygon_style
+        }
+
+        if (line_style){
+            feature_style['LineString'] = line_style
+            feature_style['MultiLineString'] = line_style
+        }
+
+        if (point_style){
+            feature_style['Point'] = point_style
+            feature_style['MultiPoint'] = point_style
+        }
+
+        // Si le style icon est définit alors on écrase le 
+        // style attribué aux points (et multipoints)
+        if (icon_style){
+            feature_style['Point'] = icon_style
+            feature_style['MultiPoint'] = icon_style
+        }
+
         // Si on a pas récupéré de style depuis 
         // le json alors on attribut le style par défaut 
         // pour l'objet courant
         if (feature_style){
-            return feature_style
+            //return feature_style
+            return feature_style[feature.getGeometry().getType()];
         } else {
             return getDefaultStyle()
         }
@@ -489,6 +546,7 @@ var addGeojsonLayer = function(data, additional_data = null){
     let vectorLayer = new ol.layer.Vector({
         layer_name: data.desc_layer.layer_label,
         source: vectorSource,
+        isEditing: false,
         style: style,
         zIndex: zindex,
         json_style: layer_default_style,
@@ -643,6 +701,15 @@ buildLegendForLayer = function(layer_uid, json_style){
             layer_legend.append(legend)
     })
     
+}
+
+var layerIsInLegend = function(layer_uid){
+    if (document.getElementById("layer_list").querySelector("li[layer-uid='"+ layer_uid +"']")){
+        return true
+    }
+    else {
+        return false
+    }
 }
 
 /**
@@ -1027,20 +1094,19 @@ for (var i = 0; i < tests.length; i++) {
     tests[i].addEventListener("click", clickNavAttributeTableEvent)
 }
 
-
 /**
- * Action lors d'un clique sur la carte
+ * Fonction d'interrogation des données affichant les donnéess 
+ * attributaires des entités présentes sous le clic
  */
- map.on('singleclick', (event => {
-
+var singleClickForFeatureInfo = function(event){
     // Si on est en édition, on ne fait rien
-    is_editing_active = false
+    /*is_editing_active = false
     map.getInteractions().forEach(interaction => {
         if (interaction instanceof ol.interaction.Draw) {
             is_editing_active = true
         }
     })
-    if (is_editing_active) return;
+    if (is_editing_active) return;*/
 
     // On commence par vider tous les feature dans
     // la couche de sélection
@@ -1060,11 +1126,13 @@ for (var i = 0; i < tests.length; i++) {
         let layer_uid = ol.util.getUid(layer)
         let feature_uid = ol.util.getUid(feature)
 
-        //on s'assure de ne pas être sur un feature de la couche de sélection
-        // ça arrive des fois...
-        if (layer_uid == ol.util.getUid(selectedVectorLayer)){
+        // on s'assure de ne pas être sur un feature de la couche de sélection
+        // ou de la couche "calculator_layer"
+        if (layer_uid == ol.util.getUid(selectedVectorLayer) || layer_uid == ol.util.getUid(warning_calculator_layer)){
             return
         }
+
+
 
         // Dans ce cas, on veut highlight tous les features cliqués
         // sans zommer dessus
@@ -1187,7 +1255,41 @@ for (var i = 0; i < tests.length; i++) {
     } else {
         hideBlockClickedFeaturesAttributes()
     }
-}));
+}
+
+/**
+ * Fonction de suppression des données lors d'un clic
+ */
+var singleClickForRemovingFeature = function(event){
+
+    map.forEachFeatureAtPixel(event.pixel, function(feature, layer) {
+        if (layer.get("isEditing") == true){
+            layer.getSource().removeFeature(feature)
+
+            // On controle s'il reste des feature dans la couche
+            if (layer.getSource().getFeatures().length == 0){
+                // Auquel cas, on désactive les bouton de suppression 
+                document.getElementById("btn-chanllenge-calculator-remove-feature").classList.add("disabled")
+                // et d'éxécution du calcul
+                document.getElementById("btn-chanllenge-calculator-execute").classList.add("disabled")
+
+                // On change la fonction à éxécuter lors d'un clic sur la carte
+                map.un('singleclick', singleClickForRemovingFeature)
+                map.on('singleclick', singleClickForFeatureInfo)
+            }
+
+        }
+
+    })
+
+    
+}
+
+/**
+ * Activation de l'action par défaut lors d'un clique sur la carte
+ * (interrogation des données)
+ */
+map.on('singleclick', singleClickForFeatureInfo)
 
 /**
  * Gestion de l'affichage de la sous-liste des features dans bloc-clicked-features-attributes
@@ -1257,44 +1359,90 @@ document.getElementById("close-bloc-clicked-features-attributes-btn").addEventLi
 /**
  * Couche de dessin pour la calculette des enjeux
  */
+var warning_calculator_style = [{
+    "style_type": "Polygon",
+    "styles": [{
+        "style_name": "Périmètre de la calculettes des enjeux",
+		"fill_color": "rgba(255, 255, 255, 0.4)",
+		"stroke_color": "rgba(0,153,255,1)",
+		"stroke_width": 4,
+		"stroke_linedash": [],
+		"filter" : null
+    }]
+}]
+
 var warning_calculator_source = new ol.source.Vector();
 var warning_calculator_layer = new ol.layer.Vector({
-    layer_name: "Périmètre pour le calcul d'enjeux",
-    is_editing: false,
+    layer_name: "Périmètre(s) pour le calcul des enjeux",
+    isEditing: false,
+    isCalculatorLayer: true,
     source: warning_calculator_source,
-    style: new ol.style.Style({
-        fill: new ol.style.Fill({
-            color: 'rgba(255, 255, 255, 0.2)',
-        }),
-        stroke: new ol.style.Stroke({
-            color: '#ffcc33',
-            width: 2,
-        }),
-        image: new ol.style.Circle({
-            radius: 7,
-            fill: new ol.style.Fill({
-                color: '#ffcc33',
-            }),
-        }),
-    }),
+    zIndex: 9999,
+    style: buildStyle(warning_calculator_style),
+    json_style: warning_calculator_style,
 });
 
 map.addLayer(warning_calculator_layer)
 
 /**
+ * Fonction permettant de déclarer l'édition sur une couche
+ */
+declareEditionForLayer = function (layer){
+    if (layer.get("isEditing")){
+        /**
+         * TODO avoir une moulinette ui contrôle si des 
+         * objets des autres couches n'ont pas été sauvegardé
+        */
+
+        layer.set("isEditing", false)
+    } else {
+        // On désactive l'édition sur toutes les couches
+        map.getLayers().forEach(tmp_layer => {
+            tmp_layer.set("isEditing", false)
+        })
+        // On déclare l'édition sur la couche layer
+        layer.set("isEditing", true)
+    }
+}
+/**
  * Activation de l'édition de la couche
  */
-var enableLayerEditing = function(layer){
+var enableLayerDrawing = function(layer, geomType){
+    // On désactive les intéraction en cours
+    disableLayerDrawing()
+
+    // On désactive l'interaction singleclick
+    map.un('singleclick', singleClickForFeatureInfo)
+
     // Récupérationde la source
     source = layer.getSource()
-
-    // On désactive les intéraction en cours
-    disableLayerEditing()
 
     // Création des intéraction pour la source
     draw_interaction = new ol.interaction.Draw({
         source: source,
-        type: "Polygon",
+        type: geomType,
+    })
+
+    // Gestion du drawEnd
+    draw_interaction.on('drawend', function(evt){
+        //if (layer.get("layer_name") == "calculator_layer"){
+        if (layer.get("isCalculatorLayer")){
+            // Ici, on est sur la couche de numérisation pour la calculette des enjeux
+            // Activation des boutons de suppression d'un feature
+            document.getElementById("btn-chanllenge-calculator-remove-feature").classList.remove("disabled")
+            // Activation du bouton de lancement du calcul
+            document.getElementById("btn-chanllenge-calculator-execute").classList.remove("disabled")
+
+            // On affiche la couche dans la alégende si ce n'est pas déjà le cas
+            if (! layerIsInLegend(ol.util.getUid(warning_calculator_layer))){
+                addLayerInLayerBar(warning_calculator_layer)
+            }
+            // On s'assure que la couche est visible
+            warning_calculator_layer.setVisible(true)
+            // ainsi que le checkbox associé dans le layerBar est coché
+            //document.getElementById("layer_list").querySelector("li[layer-uid='"+ ol.util.getUid(warning_calculator_layer) +"']").querySelector("input[type='checkbox']").checked = true
+            document.querySelector("li[layer-uid='"+ ol.util.getUid(warning_calculator_layer) +"'] input[type='checkbox']").checked = true
+        }
     })
     
     snap_interaction = new ol.interaction.Snap({
@@ -1311,25 +1459,26 @@ var enableLayerEditing = function(layer){
     map.addInteraction(snap_interaction)
     map.addInteraction(modify_interaction)
 
-    layer.set("is_editing", true)
+    //layer.set("isEditing", true)
 }
 
 /**
  *  Désactivation de l'édition de la couche
  */
- var disableLayerEditing = function(){
+ var disableLayerDrawing = function(){
+    // On réactive l'interaction singleclick
+    map.on('singleclick', singleClickForFeatureInfo)
+
     map.getInteractions().forEach(interaction => {
         if (interaction instanceof ol.interaction.Draw){
             map.removeInteraction(interaction)
-        }if (interaction instanceof ol.interaction.Snap){
-            map.removeInteraction(interaction)
-        }if (interaction instanceof ol.interaction.Modify){
+        }
+        if (interaction instanceof ol.interaction.Snap){
             map.removeInteraction(interaction)
         }
-    })
-
-    map.getLayers().forEach(layer => {
-        layer.set("is_editing", false)
+        if (interaction instanceof ol.interaction.Modify){
+            map.removeInteraction(interaction)
+        }
     })
 } 
 
@@ -1347,7 +1496,7 @@ var layerHasFeature = function (layer){
 /**
  * supprime un feature sélectionner pour une certaine source
  */
-var removeSelectedFeaturesInLayer = function(layer){
+/*var removeSelectedFeaturesInLayer = function(layer){
     selectedVectorLayer.getSource().getFeatures().forEach(feature => {
         console.log(feature.getId())
         if (layer.getSource().getFeatureById(feature.getId())){
@@ -1356,7 +1505,7 @@ var removeSelectedFeaturesInLayer = function(layer){
         }
     })
 
-}
+}*/
 
 /*removeFeature = function(source, feature){
     source.removeFeature(feature)

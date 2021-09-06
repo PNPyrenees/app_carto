@@ -235,7 +235,7 @@
     position: absolute;
     left: 300px;
     top: 70px;
-    z-index: 999;
+    z-index: 99;
     /*background-color: moccasin;*/
     background-color: rgba(0,60,136,.7);
     border: 2px solid rgba(255,255,255,.7);
