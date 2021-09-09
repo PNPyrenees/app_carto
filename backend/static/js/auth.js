@@ -212,20 +212,24 @@ var check_auth_button = document.getElementsByClassName('check-auth')
 
 for (var i = 0; i < check_auth_button.length; i++) {
     check_auth_button[i].addEventListener('click', (event) =>{
-        //check_auth_before_open_modal(event)
+        // On ne se concentre que sur les actions ouvrant des modales
         
-        if (checkToken() === false ){   
-            // Utilisateur non connecté => on ouvre le modal de connexion
-            loginModal.show()
-        } else {
-            // Utilisateur connecté => On ouvre la modal cible
-            let target = event.currentTarget.getAttribute('modal-target')
-            if (target) {
-                target = document.getElementById(target)
-                target = bootstrap.Modal.getInstance(target)
-                target.show()
+        if (event.currentTarget.getAttribute('modal-target')){
+            if (checkToken() === false ){   
+                // Utilisateur non connecté => on ouvre le modal de connexion
+                loginModal.show()
+            } else {
+                // Utilisateur connecté => On ouvre la modal cible
+                let target = event.currentTarget.getAttribute('modal-target')
+                if (target) {
+                    target = document.getElementById(target)
+                    target = bootstrap.Modal.getInstance(target)
+                    target.show()
+                }
             }
-        } 
+        }
+
+         
     })
 }
 

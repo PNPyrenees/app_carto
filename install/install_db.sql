@@ -21,7 +21,8 @@ CREATE TABLE app_carto.t_layers (
     layer_label varchar(50) NOT NULL,
     layer_is_default boolean,
     layer_default_style jsonb,
-    layer_is_warning boolean
+    layer_is_warning boolean,
+    layer_attribution varchar(255)
 );
 
 CREATE VIEW app_carto.v_layers_list_by_group AS

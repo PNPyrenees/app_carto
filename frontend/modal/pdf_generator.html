@@ -1,0 +1,23 @@
+<div class="modal fade" id="pdf-generator-modal" tabindex="-1" aria-labelledby="pdf-generator-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen-lg-down">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="login-modal-label">Export de la carte en PDF</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input type="text" class="form-control form-control-lg" id="pdf-generator-title-input" aria-describedby="login-help" placeholder="Titre de la carte" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="pdf-generator-submit" type="submit" class="btn btn-primary">
+                        <div id="pdf-generator-loading-spinner" class="spinner-grow spinner-grow-sm hide" role="status"></div>
+                        Créer la carte PDF
+                    </button>
+                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Annuler</button>
+                    <div id="form-login-error" class="invalid-feedback"></div>
+                </div>
+        </div>
+    </div>
+</div>

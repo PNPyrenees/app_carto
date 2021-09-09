@@ -24,7 +24,10 @@ document.getElementById("add-layer-modal").addEventListener('show.bs.modal', eve
  * Gestion de l'action à réalisé après un click 
  * sur le bouton d'ajout d'une couche
  */
-document.getElementById("add-layer-submit").addEventListener('click', event => {
+const layer_submit_button = document.getElementById("add-layer-submit")
+
+
+layer_submit_button.addEventListener('click', event => {
     active_menu = document.getElementById("add-layer-menu").querySelector('input[type="radio"]:checked')
     switch (active_menu.getAttribute('target')){
         case 'add-ref-layer':
@@ -168,6 +171,7 @@ document.getElementById('btn-add-obs-layer').addEventListener('click', event => 
  * Ajoute une couch de référence à la carte
  */
 var addRefLayerToMap = function(){
+    layer_submit_button.disabled = true
     document.getElementById('loading-spinner').style.display = 'inline-block'
 
     let active_layer = document.querySelector('.modal-ref-layer-item.active')
@@ -191,11 +195,13 @@ var addRefLayerToMap = function(){
     }).then(data => {
         addGeojsonLayer(data)
         addLayerModal.hide()
+        layer_submit_button.disabled = false
         document.getElementById('loading-spinner').style.display = 'none'
         //console.log(data.desc_layer)
     })
     .catch(error => {
         console.log(error)
+        layer_submit_button.disabled = false
         document.getElementById('loading-spinner').style.display = 'none'
 
         default_message = "Erreur lors de la récupération de la liste des couches de référence"
@@ -668,10 +674,12 @@ var addObsLayerForm = function (){
     if (checkFormAddObsLayerRequiredField()){
         formdata = buildObsLayerFormData()
         // On affiche le spinner
+        layer_submit_button.disabled = true
         document.getElementById('loading-spinner').style.display = 'inline-block'
         
         getObsLayerGeojson(formdata).then(data => {
             //On masque le spinner
+            layer_submit_button.disabled = false
             document.getElementById('loading-spinner').style.display = 'none'
         })
     }
@@ -795,6 +803,8 @@ var getObsLayerGeojson = function(formdata) {
             additional_data = {"formdata": formdata,}
             addGeojsonLayer(data, additional_data)
             addLayerModal.hide()
+
+            layer_submit_button.disabled = false
             document.getElementById('loading-spinner').style.display = 'none'
             //console.log(data)
         } else {

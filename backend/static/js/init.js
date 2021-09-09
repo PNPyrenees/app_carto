@@ -30,6 +30,10 @@ var loginModal = new bootstrap.Modal(document.getElementById("login-modal"), {
 var addLayerModal = new bootstrap.Modal(document.getElementById("add-layer-modal"), {
     keyboard: false
 })
+
+var pdfGeneratorModal = new bootstrap.Modal(document.getElementById("pdf-generator-modal"), {
+    keyboard: false
+})
 // On ré-initialise le modal à la fermeture
 /*var addLayerModalEl = document.getElementById("add-layer-modal")
 addLayerModalEl.addEventListener('hidden.bs.modal', function (event) {

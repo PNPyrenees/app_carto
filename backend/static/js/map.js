@@ -100,6 +100,14 @@ const selectedStyles = function(feature, resolution) {
      zIndex: 999,
  })
 
+var scale_line = new ol.control.ScaleLine({
+    units: "metric",
+    bar: false,
+    /*steps: 2,*/
+    text: true,
+    /*minWidth: 140,*/
+})
+
 /**
  * Initialisation de la carte
  */
@@ -112,6 +120,7 @@ map = new ol.Map({
         zoom: ZOOM_LEVEL,
         maxZoom: 18,
     }),
+    controls: ol.control.defaults().extend([scale_line]),
 });
 
 
@@ -147,7 +156,8 @@ BASEMAPS.forEach(basemap => {
                 matrixIds: matrixIds
             }),
             style: "normal",
-            wrapX: true
+            wrapX: true,
+            crossOrigin: "anonymous"
         })
     })
 
@@ -535,6 +545,7 @@ var addGeojsonLayer = function(data, additional_data = null){
     // Ajoute les données du geoJson dans un ol.source 
     let vectorSource = new ol.source.Vector({
         features: new ol.format.GeoJSON().readFeatures(geojson),
+        attributions: data.desc_layer.layer_attribution
     })
 
     // On initialise tout les feature comme visible
@@ -551,6 +562,7 @@ var addGeojsonLayer = function(data, additional_data = null){
         zIndex: zindex,
         json_style: layer_default_style,
         additional_data: additional_data,
+        description_layer: data.desc_layer
     })
 
     // Ajout du layer sur la carte
@@ -582,7 +594,7 @@ var addLayerInLayerBar = function(vectorLayer){
 
         map.getLayers().forEach(layer => {
             if (ol.util.getUid(layer) == layer_uid){
-            layer.setVisible(!layer.getVisible())
+                layer.setVisible(!layer.getVisible())
             }
         });
     })
@@ -605,10 +617,11 @@ buildLegendForLayer = function(layer_uid, json_style){
     // On vide le contenu de la légende actuelle
     layer_legend.innerHTML = ""
 
+    legends = []
     json_style.forEach(tmp_json_style => {
         geom_type = tmp_json_style.style_type
 
-        legends = []
+        
         tmp_json_style.styles.forEach(style => {
             // Création de la ligne
             legend_row = document.createElement("div")
@@ -827,7 +840,17 @@ removeLayer = function(layer_uid){
 
     // puis on la supprime
     if (layer){
-        map.removeLayer(layer)
+        //Cas particulier de la couche warning qui ne doit pas être supprimer
+        if (layer.get("isCalculatorLayer") == true){
+            // On rend invisible la couche
+            layer.setVisible(false)
+            // Et on supprime les objets qu'elle contient
+            layer.getSource().clear()
+        } else {
+            // Cas classique, on supprime la couche de la carte
+            map.removeLayer(layer)
+        }
+        
         document.querySelector("#layer_list li[layer-uid='" + layer_uid + "']").remove()
         
         // On efface la table attributaire s'il est ouvert
@@ -1362,7 +1385,7 @@ document.getElementById("close-bloc-clicked-features-attributes-btn").addEventLi
 var warning_calculator_style = [{
     "style_type": "Polygon",
     "styles": [{
-        "style_name": "Périmètre de la calculettes des enjeux",
+        "style_name": "Périmètre de la zone d'étude",
 		"fill_color": "rgba(255, 255, 255, 0.4)",
 		"stroke_color": "rgba(0,153,255,1)",
 		"stroke_width": 4,
@@ -1373,11 +1396,11 @@ var warning_calculator_style = [{
 
 var warning_calculator_source = new ol.source.Vector();
 var warning_calculator_layer = new ol.layer.Vector({
-    layer_name: "Périmètre(s) pour le calcul des enjeux",
+    layer_name: "Périmètre(s) de la zone d'étude",
     isEditing: false,
     isCalculatorLayer: true,
     source: warning_calculator_source,
-    zIndex: 9999,
+    /*zIndex: 9999,*/
     style: buildStyle(warning_calculator_style),
     json_style: warning_calculator_style,
 });

@@ -1,10 +1,15 @@
 // Gestion de l'affichage des boutons d'éditions
 document.getElementById("btn-chanllenge-calculator").addEventListener("click", event => {
-    document.getElementById("chanllenge-calculator-group-edit-btn").classList.toggle("hide")
-    event.currentTarget.classList.toggle("btn-active")
+    if (checkToken() === false ){   
+        // Utilisateur non connecté => on ouvre le modal de connexion
+        loginModal.show()
+    } else {
+        document.getElementById("chanllenge-calculator-group-edit-btn").classList.toggle("hide")
+        event.currentTarget.classList.toggle("btn-active")
 
-    // On déclare la couche warning_calculator comme étant en édition
-    declareEditionForLayer(warning_calculator_layer)
+        // On déclare la couche warning_calculator comme étant en édition
+        declareEditionForLayer(warning_calculator_layer)
+    }
 })
 
 /**
@@ -55,7 +60,9 @@ document.getElementById("btn-chanllenge-calculator-remove-feature").addEventList
 /**
  * Lancement du calcul d'enjeux
  */
-document.getElementById("btn-chanllenge-calculator-execute").addEventListener("click", event => {
+const chanllenge_calculator_execute_button = document.getElementById("btn-chanllenge-calculator-execute")
+
+chanllenge_calculator_execute_button.addEventListener("click", event => {
     var writer = new ol.format.GeoJSON();
     var geojson_txt = writer.writeFeatures(warning_calculator_source.getFeatures())
 
@@ -80,6 +87,9 @@ document.getElementById("btn-chanllenge-calculator-execute").addEventListener("c
     // Affichage du spinner
     document.getElementById("warning-calculator-spinner").classList.remove("hide")
     document.getElementById("icon-chanllenge-calculator-execute").classList.add("hide")
+
+    //désactivation du bouton pour na pas lancer deux fois le calcul
+    chanllenge_calculator_execute_button.disabled = true
     
     return fetch(APP_URL + "/api/get_warning_calculator_data", {
         method: "POST",
@@ -94,6 +104,9 @@ document.getElementById("btn-chanllenge-calculator-execute").addEventListener("c
         //Masquage du spinner
         document.getElementById("warning-calculator-spinner").classList.add("hide")
         document.getElementById("icon-chanllenge-calculator-execute").classList.remove("hide")
+
+        //Réactivation du bouton
+        chanllenge_calculator_execute_button.disabled = false
 
         if (res.status != 200){
             // En envoi l"erreur dans le catch

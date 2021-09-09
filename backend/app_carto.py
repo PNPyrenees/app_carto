@@ -1019,7 +1019,7 @@ def get_warning_calculator_data():
             {
                 "style_type": "Polygon",
                 "styles": [{
-                    "style_name": "Zone d'observation",
+                    "style_name": "Surfacique",
                     "filter": "",
                     "fill_color": "rgba(0, 255, 81, 0.5)",
                     "stroke_color": "rgba(0, 0, 0, 1)",
@@ -1029,7 +1029,7 @@ def get_warning_calculator_data():
             },{
                 "style_type": "Line",
                 "styles": [{
-                    "style_name": "Zone d'observation",
+                    "style_name": "Linéaire",
                     "filter": "",
                     "stroke_color": "rgba(0, 255, 81, 1)",
                     "stroke_width": 2,
@@ -1038,7 +1038,7 @@ def get_warning_calculator_data():
             }, {
                 "style_type": "Point",
                 "styles": [{
-                    "style_name": "Zone d'observation",
+                    "style_name": "Point",
                     "filter": "",
                     "fill_color": "rgba(0, 255, 81, 0.5)",
                     "stroke_color": "rgba(0, 0, 0, 1)",

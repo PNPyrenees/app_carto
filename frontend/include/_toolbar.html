@@ -15,7 +15,7 @@
             data-bs-trigger="hover" 
             title="Ajouter une couche de données"
         >
-                <i id="icon-add-layer" class="bi bi-stack"></i>
+            <i id="icon-add-layer" class="bi bi-stack"></i>
         </button>
     </div>
 
@@ -39,16 +39,13 @@
 
     
 
-
-    
-
     <!-- Bouton export PDF -->
     <div class="btn-group-vertical" class="text-center">
         <button 
             id="btn-pdf-generator" 
             type="button" 
             class="btn btn-primary check-auth" 
-            {#modal-target="add-layer-modal" #}
+            modal-target="pdf-generator-modal"
             toggle-tooltip="tooltip" 
             data-bs-placement="right" 
             data-bs-trigger="hover" 
