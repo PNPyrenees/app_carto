@@ -1515,7 +1515,6 @@ var layerHasFeature = function (layer){
         return false 
     }
 }
-
 /**
  * supprime un feature sélectionner pour une certaine source
  */

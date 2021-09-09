@@ -1,0 +1,27 @@
+<div class="modal fade" id="rename-layer-modal" tabindex="-1" aria-labelledby="rename-layer-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen-lg-down">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="login-modal-label">Renomer la couche</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form id="rename-layer-form" class="rename-layer-validation" novalidate>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input type="text" class="form-control form-control-lg" id="layer-name-input" aria-describedby="login-help" placeholder="Nom de la couche" autocomplete="off" required>
+                        <div class="invalid-feedback">
+                            Veuillez saisir le nom de la couche.
+                        </div>
+                        <input type="hidden" id="layer-uid">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="pdf-generator-submit" type="submit" class="btn btn-primary">Renomer</button>
+                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Annuler</button>
+                    <div id="form-login-error" class="invalid-feedback"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

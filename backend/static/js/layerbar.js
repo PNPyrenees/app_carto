@@ -60,6 +60,52 @@ function isBefore(el1, el2) {
   return false;
 }
 
+
+/**
+ * Fonction ouvrant la fenêtre modal permettant 
+ * de renseigner le nom de la couche
+ */
+var openRenameLayerModal = function(layer_uid){
+    document.getElementById("rename-layer-modal").querySelector("#layer-uid").value = layer_uid
+
+    current_layer_name = document.getElementById("layer_list").querySelector("li[layer-uid='" + layer_uid + "'").querySelector(".layer-name").innerHTML
+    form.querySelector("#layer-name-input").value = current_layer_name
+    
+    renameLayerModal.show()
+}
+
+/**
+ * Validation du formulaire de renommage d'une couche
+ */
+var form = document.getElementById("rename-layer-form")
+
+form.addEventListener("submit", function (event) {
+ 
+    event.preventDefault()
+    if (!form.checkValidity()) {
+        event.stopPropagation()
+    } else {
+        // on éxécute le renommage de la couche
+        let layer_name = form.querySelector("#layer-name-input").value
+        let layer_uid = form.querySelector("#layer-uid").value
+
+        // On renome la couche côté opelayers
+        map.getLayers().forEach(layer => {
+            if (ol.util.getUid(layer) == layer_uid){
+                layer.set("layer_name", layer_name)
+            }
+        })
+
+        document.getElementById("layer_list").querySelector("li[layer-uid='" + layer_uid + "'").querySelector(".layer-name").innerHTML = layer_name
+
+
+        renameLayerModal.hide()
+         
+    }
+ 
+     form.classList.add("was-validated")
+ }, false)
+
 /**
  * Gestion de l'affichage de la couche 
  * sur la carte

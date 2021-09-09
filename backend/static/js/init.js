@@ -34,6 +34,10 @@ var addLayerModal = new bootstrap.Modal(document.getElementById("add-layer-modal
 var pdfGeneratorModal = new bootstrap.Modal(document.getElementById("pdf-generator-modal"), {
     keyboard: false
 })
+
+var renameLayerModal = new bootstrap.Modal(document.getElementById("rename-layer-modal"), {
+    keyboard: false
+})
 // On ré-initialise le modal à la fermeture
 /*var addLayerModalEl = document.getElementById("add-layer-modal")
 addLayerModalEl.addEventListener('hidden.bs.modal', function (event) {
