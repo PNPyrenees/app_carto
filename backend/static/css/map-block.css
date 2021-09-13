@@ -55,6 +55,13 @@
     cursor: default;
 }
 
+#nav-attribute-table > .nav-layer-item  > .btn-close-attribute-table{
+    width: 0.2em!important;
+    height: 0.2em!important;
+    vertical-align: text-top;
+    margin-left: 10px;
+}
+
 .tabulator-headers{
     overflow: visible;
 }

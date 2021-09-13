@@ -143,8 +143,9 @@ BASEMAPS.forEach(basemap => {
         visible: parseInt(basemap.isDefault),
         isEditing: false,
         isBasemap: true,
+        description_layer: {"layer_attribution": basemap.attributions},
         source: new ol.source.WMTS({
-            attributions: basemap.attribution,
+            attributions: basemap.attributions,
             url: basemap.url,
             layer: basemap.layer,
             matrixSet: "PM",
@@ -1011,7 +1012,39 @@ createAttributeTable = function(layer_name, layer_uid, data){
     nav_element.setAttribute("target", tab_id)
     nav_element.classList.add("nav-layer-item")
     nav_element.classList.add("active")
-    nav_element.innerHTML =layer_name
+    nav_element.innerHTML = layer_name
+
+    //Création de la croix pour fermer la table attributaire 
+    btn_close = document.createElement("button")
+    btn_close.classList.add("btn-close")
+    btn_close.classList.add("btn-close-attribute-table")
+    btn_close.setAttribute("type", "button")
+    btn_close.addEventListener("click", event=> {
+        event.stopPropagation()
+
+        let nav_element = event.currentTarget.parentNode
+        let target_table = nav_element.getAttribute("target")
+
+        let nav_is_active = nav_element.classList.contains("active")
+
+        document.getElementById(target_table).remove()
+
+        let nav_attribute_table = nav_element.parentNode
+        
+        nav_element.remove()
+
+        // Si la table attributaire était afficher, il faut en afficher une autre (la première !)
+        if (nav_is_active){
+            let first_attribute_table = nav_attribute_table.querySelectorAll(".nav-layer-item")[0]
+            console.log(first_attribute_table)
+            if (first_attribute_table){
+                activeAttributeTable(first_attribute_table)
+            }
+        }
+    })
+    nav_element.append(btn_close)
+
+
     document.getElementById("nav-attribute-table").append(nav_element)
 
     // On active l'écouteur si il y a un click 
