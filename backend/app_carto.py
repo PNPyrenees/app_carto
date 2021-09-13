@@ -248,9 +248,9 @@ def get_ref_layer_data(ref_layer_id):
                 'type', 'Feature', 
                 'geometry', ST_AsGeoJSON(st_transform(geom, 3857))::jsonb, 
                 'properties', to_jsonb(row) - 'geom') AS feature  
-            FROM (select * from {}.{} t ) row
+            FROM (select {} AS geom, {} from {}.{} t ) row
         ) features
-    """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"]))
+    """.format(layer_schema["layer_geom_column"], ', '.join(layer_schema["layer_columns"]), layer_schema["layer_schema_name"], layer_schema["layer_table_name"]))
 
     layer_datas = db_sig.execute(statement).fetchone()._asdict()
     layer_datas['desc_layer'] = layer_schema
@@ -949,12 +949,12 @@ def get_warning_calculator_data():
                     'geometry', ST_AsGeoJSON(st_transform(geom, 3857))::jsonb, 
                     'properties', to_jsonb(row) - 'geom') AS feature  
                 FROM (
-                    SELECT t.* 
+                    SELECT t.{} AS geom, {} 
                     FROM {}.{} t 
                     INNER JOIN geom g ON ST_Intersects(t.geom, g.geom)
                 ) row
             ) features
-        """.format(json.dumps(geojson), app.config['SRID'], warning_layer_schema["layer_schema_name"], warning_layer_schema["layer_table_name"]))
+        """.format(json.dumps(geojson), app.config['SRID'], warning_layer_schema["layer_geom_column"], ', '.join(warning_layer_schema["layer_columns"]), warning_layer_schema["layer_schema_name"], warning_layer_schema["layer_table_name"]))
 
         layer_datas = db_sig.execute(statement).fetchone()._asdict()
 

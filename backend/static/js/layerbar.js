@@ -25,29 +25,29 @@ function dragOver(e) {
 }
 
 function dragEnd(e) {
-  if (document.getElementById("drag_and_drop_blank")){
-    if (isBefore(selected, e.target)) {
-      e.target.parentNode.insertBefore(selected, blank_obj.target)
-    } else {
-      e.target.parentNode.insertBefore(selected, blank_obj.nextSibling)
+    if (document.getElementById("drag_and_drop_blank")){
+        if (isBefore(selected, e.target)) {
+        e.target.parentNode.insertBefore(selected, blank_obj.target)
+        } else {
+        e.target.parentNode.insertBefore(selected, blank_obj.nextSibling)
+        }
     }
-  }
-  selected.style.opacity = 1
-  
-  if(document.getElementById("drag_and_drop_blank")){
-    document.getElementById("drag_and_drop_blank").remove()
-  }
+    selected.style.opacity = 1
+    
+    if(document.getElementById("drag_and_drop_blank")){
+        document.getElementById("drag_and_drop_blank").remove()
+    }
 
-  changeLayerOrder()
+    changeLayerOrder()
 
-  selected = null
+    selected = null
 }
 
 function dragStart(e) {
-  e.dataTransfer.effectAllowed = 'move'
-  e.dataTransfer.setData('text/plain', null)
-  selected = e.target
-  selected.style.opacity = 0.5
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', null)
+    selected = e.target
+    selected.style.opacity = 0.5
 }
 
 function isBefore(el1, el2) {

@@ -17,6 +17,8 @@ CREATE TABLE app_carto.t_layers (
     layer_id serial PRIMARY KEY,
     layer_schema_name varchar(50) NOT NULL,
     layer_table_name varchar(50) NOT NULL,
+    layer_columns varchar[],
+    layer_geom_column varchar(50),
     layer_group varchar(50),
     layer_label varchar(50) NOT NULL,
     layer_is_default boolean,

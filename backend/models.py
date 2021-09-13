@@ -59,6 +59,8 @@ class Layer(db_app.Model):
     layer_default_style = db_app.Column(db_app.JSON())
     layer_is_warning = db_app.Column(db_app.Boolean)
     layer_attribution = db_app.Column(db_app.String(255))
+    layer_geom_column = db_app.Column(db_app.String(50))
+    layer_columns = db_app.Column(db_app.ARRAY(db_app.String))
 
     def __init__(
         self,
@@ -70,7 +72,9 @@ class Layer(db_app.Model):
         layer_is_default,
         layer_default_style,
         layer_is_warning,
-        layer_attribution
+        layer_attribution,
+        layer_geom_column,
+        layer_columns
     ):
         self.layer_id = layer_id
         self.layer_schema_name = layer_schema_name
@@ -81,6 +85,8 @@ class Layer(db_app.Model):
         self.layer_default_style = layer_default_style
         self.layer_is_warning = layer_is_warning
         self.layer_attribution = layer_attribution
+        self.layer_geom_column = layer_geom_column
+        self.layer_columns = layer_columns
 
 class VLayerList(db_app.Model):
     __tablename__ = 'v_layers_list_by_group'

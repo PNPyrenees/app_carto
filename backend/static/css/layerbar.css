@@ -1,6 +1,7 @@
 #layerbar{
     background-color: #e6e6e6;
     min-height: 100%;
+    max-height: 100%;
     vertical-align: middle;
     border-right: 2px solid;
     /*box-sizing: border-box;*/
