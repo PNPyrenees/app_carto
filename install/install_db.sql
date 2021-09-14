@@ -20,7 +20,7 @@ CREATE TABLE app_carto.t_layers (
     layer_columns varchar[],
     layer_geom_column varchar(50),
     layer_group varchar(50),
-    layer_label varchar(50) NOT NULL,
+    layer_label varchar(255) NOT NULL,
     layer_is_default boolean,
     layer_default_style jsonb,
     layer_is_warning boolean,

@@ -64,22 +64,26 @@ apiCallErrorCatcher = function(error, default_message = null) {
         setTimeout(function(){
             addLayerModal.hide()
             forceOpenLoginModal()
-        }, 500)  
+        }, 1000)  
     }
 
     // Gestion de l'affichage du message d'erreur
     if (typeof error == "string") {
         showAlert(default_message)
     } else { 
-        err = error.json()
-        err.then(err => { 
-            if (err.message != undefined){
-                message = err.message
-                showAlert(message)    
-            } else {
-                showAlert(default_message)
-            }
-        })
+        /*if (error.status == 500){
+            showAlert(default_message)
+        } else {*/
+            err = error.json()
+            err.then(err => { 
+                if (err.message != undefined){
+                    message = err.message
+                    showAlert(message)    
+                } else {
+                    showAlert(default_message)
+                }
+            })
+        //}
     }
 }
 

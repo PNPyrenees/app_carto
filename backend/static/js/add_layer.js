@@ -468,14 +468,23 @@ var buildAddObsLayerForm = function(){
     });
 
     // Liste des echelles de restitution
-    getScaleList().then(commune_list => {
+    getScaleList().then(scale_list => {
+        //Ajout de l'echelle brut
+        scale_list.unshift({label: "Données brutes", value: 999})
+
         document.getElementById("form-add-obs-layer-select-scale").innerHTML = "";
         new SelectPure("#form-add-obs-layer-select-scale", {
-            options: commune_list,
+            options: scale_list,
             multiple: false,
             icon: "bi bi-x",
             inlineIcon: false,
             onChange: values => {
+                // Gestion de l'affichage de l'alerte en cas de sélection d'une restituion brute
+                document.getElementById("brut-data-warning").classList.add("hide")
+                if (values == 999){
+                    document.getElementById("brut-data-warning").classList.remove("hide")
+                }
+                
                 document.getElementById("form-add-obs-layer-scale-value").value = JSON.stringify(values)
             }
         }); 
@@ -798,7 +807,6 @@ var getObsLayerGeojson = function(formdata) {
         }
     })
     .then(data => {
-        console.log(data)
         if (data.geojson_layer.features){
             additional_data = {"formdata": formdata,}
             addGeojsonLayer(data, additional_data)
@@ -812,15 +820,24 @@ var getObsLayerGeojson = function(formdata) {
         }
     })
     .catch(error => {
+        layer_submit_button.disabled = false
+        document.getElementById('loading-spinner').style.display = 'none'
 
-        //console.log(error)
+        console.log(error)
         if (typeof error == "string") {
             apiCallErrorCatcher(error, error)
         } else {
-            error.then(err => { 
-                default_message = "Erreur lors de la récupération de la couche de donénes d'observation"
-                apiCallErrorCatcher(error, default_message)
-            })
+            if (error.status == 500){
+                default_message = "Erreur lors de la récupération de la couche de données d'observation"
+                apiCallErrorCatcher(default_message, default_message)
+            } else {
+                error.then(err => { 
+                    default_message = "Erreur lors de la récupération de la couche de données d'observation"
+                    apiCallErrorCatcher(error, default_message)
+                })
+            }
+
+            
         }        
     })
 }

@@ -77,7 +77,8 @@ html * {
     box-shadow: none!important;
 }
 
-.btn-primary.disabled {
+.btn-primary.disabled,
+.btn-primary:disabled {
     background-color: #6c757d!important;
     border-color: #6c757d!important;
 }

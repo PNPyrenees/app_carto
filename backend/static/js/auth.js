@@ -76,12 +76,13 @@ var forceOpenLoginModal = function(){
 /**
  * Validation du formulaire de login
  */
-var form = document.getElementById("login-form")
+const login_form = document.getElementById("login-form")
 
-form.addEventListener("submit", function (event) {
+login_form.addEventListener("submit", function (event) {
 
     event.preventDefault()
-    if (!form.checkValidity()) {
+    if (!login_form.checkValidity()) {
+        console.log(login_form)
         event.stopPropagation()
     } else {
         // Ici, le formulaire est valide, on passe à la phase 
@@ -89,16 +90,17 @@ form.addEventListener("submit", function (event) {
         let login = document.getElementById("login-input").value
         let password = document.getElementById("password-input").value
         usershubAuth(login, password)
+        
     }
 
-    form.classList.add("was-validated")
+    login_form.classList.add("was-validated")
 }, false)
 
 /**
  * Authentification de l'utilisateur auprès du userhub 
  */
  var usershubAuth = function (login, password){
-
+    
     //On masque et supprime le message d'erreur avant la tentative d'authentification
     document.getElementById("form-login-error").style.display = "none"
     document.getElementById("form-login-error").innerHTML = "";

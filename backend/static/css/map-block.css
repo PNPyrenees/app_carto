@@ -108,7 +108,7 @@
     position: absolute;
     right: 3em;
     top: 3.6em;
-    z-index: 999;
+    z-index: 9999;
 }
 
 #basemap-selector > .dropdown > .btn {

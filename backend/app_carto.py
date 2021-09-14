@@ -6,6 +6,7 @@ import requests
 import json
 from datetime import datetime
 from sqlalchemy import create_engine, text
+from sqlalchemy.exc import SQLAlchemyError
 #from sqlalchemy.sql.expression import true
 from functools import wraps
 
@@ -252,7 +253,16 @@ def get_ref_layer_data(ref_layer_id):
         ) features
     """.format(layer_schema["layer_geom_column"], ', '.join(layer_schema["layer_columns"]), layer_schema["layer_schema_name"], layer_schema["layer_table_name"]))
 
-    layer_datas = db_sig.execute(statement).fetchone()._asdict()
+    try :
+        layer_datas = db_sig.execute(statement).fetchone()._asdict()
+    except :
+        return jsonify({
+            "status": "error",
+            'message': """Erreur lors de la récupération de la couche de référence. 
+                Veuillez contacter l'administrateur afin de contrôler la configuration de la couche {}.{}
+                """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
+        }), 404
+
     layer_datas['desc_layer'] = layer_schema
     return layer_datas
 
@@ -563,39 +573,57 @@ def check_obs_form_data(postdata):
 
     return error
 
-def build_query(postdata):
+
+def build_obs_layer_query(postdata):
+    """ Construit la requête SQL interrogeant les données
+    d'observation en fonction du paramétrage du formulaire de requatage
+
+    Returns
+    -------
+        JSON
+    """   
+
+    if postdata["scale"] == 999 :
+        select_column = """ 
+            o.geom
+        """
+    else :
+        select_column = "m.geom"
+    
+
     # Construction du select
     query_select = ""
     if postdata["restitution"] == "rt":
         query_select = """ 
             SELECT 
-                m.mesh_id, 
-                m.geom,
-                count(DISTINCT o.cd_ref) AS nb_taxon
-        """
+                {},
+                count(DISTINCT COALESCE(o.cd_ref, 0)) AS nb_taxon
+        """.format(select_column)
 
     if postdata["restitution"] == "po":
         query_select = """ 
             SELECT 
-                m.mesh_id, 
-                m.geom,
+                {},
                 count(DISTINCT o.obs_id) AS nb_observation
-        """
+        """.format(select_column)
 
     if postdata["restitution"] == "re":
         query_select = """ 
             SELECT 
-                m.mesh_id, 
-                m.geom
-        """
+                {}
+        """.format(select_column)
 
     # Construction du from
     query_from = """
         FROM
             app_carto.t_observations o
+    """
+
+    if postdata["scale"] != 999 :
+        query_from += """
             LEFT JOIN app_carto.cor_observation_mesh com ON o.obs_id = com.obs_id
             LEFT JOIN app_carto.bib_mesh m ON com.mesh_id = m.mesh_id
-    """
+        """
 
     if postdata["status_list"] or postdata["grp_status_list"]:
         query_from += """
@@ -609,10 +637,17 @@ def build_query(postdata):
         """
 
     # Construction du where
-    query_where = """
-        WHERE
-            m.mesh_scale_id = {}
-    """.format(postdata["scale"])
+    if (postdata["scale"] != 999):
+        query_where = """
+            WHERE
+                m.mesh_scale_id = {}
+        """.format(postdata["scale"])
+    else :
+        query_where = """
+            WHERE
+                1 = 1
+        """
+    
 
     if postdata["cd_nom_list"]:
         query_where += """
@@ -696,15 +731,21 @@ def build_query(postdata):
             AND o.altitude_max > {}
         """.format(postdata["altitude_max"])
 
-    query_groupby = """
-        GROUP BY 
-            m.mesh_id, 
-            m.geom
-    """
+    if postdata["scale"] == 999:
+        query_groupby = """
+            GROUP BY 
+                o.geom
+        """
+    else :
+        query_groupby = """
+            GROUP BY 
+                m.mesh_id, 
+                m.geom
+        """
 
     return query_select + query_from + query_where + query_groupby
 
-def getObsLayerStyle(restituion_type, query):
+def getObsLayerStyle(restituion_type, scale, query):
     """ Retourne un json correspondant au style 
     à appliquer en fonction de la requête (query)
     et du type de restitution (restituion_type)
@@ -713,21 +754,57 @@ def getObsLayerStyle(restituion_type, query):
     -------
         JSON
     """    
-
     # cette requête permet de récupérer les bornes des classe
     if restituion_type == "re":
         # Pour la répartition, on applique un applat unique
-        style = [{
-            "style_type": "Polygon",
-            "styles": [{
-                "style_name": "Zone de présence",
-                "filter": "",
-                "fill_color": "rgba(0, 255, 81, 0.5)",
-                "stroke_color": "rgba(0, 0, 0, 1)",
-                "stroke_width": 1,
-                "stroke_linedash": []
+        if scale == 999:
+            # cas restitution brute
+            style = [
+                {
+                    "style_type": "Polygon",
+                    "styles": [{
+                        "style_name": "Surfacique",
+                        "filter": "",
+                        "fill_color": "rgba(0, 255, 81, 0.5)",
+                        "stroke_color": "rgba(0, 0, 0, 1)",
+                        "stroke_width": 1,
+                        "stroke_linedash": []
+                    }]
+                },{
+                    "style_type": "Line",
+                    "styles": [{
+                        "style_name": "Linéaire",
+                        "filter": "",
+                        "stroke_color": "rgba(0, 255, 81, 1)",
+                        "stroke_width": 2,
+                        "stroke_linedash": []
+                    }],
+                }, {
+                    "style_type": "Point",
+                    "styles": [{
+                        "style_name": "Point",
+                        "filter": "",
+                        "fill_color": "rgba(0, 255, 81, 0.5)",
+                        "stroke_color": "rgba(0, 0, 0, 1)",
+                        "stroke_width": 1,
+                        "stroke_linedash": [],
+                        "radius": 5
+                    }]
+                }
+            ]
+        else :
+            # cas restitution maille
+            style = [{
+                "style_type": "Polygon",
+                "styles": [{
+                    "style_name": "Zone de présence",
+                    "filter": "",
+                    "fill_color": "rgba(0, 255, 81, 0.5)",
+                    "stroke_color": "rgba(0, 0, 0, 1)",
+                    "stroke_width": 1,
+                    "stroke_linedash": []
+                }]
             }]
-        }]
     else:
         
         # pour les autres restitution, on créer 5 classes
@@ -836,7 +913,158 @@ def getObsLayerStyle(restituion_type, query):
                 }
                 style[0]["styles"].append(tmp_style)
             i += 1
-    
+
+        # Style dans le cas de la restitution brute
+        if scale == 999:
+            # Style point
+            style_point = {
+                "style_type": "Point",
+                "styles": []
+            }
+
+            i = 0
+            for borne in app.config['OBS_LAYER_CLASSIFICATION_BORNE']:
+                # Création de la première classe
+                if i == 0:
+                    if style_query_datas["borne_" + str(i)] == 1:
+                        style_name = "1 taxon"
+                    else:
+                        style_name = "De 1 à " + str(style_query_datas["borne_" + str(i)]) + " " + legend_alias,
+                    
+                    tmp_style = {
+                        "style_name": style_name,
+                        "filter": {
+                            "operator": "<=",
+                            "left_term": style_field_filter,
+                            "right_term": style_query_datas["borne_" + str(i)],
+                            "or": [],
+                            "and": []
+                        },
+                        "fill_color": app.config['OBS_LAYER_CLASS_COLOR'][i],
+                        "stroke_color": "rgba(0, 0, 0, 1)",
+                        "stroke_width": 1,
+                        "stroke_linedash": []
+                    }
+                
+                #Création des classe "classique"
+                if i > 0 :
+                    tmp_style = {
+                        "style_name": "De " + str(style_query_datas["borne_" + str(i - 1)]) + " à " + str(style_query_datas["borne_" + str(i)]) + " " + legend_alias,
+                        "filter": {
+                            "operator": ">",
+                            "left_term": style_field_filter,
+                            "right_term": style_query_datas["borne_" + str(i -1)],
+                            "or": [],
+                            "and": [{
+                                "left_term": style_field_filter,
+                                "operator": "<=",
+                                "right_term": style_query_datas["borne_" + str(i)],
+                                "and": [],
+                                "or": []
+                            }]
+                        },
+                        "fill_color": app.config['OBS_LAYER_CLASS_COLOR'][i],
+                        "stroke_color": "rgba(0, 0, 0, 1)",
+                        "stroke_width": 1,
+                        "stroke_linedash": []
+                    }
+
+                style_point["styles"].append(tmp_style)
+
+                # Création de la dernière classe
+                if i == len(app.config['OBS_LAYER_CLASSIFICATION_BORNE']) -1:
+                    tmp_style = {
+                        "style_name": "Plus de " + str(style_query_datas["borne_" + str(i)]) + " " + legend_alias,
+                        "filter": {
+                            "operator": ">",
+                            "left_term": style_field_filter,
+                            "right_term": style_query_datas["borne_" + str(i)],
+                            "or": [],
+                            "and": []
+                        },
+                        "fill_color": app.config['OBS_LAYER_CLASS_COLOR'][i + 1],
+                        "stroke_color": "rgba(0, 0, 0, 1)",
+                        "stroke_width": 1,
+                        "stroke_linedash": []
+                    }
+                    style_point["styles"].append(tmp_style)
+                i += 1
+
+            style.append(style_point)
+
+            # Style Ligne
+            style_line = {
+                "style_type": "Line",
+                "styles": []
+            }
+
+            i = 0
+            for borne in app.config['OBS_LAYER_CLASSIFICATION_BORNE']:
+                # Création de la première classe
+                if i == 0:
+                    if style_query_datas["borne_" + str(i)] == 1:
+                        style_name = "1 taxon"
+                    else:
+                        style_name = "De 1 à " + str(style_query_datas["borne_" + str(i)]) + " " + legend_alias,
+                    
+                    tmp_style = {
+                        "style_name": style_name,
+                        "filter": {
+                            "operator": "<=",
+                            "left_term": style_field_filter,
+                            "right_term": style_query_datas["borne_" + str(i)],
+                            "or": [],
+                            "and": []
+                        },
+                        "stroke_color": app.config['OBS_LAYER_CLASS_COLOR'][i],
+                        "stroke_width": 2,
+                        "stroke_linedash": []
+                    }
+                
+                #Création des classe "classique"
+                if i > 0 :
+                    tmp_style = {
+                        "style_name": "De " + str(style_query_datas["borne_" + str(i - 1)]) + " à " + str(style_query_datas["borne_" + str(i)]) + " " + legend_alias,
+                        "filter": {
+                            "operator": ">",
+                            "left_term": style_field_filter,
+                            "right_term": style_query_datas["borne_" + str(i -1)],
+                            "or": [],
+                            "and": [{
+                                "left_term": style_field_filter,
+                                "operator": "<=",
+                                "right_term": style_query_datas["borne_" + str(i)],
+                                "and": [],
+                                "or": []
+                            }]
+                        },
+                        "stroke_color": app.config['OBS_LAYER_CLASS_COLOR'][i],
+                        "stroke_width": 2,
+                        "stroke_linedash": []
+                    }
+
+                style_line["styles"].append(tmp_style)
+
+                # Création de la dernière classe
+                if i == len(app.config['OBS_LAYER_CLASSIFICATION_BORNE']) -1:
+                    tmp_style = {
+                        "style_name": "Plus de " + str(style_query_datas["borne_" + str(i)]) + " " + legend_alias,
+                        "filter": {
+                            "operator": ">",
+                            "left_term": style_field_filter,
+                            "right_term": style_query_datas["borne_" + str(i)],
+                            "or": [],
+                            "and": []
+                        },
+                        "stroke_color": app.config['OBS_LAYER_CLASS_COLOR'][i + 1],
+                        "stroke_width": 2,
+                        "stroke_linedash": []
+                    }
+                    style_line["styles"].append(tmp_style)
+                i += 1
+
+            style.append(style_line)
+
     return style
 
 def builLayerLabel(postdata):
@@ -848,9 +1076,11 @@ def builLayerLabel(postdata):
     if postdata["restitution"] == "re":
         restitution = "Répartition"
 
-    mesh_scale = BibMeshScale.query.get(postdata["scale"])
-
-    return  restitution + " - " + mesh_scale.mesh_scale_label
+    if postdata["scale"] == 999:
+        return  restitution + " - " + "Données brutes"
+    else :
+        mesh_scale = BibMeshScale.query.get(postdata["scale"])
+        return  restitution + " - " + mesh_scale.mesh_scale_label
     
 
 @app.route('/api/layer/get_obs_layer_data', methods=['POST'])
@@ -876,7 +1106,7 @@ def get_obs_layer_data():
         }), 400
     
     # Construction de la requête SQL
-    query = build_query(postdata)
+    query = build_obs_layer_query(postdata)
 
     geojson_query = text("""SELECT jsonb_build_object('type', 'FeatureCollection', 'features', jsonb_agg(feature)) AS geojson_layer 
         FROM (
@@ -891,7 +1121,7 @@ def get_obs_layer_data():
     obs_layer_datas = db_app.engine.execute(geojson_query).fetchone()._asdict()
 
     # Récupération du style associé
-    default_style = getObsLayerStyle(postdata["restitution"], query)
+    default_style = getObsLayerStyle(postdata["restitution"], postdata["scale"], query)
 
     layer_label = builLayerLabel(postdata)
 

@@ -77,17 +77,17 @@ var openRenameLayerModal = function(layer_uid){
 /**
  * Validation du formulaire de renommage d'une couche
  */
-var form = document.getElementById("rename-layer-form")
+const rename_form = document.getElementById("rename-layer-form")
 
-form.addEventListener("submit", function (event) {
+rename_form.addEventListener("submit", function (event) {
  
     event.preventDefault()
-    if (!form.checkValidity()) {
+    if (!rename_form.checkValidity()) {
         event.stopPropagation()
     } else {
         // on éxécute le renommage de la couche
-        let layer_name = form.querySelector("#layer-name-input").value
-        let layer_uid = form.querySelector("#layer-uid").value
+        let layer_name = rename_form.querySelector("#layer-name-input").value
+        let layer_uid = rename_form.querySelector("#layer-uid").value
 
         // On renome la couche côté opelayers
         map.getLayers().forEach(layer => {
@@ -103,7 +103,7 @@ form.addEventListener("submit", function (event) {
          
     }
  
-     form.classList.add("was-validated")
+    rename_form.classList.add("was-validated")
  }, false)
 
 /**
