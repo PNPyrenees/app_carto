@@ -217,8 +217,10 @@ checkRequired = function(value){
 /**
  * Gestion de l'annulation d'un appel à l'API
  */
-const controller = new AbortController()
-const signal = controller.signal
+//const controller = new AbortController()
+//const signal = controller.signal
+var controller
+var signal
 
 /**
  * Gestion du clique sur un bouton devant faire apparaitre un sous-groupe de bouton

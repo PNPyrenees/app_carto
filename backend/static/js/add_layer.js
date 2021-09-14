@@ -578,6 +578,7 @@ document.getElementById("form-add-obs-layer-date-end").addEventListener("change"
 
 // Fonction réalisant l'appel API pour l'auto complétion
 var getAutocompleteTaxon = function(search_name){
+
     return fetch(GEONATURE_URL + "/geonature/api/synthese/taxons_autocomplete?search_name=" + search_name + "&limit=20", {
         method: "GET",
         signal: signal,
@@ -604,6 +605,16 @@ var getAutocompleteTaxon = function(search_name){
 
 // Lancement de la recherche d'auto-complétion
 document.getElementById("search-taxon-input").addEventListener("keyup", event => {
+
+    if (controller !== undefined) {
+        // Cancel the previous request
+        controller.abort();
+    }
+
+    if ("AbortController" in window) {
+        controller = new AbortController;
+        signal = controller.signal;
+    }
     
     //On vide le bloc affichant le résultat de la recherche
     document.getElementById("taxon-autocomplete").innerHTML = ""
@@ -615,7 +626,7 @@ document.getElementById("search-taxon-input").addEventListener("keyup", event =>
     // On lance la recherche s'l y a plus de trois caractère de tapé
     if (search_name.length >= 3) {
 
-        //controller.abort()
+        
         getAutocompleteTaxon(search_name).then(taxon_list => {
             // On aliment le bloc d'affichage des résultat que s'il y a des résultat
             if (taxon_list){                
@@ -631,7 +642,7 @@ document.getElementById("search-taxon-input").addEventListener("keyup", event =>
                     // qui ajoute le taxon cliqué dans la lsite des taxon sélectionné
                     div.addEventListener('click', (event) =>{
                         var li = document.createElement("li")
-                        li.setAttribute("cdnom", event.target.getAttribute("data-value"))
+                        li.setAttribute("cdnom", event.currentTarget.getAttribute("data-value"))
                         
                         var i = document.createElement("i")
                         i.classList.add("bi")
@@ -643,7 +654,7 @@ document.getElementById("search-taxon-input").addEventListener("keyup", event =>
 
                         li.append(i)
 
-                        text = document.createTextNode(" "+event.target.getAttribute("lb-nom"));
+                        text = document.createTextNode(" "+event.currentTarget.getAttribute("lb-nom"));
                         li.append(text)
 
                         document.getElementById("selected-taxon").append(li)
