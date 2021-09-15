@@ -256,9 +256,13 @@
 
 #search-toponyme{
     position: absolute;
-    right: 7em;
+    right: 140px;
     top: 3.8em;
     z-index: 999;
+}
+
+#search-toponyme > .input-group{
+    width: 20em;
 }
 
 #toponyme-autocomplete-loading {
@@ -280,11 +284,12 @@
     max-height: 220px;
     overflow-y: scroll;
     position: absolute;
-    width: 17%;
-    z-index: 5;
+    width: 100%;
+    /*width: 20em;*/
+    z-index: 999;
     margin-top: -1px;
-    right: 7.2em;
-    top: 6.4em;
+    /*right: 7em;
+    top: 6.4em;*/
 }
 
 #toponyme-autocomplete  > .toponyme-autocomplete-option{
