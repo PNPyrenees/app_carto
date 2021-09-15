@@ -4,6 +4,19 @@
 
         <div id="map" class="map" {#tabindex="0"#}>
 
+            <div id="search-toponyme">
+
+                <div class="input-group">
+                    <input type="text" class="form-control form-control-lg" id="search-toponyme-input" placeholder="Rechercher un toponyme">
+                    <span  id="toponyme-autocomplete-loading" class="input-group-text">
+                        <span id="toponyme-autocomplete-spinner" class="spinner-grow spinner-grow-sm"></span>
+                    </span>
+                </div>
+                <!--<button id="search-lieu-dit-exec" class="btn btn-secondary btn-opt-layer bi bi-layers-half btn-dropdown" title="lancer la rechercher"></button>-->
+            </div>
+
+            <div id="toponyme-autocomplete" class="hide"></div>
+
             <div id="basemap-selector">
                 <div class="dropdown">
                     <button class="btn btn-secondary btn-opt-layer bi bi-layers-half btn-dropdown" onclick="openDropdown(this)" title="Fond de carte"></button>

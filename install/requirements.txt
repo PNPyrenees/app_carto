@@ -4,6 +4,7 @@ click==8.0.1
 Flask==2.0.1
 flask-marshmallow==0.14.0
 Flask-SQLAlchemy==2.5.1
+GeoAlchemy2==0.9.4
 greenlet==1.1.0
 gunicorn==20.1.0
 idna==3.2
@@ -12,7 +13,9 @@ Jinja2==3.0.1
 MarkupSafe==2.0.1
 marshmallow==3.12.2
 marshmallow-sqlalchemy==0.26.1
+packaging==21.0
 psycopg2==2.9.1
+pyparsing==2.4.7
 requests==2.26.0
 six==1.16.0
 SQLAlchemy==1.4.22

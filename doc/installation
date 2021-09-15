@@ -22,7 +22,7 @@
     $ source venv/bin/activate
 
 # Installation des bibliothèque python
-    $ pip install -r install/requirement.txt
+    $ pip install -r install/requirements.txt
     
     Ignorer les erreurs lors de l'installation de psycopg !(c'est du bluff)
 

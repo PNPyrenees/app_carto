@@ -21,6 +21,13 @@ class BibGroupStatusSchema(ma.SQLAlchemyAutoSchema):
         model = BibGroupStatus
         load_instance = True
 
+#class BibToponymeSchema(ma.SQLAlchemyAutoSchema):
+#    class Meta:
+#        model = BibToponyme
+#        load_instance = True
+
+        
+
 #class BibStatusTypeSchema(ma.SQLAlchemyAutoSchema):
 #    class Meta:
 #        model = BibStatusType

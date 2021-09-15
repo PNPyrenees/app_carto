@@ -1291,6 +1291,46 @@ def get_warning_calculator_data():
     # On retourne l'ensemble des couche à enjeux
     return json.dumps(warning_result_layers)
 
+@app.route('/api/toponyme_autocomplete', methods=['GET'])
+def toponyme_autocomplete():
+    """ Autocomplétion de la recherche d'un toponyme
+
+    Returns
+    -------
+        JSON
+    """
+
+    search_name = request.args.get("search_name", "").replace(" ", "%").replace("'", "''")
+    limit = request.args.get("limit", 20)
+
+    statement = text("""
+        SELECT jsonb_build_object('type', 'FeatureCollection', 'features', jsonb_agg(feature)) AS geojson_layer 
+        FROM (
+            SELECT jsonb_build_object(
+                'type', 'Feature', 
+                'geometry', ST_AsGeoJSON(geom)::jsonb, 
+                'properties', to_jsonb(row) - 'geom') AS feature  
+            FROM (
+                SELECT nom || ' (' || type || ')' as nom, ST_Extent(st_transform(ST_Buffer(geom, 1), 3857)) AS geom 
+                FROM app_carto.bib_toponyme t
+                WHERE 
+                    nom ilike '%{}%'
+                GROUP BY
+                    nom, type, geom
+                ORDER BY
+	                similarity(nom, '{}') desc
+                LIMIT {}
+                 ) row
+        ) features
+    """.format(search_name, request.args.get("search_name", ""), limit))
+
+    #try :
+    toponyme_datas = db_app.engine.execute(statement).fetchone()._asdict()
+    
+
+    return json.dumps(toponyme_datas)
+    #return BibToponymeSchema().dump(data)
+
 
 if __name__ == "__main__":
     app.run()

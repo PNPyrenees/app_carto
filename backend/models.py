@@ -3,6 +3,7 @@ from .utils.env import db_app
 from datetime import datetime
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
+#from geoalchemy2 import Geometry
 
 class Role(db_app.Model):
     __tablename__ = 't_roles'
@@ -207,4 +208,24 @@ class BibMeshScale(db_app.Model):
         self.mesh_scale_id = mesh_scale_id
         self.mesh_scale_label = mesh_scale_label
         self.active = active
-    
+
+#class BibToponyme(db_app.Model):
+#    __tablename__ = 'bib_toponyme'
+#    __table_args__ = {'schema': 'app_carto'}
+#    id = db_app.Column(db_app.Integer, primary_key=True)
+#    nom = db_app.Column(db_app.String(255))
+#    type = db_app.Column(db_app.String(50))
+#    geom = db_app.Column(Geometry("GEOMETRY", 2154))
+#
+#    def __init__(
+#        self,
+#        id,
+#        nom,
+#        type,
+#        geom
+#        
+#    ):
+#        self.id = id
+#        self.nom = nom
+#        self.type = type
+#        self.geom = geom

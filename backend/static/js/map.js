@@ -1548,6 +1548,101 @@ var layerHasFeature = function (layer){
         return false 
     }
 }
+
+/**
+ * Recherche d'un lieux dit et zoom sur la carte
+ */
+document.getElementById("search-toponyme-input").addEventListener("keyup", event => {
+    if (controller !== undefined) {
+        // Cancel the previous request
+        controller.abort();
+    }
+
+    if ("AbortController" in window) {
+        controller = new AbortController;
+        signal = controller.signal;
+    }
+
+    //On vide le bloc affichant le résultat de la recherche
+    document.getElementById("toponyme-autocomplete").innerHTML = ""
+
+    var search_name = event.target.value
+
+    document.getElementById("toponyme-autocomplete-spinner").style.display = "block"
+
+    if (search_name.length >= 3) {
+        getAutocompleteToponyme(search_name).then(toponymes_list => {
+            console.log(toponymes_list)
+            document.getElementById("toponyme-autocomplete").classList.remove("hide")
+
+            if (toponymes_list.geojson_layer.features){                
+                //Création des élément HTML de la liste des résultats
+                toponymes_list.geojson_layer.features.forEach(toponyme => {
+
+                    var div = document.createElement('div')
+                    div.classList.add("toponyme-autocomplete-option")
+                    div.setAttribute("coordinates", '[' + toponyme.geometry.coordinates + ']')
+                    div.innerHTML = toponyme.properties.nom
+
+                    // On ajoute un listener lors d'un clique sur un des éléments
+                    // qui zoom sur les coordonnée associé à l'élément
+                    div.addEventListener('click', (event) =>{
+                        // On masque la liste des propositions
+                        document.getElementById("toponyme-autocomplete").classList.add("hide")
+
+                        let coordinates = JSON.parse(event.currentTarget.getAttribute("coordinates"))
+                        map.getView().fit(coordinates, {maxZoom: 16})
+
+                        document.getElementById("search-toponyme-input").value = event.currentTarget.innerHTML
+                    })
+
+                    document.getElementById("toponyme-autocomplete").append(div)
+                })
+                //On affiche le div recevant le réseultat de la recherche
+                document.getElementById("toponyme-autocomplete").style.display = "block"
+            }
+            // On arrête le spinner
+            document.getElementById("toponyme-autocomplete-spinner").style.display = "none"
+        })
+    } else {
+        // On arrête le spinner s'il y a moins de 3 caractères
+        document.getElementById("toponyme-autocomplete-spinner").style.display = "none"
+
+        document.getElementById("toponyme-autocomplete").classList.add("hide")
+    }
+})
+
+/**
+ * Appel API pour l'autocomplétion du lieux-dits
+ */
+var getAutocompleteToponyme = function (search_name){
+    return fetch(APP_URL + "/api/toponyme_autocomplete?search_name=" + search_name + "&limit=20", {
+        method: "GET",
+        signal: signal,
+        headers: { 
+            "Accept": "application/json", 
+            "Content-Type": "application/json" 
+        },
+        credentials: "same-origin"
+    })
+    .then(res => {
+        if (res.status != 200){
+            throw res
+        } else {
+            return res.json()
+        }
+    })
+    .catch(error => {
+        default_message = "Erreur lors de l'autocompétion du taxon"
+
+        console.log(error)
+        //apiCallErrorCatcher(error, default_message)
+    })
+}
+
+
+
+
 /**
  * supprime un feature sélectionner pour une certaine source
  */

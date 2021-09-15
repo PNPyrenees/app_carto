@@ -1,4 +1,5 @@
 CREATE EXTENSION postgis;
+CREATE EXTENSION pg_trgm;
 
 CREATE SCHEMA app_carto;
 
@@ -238,3 +239,11 @@ CREATE TABLE app_carto.cor_observation_commune (
 			ON DELETE NO ACTION
 );
 CREATE INDEX idx_cor_observations_commune_id_obs ON app_carto.cor_observation_commune(obs_id);
+
+/* Création de la table référentiel toponyme */
+CREATE TABLE IF NOT EXISTS app_carto.bib_toponyme (
+    id serial NOT NULL PRIMARY KEY,
+    nom character varying(255),
+    type character varying(50),
+    geom geometry(Geometry,2154)
+)
