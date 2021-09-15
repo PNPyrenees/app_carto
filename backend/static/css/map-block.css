@@ -108,7 +108,7 @@
     position: absolute;
     right: 3em;
     top: 3.6em;
-    z-index: 9999;
+    z-index: 999;
 }
 
 #basemap-selector > .dropdown > .btn {
@@ -163,7 +163,7 @@
 
 #bloc-clicked-features-attributes{
     position: absolute;
-    z-index: 999;
+    z-index: 99;
     right: 1%;
     max-height: 45%;
     width: 20%;
