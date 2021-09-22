@@ -121,20 +121,7 @@ var layerToCSV = function(layer_uid){
                 features.push(tmp_feature)
             })
 
-            // Construction du CSV
-            const replacer = (key, value) => value === null ? '' : value
-            const header = Object.keys(features[0])
-            const csv = "data:text/csv;charset=utf-8," + [
-                header.join(','), // header row first
-                ...features.map(row => header.map(fieldName => JSON.stringify(row[fieldName], replacer)).join(','))
-              ].join('\r\n')
-            
-            // Création d'un élément HTML fictif sur lequel on déclanche l'event click
-            var encodedUri = encodeURI(csv)
-            var link = document.createElement("a")
-            link.setAttribute("href", encodedUri)
-            link.setAttribute("download", layer.get("layer_name")+".csv")
-            link.click();
+            json2csv(features, layer.get("layer_name"))
         }
     })
 }

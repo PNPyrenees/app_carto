@@ -237,3 +237,20 @@ for (var i = 0; i < l_btn_toggle_sub_group.length; i++) {
         event.currentTarget.classList.toggle("btn-open")
     });
 }*/
+
+var json2csv = function(json_data, csv_name) {
+    // Construction du CSV
+    const replacer = (key, value) => value === null ? '' : value
+    const header = Object.keys(json_data[0])
+    const csv = "data:text/csv;charset=utf-8," + [
+        header.join(','), // header row first
+        ...json_data.map(row => header.map(fieldName => JSON.stringify(row[fieldName], replacer)).join(','))
+      ].join('\r\n')
+    
+    // Création d'un élément HTML fictif sur lequel on déclanche l'event click
+    var encodedUri = encodeURI(csv)
+    var link = document.createElement("a")
+    link.setAttribute("href", encodedUri)
+    link.setAttribute("download", csv_name+".csv")
+    link.click();
+}
