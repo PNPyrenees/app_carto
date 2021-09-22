@@ -69,7 +69,7 @@ var openRenameLayerModal = function(layer_uid){
     document.getElementById("rename-layer-modal").querySelector("#layer-uid").value = layer_uid
 
     current_layer_name = document.getElementById("layer_list").querySelector("li[layer-uid='" + layer_uid + "'").querySelector(".layer-name").innerHTML
-    form.querySelector("#layer-name-input").value = current_layer_name
+    rename_form.querySelector("#layer-name-input").value = current_layer_name
     
     renameLayerModal.show()
 }

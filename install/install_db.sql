@@ -243,7 +243,8 @@ CREATE INDEX idx_cor_observations_commune_id_obs ON app_carto.cor_observation_co
 /* Création de la table référentiel toponyme */
 CREATE TABLE IF NOT EXISTS app_carto.bib_toponyme (
     id serial NOT NULL PRIMARY KEY,
-    nom character varying(255),
-    type character varying(50),
+    nom varchar(255) NOT NULL,
+    type varchar(50),
+    precision_geo varchar(255),
     geom geometry(Geometry,2154)
 )

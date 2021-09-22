@@ -1227,15 +1227,48 @@ def get_warning_calculator_data():
                     o.nom_valide, 
                     o.nom_vern, 
                     to_char(date_min, 'DD-MM-YYYY') AS date_min,
-                    to_char(date_max, 'DD-MM-YYYY') AS date_max
+                    to_char(date_max, 'DD-MM-YYYY') AS date_max,
+                    string_agg(DISTINCT
+                        CASE
+                            WHEN st_desc.group_status_id = 1 THEN st.status_type_label
+                        END
+                    , ' ; ') AS statut_protection,
+                    string_agg(DISTINCT
+                        CASE
+                            WHEN st_desc.group_status_id in (2, 3) THEN st.status_type_label
+                        END
+                    , ' ; ') AS statut_liste_rouge,
+                    string_agg(DISTINCT
+                        CASE
+                            WHEN st_desc.group_status_id in (5) THEN 'Oui'
+                            ELSE 'Non'
+                        END
+                    , ' ; ') AS statut_reglementaire,
+                    string_agg(DISTINCT
+                        CASE
+                            WHEN st_desc.group_status_id in (6) THEN st.status_type_label
+                        END
+                    , ' ; ') AS statut_directive_habitat
+
                 FROM
                     app_carto.t_observations o
                     INNER JOIN geom g ON ST_Intersects(o.geom, g.geom)
                     LEFT JOIN app_carto.cor_observation_status cos USING(obs_id)
                     LEFT JOIN app_carto.bib_status_type st USING(status_type_id)
                     LEFT JOIN app_carto.bib_group_status gs USING(group_status_id)
+                    LEFT JOIN app_carto.bib_status_type st_desc ON cos.status_type_id = st_desc.status_type_id
                 WHERE
                     gs.group_status_is_warning = TRUE
+                GROUP BY
+                    o.obs_id, 
+                    o.geom,
+                    o.cd_ref, 
+                    o.regne, 
+                    o.group2_inpn, 
+                    o.nom_valide, 
+                    o.nom_vern, 
+                    date_min,
+                    date_max
             ) row
         ) features""".format(json.dumps(geojson), app.config['SRID']))
 
@@ -1311,12 +1344,16 @@ def toponyme_autocomplete():
                 'geometry', ST_AsGeoJSON(geom)::jsonb, 
                 'properties', to_jsonb(row) - 'geom') AS feature  
             FROM (
-                SELECT nom || ' (' || type || ')' as nom, ST_Extent(st_transform(ST_Buffer(geom, 1), 3857)) AS geom 
+                SELECT 
+                    nom, 
+                    type,
+                    precision_geo,
+                    ST_Extent(st_transform(ST_Buffer(geom, 1), 3857)) AS geom 
                 FROM app_carto.bib_toponyme t
                 WHERE 
                     nom ilike '%{}%'
                 GROUP BY
-                    nom, type, geom
+                    nom, type, precision_geo, geom
                 ORDER BY
 	                similarity(nom, '{}') desc
                 LIMIT {}

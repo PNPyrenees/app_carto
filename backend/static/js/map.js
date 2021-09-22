@@ -1176,6 +1176,7 @@ var singleClickForFeatureInfo = function(event){
     ul_layer_list.classList.add("layer-list")
 
     let has_feature = false
+    var entity_index = 1
     // On boucle sur les entités présent sous le clic
     map.forEachFeatureAtPixel(event.pixel, function(feature, layer) {
         has_feature = true
@@ -1197,7 +1198,7 @@ var singleClickForFeatureInfo = function(event){
         // Construction de l'arborescence des feature cliqué
         // Si c'est une nouvelle couche, on créé l'élément .layer-item
         if (layer_uid != previous_layer){
-
+            entity_index = 1
             li_layer_item = document.createElement("li")
             li_layer_item.classList.add("layer-item")
             li_layer_item.setAttribute("layer-uid", layer_uid)
@@ -1228,7 +1229,8 @@ var singleClickForFeatureInfo = function(event){
         var span_feature_item = document.createElement("span")
         span_feature_item.classList.add("clickable")
         span_feature_item.setAttribute("onclick", "showPropertiesList(this)")
-        span_feature_item.innerHTML = "entité #"+feature_uid
+        //span_feature_item.innerHTML = "entité #"+feature_uid
+        span_feature_item.innerHTML = "Objet #" + entity_index
 
         li_feature_item.append(span_feature_item)
 
@@ -1292,6 +1294,7 @@ var singleClickForFeatureInfo = function(event){
 
         // On conserve le nom de la couche courante
         previous_layer = layer_uid
+        entity_index ++
     })
 
     document.getElementById("bloc-clicked-features-attributes-content").innerHTML = ""
@@ -1579,10 +1582,23 @@ document.getElementById("search-toponyme-input").addEventListener("keyup", event
                 //Création des élément HTML de la liste des résultats
                 toponymes_list.geojson_layer.features.forEach(toponyme => {
 
+                    toponyme_nom = toponyme.properties.nom
+
+                    if (toponyme.properties.type && toponyme.properties.precision_geo){
+                        toponyme_nom += ' (' + toponyme.properties.type + ' - ' + toponyme.properties.precision_geo + ')'
+                    } else if (toponyme.properties.type){
+                        toponyme_nom += ' (' + toponyme.properties.type + ')'
+                    } else if (toponyme.properties.precision_geo) {
+                        toponyme_nom += ' (' + toponyme.properties.precision_geo + ')'
+                    }
+
+
                     var div = document.createElement('div')
                     div.classList.add("toponyme-autocomplete-option")
                     div.setAttribute("coordinates", '[' + toponyme.geometry.coordinates + ']')
-                    div.innerHTML = toponyme.properties.nom
+
+
+                    div.innerHTML = toponyme_nom
 
                     // On ajoute un listener lors d'un clique sur un des éléments
                     // qui zoom sur les coordonnée associé à l'élément
