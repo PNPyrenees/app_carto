@@ -9,6 +9,7 @@ let blank_obj = document.createElement('li');
 blank_obj.id = "drag_and_drop_blank"
 
 function dragOver(e) {
+    console.log(e.target.tagName)
     if (e.target.classList.contains("btn") == false){ // Controunement bug déplacement sur bouton
         if (selected != e.target){
             if (isBefore(selected, e.target)) {
@@ -44,10 +45,12 @@ function dragEnd(e) {
 }
 
 function dragStart(e) {
-    e.dataTransfer.effectAllowed = 'move'
-    e.dataTransfer.setData('text/plain', null)
-    selected = e.target
-    selected.style.opacity = 0.5
+    if (e.currentTarget.tagName != "INPUT") {
+        e.dataTransfer.effectAllowed = 'move'
+        e.dataTransfer.setData('text/plain', null)
+        selected = e.target
+        selected.style.opacity = 0.5
+    }
 }
 
 function isBefore(el1, el2) {
@@ -60,6 +63,7 @@ function isBefore(el1, el2) {
   return false;
 }
 
+//e.currentTarget.tagName != "INPUT"
 
 /**
  * Fonction ouvrant la fenêtre modal permettant 

@@ -714,6 +714,19 @@ buildLegendForLayer = function(layer_uid, json_style){
             // On ajoute le style à la liste
             layer_legend.append(legend)
     })
+
+    // Création du slider pour l'opacité
+    let slider = document.createElement("input")
+    slider.classList.add("slider")
+    slider.setAttribute("type", "range")
+    slider.setAttribute("min", "0")
+    slider.setAttribute("max", "1")
+    slider.setAttribute("step", "0.1")
+    slider.setAttribute("oninput", "setLayerOpacity(" + layer_uid + ", this.value)")
+    slider.setAttribute("draggable", "true")
+    slider.setAttribute("ondragstart", "event.preventDefault(); event.stopPropagation();")
+
+    layer_legend.append(slider)
     
 }
 
@@ -1656,44 +1669,14 @@ var getAutocompleteToponyme = function (search_name){
     })
 }
 
-
-
-
 /**
- * supprime un feature sélectionner pour une certaine source
+ * Gestion de l'opacité
  */
-/*var removeSelectedFeaturesInLayer = function(layer){
-    selectedVectorLayer.getSource().getFeatures().forEach(feature => {
-        console.log(feature.getId())
-        if (layer.getSource().getFeatureById(feature.getId())){
-            layer.getSource().removeFeature(feature)
-            selectedVectorLayer.getSource().removeFeature(feature)
+var setLayerOpacity = function(layer_uid, opacity){
+    map.getLayers().forEach(layer => {
+        if (ol.util.getUid(layer) == layer_uid){
+            //console.log(opacity)
+            layer.setOpacity(parseFloat(opacity))
         }
     })
-
-}*/
-
-/*removeFeature = function(source, feature){
-    source.removeFeature(feature)
-}*/
-
-
-// Activation et desactivation de la numérisation
-/*document.getElementById("btn-chanllenge-calculator").addEventListener("click", event => {
-    // Si le boutton possède la class runing
-    if (event.currentTarget.classList.contains("running")){
-        // On désactive la numérisation
-        warning_calculator_draw.setActive(false)
-        map.removeInteraction(warning_calculator_draw)   
-        map.removeInteraction(warning_calculator_snap)  
-        map.removeInteraction(warning_calculator_modify)
-    } else {
-        // Sinon, on active la numérisation
-        warning_calculator_draw.setActive(true)
-        map.addInteraction(warning_calculator_draw)
-        map.addInteraction(warning_calculator_snap)
-        map.addInteraction(warning_calculator_modify)
-    }
-
-    event.currentTarget.classList.toggle("running")
-})*/
+}
