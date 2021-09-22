@@ -135,3 +135,62 @@ chanllenge_calculator_execute_button.addEventListener("click", event => {
         }        
     })
 }
+
+/**
+ * Gestion de l'affichaage de la fenêtre modal d'information sur la calcuette
+ */
+document.getElementById("btn-chanllenge-calculator-info").addEventListener("click", event => {
+    // Récupération de la liste des couches à enjeux et des statuts utilisé
+    getWarningCalculatorLayers().then(result => {
+        result.layers.forEach(layer => {
+            //console.log(layer)
+            let li = document.createElement("li")
+            li.innerHTML = layer.layer_label
+            document.getElementById("chanllenge-calculator-layer-list").appendChild(li)
+
+        })
+
+        result.status.forEach(status => {
+            let li = document.createElement("li")
+            li.innerHTML = status.group_status_label + ' (' + status.group_status_description + ')'
+            document.getElementById("chanllenge-calculator-status-list").appendChild(li)
+        })
+
+
+        //Ouverture de la fenêtre modal
+        chanllengeCalculatorInfoModal.show()
+    })
+    
+})
+
+/**
+ * Fonctions permettant de récupérer la liste
+ * des couches utilisées pour le calcul des enjeux
+ */
+ var getWarningCalculatorLayers = function(){
+    
+    document.getElementById("chanllenge-calculator-info-spinner").classList.remove("hide")
+    document.getElementById("icon-chanllenge-calculator-info").classList.add("hide")
+
+    return fetch(APP_URL + "/api/warning_calculator/get_layers_list", {
+        method: "GET",
+        headers: { 
+            "Accept": "application/json", 
+            "Content-Type": "application/json" 
+        },
+        credentials: "same-origin"
+    })
+    .then(res => {
+        document.getElementById("chanllenge-calculator-info-spinner").classList.add("hide")
+        document.getElementById("icon-chanllenge-calculator-info").classList.remove("hide")
+        if (res.status != 200){
+            throw res/*.json();*/
+        } else {
+            return res.json()
+        }
+    })
+    .catch(error => {
+        default_message = "Erreur lors de la récupération de la liste des couches utilisé par la calculette des enjeux"
+        apiCallErrorCatcher(error, default_message)
+    })
+}

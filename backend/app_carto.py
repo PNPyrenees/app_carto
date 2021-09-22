@@ -11,7 +11,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from functools import wraps
 
 from .models import Role, VLayerList, Layer, BibStatusType, VRegneList, VGroupTaxoList, BibCommune, BibMeshScale, BibGroupStatus
-from .schema import RoleSchema, VLayerListSchema, LayerSchema
+from .schema import RoleSchema, VLayerListSchema, LayerSchema, BibGroupStatusSchema
 
 """from requests.api import request"""
 
@@ -1367,6 +1367,20 @@ def toponyme_autocomplete():
 
     return json.dumps(toponyme_datas)
     #return BibToponymeSchema().dump(data)
+
+@app.route('/api/warning_calculator/get_layers_list', methods=['GET'])
+def get_warning_calculator_layers_list():
+    """ Retourne la liste des couche utilisé pour la calcul des enjeux
+        Ainsi que la liste des statuts d'espèce retenue
+
+    Returns
+    -------
+        JSON
+    """
+    layer_list = LayerSchema(many=True).dump(Layer.query.filter(Layer.layer_is_warning == True))
+    status_list = BibGroupStatusSchema(many=True).dump(BibGroupStatus.query.filter(BibGroupStatus.group_status_is_warning == True))
+
+    return {"layers": layer_list, "status": status_list}
 
 
 if __name__ == "__main__":

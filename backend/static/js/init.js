@@ -38,6 +38,10 @@ var pdfGeneratorModal = new bootstrap.Modal(document.getElementById("pdf-generat
 var renameLayerModal = new bootstrap.Modal(document.getElementById("rename-layer-modal"), {
     keyboard: false
 })
+
+var chanllengeCalculatorInfoModal = new bootstrap.Modal(document.getElementById("chanllenge-calculator-info-modal"), {
+    keyboard: false
+})
 // On ré-initialise le modal à la fermeture
 /*var addLayerModalEl = document.getElementById("add-layer-modal")
 addLayerModalEl.addEventListener('hidden.bs.modal', function (event) {

@@ -111,6 +111,7 @@ class BibGroupStatus(db_app.Model):
     group_status_label = db_app.Column(db_app.String(50))
     group_status_description = db_app.Column(db_app.Text)
     active = db_app.Column(db_app.Boolean)
+    group_status_is_warning = db_app.Column(db_app.Boolean)
     
     status = relationship("BibStatusType")
 
@@ -120,7 +121,8 @@ class BibGroupStatus(db_app.Model):
         group_status_label,
         group_status_description,
         status,
-        active
+        active,
+        group_status_is_warning
         
     ):
         self.group_status_id = group_status_id
@@ -128,6 +130,7 @@ class BibGroupStatus(db_app.Model):
         self.group_status_description = group_status_description
         self.status = status
         self.active = active
+        self.group_status_is_warning = group_status_is_warning
 
 class BibStatusType(db_app.Model):
     __tablename__ = 'bib_status_type'

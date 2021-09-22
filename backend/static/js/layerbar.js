@@ -106,8 +106,35 @@ rename_form.addEventListener("submit", function (event) {
     rename_form.classList.add("was-validated")
  }, false)
 
+
 /**
- * Gestion de l'affichage de la couche 
- * sur la carte
+ * Fonction d'export de la table attributaire en CSV
  */
-//document.getElementsByClassName("checkbox-layer")
+var layerToCSV = function(layer_uid){
+    // Recherche de la couche
+    map.getLayers().forEach(layer => {
+        if (ol.util.getUid(layer) == layer_uid){
+            features = []
+            layer.getSource().getFeatures().forEach(feature => {
+                // On retire le champ geometry (...tmp_feature reçoit tous les champ sauf geometry)
+                let {geometry, ...tmp_feature} = feature.getProperties()
+                features.push(tmp_feature)
+            })
+
+            // Construction du CSV
+            const replacer = (key, value) => value === null ? '' : value
+            const header = Object.keys(features[0])
+            const csv = "data:text/csv;charset=utf-8," + [
+                header.join(','), // header row first
+                ...features.map(row => header.map(fieldName => JSON.stringify(row[fieldName], replacer)).join(','))
+              ].join('\r\n')
+            
+            // Création d'un élément HTML fictif sur lequel on déclanche l'event click
+            var encodedUri = encodeURI(csv)
+            var link = document.createElement("a")
+            link.setAttribute("href", encodedUri)
+            link.setAttribute("download", layer.get("layer_name")+".csv")
+            link.click();
+        }
+    })
+}
