@@ -45,7 +45,7 @@ Les objectifs à terme (il n'en manque pas) seraient d'offrir la possibilité à
 - ...
 
 ### Base de données
-App_carto s'appuis sur deux base de données:
+App_carto s'appuis sur deux bases de données:
 - la base dédié à l'application
 - la base de données hebergeant les couches SIG
 
@@ -53,4 +53,4 @@ App_carto s'appuis sur deux base de données:
 
 ![image](https://user-images.githubusercontent.com/85548796/134531163-7d3bdcf1-7ee5-43ce-be2f-9c8a043f6f93.png)
 
-Les tables grisés sont une projection dans le cadre des développement à venir. Elle seront potentiellement amené à changer.
+Les tables grisées sont une projection dans le cadre des développements à venir. Elle seront potentiellement amenées à évoluer.
