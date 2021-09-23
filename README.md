@@ -38,7 +38,7 @@ L'administrateur de l'application à quant à lui :
 - de définir les classes (seuil et couleur) associées aux données d'observations
   
 Les objectifs à terme (il n'en manque pas) seraient d'offrir la possibilité à l'utilisateur :
--- de pouvoir modifier le style d'une couche
+- de pouvoir modifier le style d'une couche
 - de créer de nouvelle couche de données
 - de configurer des projets qu'il pourra réouvrir plus tard
 - de lui permettre de partager des couches de données et des projets à d'autres utilisateurs (en lecture ou écriture)
@@ -47,7 +47,7 @@ Les objectifs à terme (il n'en manque pas) seraient d'offrir la possibilité à
 
 ### Base de données
 App_carto s'appuis sur deux bases de données:
-- la base dédié à l'application
+- la base dédiée à l'application
 - la base de données hebergeant les couches SIG
 
 #### Représentation du modèle de données
