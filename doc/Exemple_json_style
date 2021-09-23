@@ -107,6 +107,23 @@ styles différents sont appliqués sur une même couche (catégorisé selon la v
 }]
 
 /**
+ * Syle simple opur une géométrie de type point 
+ */
+[{
+    "style_type": "Point",
+    "styles": [{
+        "style_name": "nomDuStyle",
+		"fill_color": "rgba(145,82,45,0.5)",
+		"stroke_color": "rgba(0,0,0,1)",
+		"stroke_width": 1,
+		"stroke_linedash": [],
+        "radius": 5,
+		"filter" : null
+    }]
+}]
+
+
+/**
  * Style pour la couche limite_juridique.parc_national_pyrenees
  * Distinguant zone coeur et aire d'adhésion
  */
