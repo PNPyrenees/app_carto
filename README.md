@@ -90,119 +90,114 @@ Description de la table :
 
 Nom du champ  | description
 ------------- | -------------
-mesh_scale_id  | clés primaire auto-incrémenté
-mesh_scale_label  | nom de l'echelle de restitution
-active | booléen permetant d'activer ou non la restitution à une certaine echelle
-```
-mesh_scale_id : clés primaire auto-incrémenté
-mesh_scale_label : nom de l'echelle de restitution
-active: booléen permetant d'activer ou non la restitution à une certaine echelle
-```
+mesh_scale_id  | Clés primaire auto-incrémenté
+mesh_scale_label  | Nom de l'echelle de restitution
+active | Booléen permetant d'activer ou non la restitution à une certaine echelle
 
 #### app_carto.bib_mesh 
 Cette table contient les objets géographiques correspondant aux différentes échelles de restitution. A minima, il faudra insérer les données pour les echelles activées dans **app_carto.bib_mesh_scale**
 
 Description de la table :
-```
-mesh_id : Clés primaire auto-incrémentée
-mesh_scale_id : Clés étrangère permettant d'associer une géométrie à une echelle de restitution
-geom: Géométrie de l'objet
-```
+Nom du champ  | description
+------------- | -------------
+mesh_id  | Clés primaire auto-incrémentée
+mesh_scale_id  | Clés étrangère permettant d'associer une géométrie à une echelle de restitution
+geom | Géométrie de l'objet
 
 ### référentiel commune
 Alimenter la table app_cato.bib_commune avec les communes de votre territoire
 
 Description de la table :
-```
-insee_com : clés primaire reprenant le code insee de la commune
-nom_com : Nom de la commune
-```
+Nom du champ  | description
+------------- | -------------
+insee_com  | Clés primaire reprenant le code insee de la commune
+nom_com | Nom de la commune
 
 ### Statuts des espèces
 Par défaut, un certain nombre de status (et de regrouppement de statut) sont déclaré. Il est possible d'en ajouté en éditant les table suivantes :
 - app_carto.bib_group_status
-```
-group_status_id : Clés primaire auto-incrémentée
-group_status_label : Nom textuelle du regrouppement de status
-group_status_description : Description de ce qui est contenu dans le groupe de status
-group_status_is_warning : Booléen permettant d'inclure les espèces ayant un statut associé à ce groupe dans le calcul des enjeux
-active : Booléen permettant d'activer ou non un groupe de statut
-```
+Nom du champ  | description
+------------- | -------------
+group_status_id  | Clés primaire auto-incrémentée
+group_status_label | Nom textuelle du regrouppement de status
+group_status_description | Description de ce qui est contenu dans le groupe de status
+group_status_is_warning | Booléen permettant d'inclure les espèces ayant un statut associé à ce groupe dans le calcul des enjeux
+active| Booléen permettant d'activer ou non un groupe de statut
 
 - app_carto.bib_status_type
-```
-status_type_id : Clés primaire auto-incrémentée
-statut_type_label : Nom textuel du statut
-group_statut_id : Clés étrangère identifiant à quel group est associé le statut
-active : Booléen permettant d'activer ou non un statut
-```
+Nom du champ  | description
+------------- | -------------
+status_type_id | Clés primaire auto-incrémentée
+statut_type_label | Nom textuel du statut
+group_statut_id | Clés étrangère identifiant à quel group est associé le statut
+active | Booléen permettant d'activer ou non un statut
 
 ### Intégration des données d'observations
 Il faut alimenter l'ensemble des tables suivantes à partir des données d'observation (issue de la synthèse de [GeoNature](https://github.com/PnX-SI/GeoNature) ou d'ailleur):
 - app_carto.t_observations : table des observations
-```
-obs_id : identifiant unique de l'observation (favoriser l'identifiant dans la base de onnées source)
-obs_uuid : identifiant unique de la données dans le SINP
-cd_ref : code de référence taxon dans taxref
-group_2_inpn : Regrouppement vernaculaire issue de taxref 
-date_min : date de début d'observation
-date_max : date de fin d'observation
-altitude_min : altitude minimale d'observation
-altitude_max : altitude maximal d'obervation
-nom_cite : nom de l'espèce tel que cité par l'observateur
-nom_valide : nom retenu de l'espèce dans taxref
-nom_vern : nom vernaculaire de lespèce dans taxref
-regne : regne auquel le taxon apparatient issue de taxref
-geom : objet géométrique associé à l'observation
-```
+Nom du champ  | description
+------------- | -------------
+obs_id | identifiant unique de l'observation (favoriser l'identifiant dans la base de onnées source)
+obs_uuid | identifiant unique de la données dans le SINP
+cd_ref | code de référence taxon dans taxref
+group_2_inpn | Regrouppement vernaculaire issue de taxref 
+date_min | date de début d'observation
+date_max | date de fin d'observation
+altitude_min | altitude minimale d'observation
+altitude_max | altitude maximal d'obervation
+nom_cite | nom de l'espèce tel que cité par l'observateur
+nom_valide | nom retenu de l'espèce dans taxref
+nom_vern | nom vernaculaire de lespèce dans taxref
+regne | regne auquel le taxon apparatient issue de taxref
+geom | objet géométrique associé à l'observation
 
 - app_carto.cor_observation_commune : lien entre une observation et les communes
-```
-obs_id : identifiant de l'observation dans app_carto.t_observations
-insee_com : identifiant de la commune dans app_carto.bib_commune
-```
+Nom du champ  | description
+------------- | -------------
+obs_id | identifiant de l'observation dans app_carto.t_observations
+insee_com | identifiant de la commune dans app_carto.bib_commune
 
 - app_carto.cor_observation_mesh : lien entre l'observation et les echelle de restitution 
-```
-obs_id : identifiant de l'observation dans app_carto.t_observations
-mesh_id : identifiant de la maille  dans app_carto.bib_mesh
-```
+Nom du champ  | description
+------------- | -------------
+obs_id | identifiant de l'observation dans app_carto.t_observations
+mesh_id | identifiant de la maille  dans app_carto.bib_mesh
 
 -app_carto.cor_observation_status : status de l'espèce relatif à l'observation (= une espèce protégée **uniquement** dans les Pyrénées-Atlantiques ne doit pas être identifié comme protégée si elle est observée dans les hautes-Pyrénées)
-```
-obs_id: identifiant de l'observation dans app_carto.t_observations
-status_type_id : identifiant du status dans app_carto.bib_statut_type
-```
+Nom du champ  | description
+------------- | -------------
+obs_id | identifiant de l'observation dans app_carto.t_observations
+status_type_id | identifiant du status dans app_carto.bib_statut_type
 
 ### Intégration des toponymes
 La table bib_toponyme doit être alimenter avec les toponymes de votre territoire afin de permettre à l'utilisateur de réaliser la recherche d'un lieux dit.
 
 Description de la table :
-```
-toponyme_id : Clés primaire auto-incrémentée
-toponyme_nom : Toponyme textuel
-toponyme_type : Précision sur le type de toponyme (Lac, Pic, Auberge...)
-toponyme_precision_geo : Précision de localisation textuelle permettant de différencier des homonymes (ex: Vallée d'Aspe)
-geom: Géométrie de l'objet
-```
+Nom du champ  | description
+------------- | -------------
+toponyme_id | Clés primaire auto-incrémentée
+toponyme_nom | Toponyme textuel
+toponyme_type | Précision sur le type de toponyme (Lac, Pic, Auberge...)
+toponyme_precision_geo | Précision de localisation textuelle permettant de différencier des homonymes (ex| Vallée d'Aspe)
+geom| Géométrie de l'objet
 
 ## Ajouter une couche de données
 
 La déclaration d'une couche de données doit se faire en base de données en ajoutant une ligne à la table app_carto.t_layers.
 Déscription des champs:
-```
-layer_id : clés primaire auto-incrémenté
-layer_schema_name : nom du schéma dans la base de données "data"
-layer_table_name : Nom de la table de données dans la base de données "data"
-layer_group : Nom permettant de regroupper les couche sur l'interface (TODO : sortir ce champ dans une table dédiée aux "groupes de couche" dans la base applicative)
-layer_label : Alias du nom de la couche qui sera affiché dans l'application
-layer_is_default : (ce champ est our l'instant sans effet)
-layer_default_style : définition du style par défaut à appliquer à la couche en format JSON 
-layer_is_warning : Booléen indiquant que la couche doit être prise en compte dans le calcul des enjeux
-layer_attribution : identification du producteur de la données (copyright)
-layer_columns : liste (varchar[]) des champs à intérroger (champs se retrouvant dans le "select"). **Attention** renseigner "*" ne fonctionne pas, si on veut tous les champ de la couche, il faut tous les renseigner.
-layer_geom_column : nom du champ stockant la géométrie (geom, the_geom ...)
-```
+Nom du champ  | description
+------------- | -------------
+layer_id | clés primaire auto-incrémenté
+layer_schema_name | nom du schéma dans la base de données "data"
+layer_table_name | Nom de la table de données dans la base de données "data"
+layer_group | Nom permettant de regroupper les couche sur l'interface (TODO | sortir ce champ dans une table dédiée aux "groupes de couche" dans la base applicative)
+layer_label | Alias du nom de la couche qui sera affiché dans l'application
+layer_is_default | (ce champ est our l'instant sans effet)
+layer_default_style | définition du style par défaut à appliquer à la couche en format JSON 
+layer_is_warning | Booléen indiquant que la couche doit être prise en compte dans le calcul des enjeux
+layer_attribution | identification du producteur de la données (copyright)
+layer_columns | liste (varchar[]) des champs à intérroger (champs se retrouvant dans le "select"). **Attention** renseigner "\*" ne fonctionne pas, si on veut tous les champ de la couche, il faut tous les renseigner.
+layer_geom_column | nom du champ stockant la géométrie (geom, the_geom ...)
 
 ### Définition du style d'une couche
 Les styles respectent une syntaxe JSON spécifique et fonction de la géométrie des objets.
