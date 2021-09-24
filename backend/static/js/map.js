@@ -1190,6 +1190,7 @@ var singleClickForFeatureInfo = function(event){
 
     let has_feature = false
     var entity_index = 1
+    var nb_entity = 0
     // On boucle sur les entités présent sous le clic
     map.forEachFeatureAtPixel(event.pixel, function(feature, layer) {
         has_feature = true
@@ -1308,10 +1309,16 @@ var singleClickForFeatureInfo = function(event){
         // On conserve le nom de la couche courante
         previous_layer = layer_uid
         entity_index ++
+        nb_entity++
     })
 
     document.getElementById("bloc-clicked-features-attributes-content").innerHTML = ""
     document.getElementById("bloc-clicked-features-attributes-content").append(ul_layer_list)
+
+    // S'il n'y a qu'une seule entité, et déploie la fiche info
+    if (nb_entity == 1){
+        document.getElementById("bloc-clicked-features-attributes-content").querySelector(".feature-item .clickable").click()
+    }
 
     //On active les tooltip
     let tooltipTriggerList = [].slice.call(document.querySelectorAll('.zoom-to-feature[toggle-tooltip="tooltip"]'))
