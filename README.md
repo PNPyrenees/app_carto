@@ -75,7 +75,7 @@ La base de données applicative a été installé sur un **PostgreSQL 12** en su
 L'installation d'AppCarto a été réalisé sur un **ubuntu server 20.04**
 Vous trouverez la préocédure d'installation dans le fichier [doc/installation](https://github.com/PNPyrenees/app_carto/blob/dev/doc/installation)
 
-## Finalisation de l'installation
+## Finalisation de l'installation et alimentation de la base de données applicative
 Il est nécessaire de peupler quelques tables afin que l'application puisse fonctionner :
 
 ### Echelle de restitution des données d'observation
@@ -168,19 +168,19 @@ obs_id: identifiant de l'observation dans app_carto.t_observations
 status_type_id : identifiant du status dans app_carto.bib_statut_type
 ```
 
-### Intégration des toponyme
+### Intégration des toponymes
 La table bib_toponyme doit être alimenter avec les toponymes de votre territoire afin de permettre à l'utilisateur de réaliser la recherche d'un lieux dit.
 
 Description de la table :
 ```
-id : Clés primaire auto-incrémentée
-mesh_scale_id : Clés étrangère permettant d'associer une géométrie à une echelle de restitution
+toponyme_id : Clés primaire auto-incrémentée
+toponyme_nom : Toponyme textuel
+toponyme_type : Précision sur le type de toponyme (Lac, Pic, Auberge...)
+toponyme_precision_geo : Précision de localisation textuelle permettant de différencier des homonymes (ex: Vallée d'Aspe)
 geom: Géométrie de l'objet
 ```
 
-
-# FAQ
-## Comment ajouter une couche de données ?
+## Ajouter une couche de données
 
 La déclaration d'une couche de données doit se faire en base de données en ajoutant une ligne à la table app_carto.t_layers.
 Déscription des champs:
@@ -191,12 +191,240 @@ layer_table_name : Nom de la table de données dans la base de données "data"
 layer_group : Nom permettant de regroupper les couche sur l'interface (TODO : sortir ce champ dans une table dédiée aux "groupes de couche" dans la base applicative)
 layer_label : Alias du nom de la couche qui sera affiché dans l'application
 layer_is_default : (ce champ est our l'instant sans effet)
-layer_default_style : définition du style par défaut à appliquer à la couche en format JSON (voir [doc/exemple_json_style](https://github.com/PNPyrenees/app_carto/blob/dev/doc/Exemple_json_style)
+layer_default_style : définition du style par défaut à appliquer à la couche en format JSON 
+layer_is_warning : Booléen indiquant que la couche doit être prise en compte dans le calcul des enjeux
+layer_attribution : identification du producteur de la données (copyright)
+layer_columns : liste (varchar[]) des champs à intérroger (champs se retrouvant dans le "select"). **Attention** renseigner "*" ne fonctionne pas, si on veut tous les champ de la couche, il faut tous les renseigner.
+layer_geom_column : nom du champ stockant la géométrie (geom, the_geom ...)
+```
 
+### Focus sur la définition d'un style
+Les styles respectent une syntaxe JSON spécifique et fonction de la géométrie des objets.
+
+```
+Polygon :
+    - style_name = Nom du style qui sera repris dans la légende (optionnel)
+    - fill_color = Couleur de remplissage 
+        ex : rgba(201,241,196,0.5)
+    - stroke_color = Couleur de la bordure 
+        ex : rgba(201,241,196,0.5)
+    - stroke_width = Epaisseur de la bordure (en pixel)
+        ex : 3
+    - stroke_linedash = Bordure en pointillé 
+        ex1 : [] - pas de pointillé; 
+        ex2 : [4] - longueur du pointillé et de l'espacement de 4 pixels
+        ex3 : [4,8] - longueur du pointillé de 4 pixel et logueur de l'espacement de 8 pixel
+
+Line :
+    - style_name = Nom du style qui sera repris dans la légende (optionnel)
+    - stroke_color = Couleur du trait
+        ex : rgba(201,241,196,0.5)
+    - stroke_width = Epaisseur du trait (en pixel)
+        ex : 3
+    - stroke_linedash = Trait en pointillé 
+        ex1 : [] - pas de pointillé; 
+        ex2 : [4] - longueur du pointillé et de l'espacement de 4 pixels
+        ex3 : [4,8] - longueur du pointillé de 4 pixel et logueur de l'espacement de 8 pixel
+
+Point : 
+    - style_name = Nom du style qui sera repris dans la légende (optionnel)
+    - fill_color = Couleur de remplissage
+        ex : rgba(201,241,196,0.5)
+    - stroke_color = Couleur de la bordure
+        ex : rgba(201,241,196,0.5)
+    - stroke_width = Epaisseur de la bordure (en pixel)
+        ex : 3
+    - stroke_linedash =  = Bordure en pointillé 
+        ex1 : [] - pas de pointillé; 
+        ex2 : [4] - longueur du pointillé et de l'espacement de 4 pixels
+        ex3 : [4,8] - longueur du pointillé de 4 pixel et logueur de l'espacement de 8 pixel
+    - radius = Rayon du point (en pixel)
+        ex : 5
+
+Icon :
+    - style_name = Nom du style qui sera repris dans la légende (optionnel)
+    - icon_svg_path = Chemin vers le SVG (dans static)
+        ex : static/images/svg/<nom_svg>.svg 
+        Les icones doivent être en svg et placé dans backend/static/images/svg/ 
+        Il est possible des les classer par sous-dossier, dans ce cas, adapter le chemin
+    - icon_color = Couleur de l'image
+        ex : #ff0000 ou rgba(255,0,0,1)
+        La couleur est en réalité une teinte qui s'applique sur le SVG. 
+        S'il est noir, icon_color n'aura aucun impacte sur le rendu.
+    - icon_scale = Coeficient permetant d'agrandir ou réduire la taille du svg
+        ex1 : 0.04 (réduit la taille)
+        ex2 : 2 (augmente la taille)
+    - icon_opacity = Opacité de l'icone sur la carte
+        ex : 0.8
+```
+Dans le cas d'un style de type "icon", le fichier SVG associé devra être placé dans le dossier backend/static/images/svg/
+
+#### Exemple de style simple :
+
+```
+/**
+ * Remplissage simple de polygone
+ */
+[{
+    "style_type": "Polygon",
+    "styles": [{
+        "style_name": "nomDuStyle",
+		    "fill_color": "rgba(145,82,45,0.5)",
+		    "stroke_color": "rgba(0,0,0,1)",
+		    "stroke_width": 1,
+		    "stroke_linedash": [],
+		    "filter" : null
+    }]
+}]
+```
+
+```
+/**
+ * Syle simple pour un point 
+ */
+[{
+    "style_type": "Point",
+    "styles": [{
+        "style_name": "nomDuStyle",
+		    "fill_color": "rgba(145,82,45,0.5)",
+		    "stroke_color": "rgba(0,0,0,1)",
+		    "stroke_width": 1,
+		    "stroke_linedash": [],
+        "radius": 5,
+		    "filter" : null
+    }]
+}]
+```
+
+```
+/**
+ * Style simple pour une ligne
+ */
+[{
+    "style_type": "Line",
+    "styles": [{
+        "style_name": "nomDuStyle",
+		    "stroke_color": "rgba(0,0,0,1)",
+		    "stroke_width": 1,
+		    "stroke_linedash": [],
+		    "filter" : null
+    }]
+}]
+```
+
+```
+/**
+ * Exemple pour la couche "refuge"
+ * utilisant une icone
+[{
+    "style_type": "Icon",
+    "styles": [{
+        "style_name": "nomDuStyle",
+        "icon_svg_path": "static/images/svg/accommodation/accommodation_shelter2.svg",
+        "icon_color": "rgba(0,0,0,1)",
+        "icon_scale": 0.04,
+        "icon_opacity": 1
+    }]
+}]
 ```
 
 
+#### Exemple de style conditionnel :
+```
+/**
+ * Style Conditionnel
+ * Distinguant zone coeur et aire d'adhésion
+ */
+[{
+    "style_type": "Polygon",
+    "styles": [{
+        "style_name": "Zone Coeur",
+		    "fill_color": "rgba(2,125,13,0.5)",
+		    "stroke_color": "rgba(2,125,13,1)",
+		    "stroke_width": 3,
+		    "stroke_linedash": [],
+		    "filter" : {
+			      "left_term": "id_local",
+        	  "operator": "==",
+        	  "right_term": "ZC_PNP",
+        	  "and": [],
+        	  "or": []
+      	}
+    },{
+        "style_name": "Aire d'adhésion",
+        "fill_color": "rgba(201,241,196,0.5)",
+		    "stroke_color": "rgba(201,241,196,1)",
+		    "stroke_width": 3,
+		    "stroke_linedash": [],
+		    "filter" : {
+			      "left_term": "id_local",
+        	  "operator": "==",
+        	  "right_term": "AA_PNP",
+        	  "and": [],
+        	  "or": []
+      	}
+    }]
+}]
+```
 
+```
+/**
+ * Style conditionnel complexe : ((A == "test") OR ((B == true) AND (C == 1)))
+ */
+[{
+    "style_type": "Polygon",
+    "styles": [{
+        "style_name": "nomDuStyle",
+        "fill_color": "rgba(255,0,0,0.5)",
+        "stroke_color": "rgba(255,255,0,0.5)",
+        "stroke_width": 2,
+        "stroke_linedash": [],
+        "filter" : {
+            "left_term": "A",
+            "operator": "==",
+            "right_term": "test",
+            "and": [],
+            "or": [{
+                "left_term": "B",
+                "operator": "==",
+                "right_term": true,
+                "and": [{
+                    "left_term": "C",
+                    "operator": "==",
+                    "right_term": 1,
+                    "and": [],
+                    "or": []
+                }],
+                "or": []
+            }]
+        }
+    }]
+}]
+```
+
+#### Exemple de style dans le cas d'une couche ayant plusieur type de géométrie :
+```
+[{
+    "style_type": "Polygon",
+    "styles": [{
+        "style_name": "nomDuStyle",
+		    "fill_color": "rgba(145,82,45,0.5)",
+		    "stroke_color": "rgba(0,0,0,1)",
+		    "stroke_width": 1,
+		    "stroke_linedash": [],
+		    "filter" : null
+    }]
+},{
+    "style_type": "Line",
+    "styles": [{
+        "style_name": "nomDuStyle",
+		    "stroke_color": "rgba(0,0,0,1)",
+		    "stroke_width": 1,
+		    "stroke_linedash": [],
+		    "filter" : null
+    }]
+}]
+```
 
 
 
