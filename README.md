@@ -261,7 +261,7 @@ Dans le cas d'un style de type "icon", le fichier SVG associé devra être plac�
 
 #### Exemple de style simple :
 
-```
+```json
 /**
  * Remplissage simple de polygone
  */
@@ -269,16 +269,16 @@ Dans le cas d'un style de type "icon", le fichier SVG associé devra être plac�
     "style_type": "Polygon",
     "styles": [{
         "style_name": "nomDuStyle",
-		    "fill_color": "rgba(145,82,45,0.5)",
-		    "stroke_color": "rgba(0,0,0,1)",
-		    "stroke_width": 1,
-		    "stroke_linedash": [],
-		    "filter" : null
+	"fill_color": "rgba(145,82,45,0.5)",
+	"stroke_color": "rgba(0,0,0,1)",
+	"stroke_width": 1,
+	"stroke_linedash": [],
+	"filter" : null
     }]
 }]
 ```
 
-```
+```json
 /**
  * Syle simple pour un point 
  */
@@ -296,7 +296,7 @@ Dans le cas d'un style de type "icon", le fichier SVG associé devra être plac�
 }]
 ```
 
-```
+```json
 /**
  * Style simple pour une ligne
  */
@@ -312,7 +312,7 @@ Dans le cas d'un style de type "icon", le fichier SVG associé devra être plac�
 }]
 ```
 
-```
+```json
 /**
  * Exemple pour la couche "refuge"
  * utilisant une icone
@@ -330,7 +330,7 @@ Dans le cas d'un style de type "icon", le fichier SVG associé devra être plac�
 
 
 #### Exemple de style conditionnel :
-```
+```json
 /**
  * Style Conditionnel
  * Distinguant zone coeur et aire d'adhésion
@@ -367,7 +367,7 @@ Dans le cas d'un style de type "icon", le fichier SVG associé devra être plac�
 }]
 ```
 
-```
+```json
 /**
  * Style conditionnel complexe : ((A == "test") OR ((B == true) AND (C == 1)))
  */
@@ -403,7 +403,7 @@ Dans le cas d'un style de type "icon", le fichier SVG associé devra être plac�
 ```
 
 #### Exemple de style dans le cas d'une couche ayant plusieur type de géométrie :
-```
+```json
 [{
     "style_type": "Polygon",
     "styles": [{
