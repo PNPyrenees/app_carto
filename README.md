@@ -60,7 +60,7 @@ App_carto s'appui donc sur deux bases de données:
 
 Les tables grisées sont une projection dans le cadre des développements à venir. Elle seront potentiellement amenées à évoluer.
 
-# Installation
+# Installation et configuration
 
 ## Installation de la base de donées
 
