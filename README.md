@@ -186,7 +186,8 @@ geom| Géométrie de l'objet
 
 ## Ajouter une couche de données
 
-La déclaration d'une couche de données doit se faire en base de données en ajoutant une ligne à la table app_carto.t_layers.
+### Présentation de la table app_carto.t_layers
+La déclaration d'une couche de données doit se faire en base de données en ajoutant une ligne à la table **app_carto.t_layers**.
 
 Déscription de la table:
 Nom du champ  | description
