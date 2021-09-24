@@ -1345,17 +1345,17 @@ def toponyme_autocomplete():
                 'properties', to_jsonb(row) - 'geom') AS feature  
             FROM (
                 SELECT 
-                    nom, 
-                    type,
-                    precision_geo,
+                    toponyme_nom, 
+                    toponyme_type,
+                    toponyme_precision_geo,
                     ST_Extent(st_transform(ST_Buffer(geom, 1), 3857)) AS geom 
                 FROM app_carto.bib_toponyme t
                 WHERE 
-                    nom ilike '%{}%'
+                    toponyme_nom ilike '%{}%'
                 GROUP BY
-                    nom, type, precision_geo, geom
+                    toponyme_nom, toponyme_type, toponyme_precision_geo, geom
                 ORDER BY
-	                similarity(nom, '{}') desc
+	                similarity(toponyme_nom, '{}') desc
                 LIMIT {}
                  ) row
         ) features

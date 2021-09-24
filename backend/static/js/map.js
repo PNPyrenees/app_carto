@@ -1595,14 +1595,14 @@ document.getElementById("search-toponyme-input").addEventListener("keyup", event
                 //Création des élément HTML de la liste des résultats
                 toponymes_list.geojson_layer.features.forEach(toponyme => {
 
-                    toponyme_nom = toponyme.properties.nom
+                    toponyme_nom = toponyme.properties.toponyme_nom
 
                     if (toponyme.properties.type && toponyme.properties.precision_geo){
-                        toponyme_nom += ' (' + toponyme.properties.type + ' - ' + toponyme.properties.precision_geo + ')'
-                    } else if (toponyme.properties.type){
-                        toponyme_nom += ' (' + toponyme.properties.type + ')'
-                    } else if (toponyme.properties.precision_geo) {
-                        toponyme_nom += ' (' + toponyme.properties.precision_geo + ')'
+                        toponyme_nom += ' (' + toponyme.properties.toponyme_type + ' - ' + toponyme.properties.toponyme_precision_geo + ')'
+                    } else if (toponyme.properties.toponyme_type){
+                        toponyme_nom += ' (' + toponyme.properties.toponyme_type + ')'
+                    } else if (toponyme.properties.toponyme_precision_geo) {
+                        toponyme_nom += ' (' + toponyme.properties.toponyme_precision_geo + ')'
                     }
 
 
