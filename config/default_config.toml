@@ -2,7 +2,8 @@ APP_NAME = "SIG-PNP"
 
 # url d'accès à l'application
 # Remplacer par l'url de votre instance sans '/' à la fin
-APP_URL = "http://carto.parc-pyrenees.fr"
+# Exemple : "http://carto.parc-pyrenees.fr"
+APP_URL = ""
 
 # Chaine de connexion à la base de données de l'application
 SQLALCHEMY_DATABASE_URI = "postgresql://<USER>:<PASSWORD>@<HOST>:<PORT>/<DB_NAME>"
@@ -17,20 +18,23 @@ SQLALCHEMY_TRACK_MODIFICATIONS = false
 
 # URL vers l'instance Geonature
 # Remplacer par l'url de votre instance GeoNature sans '/' à la fin
-GEONATURE_URL = "https://geonature.pyrenees-parcnational.fr" 
+# Exemple : "https://geonature.pyrenees-parcnational.fr"
+GEONATURE_URL = "" 
 
 # Identifiant de l'application dans userhub
 # l'application doit préalablement être déclaré dans usershub
 ID_APPLICATION = 
 
 # Logo de la structure affiché dans l'entête de l'interface
+# Le logo doit être dans le dossier backend/static/images/
 LOGO_STRUCTURE = "logo_structure.png"
 
 # Activer le mode développement
-DEBUG = true # true | false
-ENV = "development" # "production" | "development"
+DEBUG = false # true | false
+ENV = "production" # "production" | "development"
 
 # Configuration de la carte
+# Exemple : [-0.16777084451550842, 42.922276035501696]
 CENTER = [<LAT>, <LONG>]
 ZOOM_LEVEL = 10
 
@@ -41,7 +45,7 @@ SRID = 2154
 # les classes sont défini en percentile (de 0 à 1) dans une limite de 4 bornes
 OBS_LAYER_CLASSIFICATION_BORNE = [0.1, 0.2, 0.4, 0.8]
 
-# Couleur attribué pour chaque classe
+# Couleurs attribuées pour chaque classe
 # Le nombre de couleur doit correspondre au nombre de borne + 1
 OBS_LAYER_CLASS_COLOR = ["rgba(237, 248, 251, 0.9)", "rgba(179, 205, 227, 0.9)", "rgba(140, 150, 198, 0.9)", "rgba(136, 86, 167, 0.9)", "rgba(129, 15, 124, 0.9)"]
 

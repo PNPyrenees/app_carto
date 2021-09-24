@@ -107,7 +107,7 @@ styles différents sont appliqués sur une même couche (catégorisé selon la v
 }]
 
 /**
- * Syle simple opur une géométrie de type point 
+ * Syle simple pour un point 
  */
 [{
     "style_type": "Point",
@@ -122,6 +122,19 @@ styles différents sont appliqués sur une même couche (catégorisé selon la v
     }]
 }]
 
+/**
+ * Style simple pour une ligne
+ */
+[{
+    "style_type": "Line",
+    "styles": [{
+        "style_name": "nomDuStyle",
+		"stroke_color": "rgba(0,0,0,1)",
+		"stroke_width": 1,
+		"stroke_linedash": [],
+		"filter" : null
+    }]
+}]
 
 /**
  * Style pour la couche limite_juridique.parc_national_pyrenees
