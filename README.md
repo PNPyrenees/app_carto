@@ -131,7 +131,7 @@ statut_type_label | Nom textuel du statut
 group_statut_id | Clé étrangère identifiant à quel groupe est associé le statut
 active | Booléen permettant d'activer ou non un statut
 
-### Intégration des données d'observations
+### Les données d'observations
 Il faut alimenter l'ensemble des tables suivantes à partir des données d'observation (issue de la synthèse de [GeoNature](https://github.com/PnX-SI/GeoNature) ou d'ailleur):
 - app_carto.t_observations : table des observations
 
