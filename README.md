@@ -14,6 +14,7 @@ L'objectif, à terme, est d'en faire une mini-application SIG en ligne permettan
 
 AppCarto peut être vu comme une application satellite de [GeoNature](https://github.com/PnX-SI/GeoNature) car elle s'appuie sur l'API de [GeoNature](https://github.com/PnX-SI/GeoNature) pour l'authentification des utilisateurs (centralisation des comptes) et la recherche de taxon dans le référentiel TaxRef. 
 Un pont doit également être configuré pour permettre d'alimenter AppCarto avec les données d'observations.
+	
 Pour les autres données, AppCarto a été pensé pour s'intégrer dans un système d'information déjà existant favorisant la centralisation des données. Les données géographiques restent ou elles sont, à partir du moment où elles sont dans une base de données postgis. L'administrateur d'AppCarto n'a qu'à déclarer les couches pour les rendre disponible dans l'application.
 
 <div align="center">
