@@ -87,6 +87,12 @@ Par défaut seul sont activé les maille de 2km, 1km, 500m, 250m, 100m
 Il est possible d'ajouter des echelles de restitution en ajoutant des lignes dans cette table.
 
 Description de la table :
+
+Nom du champ  | description
+------------- | -------------
+mesh_scale_id  | clés primaire auto-incrémenté
+mesh_scale_label  | nom de l'echelle de restitution
+active | booléen permetant d'activer ou non la restitution à une certaine echelle
 ```
 mesh_scale_id : clés primaire auto-incrémenté
 mesh_scale_label : nom de l'echelle de restitution
