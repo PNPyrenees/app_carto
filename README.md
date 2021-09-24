@@ -201,67 +201,68 @@ layer_geom_column : nom du champ stockant la géométrie (geom, the_geom ...)
 ### Définition du style d'une couche
 Les styles respectent une syntaxe JSON spécifique et fonction de la géométrie des objets.
 
-Polygon :
+
 ```
-- style_name = Nom du style qui sera repris dans la légende (optionnel)
-- fill_color = Couleur de remplissage 
-	- ex : rgba(201,241,196,0.5)
-- stroke_color = Couleur de la bordure 
-	- ex : rgba(201,241,196,0.5)
-- stroke_width = Epaisseur de la bordure (en pixel)
-	- ex : 3
-- stroke_linedash = Bordure en pointillé 
-	- ex1 : [] - pas de pointillé; 
-	- ex2 : [4] - longueur du pointillé et de l'espacement de 4 pixels
-	- ex3 : [4,8] - longueur du pointillé de 4 pixel et logueur de l'espacement de 8 pixel
+Polygon :
+	- style_name = Nom du style qui sera repris dans la légende (optionnel)
+	- fill_color = Couleur de remplissage 
+		ex : rgba(201,241,196,0.5)
+	- stroke_color = Couleur de la bordure 
+		ex : rgba(201,241,196,0.5)
+	- stroke_width = Epaisseur de la bordure (en pixel)
+		ex : 3
+	- stroke_linedash = Bordure en pointillé 
+		ex1 : [] - pas de pointillé; 
+		ex2 : [4] - longueur du pointillé et de l'espacement de 4 pixels
+		ex3 : [4,8] - longueur du pointillé de 4 pixel et logueur de l'espacement de 8 pixel
 ```
 
 ```
 Line :
-    - style_name = Nom du style qui sera repris dans la légende (optionnel)
-    - stroke_color = Couleur du trait
-        ex : rgba(201,241,196,0.5)
-    - stroke_width = Epaisseur du trait (en pixel)
-        ex : 3
-    - stroke_linedash = Trait en pointillé 
-        ex1 : [] - pas de pointillé; 
-        ex2 : [4] - longueur du pointillé et de l'espacement de 4 pixels
-        ex3 : [4,8] - longueur du pointillé de 4 pixel et logueur de l'espacement de 8 pixel
+	- style_name = Nom du style qui sera repris dans la légende (optionnel)
+	- stroke_color = Couleur du trait
+		ex : rgba(201,241,196,0.5)
+	- stroke_width = Epaisseur du trait (en pixel)
+		ex : 3
+	- stroke_linedash = Trait en pointillé 
+		ex1 : [] - pas de pointillé; 
+		ex2 : [4] - longueur du pointillé et de l'espacement de 4 pixels
+		ex3 : [4,8] - longueur du pointillé de 4 pixel et logueur de l'espacement de 8 pixel
 ```
 
 ```
 Point : 
-    - style_name = Nom du style qui sera repris dans la légende (optionnel)
-    - fill_color = Couleur de remplissage
-        ex : rgba(201,241,196,0.5)
-    - stroke_color = Couleur de la bordure
-        ex : rgba(201,241,196,0.5)
-    - stroke_width = Epaisseur de la bordure (en pixel)
-        ex : 3
-    - stroke_linedash =  = Bordure en pointillé 
-        ex1 : [] - pas de pointillé; 
-        ex2 : [4] - longueur du pointillé et de l'espacement de 4 pixels
-        ex3 : [4,8] - longueur du pointillé de 4 pixel et logueur de l'espacement de 8 pixel
-    - radius = Rayon du point (en pixel)
-        ex : 5
+	- style_name = Nom du style qui sera repris dans la légende (optionnel)
+	- fill_color = Couleur de remplissage
+			ex : rgba(201,241,196,0.5)
+	- stroke_color = Couleur de la bordure
+		ex : rgba(201,241,196,0.5)
+	- stroke_width = Epaisseur de la bordure (en pixel)
+		ex : 3
+	- stroke_linedash =  = Bordure en pointillé 
+		ex1 : [] - pas de pointillé; 
+		ex2 : [4] - longueur du pointillé et de l'espacement de 4 pixels
+		ex3 : [4,8] - longueur du pointillé de 4 pixel et logueur de l'espacement de 8 pixel
+	- radius = Rayon du point (en pixel)
+		ex : 5
 ```
 
 ```
 Icon :
-    - style_name = Nom du style qui sera repris dans la légende (optionnel)
-    - icon_svg_path = Chemin vers le SVG (dans static)
-        ex : static/images/svg/<nom_svg>.svg 
-        Les icones doivent être en svg et placé dans backend/static/images/svg/ 
-        Il est possible des les classer par sous-dossier, dans ce cas, adapter le chemin
-    - icon_color = Couleur de l'image
-        ex : #ff0000 ou rgba(255,0,0,1)
-        La couleur est en réalité une teinte qui s'applique sur le SVG. 
-        S'il est noir, icon_color n'aura aucun impacte sur le rendu.
-    - icon_scale = Coeficient permetant d'agrandir ou réduire la taille du svg
-        ex1 : 0.04 (réduit la taille)
-        ex2 : 2 (augmente la taille)
-    - icon_opacity = Opacité de l'icone sur la carte
-        ex : 0.8
+	- style_name = Nom du style qui sera repris dans la légende (optionnel)
+	- icon_svg_path = Chemin vers le SVG (dans static)
+		ex : static/images/svg/<nom_svg>.svg 
+		Les icones doivent être en svg et placé dans backend/static/images/svg/ 
+		Il est possible des les classer par sous-dossier, dans ce cas, adapter le chemin
+	- icon_color = Couleur de l'image
+		ex : #ff0000 ou rgba(255,0,0,1)
+		La couleur est en réalité une teinte qui s'applique sur le SVG. 
+		S'il est noir, icon_color n'aura aucun impacte sur le rendu.
+	- icon_scale = Coeficient permetant d'agrandir ou réduire la taille du svg
+		ex1 : 0.04 (réduit la taille)
+		ex2 : 2 (augmente la taille)
+	- icon_opacity = Opacité de l'icone sur la carte
+		ex : 0.8
 ```
 Dans le cas d'un style de type "icon", le fichier SVG associé devra être placé dans le dossier backend/static/images/svg/
 
