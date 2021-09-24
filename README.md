@@ -1,14 +1,17 @@
 ![image](https://user-images.githubusercontent.com/85548796/134628003-895ecb51-fab1-4993-9cb9-53c3ea52d58b.png)
 
 
-
-# app_carto
+# Qu'est ce que app_carto
 App_carto est une application web destinée à diffuser des données SIG initié par le [Parc national des Pyrénées](http://www.pyrenees-parcnational.fr) pour répondre à son besoin de partager en interne les données de son système d'information géographique.
+L'objectif à terme est d'en faire une mini application SIG en permettant la création et le partage de couche de données et de projet.
 
-### Présentation du projet
+# Présentation du projet
+App_carto peut être vu comme une application sattelite de [GeoNature](https://github.com/PnX-SI/GeoNature). En effet, App_carto s'appui sur l'API de [GeoNature](https://github.com/PnX-SI/GeoNature) pour l'authentification des utilisateurs et la recherche de taxon dans le référentiel TaxRef. 
+Un pont doit également être configuré pour permettre d'allimenter app_carto avec les données d'observations.
+
 App_carto a été pensée pour s'intégrer dans un système d'information déjà existant. Les données géographiques restent ou elles sont, à partir du moment ou elles sont dans une base de données postgis. L'administrateur de l'application n'a qu'à déclarer les couches.
-App_carto n n'embarque pas de système interne d'authentification. En effet, l'application s'appuie sur l'API de [GeoNature](https://github.com/PnX-SI/GeoNature) ce qui permet de centraliser les comptes utilisateurs en un point unique et évite la multiplication des ID/mot de passe.
-L'application s'appuie également sur l'API de [GeoNature](https://github.com/PnX-SI/GeoNature) pour la recherche d'un taxon.
+
+
 
 App_carto est une plateforme web développée principalement en python et en javascript et se basant sur les librairies suivantes:
 - [Flask](https://flask.palletsprojects.com/en/2.0.x/)
