@@ -198,7 +198,7 @@ layer_columns : liste (varchar[]) des champs à intérroger (champs se retrouvan
 layer_geom_column : nom du champ stockant la géométrie (geom, the_geom ...)
 ```
 
-### Focus sur la définition d'un style
+### Définition du style d'une couche
 Les styles respectent une syntaxe JSON spécifique et fonction de la géométrie des objets.
 
 ```
