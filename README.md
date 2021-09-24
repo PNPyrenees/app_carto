@@ -2,7 +2,8 @@
 
 
 # Qu'est ce que app_carto
-App_carto est une application web destinée à diffuser des données SIG initié par le [Parc national des Pyrénées](http://www.pyrenees-parcnational.fr) pour répondre à son besoin de partager en interne les données de son système d'information géographique.
+App_carto est une application web destinée à diffuser des données SIG.
+Le développement a été initié par le [Parc national des Pyrénées](http://www.pyrenees-parcnational.fr) pour répondre à son besoin de partager en interne les données de son système d'information géographique.
 L'objectif à terme est d'en faire une mini application SIG en permettant la création et le partage de couche de données et de projet.
 
 # Présentation du projet
