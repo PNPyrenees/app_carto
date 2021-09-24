@@ -60,4 +60,41 @@ App_carto s'appui donc sur deux bases de données:
 
 Les tables grisées sont une projection dans le cadre des développements à venir. Elle seront potentiellement amenées à évoluer.
 
+# Installation
+
+## Installation de la base de donées
+
+La base de données applicative a été installé sur un **PostgreSQL 12**
+
+Installer PostgreSQL (sur le serveur applicatif ou tout autre serveur)
+''' $ sudo apt-get install postgresql '''
+
+Puis créez une base de donnée (par exemple) :
+'''
+$ sudo su postgres
+$ psql
+# create database <nomBdd>
+'''
+
+Il vous faudra ensuite exécuter les requêtes SQL contenues dans le fichier du projet **install/install_db.sql**
+
+## Installation de l'applicatif
+
+L'installation d'AppCarto a été réalisé sur un **ubuntu server 20.04**
+
+
+## Installation de la base de donées
+Installer PostgreSQL (sur le serveur applicatif ou tout autre serveur)
+''' $ sudo apt-get install postgresql '''
+
+
+
+Puis exécuter les requête SQL contenu dans le fichier du projet (install/install_db.sql)
+
+
+
+
+
+
+
 
