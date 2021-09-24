@@ -56,7 +56,7 @@ App_carto s'appui donc sur deux bases de données:
 
 #### Représentation de la base de données applicative
 
-![image](https://user-images.githubusercontent.com/85548796/134531163-7d3bdcf1-7ee5-43ce-be2f-9c8a043f6f93.png)
+![image](https://user-images.githubusercontent.com/85548796/134653814-140cad56-b3ab-403b-9090-d94560bef9bf.png)
 
 Les tables grisées sont une projection dans le cadre des développements à venir. Elle seront potentiellement amenées à évoluer.
 
@@ -98,9 +98,9 @@ Cette table contient les objets géographiques correspondant aux différentes é
 
 Description de la table :
 ```
-mesh_id : clés primaire auto-incrémenté
-mesh_scale_id : clés étrangère permettant d'associer une géométrie à une echelle de restitution
-geom: géométrie de l'objet
+mesh_id : Clés primaire auto-incrémentée
+mesh_scale_id : Clés étrangère permettant d'associer une géométrie à une echelle de restitution
+geom: Géométrie de l'objet
 ```
 
 ### référentiel commune
@@ -112,30 +112,71 @@ insee_com : clés primaire reprenant le code insee de la commune
 nom_com : Nom de la commune
 ```
 
+### Statuts des espèces
+Par défaut, un certain nombre de status (et de regrouppement de statut) sont déclaré. Il est possible d'en ajouté en éditant les table suivantes :
+- app_carto.bib_group_status
+```
+group_status_id : Clés primaire auto-incrémentée
+group_status_label : Nom textuelle du regrouppement de status
+group_status_description : Description de ce qui est contenu dans le groupe de status
+group_status_is_warning : Booléen permettant d'inclure les espèces ayant un statut associé à ce groupe dans le calcul des enjeux
+active : Booléen permettant d'activer ou non un groupe de statut
+```
+
+- app_carto.bib_status_type
+```
+status_type_id : Clés primaire auto-incrémentée
+statut_type_label : Nom textuel du statut
+group_statut_id : Clés étrangère identifiant à quel group est associé le statut
+active : Booléen permettant d'activer ou non un statut
+```
+
 ### Intégration des données d'observations
-Il faut alimenter l'ensemble des tables suivante à partir de vos données d'observation:
+Il faut alimenter l'ensemble des tables suivantes à partir des données d'observation (issue de la synthèse de [GeoNature](https://github.com/PnX-SI/GeoNature) ou d'ailleur):
 - app_carto.t_observations : table des observations
-  - obs_id : identifiant unique de l'observation (favoriser l'identifiant dans la base de onnées source)
-  - obs_uuid : identifiant unique de la données dans le SINP
-  - cd_ref : code de référence taxon dans taxref
-  - group_2_inpn : Regrouppement vernaculaire issue de taxref 
-  - date_min : date de début d'observation
-  - date_max : date de fin d'observation
-  - altitude_min : altitude minimale d'observation
-  - altitude_max : altitude maximal d'obervation
-  - nom_cite : nom de l'espèce tel que cité par l'observateur
-  - nom_valide : nom retenu de l'espèce dans taxref
-  - nom_vern : nom vernaculaire de lespèce dans taxref
-  - regne : regne auquel le taxon apparatient issue de taxref
-  - geom : objet géométrique associé à l'observation
+```
+obs_id : identifiant unique de l'observation (favoriser l'identifiant dans la base de onnées source)
+obs_uuid : identifiant unique de la données dans le SINP
+cd_ref : code de référence taxon dans taxref
+group_2_inpn : Regrouppement vernaculaire issue de taxref 
+date_min : date de début d'observation
+date_max : date de fin d'observation
+altitude_min : altitude minimale d'observation
+altitude_max : altitude maximal d'obervation
+nom_cite : nom de l'espèce tel que cité par l'observateur
+nom_valide : nom retenu de l'espèce dans taxref
+nom_vern : nom vernaculaire de lespèce dans taxref
+regne : regne auquel le taxon apparatient issue de taxref
+geom : objet géométrique associé à l'observation
+```
 
 - app_carto.cor_observation_commune : lien entre une observation et les communes
-  - obs_id : identifiant de l'observation
-  - insee_com : identifiant de la commune
+```
+obs_id : identifiant de l'observation dans app_carto.t_observations
+insee_com : identifiant de la commune dans app_carto.bib_commune
+```
 
 - app_carto.cor_observation_mesh : lien entre l'observation et les echelle de restitution 
-  - obs_id : identifiant de l'observation
-  - mesh_id : identifiant de la maille
+```
+obs_id : identifiant de l'observation dans app_carto.t_observations
+mesh_id : identifiant de la maille  dans app_carto.bib_mesh
+```
+
+-app_carto.cor_observation_status : status de l'espèce relatif à l'observation (= une espèce protégée **uniquement** dans les Pyrénées-Atlantiques ne doit pas être identifié comme protégée si elle est observée dans les hautes-Pyrénées)
+```
+obs_id: identifiant de l'observation dans app_carto.t_observations
+status_type_id : identifiant du status dans app_carto.bib_statut_type
+```
+
+### Intégration des toponyme
+La table bib_toponyme doit être alimenter avec les toponymes de votre territoire afin de permettre à l'utilisateur de réaliser la recherche d'un lieux dit.
+
+Description de la table :
+```
+id : Clés primaire auto-incrémentée
+mesh_scale_id : Clés étrangère permettant d'associer une géométrie à une echelle de restitution
+geom: Géométrie de l'objet
+```
 
 
 # FAQ
