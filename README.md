@@ -214,7 +214,9 @@ Polygon :
         ex1 : [] - pas de pointillé; 
         ex2 : [4] - longueur du pointillé et de l'espacement de 4 pixels
         ex3 : [4,8] - longueur du pointillé de 4 pixel et logueur de l'espacement de 8 pixel
+```
 
+```
 Line :
     - style_name = Nom du style qui sera repris dans la légende (optionnel)
     - stroke_color = Couleur du trait
@@ -225,7 +227,9 @@ Line :
         ex1 : [] - pas de pointillé; 
         ex2 : [4] - longueur du pointillé et de l'espacement de 4 pixels
         ex3 : [4,8] - longueur du pointillé de 4 pixel et logueur de l'espacement de 8 pixel
+```
 
+```
 Point : 
     - style_name = Nom du style qui sera repris dans la légende (optionnel)
     - fill_color = Couleur de remplissage
@@ -240,7 +244,9 @@ Point :
         ex3 : [4,8] - longueur du pointillé de 4 pixel et logueur de l'espacement de 8 pixel
     - radius = Rayon du point (en pixel)
         ex : 5
+```
 
+```
 Icon :
     - style_name = Nom du style qui sera repris dans la légende (optionnel)
     - icon_svg_path = Chemin vers le SVG (dans static)
