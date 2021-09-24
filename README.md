@@ -116,6 +116,7 @@ nom_com | Nom de la commune
 ### Statuts des espèces
 Par défaut, un certain nombre de status (et de regrouppement de statut) sont déclaré. Il est possible d'en ajouté en éditant les table suivantes :
 - app_carto.bib_group_status
+
 Nom du champ  | description
 ------------- | -------------
 group_status_id  | Clés primaire auto-incrémentée
@@ -125,6 +126,7 @@ group_status_is_warning | Booléen permettant d'inclure les espèces ayant un st
 active| Booléen permettant d'activer ou non un groupe de statut
 
 - app_carto.bib_status_type
+
 Nom du champ  | description
 ------------- | -------------
 status_type_id | Clés primaire auto-incrémentée
@@ -135,6 +137,7 @@ active | Booléen permettant d'activer ou non un statut
 ### Intégration des données d'observations
 Il faut alimenter l'ensemble des tables suivantes à partir des données d'observation (issue de la synthèse de [GeoNature](https://github.com/PnX-SI/GeoNature) ou d'ailleur):
 - app_carto.t_observations : table des observations
+
 Nom du champ  | description
 ------------- | -------------
 obs_id | identifiant unique de l'observation (favoriser l'identifiant dans la base de onnées source)
