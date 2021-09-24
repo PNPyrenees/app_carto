@@ -67,14 +67,14 @@ Les tables grisées sont une projection dans le cadre des développements à ven
 La base de données applicative a été installé sur un **PostgreSQL 12**
 
 Installer PostgreSQL (sur le serveur applicatif ou tout autre serveur)
-''' $ sudo apt-get install postgresql '''
+``` $ sudo apt-get install postgresql ```
 
 Puis créez une base de donnée (par exemple) :
-'''
+```
 $ sudo su postgres
 $ psql
 # create database <nomBdd>
-'''
+```
 
 Il vous faudra ensuite exécuter les requêtes SQL contenues dans le fichier du projet **install/install_db.sql**
 
