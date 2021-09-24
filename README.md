@@ -17,7 +17,7 @@ Un pont doit également être configuré pour permettre d'alimenter AppCarto ave
 Pour les autres données, AppCarto a été pensé pour s'intégrer dans un système d'information déjà existant favorisant la centralisation des données. Les données géographiques restent ou elles sont, à partir du moment où elles sont dans une base de données postgis. L'administrateur d'AppCarto n'a qu'à déclarer les couches pour les rendre disponible dans l'application.
 
 <div align="center">
-	<img src="https://user-images.githubusercontent.com/85548796/134679321-a91245ba-4572-4ceb-be30-9af025a4a27e.png)/>
+	<img src="https://user-images.githubusercontent.com/85548796/134679321-a91245ba-4572-4ceb-be30-9af025a4a27e.png"/>
 </div>
 
 AppCarto est une plateforme web développée principalement en python et en javascript et se basant sur les librairies suivantes:
