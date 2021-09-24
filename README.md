@@ -346,9 +346,9 @@ Dans le cas d'un style de type "icon", le fichier SVG associé devra être plac�
 	"filter" : {
 		"left_term": "id_local",
         	"operator": "==",
-        	  "right_term": "ZC_PNP",
-        	  "and": [],
-        	  "or": []
+        	"right_term": "ZC_PNP",
+        	"and": [],
+        	"or": []
       	}
     },{
         "style_name": "Aire d'adhésion",
