@@ -155,18 +155,21 @@ regne | regne auquel le taxon apparatient issue de taxref
 geom | objet géométrique associé à l'observation
 
 - app_carto.cor_observation_commune : lien entre une observation et les communes
+
 Nom du champ  | description
 ------------- | -------------
 obs_id | identifiant de l'observation dans app_carto.t_observations
 insee_com | identifiant de la commune dans app_carto.bib_commune
 
 - app_carto.cor_observation_mesh : lien entre l'observation et les echelle de restitution 
+
 Nom du champ  | description
 ------------- | -------------
 obs_id | identifiant de l'observation dans app_carto.t_observations
 mesh_id | identifiant de la maille  dans app_carto.bib_mesh
 
 -app_carto.cor_observation_status : status de l'espèce relatif à l'observation (= une espèce protégée **uniquement** dans les Pyrénées-Atlantiques ne doit pas être identifié comme protégée si elle est observée dans les hautes-Pyrénées)
+
 Nom du champ  | description
 ------------- | -------------
 obs_id | identifiant de l'observation dans app_carto.t_observations
