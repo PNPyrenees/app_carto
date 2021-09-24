@@ -50,7 +50,7 @@ Les objectifs à terme seraient d'offrir la possibilité à l'utilisateur :
 Et d'offirir une interface d'aministration pour l'ajout des couches de données.
 
 ### Base de données
-App_carto s'appui donc sur deux bases de données:
+AppCarto s'appui donc sur deux bases de données:
 - la base dédiée à l'application
 - la base de données hebergeant les couches SIG (appelé dans la suite la **base de données "data"**)
 
