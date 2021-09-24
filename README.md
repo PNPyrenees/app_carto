@@ -1,6 +1,6 @@
 ![logo_app_v3](https://user-images.githubusercontent.com/85548796/134670189-3518e579-cdba-4630-b35d-b902fd402df8.png)
 
-<img src="https://user-images.githubusercontent.com/85548796/134628003-895ecb51-fab1-4993-9cb9-53c3ea52d58b.png" alt="drawing" width="200"/>
+<img src="https://user-images.githubusercontent.com/85548796/134628003-895ecb51-fab1-4993-9cb9-53c3ea52d58b.png" alt="drawing" width="150"/>
 
 # Qu'est ce que AppCarto 
 AppCarto est une application web destinée à diffuser des données SIG.
