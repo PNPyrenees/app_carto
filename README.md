@@ -201,19 +201,19 @@ layer_geom_column : nom du champ stockant la géométrie (geom, the_geom ...)
 ### Définition du style d'une couche
 Les styles respectent une syntaxe JSON spécifique et fonction de la géométrie des objets.
 
-```
 Polygon :
-    - style_name = Nom du style qui sera repris dans la légende (optionnel)
-    - fill_color = Couleur de remplissage 
-        ex : rgba(201,241,196,0.5)
-    - stroke_color = Couleur de la bordure 
-        ex : rgba(201,241,196,0.5)
-    - stroke_width = Epaisseur de la bordure (en pixel)
-        ex : 3
-    - stroke_linedash = Bordure en pointillé 
-        ex1 : [] - pas de pointillé; 
-        ex2 : [4] - longueur du pointillé et de l'espacement de 4 pixels
-        ex3 : [4,8] - longueur du pointillé de 4 pixel et logueur de l'espacement de 8 pixel
+```
+- style_name = Nom du style qui sera repris dans la légende (optionnel)
+- fill_color = Couleur de remplissage 
+	- ex : rgba(201,241,196,0.5)
+- stroke_color = Couleur de la bordure 
+	- ex : rgba(201,241,196,0.5)
+- stroke_width = Epaisseur de la bordure (en pixel)
+	- ex : 3
+- stroke_linedash = Bordure en pointillé 
+	- ex1 : [] - pas de pointillé; 
+	- ex2 : [4] - longueur du pointillé et de l'espacement de 4 pixels
+	- ex3 : [4,8] - longueur du pointillé de 4 pixel et logueur de l'espacement de 8 pixel
 ```
 
 ```
