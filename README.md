@@ -1,4 +1,5 @@
-![logo_auto-productions_pnp_quadri_txt_vert](https://user-images.githubusercontent.com/85548796/134627894-6125ae8b-afa9-4628-baa8-5f2ef4b8a5eb.jpg)
+![image](https://user-images.githubusercontent.com/85548796/134628003-895ecb51-fab1-4993-9cb9-53c3ea52d58b.png)
+
 
 
 # app_carto
