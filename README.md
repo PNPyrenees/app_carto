@@ -52,7 +52,7 @@ Et d'offirir une interface d'aministration pour l'ajout des couches de données.
 ### Base de données
 App_carto s'appui donc sur deux bases de données:
 - la base dédiée à l'application
-- la base de données hebergeant les couches SIG
+- la base de données hebergeant les couches SIG (appelé dans la suite la **base de données "data"**)
 
 #### Représentation de la base de données applicative
 
@@ -64,34 +64,95 @@ Les tables grisées sont une projection dans le cadre des développements à ven
 
 ## Installation de la base de donées
 
-La base de données applicative a été installé sur un **PostgreSQL 12**
-
-Installer PostgreSQL (sur le serveur applicatif ou tout autre serveur)
-``` $ sudo apt-get install postgresql ```
-
-Puis créez une base de donnée (par exemple) :
-```
-$ sudo su postgres
-$ psql
-# create database <nomBdd>
-```
-
-Il vous faudra ensuite exécuter les requêtes SQL contenues dans le fichier du projet **install/install_db.sql**
+La base de données applicative a été installé sur un **PostgreSQL 12** en suivant les actions suivantes :
+- Installer PostgreSQL (sur le serveur applicatif ou tout autre serveur).
+- Créer un rôle qui sera administrateur de cette base de données.
+- Se connecter à la base de données avec ce role
+- Exécuter le contenu du fichier d'installation de la base de données [install/install_db.sql](https://github.com/PNPyrenees/app_carto/blob/dev/install/install_db.sql)
 
 ## Installation de l'applicatif
 
 L'installation d'AppCarto a été réalisé sur un **ubuntu server 20.04**
+Vous trouverez la préocédure d'installation dans le fichier [doc/installation](https://github.com/PNPyrenees/app_carto/blob/dev/doc/installation)
+
+## Finalisation de l'installation
+Il est nécessaire de peupler quelques tables afin que l'application puisse fonctionner :
+
+### Echelle de restitution des données d'observation
+
+#### app_carto.bib_mesh_scale
+Permet d'activer des échelles de restitution des données d'observations.
+Par défaut seul sont activé les maille de 2km, 1km, 500m, 250m, 100m
+
+Il est possible d'ajouter des echelles de restitution en ajoutant des lignes dans cette table.
+
+Description de la table :
+```
+mesh_scale_id : clés primaire auto-incrémenté
+mesh_scale_label : nom de l'echelle de restitution
+active: booléen permetant d'activer ou non la restitution à une certaine echelle
+```
+
+#### app_carto.bib_mesh 
+Cette table contient les objets géographiques correspondant aux différentes échelles de restitution. A minima, il faudra insérer les données pour les echelles activées dans **app_carto.bib_mesh_scale**
+
+Description de la table :
+```
+mesh_id : clés primaire auto-incrémenté
+mesh_scale_id : clés étrangère permettant d'associer une géométrie à une echelle de restitution
+geom: géométrie de l'objet
+```
+
+### référentiel commune
+Alimenter la table app_cato.bib_commune avec les communes de votre territoire
+
+Description de la table :
+```
+insee_com : clés primaire reprenant le code insee de la commune
+nom_com : Nom de la commune
+```
+
+### Intégration des données d'observations
+Il faut alimenter l'ensemble des tables suivante à partir de vos données d'observation:
+- app_carto.t_observations : table des observations
+  - obs_id : identifiant unique de l'observation (favoriser l'identifiant dans la base de onnées source)
+  - obs_uuid : identifiant unique de la données dans le SINP
+  - cd_ref : code de référence taxon dans taxref
+  - group_2_inpn : Regrouppement vernaculaire issue de taxref 
+  - date_min : date de début d'observation
+  - date_max : date de fin d'observation
+  - altitude_min : altitude minimale d'observation
+  - altitude_max : altitude maximal d'obervation
+  - nom_cite : nom de l'espèce tel que cité par l'observateur
+  - nom_valide : nom retenu de l'espèce dans taxref
+  - nom_vern : nom vernaculaire de lespèce dans taxref
+  - regne : regne auquel le taxon apparatient issue de taxref
+  - geom : objet géométrique associé à l'observation
+
+- app_carto.cor_observation_commune : lien entre une observation et les communes
+  - obs_id : identifiant de l'observation
+  - insee_com : identifiant de la commune
+
+- app_carto.cor_observation_mesh : lien entre l'observation et les echelle de restitution 
+  - obs_id : identifiant de l'observation
+  - mesh_id : identifiant de la maille
 
 
-## Installation de la base de donées
-Installer PostgreSQL (sur le serveur applicatif ou tout autre serveur)
-''' $ sudo apt-get install postgresql '''
+# FAQ
+## Comment ajouter une couche de données ?
 
+La déclaration d'une couche de données doit se faire en base de données en ajoutant une ligne à la table app_carto.t_layers.
+Déscription des champs:
+```
+layer_id : clés primaire auto-incrémenté
+layer_schema_name : nom du schéma dans la base de données "data"
+layer_table_name : Nom de la table de données dans la base de données "data"
+layer_group : Nom permettant de regroupper les couche sur l'interface (TODO : sortir ce champ dans une table dédiée aux "groupes de couche" dans la base applicative)
+layer_label : Alias du nom de la couche qui sera affiché dans l'application
+layer_is_default : (ce champ est our l'instant sans effet)
+layer_default_style : définition du style par défaut à appliquer à la couche en format JSON (voir [doc/exemple_json_style](https://github.com/PNPyrenees/app_carto/blob/dev/doc/Exemple_json_style)
 
-
-Puis exécuter les requête SQL contenu dans le fichier du projet (install/install_db.sql)
-
-
+```
 
 
 
