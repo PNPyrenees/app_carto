@@ -449,7 +449,7 @@ Dans le cas d'un style de type "icon", le fichier SVG associé devra être plac�
 }]
 ```
 
-# Mise à jour de l'application
+# Mise à jour
 
 ## Mise à jour de la base de données
 En fonction de la version de départ, il faudra exécuter les scripts SQL **update_db_to_vX.Y.sql** présent dans le dossier ./install .
