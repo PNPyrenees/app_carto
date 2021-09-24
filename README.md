@@ -286,12 +286,12 @@ Dans le cas d'un style de type "icon", le fichier SVG associé devra être plac�
     "style_type": "Point",
     "styles": [{
         "style_name": "nomDuStyle",
-		    "fill_color": "rgba(145,82,45,0.5)",
-		    "stroke_color": "rgba(0,0,0,1)",
-		    "stroke_width": 1,
-		    "stroke_linedash": [],
+	"fill_color": "rgba(145,82,45,0.5)",
+	"stroke_color": "rgba(0,0,0,1)",
+	"stroke_width": 1,
+	"stroke_linedash": [],
         "radius": 5,
-		    "filter" : null
+	"filter" : null
     }]
 }]
 ```
@@ -304,10 +304,10 @@ Dans le cas d'un style de type "icon", le fichier SVG associé devra être plac�
     "style_type": "Line",
     "styles": [{
         "style_name": "nomDuStyle",
-		    "stroke_color": "rgba(0,0,0,1)",
-		    "stroke_width": 1,
-		    "stroke_linedash": [],
-		    "filter" : null
+	"stroke_color": "rgba(0,0,0,1)",
+	"stroke_width": 1,
+	"stroke_linedash": [],
+	"filter" : null
     }]
 }]
 ```
@@ -339,13 +339,13 @@ Dans le cas d'un style de type "icon", le fichier SVG associé devra être plac�
     "style_type": "Polygon",
     "styles": [{
         "style_name": "Zone Coeur",
-		    "fill_color": "rgba(2,125,13,0.5)",
-		    "stroke_color": "rgba(2,125,13,1)",
-		    "stroke_width": 3,
-		    "stroke_linedash": [],
-		    "filter" : {
-			      "left_term": "id_local",
-        	  "operator": "==",
+	"fill_color": "rgba(2,125,13,0.5)",
+	"stroke_color": "rgba(2,125,13,1)",
+	"stroke_width": 3,
+	"stroke_linedash": [],
+	"filter" : {
+		"left_term": "id_local",
+        	"operator": "==",
         	  "right_term": "ZC_PNP",
         	  "and": [],
         	  "or": []
@@ -353,15 +353,15 @@ Dans le cas d'un style de type "icon", le fichier SVG associé devra être plac�
     },{
         "style_name": "Aire d'adhésion",
         "fill_color": "rgba(201,241,196,0.5)",
-		    "stroke_color": "rgba(201,241,196,1)",
-		    "stroke_width": 3,
-		    "stroke_linedash": [],
-		    "filter" : {
-			      "left_term": "id_local",
-        	  "operator": "==",
-        	  "right_term": "AA_PNP",
-        	  "and": [],
-        	  "or": []
+	"stroke_color": "rgba(201,241,196,1)",
+	"stroke_width": 3,
+	"stroke_linedash": [],
+	"filter" : {
+		"left_term": "id_local",
+        	"operator": "==",
+        	"right_term": "AA_PNP",
+        	"and": [],
+        	"or": []
       	}
     }]
 }]
@@ -408,20 +408,20 @@ Dans le cas d'un style de type "icon", le fichier SVG associé devra être plac�
     "style_type": "Polygon",
     "styles": [{
         "style_name": "nomDuStyle",
-		    "fill_color": "rgba(145,82,45,0.5)",
-		    "stroke_color": "rgba(0,0,0,1)",
-		    "stroke_width": 1,
-		    "stroke_linedash": [],
-		    "filter" : null
+	"fill_color": "rgba(145,82,45,0.5)",
+	"stroke_color": "rgba(0,0,0,1)",
+	"stroke_width": 1,
+	"stroke_linedash": [],
+	"filter" : null
     }]
 },{
     "style_type": "Line",
     "styles": [{
         "style_name": "nomDuStyle",
-		    "stroke_color": "rgba(0,0,0,1)",
-		    "stroke_width": 1,
-		    "stroke_linedash": [],
-		    "filter" : null
+	"stroke_color": "rgba(0,0,0,1)",
+	"stroke_width": 1,
+	"stroke_linedash": [],
+	"filter" : null
     }]
 }]
 ```
