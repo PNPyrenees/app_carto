@@ -1604,7 +1604,7 @@ document.getElementById("search-toponyme-input").addEventListener("keyup", event
 
                     toponyme_nom = toponyme.properties.toponyme_nom
 
-                    if (toponyme.properties.type && toponyme.properties.precision_geo){
+                    if (toponyme.properties.toponyme_type && toponyme.properties.toponyme_precision_geo){
                         toponyme_nom += ' (' + toponyme.properties.toponyme_type + ' - ' + toponyme.properties.toponyme_precision_geo + ')'
                     } else if (toponyme.properties.toponyme_type){
                         toponyme_nom += ' (' + toponyme.properties.toponyme_type + ')'
