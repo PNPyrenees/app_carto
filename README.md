@@ -14,10 +14,8 @@ Le développement a été initié par le [Parc national des Pyrénées](http://w
 <div>
 	<img src="https://user-images.githubusercontent.com/85548796/135807457-c3b8b12c-1ef3-4202-afe7-ab7dc2ecdaa2.png" alt="drawing" height="450"/>
 </div>
-
-
 	
-L'objectif, à terme, est d'en faire une mini-application SIG en ligne permettant notamment la création et le partage de couche de données et d'y implémenter des fonctions spatiales élémentaires (intersection / fusion ....).
+L'objectif, à terme, est d'en faire une mini-application SIG en ligne permettant notamment la création et le partage de couches de données et d'y implémenter des fonctions spatiales élémentaires (intersection / fusion ....).
 
 AppCarto peut être vu comme une application satellite de [GeoNature](https://github.com/PnX-SI/GeoNature) car elle s'appuie sur l'API de [GeoNature](https://github.com/PnX-SI/GeoNature) pour l'authentification des utilisateurs (centralisation des comptes) et la recherche de taxon dans le référentiel TaxRef. 
 Un pont doit également être configuré pour permettre d'alimenter AppCarto avec les données d'observations.
@@ -81,7 +79,7 @@ La base de données applicative a été installé sur un **PostgreSQL 12** en su
 
 ## Installation de l'applicatif
 
-L'installation d'AppCarto a été réalisé sur un **ubuntu server 20.04**
+L'installation d'AppCarto a été réalisée sur un **ubuntu server 20.04**
 Vous trouverez la procédure d'installation dans le fichier [doc/installation](https://github.com/PNPyrenees/app_carto/blob/dev/doc/installation)
 
 ## Finalisation de l'installation et alimentation de la base de données applicative
@@ -93,7 +91,7 @@ Il est nécessaire de peupler quelques tables afin que l'application puisse fonc
 Cette table permet d'activer des échelles de restitution des données d'observations.
 Par défaut seules sont activées les mailles de 2km, 1km, 500m, 250m, 100m
 
-Il est possible d'ajouter des échelles de restitution en ajoutant des lignes dans cette table.
+Il est possible d'ajouter d'autres échelles de restitution en ajoutant des lignes dans cette table.
 
 Description de la table :
 
@@ -101,7 +99,7 @@ Nom du champ  | description
 ------------- | -------------
 mesh_scale_id  | Clé primaire auto-incrémentée
 mesh_scale_label  | Nom de l'échelle de restitution
-active | Booléen permetant d'activer ou non la restitution à une certaine echelle
+active | Booléen permetant d'activer ou non la restitution à cette echelle
 
 #### app_carto.bib_mesh 
 Cette table contient les objets géographiques correspondant aux différentes échelles de restitution. A minima, il faudra insérer les données pour les échelles activées dans **app_carto.bib_mesh_scale**
@@ -123,7 +121,7 @@ insee_com  | Clé primaire reprenant le code insee de la commune
 nom_com | Nom de la commune
 
 ### Statuts des espèces
-Par défaut, un certain nombre de status (et de regroupement de statut) sont déclarés. Il est possible d'en ajouter en éditant les tables suivantes :
+Par défaut, un certain nombre de statuts (et de regroupement de statut) sont déclarés. Il est possible d'en ajouter en éditant les tables suivantes :
 
 #### app_carto.bib_group_status
 
@@ -131,7 +129,7 @@ Nom du champ  | description
 ------------- | -------------
 group_status_id  | Clé primaire auto-incrémentée
 group_status_label | Nom textuel du regroupement de statuts
-group_status_description | Description de ce qui est contenu dans le groupe de status
+group_status_description | Description de ce qui est contenu dans le groupe de statuts
 group_status_is_warning | Booléen permettant d'inclure les espèces ayant un statut associé à ce groupe dans le calcul des enjeux
 active| Booléen permettant d'activer ou non un groupe de statut
 
@@ -151,7 +149,7 @@ Table des observations
 
 Nom du champ  | description
 ------------- | -------------
-obs_id | Identifiant unique de l'observation (favoriser l'identifiant dans la base de données source)
+obs_id | Identifiant unique de l'observation en favorisant l'identifiant dans la base de données source (ex : id_synthèse pour [GeoNature](https://github.com/PnX-SI/GeoNature) )
 obs_uuid | Identifiant unique de la donnée dans le SINP
 cd_ref | Code de référence taxon dans taxref
 group_2_inpn | Regrouppement vernaculaire issue de taxref 
@@ -170,27 +168,27 @@ Lien entre une observation et les communes
 
 Nom du champ  | description
 ------------- | -------------
-obs_id | identifiant de l'observation dans app_carto.t_observations
-insee_com | identifiant de la commune dans app_carto.bib_commune
+obs_id | Identifiant de l'observation dans app_carto.t_observations
+insee_com | Identifiant de la commune dans app_carto.bib_commune
 
 #### app_carto.cor_observation_mesh
 Lien entre l'observation et les objets géographiques associés aux différentes échelles de restitution 
 
 Nom du champ  | description
 ------------- | -------------
-obs_id | identifiant de l'observation dans app_carto.t_observations
-mesh_id | identifiant de la maille dans app_carto.bib_mesh
+obs_id | Identifiant de l'observation dans app_carto.t_observations
+mesh_id | Identifiant de la maille dans app_carto.bib_mesh
 
 #### app_carto.cor_observation_status
 Statut de l'espèce relatif à l'observation (= une espèce protégée **uniquement** dans les Pyrénées-Atlantiques ne doit pas être identifiée comme protégée si elle est observée dans les hautes-Pyrénées)
 
 Nom du champ  | description
 ------------- | -------------
-obs_id | identifiant de l'observation dans app_carto.t_observations
-status_type_id | identifiant du status dans app_carto.bib_statut_type
+obs_id | Identifiant de l'observation dans app_carto.t_observations
+status_type_id | Identifiant du statut dans app_carto.bib_statut_type
 
 ### Table des toponymes
-La table **app_carto.bib_toponyme** doit être alimentée avec les toponymes de votre territoire afin de permettre à l'utilisateur de réaliser la recherche d'un lieu-dit.
+La table **app_carto.bib_toponyme** doit être alimentée avec les toponymes de votre territoire afin de permettre à l'utilisateur de réaliser la recherche d'un lieu-dit (barre de recherche en haut à droite de la carte).
 
 Description de la table :
 Nom du champ  | description
@@ -198,7 +196,7 @@ Nom du champ  | description
 toponyme_id | Clé primaire auto-incrémentée
 toponyme_nom | Toponyme textuel
 toponyme_type | Précision sur le type de toponyme (Lac, Pic, Auberge...)
-toponyme_precision_geo | Précision de localisation textuelle permettant de différencier des homonymes (ex| Vallée d'Aspe)
+toponyme_precision_geo | Précision de localisation textuelle permettant de différencier des homonymes (ex: Vallée d'Aspe)
 geom| Géométrie de l'objet
 
 ## Ajouter une couche de données
@@ -210,20 +208,19 @@ Déscription de la table:
 Nom du champ  | description
 ------------- | -------------
 layer_id | Clé primaire auto-incrémentée
-layer_schema_name | nom du schéma dans la base de données "data"
-layer_table_name | Nom de la table de données dans la base de données "data"
-layer_group | Nom permettant de regroupper les couche sur l'interface (TODO | sortir ce champ dans une table dédiée aux "groupes de couche" dans la base applicative)
+layer_schema_name | Nom du schéma dans la base de données source (bdd_sig)
+layer_table_name | Nom de la table de données dans la base de données source (bdd_sig)
+layer_group | Nom permettant de regroupper les couches sur l'interface (TODO | sortir ce champ dans une table dédiée aux "groupes de couches" dans la base applicative)
 layer_label | Alias du nom de la couche qui sera affiché dans l'application
-layer_is_default | (ce champ est our l'instant sans effet)
-layer_default_style | définition du style par défaut à appliquer à la couche en format JSON 
+layer_is_default | (ce champ est pour l'instant sans effet. L'idée est de définir des couche qui s'affiche par défaut à l'ouverture de l'application...)
+layer_default_style | Définition du style par défaut à appliquer à la couche en format JSON 
 layer_is_warning | Booléen indiquant que la couche doit être prise en compte dans le calcul des enjeux
-layer_attribution | identification du producteur de la données (copyright)
-layer_columns | liste (varchar[]) des champs à intérroger (champs se retrouvant dans le "select"). **Attention** renseigner "\*" ne fonctionne pas, si on veut tous les champ de la couche, il faut tous les renseigner.
-layer_geom_column | nom du champ stockant la géométrie (geom, the_geom ...)
+layer_attribution | Identification du producteur de la données (copyright)
+layer_columns | Liste (varchar[]) des champs à intérroger (champs se retrouvant dans le "select"). **Attention** renseigner "\*" ne fonctionne pas, si on veut tous les champs de la couche, il faut tous les renseigner.
+layer_geom_column | Nom du champ stockant la géométrie dans la base de données source (bdd_sig) (ex : geom, the_geom ...)
 
 ### Définition du style d'une couche
 Les styles respectent une syntaxe JSON spécifique et fonction de la géométrie des objets.
-
 
 ```
 Polygon :
@@ -237,7 +234,7 @@ Polygon :
 	- stroke_linedash = Bordure en pointillé 
 		ex1 : [] - pas de pointillé; 
 		ex2 : [4] - longueur du pointillé et de l'espacement de 4 pixels
-		ex3 : [4,8] - longueur du pointillé de 4 pixel et logueur de l'espacement de 8 pixel
+		ex3 : [4,8] - longueur du pointillé de 4 pixel et longueur de l'espacement de 8 pixel
 ```
 
 ```
@@ -250,7 +247,7 @@ Line :
 	- stroke_linedash = Trait en pointillé 
 		ex1 : [] - pas de pointillé; 
 		ex2 : [4] - longueur du pointillé et de l'espacement de 4 pixels
-		ex3 : [4,8] - longueur du pointillé de 4 pixel et logueur de l'espacement de 8 pixel
+		ex3 : [4,8] - longueur du pointillé de 4 pixel et longueur de l'espacement de 8 pixel
 ```
 
 ```
@@ -265,7 +262,7 @@ Point :
 	- stroke_linedash =  = Bordure en pointillé 
 		ex1 : [] - pas de pointillé; 
 		ex2 : [4] - longueur du pointillé et de l'espacement de 4 pixels
-		ex3 : [4,8] - longueur du pointillé de 4 pixel et logueur de l'espacement de 8 pixel
+		ex3 : [4,8] - longueur du pointillé de 4 pixel et longueur de l'espacement de 8 pixel
 	- radius = Rayon du point (en pixel)
 		ex : 5
 ```
@@ -275,8 +272,6 @@ Icon :
 	- style_name = Nom du style qui sera repris dans la légende (optionnel)
 	- icon_svg_path = Chemin vers le SVG (dans static)
 		ex : static/images/svg/<nom_svg>.svg 
-		Les icones doivent être en svg et placé dans backend/static/images/svg/ 
-		Il est possible des les classer par sous-dossier, dans ce cas, adapter le chemin
 	- icon_color = Couleur de l'image
 		ex : #ff0000 ou rgba(255,0,0,1)
 		La couleur est en réalité une teinte qui s'applique sur le SVG. 
@@ -287,7 +282,23 @@ Icon :
 	- icon_opacity = Opacité de l'icone sur la carte
 		ex : 0.8
 ```
-Dans le cas d'un style de type "icon", le fichier SVG associé devra être placé dans le dossier backend/static/images/svg/
+Dans le cas d'un style de type "icon", le fichier SVG associé devra être placé dans le dossier backend/static/images/svg/. Il est possible des les classer par sous-dossier, dans ce cas, adapter le chemin
+
+'''
+Etiquette : 
+    - text = Nom du champ devant être utilisé comme étiquette (obligatoire)
+    - max_resolution = Permet de gérer la visibilité de l'étiquette en fonction du niveau de zoom (optionnel - par défaut : 180)
+        ex : 150 (valeur permettant l'affichage des étiquettes pour une échelle correspondant à l'emprise du PNP)
+    - weight = Style d'écriture de l'étiquette (optionnel - par défaut : 'Normal')
+        ex 1 : Normal
+        ex 2 : Bold (en gras)
+    - size = Taille de la police (optionnel - par défaut : 12)
+        ex : 14
+    - color = Couleur du texte (optionnel - par défaut : 'rgba(0,0,0,1))
+        ex : rgba(201,241,196,1)
+    - background_color = Couleur de fond de l'étiquette (optoinnel - par défaut : 'rgba(255,255,255,0.7)')
+        ex : rgba(255,255,255,0.7)
+'''
 
 #### Exemple de style simple :
 
@@ -344,8 +355,9 @@ Dans le cas d'un style de type "icon", le fichier SVG associé devra être plac�
 
 ```json
 /**
- * Exemple pour la couche "refuge"
- * utilisant une icone
+ * Exemple pour la couche de point affichant une 
+ * icone à la place de l'objet géographique
+ */
 [{
     "style_type": "Icon",
     "styles": [{
@@ -456,7 +468,56 @@ Dans le cas d'un style de type "icon", le fichier SVG associé devra être plac�
 }]
 ```
 
+#### Exemple de style avec affichage des étiquettes :
+'''json
+/**
+ * Etiquette simple
+ */
+[{
+    "styles": [{
+        "filter": null,
+        "radius": 5,
+        "fill_color": "rgba(0,0,0,1)",
+        "stroke_color": "rgba(0,0,0,1)",
+        "stroke_width": 1,
+        "stroke_linedash": [],
+        "feature_label": {
+            "text": "nom"
+        }
+    }],
+    "style_type": "Point"
+}]
+'''
+
+
+'''json
+/**
+ * Etiquette avec paramétrage avancé
+ */
+[{
+    "styles": [{
+        "filter": null,
+        "radius": 5,
+        "fill_color": "rgba(0,0,0,1)",
+        "stroke_color": "rgba(0,0,0,1)",
+        "stroke_width": 1,
+        "stroke_linedash": [],
+        "feature_label": {
+            "text": "nom",
+            "max_resolution": 180,
+            "size": 14,
+            "weight": "Bold",
+            "color": "rgba(0,0,0,1)",
+            "background_color": "rgba(255,255,255,0.7)"
+        }
+    }],
+    "style_type": "Point"
+}]
+'''
+
 # Mise à jour
+
+*Cette partie reste à consolider en fonction des avancement du projet. En effet, en l'état aucun mise à jour n'a été réalisé.*
 
 ## Mise à jour de la base de données
 En fonction de la version de départ, il faudra exécuter les scripts SQL **update_db_to_vX.Y.sql** présent dans le dossier ./install .
