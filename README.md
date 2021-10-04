@@ -10,6 +10,11 @@
 # Qu'est ce que AppCarto 
 AppCarto est une application web destinée à diffuser des données SIG.
 Le développement a été initié par le [Parc national des Pyrénées](http://www.pyrenees-parcnational.fr) pour répondre à son besoin de partager en interne et à destination des agents les données de son système d'information géographique.
+
+<img align="left" src="https://user-images.githubusercontent.com/85548796/135807457-c3b8b12c-1ef3-4202-afe7-ab7dc2ecdaa2.png" alt="drawing" height="300"/>
+
+
+	
 L'objectif, à terme, est d'en faire une mini-application SIG en ligne permettant notamment la création et le partage de couche de données et d'y implémenter des fonctions spatiales élémentaires (intersection / fusion ....).
 
 AppCarto peut être vu comme une application satellite de [GeoNature](https://github.com/PnX-SI/GeoNature) car elle s'appuie sur l'API de [GeoNature](https://github.com/PnX-SI/GeoNature) pour l'authentification des utilisateurs (centralisation des comptes) et la recherche de taxon dans le référentiel TaxRef. 
