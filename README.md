@@ -469,7 +469,7 @@ Etiquette :
 ```
 
 #### Exemple de style avec affichage des étiquettes :
-'''json
+```json
 /**
  * Etiquette simple
  */
@@ -487,10 +487,10 @@ Etiquette :
     }],
     "style_type": "Point"
 }]
-'''
+```
 
 
-'''json
+```json
 /**
  * Etiquette avec paramétrage avancé
  */
@@ -513,7 +513,7 @@ Etiquette :
     }],
     "style_type": "Point"
 }]
-'''
+```
 
 # Mise à jour
 
