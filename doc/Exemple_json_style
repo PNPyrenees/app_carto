@@ -58,6 +58,26 @@ Icon :
 "style_name": "nomDuStyle" peut être null. Il est conseillé de le renseigner quand des 
 styles différents sont appliqués sur une même couche (catégorisé selon la valeur d'un champ par exemple)
 
+
+/**
+ * Gestion des étiquettes
+ */
+Pour paramétrer l'affichage des étiquettes il faut ajouter une entrée "feature_label" au niveau de "style" dans le json
+Paramètrage des étiquettes :
+    - text = Nom du champ devant être utilisé en tant qu'étiquettes (obligatoire)
+    - max_resolution = Permet de gérer la visibilité de l'étiquette en fonction du niveau de zoom (optionnel - par défaut : 180)
+        ex : 150 (valeur permettant l'affichage des étiquettes pour l'échaelle correspondant à l'emprise du PNP)
+    - weight = Style d'écriture de l'étiquette (optionnel - par défaut : 'Normal')
+        ex 1 : Normal
+        ex 2 : Bold (en gras)
+    - size = Taille de la police (optionnel - par défaut : 12)
+        ex : 12
+    - color = Couleur du texte (optionnel - par défaut : 'rgba(0,0,0,1))
+        ex : rgba(201,241,196,1)
+    - background_color = Couleur de fond de l'étiquette (optoinnel - par défaut : 'rgba(255,255,255,0.7)')
+        ex : rgba(255,255,255,0.7)
+    
+
 /**
  * Exemple pour avoir la condition ((A == "test") OR ((B == true) AND (C == 1)))
  */
@@ -174,6 +194,7 @@ styles différents sont appliqués sur une même couche (catégorisé selon la v
 /**
  * Exemple pour la couche "refuge"
  * utilisant une icone
+ */
 [{
     "style_type": "Icon",
     "styles": [{
@@ -184,3 +205,55 @@ styles différents sont appliqués sur une même couche (catégorisé selon la v
         "icon_opacity": 1
     }]
 }]
+
+
+/**
+ * Exemple pour de point 
+ * avec affichage des étiquettes
+ */
+[
+  {
+    "styles": [
+      {
+        "filter": null,
+        "radius": 5,
+        "fill_color": "rgba(0,0,0,1)",
+        "stroke_color": "rgba(0,0,0,1)",
+        "stroke_width": 1,
+        "stroke_linedash": [],
+        "feature_label": {
+            "text": "nom",
+            "max_resolution": 180,
+            "size": 14,
+            "weight": "Bold",
+            "color": "rgba(0,0,0,1)",
+            "background_color": "rgba(255,255,255,0.7)"
+        }
+      }
+    ],
+    "style_type": "Point"
+  }
+]
+
+/**
+ * Exemple pour de point 
+ * avec affichage des étiquettes minimaliste
+ */
+[
+  {
+    "styles": [
+      {
+        "filter": null,
+        "radius": 5,
+        "fill_color": "rgba(0,0,0,1)",
+        "stroke_color": "rgba(0,0,0,1)",
+        "stroke_width": 1,
+        "stroke_linedash": [],
+        "feature_label": {
+            "text": "nom"
+        }
+      }
+    ],
+    "style_type": "Point"
+  }
+]

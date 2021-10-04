@@ -299,6 +299,107 @@ const getDefaultStyle = function(){
 };
 
 /**
+ * Construction de l'étiquette
+ */
+const getFeatureLabel = function(feature_label, feature, resolution){
+    // pas d'étiquette si ce n'est pas définit dans la json
+    if (! feature_label){
+        return null
+    } 
+
+    // Gestion du texte en fonctione du niveau de zoom (ou plus exactemnt la résolution)
+    var text = ''
+    max_resolution = 180
+    if (feature_label.max_resolution) {
+        max_resolution = feature_label.max_resolution
+    }
+    if (resolution <= max_resolution){
+        text = stringDivider(feature.get(feature_label.text), 16, '\n')
+    }
+
+    // Construction du font
+    var weight = 'Normal'
+    if (feature_label.weight){
+        weight = feature_label.weight
+    }
+
+    var size = 14
+    if (feature_label.size){
+        size = feature_label.size
+    }
+    
+    var font = weight + ' ' + size + 'px/1 Arial' 
+
+    // Construction de la couleur du texte
+    var text_color = "rgba(0,0,0,1)"
+    if (feature_label.color){
+        text_color = feature_label.color
+    }
+    var fill = new ol.style.Fill({color: text_color})
+
+    // Création du buffer autour du text
+    // RETIRE CAR RENDU DE MAUVAISE QUALITE
+    /*var outline_color = "rgba(255,255,255,1)"
+    if (feature_label.outline_color){
+        outline_color = feature_label.outline_color
+    }
+
+    var outline_width = 3
+    if (feature_label.outline_width){
+        outline_width = feature_label.outline_width
+    }
+
+    outline = new ol.style.Stroke({color: outline_color, width: outline_width})*/
+
+    // Récupération du fond de l'étiquette
+    var background_color = "rgba(255,255,255,0.7)"
+    if (feature_label.background_color){
+        background_color = feature_label.background_color
+    }
+
+    background = new ol.style.Fill({color: background_color})
+
+    // Définition du placement du text
+    var placement, baseline, align, offsetX, offsetY
+    switch (feature.getGeometry().getType()){
+        case 'Polygon':
+        case 'MultiPolygon':
+        case 'LineString':
+        case 'MultiLineString':
+            placement = 'point'
+            baseline = 'middle'
+            align = 'center'
+            offsetX = 0
+            offsetY = 0
+            break
+        case 'Point':
+        case 'MultiPoint':
+            placement = 'point'
+            baseline = 'bottom'
+            align = 'start'
+            offsetX = 4
+            offsetY = -4
+            break
+    }
+
+    console.log(font)
+
+    return new ol.style.Text({
+        text: text,
+        font: font,
+        fill: fill,
+        //stroke: outline,
+        placement: placement,
+        textBaseline: baseline,
+        textAlign: align,
+        offsetX: offsetX,
+        offsetY: offsetY,
+        backgroundFill: background
+    })
+
+}
+
+/**
  * Construction d'un style openlayers à partir d'un json
  */
 const getStyleFromJson = function(json_styles){
@@ -357,6 +458,7 @@ const getStyleFromJson = function(json_styles){
                                 fill: new ol.style.Fill({
                                     color: style.fill_color,
                                 }),
+                                text: getFeatureLabel(style.feature_label, feature, resolution),
                             })]
                         }
                     })
@@ -378,7 +480,8 @@ const getStyleFromJson = function(json_styles){
                                         lineDash: style.stroke_linedash,
                                         width: style.stroke_width
                                     }),
-                                })
+                                }),
+                                text: getFeatureLabel(style.feature_label, feature, resolution),
                             })]
                         }
                     })
@@ -394,7 +497,8 @@ const getStyleFromJson = function(json_styles){
                                     color: style.stroke_color, 
                                     lineDash: style.stroke_linedash,
                                     width: style.stroke_width
-                                })
+                                }),
+                                text: getFeatureLabel(style.feature_label, feature, resolution),
                             })]
                         }
                     })
@@ -411,7 +515,8 @@ const getStyleFromJson = function(json_styles){
                                     color:  style.icon_color,
                                     scale: style.icon_scale,
                                     opacity: style.icon_opacity
-                                })
+                                }),
+                                text: getFeatureLabel(style.feature_label, feature, resolution),
                             })]
                         }
                     })
@@ -565,6 +670,8 @@ var addGeojsonLayer = function(data, additional_data = null){
         additional_data: additional_data,
         description_layer: data.desc_layer
     })
+
+
 
     // Ajout du layer sur la carte
     map.addLayer(vectorLayer)
