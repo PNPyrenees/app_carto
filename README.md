@@ -12,7 +12,7 @@ AppCarto est une application web destinée à diffuser des données SIG.
 Le développement a été initié par le [Parc national des Pyrénées](http://www.pyrenees-parcnational.fr) pour répondre à son besoin de partager en interne et à destination des agents les données de son système d'information géographique.
 
 <div>
-	<img align="left" src="https://user-images.githubusercontent.com/85548796/135807457-c3b8b12c-1ef3-4202-afe7-ab7dc2ecdaa2.png" alt="drawing" height="300"/>
+	<img src="https://user-images.githubusercontent.com/85548796/135807457-c3b8b12c-1ef3-4202-afe7-ab7dc2ecdaa2.png" alt="drawing" height="300"/>
 </div>
 
 
