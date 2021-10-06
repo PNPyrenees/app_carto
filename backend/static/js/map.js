@@ -889,7 +889,6 @@ function compare(left_term, operator, right_term) {
         case 'IN':  return right_term.includes(left_term)
         case 'NOT IN':  return !right_term.includes(left_term)
         case 'LIKE': 
-            console.log(left_term)
             if (String(right_term).startsWith('%') && String(right_term).endsWith('%')){
                 return right_term.replace('%', '').includes(left_term)
             }   
