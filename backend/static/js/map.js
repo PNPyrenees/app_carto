@@ -888,7 +888,17 @@ function compare(left_term, operator, right_term) {
         //case '!==': return left_term !== right_term
         case 'IN':  return right_term.includes(left_term)
         case 'NOT IN':  return !right_term.includes(left_term)
-        case 'LIKE': return right_term.includes(left_term)
+        case 'LIKE': 
+            console.log(left_term)
+            if (String(right_term).startsWith('%') && String(right_term).endsWith('%')){
+                return right_term.replace('%', '').includes(left_term)
+            }   
+            if (String(right_term).startsWith('%')){
+                return String(left_term).endsWith(right_term.replace('%', ''))
+            }   
+            if (String(right_term).endsWith('%')){
+                return String(left_term).startsWith(right_term.replace('%', ''))
+            }
         default: throw "Opérateur de comparaison incorrect"
     }
 }
@@ -923,7 +933,7 @@ function buildFilter(filter, str_filter="", logic_operator=""){
         str_filter = str_filter + "compare(feature.get('" + filter.left_term + "'),\"" + filter.operator + "\",\"" + filter.right_term + "\")"
         break;
         default:
-        throw "Création du style : Type de donnée incorrect lors de la création du filtre";
+        throw "Erreur lors de la création du style : opération incorrect";
     }
 
     if (filter.and.length > 0){

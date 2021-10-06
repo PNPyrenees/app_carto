@@ -581,15 +581,16 @@ def build_obs_layer_query(postdata):
     Returns
     -------
         JSON
-    """   
+    """  
 
     if postdata["scale"] == 999 :
         select_column = """ 
             o.geom
         """
     else :
-        select_column = "m.geom"
-    
+        select_column = """
+            m.geom
+        """ 
 
     # Construction du select
     query_select = ""
@@ -610,6 +611,10 @@ def build_obs_layer_query(postdata):
     if postdata["restitution"] == "re":
         query_select = """ 
             SELECT 
+                string_agg(DISTINCT o.nom_valide, '; ') AS "Noms valides",
+                string_agg(DISTINCT o.nom_vern, '; ') AS "Noms vernaculaires",
+                min(o.date_min) AS "Date obs min",
+                max(o.date_max) AS "Date obs max",
                 {}
         """.format(select_column)
 
@@ -708,7 +713,7 @@ def build_obs_layer_query(postdata):
 
     if postdata["status_list"]:
         query_where += """
-            AND cos.statut_type_id in ({})
+            AND cos.status_type_id in ({})
         """.format(', '.join(str(x) for x in postdata["status_list"]))
 
     if postdata["grp_status_list"]:
