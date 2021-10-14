@@ -199,7 +199,7 @@ toponyme_type | Précision sur le type de toponyme (Lac, Pic, Auberge...)
 toponyme_precision_geo | Précision de localisation textuelle permettant de différencier des homonymes (ex: Vallée d'Aspe)
 geom| Géométrie de l'objet
 
-## Ajouter une couche de données
+## Déclarer une couche de données
 
 ### Présentation de la table app_carto.t_layers
 La déclaration d'une couche de données doit se faire en base de données en ajoutant une ligne à la table **app_carto.t_layers**.
@@ -284,7 +284,7 @@ Icon :
 ```
 Dans le cas d'un style de type "icon", le fichier SVG associé devra être placé dans le dossier backend/static/images/svg/. Il est possible des les classer par sous-dossier, dans ce cas, adapter le chemin
 
-'''
+```
 Etiquette : 
     - text = Nom du champ devant être utilisé comme étiquette (obligatoire)
     - max_resolution = Permet de gérer la visibilité de l'étiquette en fonction du niveau de zoom (optionnel - par défaut : 180)
@@ -298,9 +298,9 @@ Etiquette :
         ex : rgba(201,241,196,1)
     - background_color = Couleur de fond de l'étiquette (optoinnel - par défaut : 'rgba(255,255,255,0.7)')
         ex : rgba(255,255,255,0.7)
-'''
+```
 
-'''
+```
 Liste des opérateurs :
     - > : supérieur
     - < : inférieur
@@ -314,7 +314,7 @@ Liste des opérateurs :
         - '%valeur' : fini par "valeur"
         - 'valeur%' : commence par "valeur"
         - '%valeur%' : contient "valeur"
-'''
+```
 
 #### Exemple de style simple :
 
