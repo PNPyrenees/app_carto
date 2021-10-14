@@ -810,7 +810,12 @@ var getObsLayerGeojson = function(formdata) {
         body: JSON.stringify(formdata)
     })
     .then(res => {
-        if (res.status != 200){
+        if (res.status == 400){ 
+            res.json().then(err => {
+                console.log(JSON.stringify(err.message[0]))
+                apiCallErrorCatcher("error", JSON.stringify(err.message[0]))
+            })
+        } else if (res.status != 200){
             // En envoi l"erreur dans le catch
             throw res;
         } else {
@@ -834,7 +839,7 @@ var getObsLayerGeojson = function(formdata) {
         layer_submit_button.disabled = false
         document.getElementById('loading-spinner').style.display = 'none'
 
-        console.log(error)
+        //console.log(error)
         if (typeof error == "string") {
             apiCallErrorCatcher(error, error)
         } else {
@@ -842,10 +847,8 @@ var getObsLayerGeojson = function(formdata) {
                 default_message = "Erreur lors de la récupération de la couche de données d'observation"
                 apiCallErrorCatcher(default_message, default_message)
             } else {
-                error.then(err => { 
-                    default_message = "Erreur lors de la récupération de la couche de données d'observation"
-                    apiCallErrorCatcher(error, default_message)
-                })
+                default_message = "Erreur lors de la récupération de la couche de données d'observation"
+                apiCallErrorCatcher("error", default_message)
             }
 
             
