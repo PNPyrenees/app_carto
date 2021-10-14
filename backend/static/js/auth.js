@@ -130,6 +130,13 @@ login_form.addEventListener("submit", function (event) {
     })
     .then(data => {
         loginModal.hide() // Fermeture du modal
+        
+        // On vide les champ d'authentification
+        setTimeout(function(){
+            document.getElementById("login-input").value = ''
+            document.getElementById("password-input").value = ''
+        }, 500)  
+
         // Gestion affichage "Se connecter" / "Se déconnecter"
         document.getElementById("btn-login").classList.remove("active")
         document.getElementById("icon-login").classList.remove("active")
