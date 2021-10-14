@@ -855,7 +855,6 @@ var getObsLayerGeojson = function(formdata) {
  */
 document.getElementById("add-layer-cancel").addEventListener("click", event => {
     if (controller !== undefined) {
-        console.log("here i am")
         // Cancel the previous request
         controller.abort();
     }
