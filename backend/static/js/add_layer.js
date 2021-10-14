@@ -66,27 +66,6 @@ var getRefLayerList = function(){
     .catch(error => {
         default_message = "Erreur lors de la récupération de la liste des couches de référence"
         apiCallErrorCatcher(error, default_message)
-        /*if (error.status == 403){
-            // Ici, le token n'est plus valide côté serveur
-            // Donc on ferme le modal courant et on ouvre le modal d'authentification
-            // On retarde l'action car le modal doit être  
-            // totallement ouvert pour pouvoir être fermé
-            setTimeout(function(){
-                addLayerModal.hide()
-                forceOpenLoginModal()
-            }, 500)  
-        }
-
-        // Gestion de l'affichage du message d'erreur
-        err = error.json()
-        err.then(err => { 
-            if (err.message != undefined){
-                message = err.message
-                showAlert(message)    
-            } else {
-                showAlert("Erreur lors de la récupération de la liste des couches de référence")
-            }
-        })*/
     })
 }
 
@@ -177,8 +156,12 @@ var addRefLayerToMap = function(){
     let active_layer = document.querySelector('.modal-ref-layer-item.active')
     let ref_layer_id = active_layer.getAttribute('layer-id')
 
+    controller = new AbortController;
+    signal = controller.signal;
+
     fetch(APP_URL + "/api/ref_layer/" + ref_layer_id, {
         method: "GET",
+        signal: signal,
         headers: { 
             "Accept": "application/json", 
             "Content-Type": "application/json" 
@@ -200,12 +183,15 @@ var addRefLayerToMap = function(){
         //console.log(data.desc_layer)
     })
     .catch(error => {
-        console.log(error)
         layer_submit_button.disabled = false
         document.getElementById('loading-spinner').style.display = 'none'
-
-        default_message = "Erreur lors de la récupération de la liste des couches de référence"
-        apiCallErrorCatcher(error, default_message)
+        
+        if (error.message){
+            default_message = "Demande de données annulée"
+        } else {
+            default_message = "Erreur lors de la récupération de la liste des couches de référence"
+        }
+        apiCallErrorCatcher("error", default_message)
     })
 }
 
@@ -800,8 +786,12 @@ var checkFormAddObsLayerRequiredField = function(){
 }
 
 var getObsLayerGeojson = function(formdata) {
+    controller = new AbortController;
+    signal = controller.signal;
+
     return fetch(APP_URL + "/api/layer/get_obs_layer_data", {
         method: "POST",
+        signal: signal,
         headers: { 
             "Accept": "application/json", 
             "Content-Type": "application/json" 
@@ -836,12 +826,16 @@ var getObsLayerGeojson = function(formdata) {
         }
     })
     .catch(error => {
+
         layer_submit_button.disabled = false
         document.getElementById('loading-spinner').style.display = 'none'
+        
+        if (error.message){
+            error = "Demande de données annulée"
+        }
 
-        //console.log(error)
         if (typeof error == "string") {
-            apiCallErrorCatcher(error, error)
+            apiCallErrorCatcher("error", error)
         } else {
             if (error.status == 500){
                 default_message = "Erreur lors de la récupération de la couche de données d'observation"
@@ -855,3 +849,14 @@ var getObsLayerGeojson = function(formdata) {
         }        
     })
 }
+
+/**
+ * Annulation de la demande de récupération d'une couche de données
+ */
+document.getElementById("add-layer-cancel").addEventListener("click", event => {
+    if (controller !== undefined) {
+        console.log("here i am")
+        // Cancel the previous request
+        controller.abort();
+    }
+})
