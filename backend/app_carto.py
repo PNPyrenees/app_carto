@@ -536,8 +536,7 @@ def check_obs_form_data(postdata):
                 "message": "Valeur incorrect, entier attendu"
             })
     
-    if postdata["altitude_min"] is not None and postdata["altitude_max"] is not None and altitude_min_is_valid and altitude_max_is_valid:
-    #if bool(postdata["altitude_min"]) and bool(postdata["altitude_max"]) and altitude_min_is_valid and altitude_max_is_valid:
+    if bool(postdata["altitude_min"]) and bool(postdata["altitude_max"]) and altitude_min_is_valid and altitude_max_is_valid:
         if postdata["altitude_min"] > postdata["altitude_max"]:
             error.append({
                 "field": "altitude",
