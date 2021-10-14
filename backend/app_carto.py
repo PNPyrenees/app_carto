@@ -573,52 +573,14 @@ def check_obs_form_data(postdata):
 
     return error
 
-
-def build_obs_layer_query(postdata):
-    """ Construit la requête SQL interrogeant les données
-    d'observation en fonction du paramétrage du formulaire de requatage
+def build_obs_layer_from(postdata):
+    """ Construit du FROM de la requête
+    d'interogation des données d'observation
 
     Returns
     -------
-        JSON
+        string
     """  
-
-    if postdata["scale"] == 999 :
-        select_column = """ 
-            o.geom
-        """
-    else :
-        select_column = """
-            m.geom
-        """ 
-
-    # Construction du select
-    query_select = ""
-    if postdata["restitution"] == "rt":
-        query_select = """ 
-            SELECT 
-                {},
-                count(DISTINCT COALESCE(o.cd_ref, 0)) AS nb_taxon
-        """.format(select_column)
-
-    if postdata["restitution"] == "po":
-        query_select = """ 
-            SELECT 
-                {},
-                count(DISTINCT o.obs_id) AS nb_observation
-        """.format(select_column)
-
-    if postdata["restitution"] == "re":
-        query_select = """ 
-            SELECT 
-                string_agg(DISTINCT o.nom_valide, '; ') AS "Noms valides",
-                string_agg(DISTINCT o.nom_vern, '; ') AS "Noms vernaculaires",
-                min(o.date_min) AS "Date obs min",
-                max(o.date_max) AS "Date obs max",
-                {}
-        """.format(select_column)
-
-    # Construction du from
     query_from = """
         FROM
             app_carto.t_observations o
@@ -641,6 +603,16 @@ def build_obs_layer_query(postdata):
 	        LEFT JOIN app_carto.cor_observation_commune coc ON o.obs_id = coc.obs_id
         """
 
+    return query_from
+
+def build_obs_layer_where(postdata):
+    """ Construit les clause where de la requête
+    d'interogation des données d'observation
+
+    Returns
+    -------
+        string
+    """  
     # Construction du where
     if (postdata["scale"] != 999):
         query_where = """
@@ -653,7 +625,6 @@ def build_obs_layer_query(postdata):
                 1 = 1
         """
     
-
     if postdata["cd_nom_list"]:
         query_where += """
             AND o.cd_ref in ({})
@@ -736,6 +707,62 @@ def build_obs_layer_query(postdata):
             AND o.altitude_max > {}
         """.format(postdata["altitude_max"])
 
+    return query_where
+
+
+def build_obs_layer_query(postdata):
+    """ Construit la requête SQL interrogeant les données
+    d'observation en fonction du paramétrage du formulaire de requatage
+
+    Returns
+    -------
+        JSON
+    """  
+
+    if postdata["scale"] == 999 :
+        select_column = """ 
+            '<div class="obs-layer-more-data-link" onclick="getMoreObsInfo(event, ''geom'', ''' || ST_AsText(o.geom) || ''')">Plus d''info</div>' AS "lien",
+            o.geom
+        """
+    else :
+        select_column = """ 
+            '<div class="obs-layer-more-data-link" onclick="getMoreObsInfo(event, ''mesh_id'', ' || m.mesh_id || ')">Plus d''info</div>' AS "lien",
+            m.geom
+        """
+        #select_column = """
+        #    '<div class="obs-layer-more-data-link" filters="{}"  data_id_type="mesh_id" data_id="' || m.mesh_id || '">Plus d''info</div>' AS "lien",
+        #    m.geom
+        #""".format(json.dumps(postdata).replace("'", "''"))
+
+    # Construction du select
+    query_select = ""
+    if postdata["restitution"] == "rt":
+        query_select = """ 
+            SELECT 
+                {},
+                count(DISTINCT COALESCE(o.cd_ref, 0)) AS nb_taxon
+        """.format(select_column)
+
+    if postdata["restitution"] == "po":
+        query_select = """ 
+            SELECT 
+                {},
+                count(DISTINCT o.obs_id) AS nb_observation
+        """.format(select_column)
+
+    if postdata["restitution"] == "re":
+        query_select = """ 
+            SELECT 
+                {}
+        """.format(select_column)
+
+    # Construction du from
+    query_from = build_obs_layer_from(postdata)
+
+    # Construction du WHERE
+    query_where = build_obs_layer_where(postdata)
+    
+    # construction du GROUP BY
     if postdata["scale"] == 999:
         query_groupby = """
             GROUP BY 
@@ -1137,6 +1164,85 @@ def get_obs_layer_data():
 
     return obs_layer_datas
 
+@app.route('/api/layer/get_obs_object_detail', methods=['POST'])
+@valid_token_required
+def get_obs_object_detail():
+    """ Retourne un json contenant des informations
+    complémentaire pour les objets retourné par une 
+    couche de données d'observation 
+
+    Returns
+    -------
+        JSON
+    """  
+    postdata = request.json
+
+    filters = postdata["filters"]
+
+    query_select = """ 
+            SELECT 
+                o.regne,
+                o.group2_inpn,
+                coalesce(o.nom_valide, o.nom_cite) as nom_scientifique,
+                o.nom_vern,
+                TO_CHAR(min(o.date_min), 'dd/mm/yyyy') AS first_obs,
+                TO_CHAR(max(o.date_max), 'dd/mm/yyyy') AS last_obs,
+                min(o.altitude_min) AS altitude_min,
+                max(o.altitude_max) AS altitude_max,
+                string_agg(DISTINCT allbst.status_type_label, ' ; ' order by allbst.status_type_label) AS status,
+                string_agg(DISTINCT list.obs, ' ; ' order by list.obs) AS observateurs,
+                count(DISTINCT o.obs_id) AS nb_obs
+        """
+
+    query_from = """
+        FROM
+            app_carto.t_observations o
+            LEFT JOIN app_carto.cor_observation_mesh com ON o.obs_id = com.obs_id
+            LEFT JOIN app_carto.bib_mesh m ON com.mesh_id = m.mesh_id
+            LEFT JOIN app_carto.cor_observation_status cos ON o.obs_id = cos.obs_id
+            LEFT JOIN app_carto.bib_status_type bst ON cos.status_type_id = bst.status_type_id
+
+            LEFT JOIN app_carto.cor_observation_status allcos ON o.obs_id = allcos.obs_id
+            LEFT JOIN app_carto.bib_status_type allbst ON allcos.status_type_id = allbst.status_type_id
+
+            LEFT JOIN app_carto.cor_observation_commune coc ON o.obs_id = coc.obs_id
+
+	        CROSS JOIN LATERAL unnest(o.observateurs) as list(obs)
+    """
+
+    query_where = build_obs_layer_where(filters)
+    if (postdata["data_id_type"] == "mesh_id"):
+        query_where = query_where + """AND m.mesh_id={}""".format(postdata["data_id"])
+    else :
+        query_where = query_where + """AND ST_AsText(o.geom)='{}'""".format(postdata["data_id"])
+
+    if (postdata["data_id_type"] == "mesh_id"):
+        query_groupby = """
+            GROUP BY 
+                m.mesh_id,
+        """
+    else:
+        query_groupby = """
+            GROUP BY 
+                o.geom,
+        """
+
+    query_groupby = query_groupby + """
+        o.regne,
+        o.group2_inpn,
+        coalesce(o.nom_valide, o.nom_cite),
+        o.nom_vern
+    """
+
+    query = query_select + query_from + query_where + query_groupby
+
+    datas = db_app.engine.execute(query).all()
+    result = []
+    for data in datas:
+        result.append(data._asdict())
+
+    return jsonify(result)
+
 @app.route('/api/get_warning_calculator_data', methods=['POST'])
 @valid_token_required
 def get_warning_calculator_data():
@@ -1225,6 +1331,7 @@ def get_warning_calculator_data():
                 )
                 SELECT DISTINCT
                     o.obs_id, 
+                    o.observateurs,
                     o.geom,
                     o.cd_ref, 
                     o.regne, 
@@ -1266,6 +1373,7 @@ def get_warning_calculator_data():
                     gs.group_status_is_warning = TRUE
                 GROUP BY
                     o.obs_id, 
+                    o.observateurs,
                     o.geom,
                     o.cd_ref, 
                     o.regne, 

@@ -88,12 +88,30 @@
     font-size: 1.5vh;
 }
 
+.tabulator-row .tabulator-cell a {
+    font-size: 1.5vh;
+}
 
-@media(max-width: 1500px){
+.tabulator-row .tabulator-cell .obs-layer-more-data-link{
+    font-size: 1.5vh;
+}
+
+.obs-layer-more-data-link{
+    color: #0074cc;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.obs-layer-more-data-link:hover{
+    color: #0a95ff;
+    text-decoration: underline;
+}
+
+/*@media(max-width: 1500px){
     #map-browser{
         width: 100%;
     }
-}
+}*/
 
 #map{
     height: 100%;
@@ -240,8 +258,10 @@
 .edit-layer-btn-group{
     /*width: 58px;*/
     position: absolute;
-    left: 300px;
-    top: 70px;
+    /*left: 300px;*/
+    left: 16%;
+    /*top: 70px;*/
+    top: 8vh;
     z-index: 99;
     /*background-color: moccasin;*/
     background-color: rgba(0,60,136,.7);
@@ -321,3 +341,7 @@ ul#selected-toponyme > li {
 ul#selected-toponyme > li > i {
     cursor: pointer;
 }*/
+
+#obs-more-info-modal > .modal-dialog > .modal-content{
+    min-height: 90vh;
+}

@@ -3,13 +3,18 @@
     height: 100%;
     /*vertical-align: middle;*/
     vertical-align: top;
+
+    width: 3%;
+    /*min-width: 50px;*/
+    position: relative;
+    display: inline-block !important;
 }
 
 #toolbar > .btn-group-vertical{
     margin-top: 10px;
 }
 
-@media(min-width: 1500px) {
+/*@media(min-width: 1500px) {
     #toolbar{
         width: 3%;
         position: relative;
@@ -31,7 +36,7 @@
         position: absolute;
         width: 50%;
     }
-}
+}*/
 
 .btn-active{
     background-color: #ffca2c!important;

@@ -140,6 +140,7 @@ chanllenge_calculator_execute_button.addEventListener("click", event => {
  * Gestion de l'affichaage de la fenêtre modal d'information sur la calcuette
  */
 document.getElementById("btn-chanllenge-calculator-info").addEventListener("click", event => {
+    document.getElementById("chanllenge-calculator-layer-list").innerHTML = ''
     // Récupération de la liste des couches à enjeux et des statuts utilisé
     getWarningCalculatorLayers().then(result => {
         result.layers.forEach(layer => {

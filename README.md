@@ -300,6 +300,22 @@ Etiquette :
         ex : rgba(255,255,255,0.7)
 '''
 
+'''
+Liste des opérateurs :
+    - > : supérieur
+    - < : inférieur
+    - >= : supérieur ou égal
+    - <= : inférieur ou égal
+    - == : egal
+    - != : différent de
+    - IN : valeur comprise dans une liste. La liste devant être de la forme suivante : ['valeur1', 'valeur2']
+    - NOT IN : valeur non présente dans une liste. La liste devant être de la forme suivante : ['valeur1', 'valeur2']
+    - LIKE : contenant une partie de la chaine de caractère. Exemple : 
+        - '%valeur' : fini par "valeur"
+        - 'valeur%' : commence par "valeur"
+        - '%valeur%' : contient "valeur"
+'''
+
 #### Exemple de style simple :
 
 ```json

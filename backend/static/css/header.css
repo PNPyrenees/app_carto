@@ -40,7 +40,7 @@ header{
     display: none;
 }
 
-@media(max-width: 1500px){
+/*@media(max-width: 1500px){
     #icon-logout,
     #icon-login{
         display: block !important;
@@ -50,4 +50,4 @@ header{
     .btn-logout-label{
         display: none !important;
     }
-}
+}*/

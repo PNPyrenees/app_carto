@@ -382,7 +382,7 @@ const getFeatureLabel = function(feature_label, feature, resolution){
             break
     }
 
-    console.log(font)
+    //console.log(font)
 
     return new ol.style.Text({
         text: text,
@@ -1052,6 +1052,8 @@ getFullDataTable = function(layer_uid){
  */
 createAttributeTable = function(layer_name, layer_uid, data){
 
+    //console.log(data)
+
     tab_id = "layer-data-table-" + layer_uid //+ '-' + date_id
 
     //On controle si le tableau existe
@@ -1067,6 +1069,7 @@ createAttributeTable = function(layer_name, layer_uid, data){
     tab_element = document.createElement("div")
     tab_element.classList.add("layer-data-table")
     tab_element.id = tab_id
+    tab_element.setAttribute("layer-uid", layer_uid)
     document.getElementById("data-block").append(tab_element)
 
   
@@ -1082,13 +1085,19 @@ createAttributeTable = function(layer_name, layer_uid, data){
         data: data,
         autoColumns:true,
         movableColumns:true,
+        formatter:"html",
         /*responsiveLayout: true,*/
         resizeColumns: true,
         tooltips: true,
         autoColumnsDefinitions:function(definitions){
             //Ajout d'un champ filtre dans l'en-tête de chaque colonne            
             definitions.forEach((column) => {
-                column.headerFilter = true; 
+                column.headerFilter = true
+
+                // On déclare les colonne comme étant de l'HTML
+                // Permet d'avoir des liens dans le tableau
+                column.formatter = "html"
+
                 // On masque la colonne feature_uid
                 if (column.field == "ol_uid"){
                     column["visible"] = false
@@ -1165,7 +1174,7 @@ createAttributeTable = function(layer_name, layer_uid, data){
         // Si la table attributaire était afficher, il faut en afficher une autre (la première !)
         if (nav_is_active){
             let first_attribute_table = nav_attribute_table.querySelectorAll(".nav-layer-item")[0]
-            console.log(first_attribute_table)
+            //console.log(first_attribute_table)
             if (first_attribute_table){
                 activeAttributeTable(first_attribute_table)
             }
@@ -1230,7 +1239,7 @@ filterFeature = function(layer_uid, l_feature_uid){
                         //feature.setStyle(buildStyle(layer.jsonStyle))
                         feature["visible"] = false
 
-                        console.log("here i am")
+                        //console.log("here i am")
                     }
                     source.dispatchEvent('change');
                     //console.log(feature)
@@ -1711,7 +1720,7 @@ document.getElementById("search-toponyme-input").addEventListener("keyup", event
 
     if (search_name.length >= 3) {
         getAutocompleteToponyme(search_name).then(toponymes_list => {
-            console.log(toponymes_list)
+            //console.log(toponymes_list)
             document.getElementById("toponyme-autocomplete").classList.remove("hide")
 
             if (toponymes_list.geojson_layer.features){                
@@ -1787,7 +1796,7 @@ var getAutocompleteToponyme = function (search_name){
     .catch(error => {
         default_message = "Erreur lors de l'autocompétion du taxon"
 
-        console.log(error)
+        //console.log(error)
         //apiCallErrorCatcher(error, default_message)
     })
 }
@@ -1802,4 +1811,120 @@ var setLayerOpacity = function(layer_uid, opacity){
             layer.setOpacity(parseFloat(opacity))
         }
     })
+}
+
+/**
+ * Gestion de l'affichage d'information complémentaire
+ * pour les données d'observation
+ */
+/*document.getElementsByClassName("obs-layer-more-data-link").addEventListener("click", event => {
+    console.log(event.currentTarget.getAttribute("filters"))
+    console.log(event.currentTarget.getAttribute("data_id_type"))
+    console.log(event.currentTarget.getAttribute("data_id"))
+})*/
+
+var getMoreObsInfo = function(event, field_id, id){
+    //console.log(event)
+    // Récupération du layer_uid
+    var parent = event.target.closest("[layer-uid]")
+    layer_uid = parent.getAttribute("layer-uid")
+    //console.log(layer_uid)
+
+    var filters
+    map.getLayers().forEach(layer => {
+        if (ol.util.getUid(layer) == layer_uid){
+            filters = layer.get("additional_data").formdata
+        }
+    })
+
+    var body = {
+        filters: filters,
+        data_id_type: field_id,
+        data_id: id
+    }
+
+    document.getElementById("obs-more-info-modal-loading").classList.remove("hide")
+    //document.getElementById("obs-more-info-table").innerHTML = ''
+    obs_more_info_table.clearFilter();
+    obs_more_info_table.clearData();
+    obsMoreInfoModal.show()
+
+    fetch(APP_URL + "/api/layer/get_obs_object_detail", {
+            method: "POST",
+            headers: { 
+                "Accept": "application/json", 
+                "Content-Type": "application/json" 
+            },
+            credentials: "same-origin",
+            body: JSON.stringify(body)
+        })
+        .then(res => {
+            if (res.status != 200){
+                // En envoi l"erreur dans le catch
+                throw res;
+            } else {
+                return res.json()
+            }
+        })
+        .then(data => {
+
+            console.log(data)
+            buildMoreObsInfo(data)
+            document.getElementById("obs-more-info-modal-loading").classList.add("hide")
+        })
+        .catch(error => {
+            obsMoreInfoModal.hide()
+            apiCallErrorCatcher("erreur", "Erreur lors de la récupération des informations complémentaires")
+        })
+}
+
+var testdata = [
+    {id: 1, nom_valide: "TEST", nom_vern: "TEST VERN"}
+]
+
+var obs_more_info_table = new Tabulator("#obs-more-info-table", {
+    height:"100%",
+    data: [],
+    layout: "fitData",
+    pagination:"local",
+    paginationSize:20,
+    tooltips: true,
+    columns:[
+        {title:"Règne", field:"regne", headerFilter:"input"},
+        {title:"groupe taxnomique", field:"group2_inpn", headerFilter:"input"},
+        {title:"Nom scientifique", field:"nom_scientifique", headerFilter:"input", width:275},
+        {title:"Nom vernaculaire", field:"nom_vern", width:200, headerFilter:"input", width:160},
+        {title:"Nb obs", field:"nb_obs", headerFilter:"input"},
+        {title:"Première obs", field:"first_obs", headerFilter:"input"},
+        {title:"Dernière obs", field:"last_obs", headerFilter:"input"},
+        {title:"Observateurs", field:"observateurs", width:200, headerFilter:"input"},
+        {title:"Statut", field:"status", width:200, headerFilter:"input"},
+    ]
+})
+
+var buildMoreObsInfo = function(data){
+    /*new Tabulator("#obs-more-info-table", {
+        height:"100%",
+        layout: "fitData",
+        selectable: 1,
+        movableColumns:true,
+        formatter:"html",
+        resizeColumns: true,
+        tooltips: true,
+        data: [
+            {nom_valide: "TEST", nom_vern: "TEST VERN"}
+        ],
+        colmuns:[
+            {title: "Nom valide", field: "nom_valide"},
+            {title: "Nom vernaculaire", field: "nom_vern"},
+        ]
+    })*/
+
+
+    obs_more_info_table.replaceData(data)
+    obs_more_info_table.setSort([
+        {column:"nom_scientifique", dir:"asc"},
+        {column:"group2_inpn", dir:"asc"},
+        {column:"regne", dir:"asc"},
+    ])
 }

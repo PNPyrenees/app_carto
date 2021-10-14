@@ -92,7 +92,7 @@ html * {
     border-color: #9facb8!important; /*set the color you want here*/
 }
 
-@media(min-width: 1500px){
+/*@media(min-width: 1500px){
     .responsive-btn-close{
         display: none;
     }
@@ -107,6 +107,10 @@ html * {
     .modal-footer > .submit{
         font-size: 3vh;
     }
+}
+*/
+.responsive-btn-close{
+    display: none;
 }
 
 .modal-title {
