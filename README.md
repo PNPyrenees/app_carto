@@ -533,7 +533,7 @@ Liste des opérateurs :
 
 # Mise à jour
 
-*Cette partie reste à consolider en fonction des avancement du projet. En effet, en l'état aucun mise à jour n'a été réalisé.*
+*Cette partie reste à consolider en fonction des avancements du projet. En effet, en l'état aucune mise à jour n'a été réalisée.*
 
 ## Mise à jour de la base de données
 En fonction de la version de départ, il faudra exécuter les scripts SQL **update_db_to_vX.Y.sql** présent dans le dossier ./install .
