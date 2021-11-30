@@ -543,5 +543,3 @@ Pour mettre à jour la partie applicative, il faut se placer dans le dossier de 
 ```
 $ git pull	
 ```
-	
-
