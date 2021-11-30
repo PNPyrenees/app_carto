@@ -44,10 +44,12 @@
     stdout_logfile = /home/<carto>/app_carto/logs/app_carto_errors.log
     redirect_stderr = true
 
-# editer start_gunicorn.sh pour adapter le home
+# Adapter start_gunicorn.sh 
+    $ cp start_gunicorn.sh.template start_gunicorn.sh
     $ vim start_gunicorn.sh
-
-    ex : cd /home/carto/app_carto devient cd /home/<nomHome>/app_carto
+    
+    Modifier la première ligne :
+    cd /home/<USER_HOME>/app_carto en changeant <USER_HOME> par le nom du "home" de l'utilisateur
 
 # Activer les module apache2
     $ sudo a2enmod proxy proxy_ajp proxy_http rewrite deflate headers proxy_balancer proxy_connect proxy_html
