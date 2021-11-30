@@ -15,6 +15,9 @@ backend/static/geopackages/*
 backend/static/node_modules
 backend/static/configs/*
 
+# gunicorn
+start_gunicorn.sh
+
 backend/run.py
 
 .vscode
