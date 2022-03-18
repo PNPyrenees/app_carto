@@ -9,7 +9,7 @@ APP_URL = ""
 SQLALCHEMY_DATABASE_URI = "postgresql://<USER>:<PASSWORD>@<HOST>:<PORT>/<DB_NAME>"
 
 # Chaine de connexion à la base de données hebergeant les données SIG
-SQLALCHEMY_SIG_DATABASE_URI "postgresql://<USER>:<PASSWORD>@<HOST>:<PORT>/<DB_NAME>"
+SQLALCHEMY_SIG_DATABASE_URI = "postgresql://<USER>:<PASSWORD>@<HOST>:<PORT>/<DB_NAME>"
 
 # Active (=true) ou pas (=false) le système de suivi de modification de SQLAlchemy
 # Note : l'API event de SQLAchemy n'étant pas utilisée, la désactivation économise des ressources.
