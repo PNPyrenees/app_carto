@@ -665,7 +665,7 @@ def build_obs_layer_where(postdata):
             periode_min_month = periode_min_month[1:]
 
         query_where += """
-            AND EXTRACT(DAY FROM o.date_min) > {} AND EXTRACT(MONTH FROM o.date_min) > {}
+            AND EXTRACT(DAY FROM o.date_min) >= {} AND EXTRACT(MONTH FROM o.date_min) >= {}
         """.format(periode_min_day, periode_min_month)
 
     if postdata["periode_max"]:
@@ -679,7 +679,7 @@ def build_obs_layer_where(postdata):
             periode_max_month = periode_max_month[1:]
 
         query_where += """
-            AND EXTRACT(DAY FROM o.date_max) < {} AND (EXTRACT(MONTH FROM o.date_max) + 1) < {}
+            AND EXTRACT(DAY FROM o.date_max) <= {} AND EXTRACT(MONTH FROM o.date_max) <= {}
         """.format(int(periode_max_day), int(periode_max_month))
 
     if postdata["status_list"]:
@@ -1139,6 +1139,8 @@ def get_obs_layer_data():
     
     # Construction de la requête SQL
     query = build_obs_layer_query(postdata)
+
+    #return query
 
     geojson_query = text("""SELECT jsonb_build_object('type', 'FeatureCollection', 'features', jsonb_agg(feature)) AS geojson_layer 
         FROM (
