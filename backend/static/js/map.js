@@ -320,7 +320,22 @@ const getFeatureLabel = function(feature_label, feature, resolution){
     }
     // Découpage de la chaine de caractère 
     if (resolution <= max_resolution){
-        text = stringDivider(feature.get(feature_label.text), 16, '\n')
+        // gestion différente si la valeur est un numérique ou une chaine de caractère
+        let tmp_label_value = feature.get(feature_label.text)
+        switch (typeof tmp_label_value){
+            case 'string' : 
+                text = stringDivider(tmp_label_value, 16, '\n')
+                break
+            case 'number': 
+                text = tmp_label_value.toString()
+                break
+            case 'boolean':
+                if (tmp_label_value == true){
+                    text = 'OUI'
+                } else {
+                    text = 'NON'
+                }
+        }
     }
 
     // Construction du font
