@@ -307,6 +307,11 @@ const getFeatureLabel = function(feature_label, feature, resolution){
         return null
     } 
 
+    // si il n'ya a pas de valeur dans l'attribut utilisé pour le label on s'arrète
+    if (! feature.get(feature_label.text)){
+        return null
+    }
+
     // Gestion du texte en fonctione du niveau de zoom (ou plus exactemnt la résolution)
     var text = ''
     max_resolution = 180
