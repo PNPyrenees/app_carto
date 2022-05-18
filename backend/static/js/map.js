@@ -302,12 +302,12 @@ const getDefaultStyle = function(){
  * Construction de l'étiquette
  */
 const getFeatureLabel = function(feature_label, feature, resolution){
-    // pas d'étiquette si ce n'est pas définit dans la json
+    // Pas d'étiquette si ce n'est pas définit dans la json
     if (! feature_label){
         return null
     } 
 
-    // si il n'ya a pas de valeur dans l'attribut utilisé pour le label on s'arrète
+    // Si il n'ya a pas de valeur dans l'attribut utilisé pour le label on s'arrète
     if (! feature.get(feature_label.text)){
         return null
     }
@@ -318,6 +318,7 @@ const getFeatureLabel = function(feature_label, feature, resolution){
     if (feature_label.max_resolution) {
         max_resolution = feature_label.max_resolution
     }
+    // Découpage de la chaine de caractère 
     if (resolution <= max_resolution){
         text = stringDivider(feature.get(feature_label.text), 16, '\n')
     }
@@ -399,7 +400,8 @@ const getFeatureLabel = function(feature_label, feature, resolution){
         textAlign: align,
         offsetX: offsetX,
         offsetY: offsetY,
-        backgroundFill: background
+        backgroundFill: background,
+        overflow: true,
     })
 
 }
