@@ -222,6 +222,11 @@
 
 .layer-list > .layer-item > span{
     font-weight: bold;
+    max-height: initial; 
+}
+
+.layer-list > .layer-item > .feature-list > .feature-item {
+    max-height: initial;
 }
 
 .layer-list > .layer-item > .feature-list > .feature-item > span {
@@ -229,7 +234,8 @@
 }
 
 .layer-list > .layer-item > .feature-list > .feature-item > .properties-list {
-    border-left: 1px solid #666
+    border-left: 1px solid #666;
+    max-height: initial;
 }
 
 .layer-list > .layer-item > .feature-list > .feature-item > .properties-list > .propertie-item {
