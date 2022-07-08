@@ -314,6 +314,7 @@ Liste des opérateurs :
         - '%valeur' : fini par "valeur"
         - 'valeur%' : commence par "valeur"
         - '%valeur%' : contient "valeur"
+    - IS NULL : controle si le champ est sans valeur (null)
 ```
 
 #### Exemple de style simple :

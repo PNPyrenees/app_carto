@@ -920,6 +920,7 @@ function compare(left_term, operator, right_term) {
             if (String(right_term).endsWith('%')){
                 return String(left_term).startsWith(right_term.replace('%', ''))
             }
+        case 'IS NULL': return left_term == null
         default: throw "Opérateur de comparaison incorrect"
     }
 }
