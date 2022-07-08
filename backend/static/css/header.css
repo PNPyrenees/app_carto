@@ -7,6 +7,10 @@ header{
     min-height: 30px;
 }
 
+#header-row{
+    margin-right: 0px!important;
+}
+
 .app_name{
     color: mintcream;
     font-size: 3vh;

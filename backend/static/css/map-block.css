@@ -62,9 +62,19 @@
     margin-left: 10px;
 }
 
-.tabulator-headers{
+/*.tabulator{
+    width: 100%;
+    overflow-x: initial;
+    overflow-y: auto;
+}*/
+
+/*.tabulator-header{
+    overflow: initial!important;
+}*/
+
+/*.tabulator-headers{
     overflow: visible;
-}
+}*/
 
 .tabulator-col-content{
     padding: 2px!important;

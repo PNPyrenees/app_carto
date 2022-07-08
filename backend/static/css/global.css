@@ -13,14 +13,15 @@
 
 html * {
     font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-    max-width: 100vw;
-    max-height: 100vh;
+    
+    /*max-width: 100vw;
+    max-height: 100vh;*/
     font-size: 2vh;
 }
 
 #container {
-    min-height: 100vh;
-    max-height: 100vw;
+    /*min-height: 100vh;
+    max-height: 100vw;*/
     padding: 0;
     margin: 0;
 }

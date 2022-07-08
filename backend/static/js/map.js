@@ -1069,6 +1069,27 @@ getFullDataTable = function(layer_uid){
     })
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /**
  * Créer la table attributaire html
  */
@@ -1096,21 +1117,19 @@ createAttributeTable = function(layer_name, layer_uid, data){
 
   
     //Création du tableau
-    //table = new Tabulator("#layer-data-table", {
+    //table = new Tabulator("#container", {
     table = new Tabulator("#" + tab_id, {
+        
         height:"100%",
-        /*layout:"fitColumns",*/
         layout: "fitData",
-        /*layoutColumnsOnNewData:true,*/
         selectable: 1,
-        /*selectablePersistence:false,*/
         data: data,
         autoColumns:true,
         movableColumns:true,
         formatter:"html",
-        /*responsiveLayout: true,*/
         resizeColumns: true,
         tooltips: true,
+        
         autoColumnsDefinitions:function(definitions){
             //Ajout d'un champ filtre dans l'en-tête de chaque colonne            
             definitions.forEach((column) => {
@@ -1129,40 +1148,43 @@ createAttributeTable = function(layer_name, layer_uid, data){
     
             return definitions;
         },
-        // Action lors de la sélection d'un ligne
-        rowSelected:function(row){
-            //On récupère l'uid de la couche et du feature associé à la ligne cliqué
-            //let layer_uid = table.layeruid
-            let layer_uid = row.getTable().layeruid
-            let feature_uid = row.getData().ol_uid
-            // On ferme la fenetre affichant les données attributaire lors d'un clic sur la carte
-            hideBlockClickedFeaturesAttributes()
-            //On highlight le feature
-            highlightFeature(layer_uid, feature_uid)
-            
-        },
-        // Action lors de la désélection d'un ligne
-        rowDeselected:function(row){
-            //On vide la couche de sélection
-            clearSelectedSource()
-        },
-        dataFiltered:function(filters, rows){
-            //On met un timeout sinon la requête est joué immédiatement au chagement 
-            //des données et on n'a pas le temps de récupérer le layer_uid
-            setTimeout(function(){ 
-                table = rows[0].getTable()
-                let layer_uid = table.layeruid
-                
-                let l_feature_uid = []
-                rows.forEach(row => {
-                    l_feature_uid.push(row.getData().ol_uid)
-                })
-
-                filterFeature(layer_uid, l_feature_uid)
-            }, 500);
-        },
     });
     table["layeruid"] = layer_uid
+
+    // Action lors de la sélection d'un ligne
+    table.on("rowSelected", function(row){
+        //console.log(e)
+        //On récupère l'uid de la couche et du feature associé à la ligne cliqué
+        //let layer_uid = table.layeruid
+        let layer_uid = row.getTable().layeruid
+        let feature_uid = row.getData().ol_uid
+        // On ferme la fenetre affichant les données attributaire lors d'un clic sur la carte
+        hideBlockClickedFeaturesAttributes()
+        //On highlight le feature
+        highlightFeature(layer_uid, feature_uid)
+    })
+
+    // Action lors de la désélection d'un ligne
+    table.on("rowDeselected", function(row){
+        ///On vide la couche de sélection
+        clearSelectedSource()
+    })
+
+    // Action lorsqu'on filtre les données du tableau
+    // N'affiche que les objets géographiques répondant positivement au filtre
+    table.on("dataFiltered", function(filters, rows){
+        setTimeout(function(){ 
+            table = rows[0].getTable()
+            let layer_uid = table.layeruid
+            
+            let l_feature_uid = []
+            rows.forEach(row => {
+                l_feature_uid.push(row.getData().ol_uid)
+            })
+
+            filterFeature(layer_uid, l_feature_uid)
+        }, 500);
+    })
 
     // On désative l'affichage des autres atableau attributaire
     inactiveAllAttributeTables()
@@ -1209,6 +1231,8 @@ createAttributeTable = function(layer_name, layer_uid, data){
 
     // On active l'écouteur si il y a un click 
     nav_element.addEventListener("click", clickNavAttributeTableEvent)
+
+    //table.redraw(true);
 }
 
 /**
