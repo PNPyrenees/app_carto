@@ -493,7 +493,7 @@ const getStyleFromJson = function(json_styles){
                             //feature_style = [new ol.style.Style({
                             point_style = [new ol.style.Style({
                                 image: new ol.style.Circle({
-                                    radius: 5,
+                                    radius: style.radius,
                                     fill: new ol.style.Fill({
                                         color: style.fill_color,
                                     }),
