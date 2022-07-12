@@ -660,6 +660,7 @@ var addGeojsonLayer = function(data, additional_data = null){
                     "stroke_color": "rgba(0,0,0,1)",
                     "stroke_width": 1,
                     "stroke_linedash": [],
+                    "radius": 5,
                     "filter" : null
                 }]
             }
