@@ -193,7 +193,7 @@
     position: absolute;
     z-index: 99;
     right: 1%;
-    max-height: 45%;
+    /*max-height: 45%;*/
     width: 20%;
     border: 1px solid #000000;
     background-color: #e6e6e6;
