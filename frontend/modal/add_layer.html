@@ -17,6 +17,9 @@
                                 <input type="radio" class="modal-btn-check btn-check" name="btnradio" id="btn-add-obs-layer" autocomplete="off" target="add-obs-layer">
                                 <label class="btn btn-outline-primary" for="btn-add-obs-layer">Données d'observation</label>
                                 
+                                <input type="radio" class="modal-btn-check btn-check" name="btnradio" id="btn-add-imported-layer" autocomplete="off" target="add-imported-layer">
+                                <label class="btn btn-outline-primary" for="btn-add-imported-layer">Import de données</label>
+                                
                                 {#
                                 <input type="radio" class="modal-btn-check btn-check" name="btnradio" id="btn-add-my-layer" autocomplete="off" target="add-my-layer">
                                 <label class="btn btn-outline-primary" for="btn-add-my-layer">Mes couches</label>
@@ -28,10 +31,6 @@
                                 {#
                                 <input type="radio" class="modal-btn-check btn-check" name="btnradio" id="btn-add-new-layer" autocomplete="off" target="add-new-layer">
                                 <label class="btn btn-outline-primary" for="btn-add-new-layer">Création</label>
-                                #}
-                                {#
-                                <input type="radio" class="modal-btn-check btn-check" name="btnradio" id="btn-add-imported-layer" autocomplete="off" target="add-imported-layer">
-                                <label class="btn btn-outline-primary" for="btn-add-imported-layer">Importer</label>
                                 #}
                             </div>
                         </div>
@@ -238,7 +237,79 @@
 
 
                             <!-- content = Importer -->
-                            <div id="add-imported-layer" class="modal-div-content">Importer</div>
+                            <div id="add-imported-layer" class="modal-div-content">
+                                <ul class="nav nav-tabs" id="import-layer-tab" role="import-list">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="upload-layer-tab" data-bs-toggle="tab" data-bs-target="#upload-layer" type="button" role="tab" aria-controls="upload-layer" aria-selected="true">Importer</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="my-uploaded-layers-tab" data-bs-toggle="tab" data-bs-target="#my-uploaded-layers" type="button" role="tab" aria-controls="my-uploaded-layer" aria-selected="false">Mes données importées</button>
+                                    </li>
+                                </ul>
+                                <div class="tab-content" id="import-layer-tab-content">
+                                    <!-- Panneau de mise en forme du formulaire d'upload de couche SIG -->
+                                    <div class="tab-pane fade show active" id="upload-layer" role="tabpanel" aria-labelledby="upload-layer-tab">
+                                        <form id="form-upload-layer">
+                                            <div class="row">
+                                                <!-- Bloc de gauche -->
+                                                <div class="col-lg-6 border-end">
+                                                    <!-- Champ format de fichier-->
+                                                    <div class="form-group">
+                                                        <label for="form-upload-layer-select-format" class="form-label fw-bold mb-0 mt-2">Format du fichier * :</label>
+                                                        <select id="form-upload-layer-select-format" class="form-select" aria-label="Default select example">
+                                                            <option selected></option>
+                                                            <option value="geojson">GeoJson</option>
+                                                            <option value="gpkg">GeoPackage</option>
+                                                            <option value="gpx">GPX</option>
+                                                            <option value="tab">Mapinfo (TAB)</option>
+                                                            <option value="shp">Shapefile</option>
+                                                        </select>
+                                                        <div id="upload-layer-format-shp-warning" class="text-warning hide">
+                                                            L'import d'un shapefile doit inclure à minima les fichiers ayant les extensions suivantes : <b>.shp, .prj, .dbf, .shx</b>
+                                                        </div>
+                                                        <div id="upload-layer-format-tab-warning" class="text-warning hide">
+                                                            L'import d'un fichier mapinfo (TAB) doit inclure à minima les fichiers ayant les extensions suivantes : <b>.tab, .dat, .id, .map</b>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Champ nom de la données -->
+                                                    <div class="form-group">
+                                                        <label for="form-upload-layer-data-name" class="form-label fw-bold mb-0 mt-2">Nom de la couche de donnée *</label>
+                                                        <input type="text" class="form-control" id="form-upload-layer-data-name" placeholder="Nom">
+                                                    </div>
+
+
+
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label for="form-upload-layer-files" class="form-label fw-bold mb-0 mt-2">Fichier(s) * :</label><br>
+                                                            <input type="file" id="form-upload-layer-files" class="hide" multiple>
+                                                            <button id="form-upload-layer-files-btn" type="button" class="btn btn-primary">Parcourir...</button>
+                                                            <ul id="form-upload-layer-file-list" class="form-upload-layer-file-list">
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- Bloc de droite -->
+                                                <div class="col-lg-6">
+                                                    <div class="form-group">
+                                                        <label for="form-upload-layer-select-proj" class="form-label fw-bold mb-0 mt-2">Projection du fichier * :</label>
+                                                        <select id="form-upload-layer-select-proj" class="form-select" aria-label="Default select example">
+                                                            <option value="2154" selected>Lambert-93 (EPSG:2154)</option>
+                                                            <option value="4326">WGS 84 (EPSG:4326)</option>
+                                                            <option value="3857">WGS 84 / Pseudo-Mercator (EPSG:3857)</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+
+                                    </div>
+                                    <!-- Panneau affichant la liste des données précédemment uploadé -->
+                                    <div class="tab-pane fade" id="my-uploaded-layers" role="tabpanel" aria-labelledby="my-uploaded-layers-tab">panel mes imports</div>
+                                </div>
+
+                            </div>
                         </div>
                     </div>
                 </div>

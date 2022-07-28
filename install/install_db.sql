@@ -1,3 +1,7 @@
+/*
+ * Partie 1 : Script SQL à jouer sur la base de données applicative
+ */
+
 CREATE EXTENSION postgis;
 CREATE EXTENSION pg_trgm;
 
@@ -249,3 +253,17 @@ CREATE TABLE IF NOT EXISTS app_carto.bib_toponyme (
     toponyme_precision_geo varchar(255),
     geom geometry(Geometry,2154)
 )
+
+/*
+ * Partie 2 : Script à jouer sur la base de données SIG
+ */
+/* Création d'une fonction permettant de jouer une requete sql écrite en text */
+create or replace function eval( sql  text ) returns text as $$
+declare
+    as_txt  text;
+begin
+    if  sql is null  then  return null ;  end if ;
+    execute  sql  into  as_txt ;
+    return  as_txt ;
+end;
+$$ language plpgsql

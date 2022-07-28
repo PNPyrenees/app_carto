@@ -40,6 +40,8 @@ layer_submit_button.addEventListener('click', event => {
         case 'add-shared-layer':
         case 'add-new-layer':
         case 'add-imported-layer':
+            addImportedLayer()
+            break
     }
 })
 
@@ -147,7 +149,7 @@ document.getElementById('btn-add-obs-layer').addEventListener('click', event => 
 })
 
 /**
- * Ajoute une couch de référence à la carte
+ * Ajoute une couche de référence à la carte
  */
 var addRefLayerToMap = function(){
     layer_submit_button.disabled = true
@@ -194,6 +196,7 @@ var addRefLayerToMap = function(){
         apiCallErrorCatcher("error", default_message)
     })
 }
+
 
 /**
  * Gestion du formulaire de recherche de données d'observation
@@ -427,7 +430,7 @@ var buildAddObsLayerForm = function(){
         });
     })
 
-    // Liste des type de restitution
+    // Liste des types de restitution
     const l_restitutions = [
         {
             label: "Nombre de taxons",
@@ -476,7 +479,7 @@ var buildAddObsLayerForm = function(){
         }); 
     })
 
-    // Liste de checkbox des groupe de statuts
+    // Liste de checkbox des groupes de statuts
     getGroupStatusList().then(group_status_list => {
 
         document.getElementById("form-group-status-checkboxes").innerHTML = "";
@@ -691,6 +694,9 @@ var addObsLayerForm = function (){
     }
 }
 
+/**
+ * Sérialisation du formulaire
+ */
 var buildObsLayerFormData = function(){
     cd_nom_list = []
     document.getElementById("selected-taxon").querySelectorAll("li").forEach(li => {
@@ -761,6 +767,10 @@ var buildObsLayerFormData = function(){
     return formdata
 }
 
+/**
+ * Vérification du respect des champs obligatoire 
+ * du formulaire d'ajout d'une couche de données d'observation
+ */
 var checkFormAddObsLayerRequiredField = function(){
     var form = document.getElementById("form-add-obs-layer")
 
@@ -785,6 +795,9 @@ var checkFormAddObsLayerRequiredField = function(){
     return formIsValid
 }
 
+/**
+ * Appel API pour récupérer les données à afficher
+ */
 var getObsLayerGeojson = function(formdata) {
     controller = new AbortController;
     signal = controller.signal;
@@ -859,3 +872,134 @@ document.getElementById("add-layer-cancel").addEventListener("click", event => {
         controller.abort();
     }
 })
+
+/*********************************
+ * GESTION DE L'IMPORT DE COUCHE
+ *********************************/
+
+
+
+/**
+ * Gestion de l'alerte en fonction du format de fichier
+ */
+document.getElementById("form-upload-layer-select-format").onchange = function(e){
+    // On récupère la valeur sélectionné
+    value = e.currentTarget.value
+    
+    //On masque les alertes
+    document.getElementById("upload-layer-format-shp-warning").classList.add("hide")
+    document.getElementById("upload-layer-format-tab-warning").classList.add("hide")
+
+    // En fonction du format on affiche l'alerte associé
+    if (value == 'shp'){
+        document.getElementById("upload-layer-format-shp-warning").classList.remove("hide")
+    }
+    if (value == 'tab'){
+        document.getElementById("upload-layer-format-tab-warning").classList.remove("hide")
+    }
+}
+
+/**
+ * Amélioration apparence input type=files
+ */
+document.getElementById("form-upload-layer-files-btn").onclick = function(){
+    document.getElementById("form-upload-layer-files").click()
+}
+
+/**
+ * Lister le nom des fichiers sélectionnés
+ */
+document.getElementById("form-upload-layer-files").onchange = function(e){
+    var divfilelist = document.getElementById("form-upload-layer-file-list")
+    divfilelist.innerHTML= ''
+    for (var i=0; i < this.files.length; i++){
+        //divfilelist.innerHTML += this.files[i].name + '\n'
+        var li = document.createElement('li')
+        li.innerHTML = this.files[i].name
+        divfilelist.appendChild(li)
+    }
+}
+
+/**
+ * Gestion de l'ajout d'une couche importé (ou à uploader)
+ */
+var addImportedLayer = function (){
+    active_nav = document.getElementById("import-layer-tab").querySelector('button.active')
+
+    console.log(active_nav.getAttribute('id'))
+
+    /* gestion différenciée en fonction de l'onglet actif */
+    switch (active_nav.getAttribute('id')){
+        case 'upload-layer-tab':
+            uploadLayer()
+            break
+        case 'my-uploaded-layers-tab':
+            addUploadedLayer()
+            break
+    }
+}
+
+/**
+ * Upload d'une couche 
+ */
+var uploadLayer = function(){
+    //Contrôle du bon renseignement du formulaire
+    if (checkUploadForm()) {
+        // envois des données du formulaire à l'API
+        postUploadFrom()    
+    }
+}
+
+/**
+ * Vérification de la conformité du formulaire d'uplaod d'une couche
+ */
+var checkUploadForm = function(){
+    var form = document.getElementById("form-upload-layer")
+
+    var formIsValid = true
+    
+    // Vérification que le format du fichier est renseigné
+    form_field = form.querySelector("#form-upload-layer-select-format")
+    form_field.parentNode.querySelector("label").style.color = "#000"
+    if (! checkRequired(form_field.value)){
+        form_field.parentNode.querySelector("label").style.color = "#f00"
+        formIsValid = false
+    }
+    
+    form_field = form.querySelector("#form-upload-layer-select-proj")
+    form_field.parentNode.querySelector("label").style.color = "#000"
+    if (! checkRequired(form_field.value)){
+        form_field.parentNode.querySelector("label").style.color = "#f00"
+        formIsValid = false
+    }
+
+    form_field = form.querySelector("#form-upload-layer-data-name")
+    form_field.parentNode.querySelector("label").style.color = "#000"
+    if (! checkRequired(form_field.value)){
+        form_field.parentNode.querySelector("label").style.color = "#f00"
+        formIsValid = false
+    }
+
+    form_field = form.querySelector("#form-upload-layer-files")
+    form_field.parentNode.querySelector("label").style.color = "#000"
+    if (! checkRequired(form_field.value)){
+        form_field.parentNode.querySelector("label").style.color = "#f00"
+        formIsValid = false
+    }
+
+    return formIsValid
+}
+
+/**
+ * upload du fichier
+ */
+var postUploadFrom = function(){
+    console.log("upload du fichier")
+}
+
+/**
+ * Ajout sur la carte d'une couche précédement uploadé 
+ */
+var addUploadedLayer = function(){
+    console.log("Ajout sur la carte d'une couche précédement uploadé")
+}
