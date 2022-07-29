@@ -881,6 +881,7 @@ document.getElementById("add-layer-cancel").addEventListener("click", event => {
 
 /**
  * Gestion de l'alerte en fonction du format de fichier
+ * Et gestion du filtre sur les extension au niveau de  l'input "files"
  */
 document.getElementById("form-upload-layer-select-format").onchange = function(e){
     // On récupère la valeur sélectionné
@@ -891,13 +892,32 @@ document.getElementById("form-upload-layer-select-format").onchange = function(e
     document.getElementById("upload-layer-format-tab-warning").classList.add("hide")
 
     // En fonction du format on affiche l'alerte associé
+    console.log(value)
+    if (value == ''){
+        document.getElementById("form-upload-layer-files").setAttribute("accept", null)
+    }
     if (value == 'shp'){
         document.getElementById("upload-layer-format-shp-warning").classList.remove("hide")
+        document.getElementById("form-upload-layer-files").setAttribute("accept", ".shp, .prj, .dbf, .shx")
     }
     if (value == 'tab'){
         document.getElementById("upload-layer-format-tab-warning").classList.remove("hide")
+        document.getElementById("form-upload-layer-files").setAttribute("accept", ".tab, .dat, .id, .map")
+    }
+    if (value == 'geojson'){
+        document.getElementById("form-upload-layer-files").setAttribute("accept", ".geojson, .json")
+    }
+    if (value == 'gpkg'){
+        document.getElementById("form-upload-layer-files").setAttribute("accept", ".gpkg")
+    }
+    if (value == 'gpx'){
+        document.getElementById("form-upload-layer-files").setAttribute("accept", ".gpx")
+    }
+    if (value == 'kmz'){
+        document.getElementById("form-upload-layer-files").setAttribute("accept", ".kml, .kmz")
     }
 }
+
 
 /**
  * Amélioration apparence input type=files
@@ -924,9 +944,13 @@ document.getElementById("form-upload-layer-files").onchange = function(e){
  * Gestion de l'ajout d'une couche importé (ou à uploader)
  */
 var addImportedLayer = function (){
-    active_nav = document.getElementById("import-layer-tab").querySelector('button.active')
 
-    console.log(active_nav.getAttribute('id'))
+    // On bloque le bouton "ajouter" et on lance le spinner
+    document.getElementById("add-layer-submit").disabled = true
+    document.getElementById('loading-spinner').style.display = 'inline-block'
+
+    // On récupère l'onglet actif (upload ou données importé)
+    active_nav = document.getElementById("import-layer-tab").querySelector('button.active')
 
     /* gestion différenciée en fonction de l'onglet actif */
     switch (active_nav.getAttribute('id')){
@@ -934,7 +958,7 @@ var addImportedLayer = function (){
             uploadLayer()
             break
         case 'my-uploaded-layers-tab':
-            addUploadedLayer()
+            addImportedLayerToMap()
             break
     }
 }
@@ -943,10 +967,13 @@ var addImportedLayer = function (){
  * Upload d'une couche 
  */
 var uploadLayer = function(){
+
     //Contrôle du bon renseignement du formulaire
     if (checkUploadForm()) {
         // envois des données du formulaire à l'API
-        postUploadFrom()    
+        (postUploadFrom()).then(data => {            
+            addImportedLayerToMap(data)
+        })  
     }
 }
 
@@ -966,12 +993,12 @@ var checkUploadForm = function(){
         formIsValid = false
     }
     
-    form_field = form.querySelector("#form-upload-layer-select-proj")
+    /*form_field = form.querySelector("#form-upload-layer-select-proj")
     form_field.parentNode.querySelector("label").style.color = "#000"
     if (! checkRequired(form_field.value)){
         form_field.parentNode.querySelector("label").style.color = "#f00"
         formIsValid = false
-    }
+    }*/
 
     form_field = form.querySelector("#form-upload-layer-data-name")
     form_field.parentNode.querySelector("label").style.color = "#000"
@@ -994,12 +1021,105 @@ var checkUploadForm = function(){
  * upload du fichier
  */
 var postUploadFrom = function(){
-    console.log("upload du fichier")
+    var formdata = buildImportLayerFormData()
+
+    console.log(formdata.get("layername"))
+
+    return fetch(APP_URL + "/api/upload_geodata", {
+        method: "POST",
+        signal: signal,
+        credentials: "same-origin",
+        body: formdata //JSON.stringify(formdata)
+    })
+    .then(res => {
+        if (res.status == 400){ 
+            res.json().then(err => {
+                console.log(JSON.stringify(err.message[0]))
+                apiCallErrorCatcher("error", JSON.stringify(err.message[0]))
+            })
+        } else if (res.status != 200){
+            // En envoi l"erreur dans le catch
+            throw res;
+        } else {
+            return res.json()
+        }
+    }).catch(error => {
+        console.log("Erreur lors de l'import d'une couche de données !!!")
+
+        layer_submit_button.disabled = false
+        document.getElementById('loading-spinner').style.display = 'none'
+    })
+}
+
+/**
+ * Sérialisation des données du formulaire
+ */
+var buildImportLayerFormData = function(){
+
+    var formdata = new FormData()
+
+    // Récupration du format
+    formdata.append("format", document.getElementById("form-upload-layer-select-format").value)
+
+    // Récupération de la projection du fichier source
+    //formdata.append("proj", document.getElementById("form-upload-layer-select-proj").value)
+
+    // Récupération du nom de la couche
+    formdata.append("layername", document.getElementById("form-upload-layer-data-name").value)
+
+    // Récupération des fichiers
+    for (var i=0; i < document.getElementById("form-upload-layer-files").files.length; i++){
+        formdata.append("files[]", document.getElementById("form-upload-layer-files").files[i])
+    }
+    
+    return formdata
 }
 
 /**
  * Ajout sur la carte d'une couche précédement uploadé 
  */
-var addUploadedLayer = function(){
+var addImportedLayerToMap = function(importedLayerId){
+
+    fetch(APP_URL + "/api/imported_layer/" + importedLayerId, {
+        method: "GET",
+        signal: signal,
+        headers: { 
+            "Accept": "application/json", 
+            "Content-Type": "application/json" 
+        },
+        credentials: "same-origin"
+    })
+    .then(res => {
+        //console.log(res)
+        if (res.status != 200){
+            throw res;
+        } else {
+            return res.json()
+        }
+    }).then(data => {
+        console.log(data)
+        addGeojsonLayer(data)
+        addLayerModal.hide()
+        layer_submit_button.disabled = false
+        document.getElementById('loading-spinner').style.display = 'none'
+        //console.log(data.desc_layer)
+    })
+    .catch(error => {
+        console.log("ERREUR !!!!")
+        /*layer_submit_button.disabled = false
+        document.getElementById('loading-spinner').style.display = 'none'
+        
+        if (error.message){
+            default_message = "Demande de données annulée"
+        } else {
+            default_message = "Erreur lors de la récupération de la liste des couches de référence"
+        }
+        apiCallErrorCatcher("error", default_message)*/
+    })
+
+    // On débloque le bouton "ajouter" et on arrète le spinner
+    layer_submit_button.disabled = false
+    document.getElementById('loading-spinner').style.display = 'none'
+
     console.log("Ajout sur la carte d'une couche précédement uploadé")
 }

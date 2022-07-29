@@ -8,6 +8,9 @@
 # Installation des dépendances
     $ sudo apt-get install apache2 supervisor git build-essential libpq-dev python3-dev python3-psycopg2
 
+# Installation de gdal-bin pour bénéficier des commande ogr2ogr
+    $ sudo apt-get install gdal-bin
+
 # Télécharger le code source
     $ git clone https://github.com/PNPyrenees/app_carto.git
     $ cd app_carto

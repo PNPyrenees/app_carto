@@ -13,7 +13,7 @@ CREATE TABLE app_carto.t_roles (
     role_prenom varchar(50),
     role_email varchar(250),
     role_token varchar(500),
-    role_token_expiration datetime without time zone,
+    role_token_expiration timestamp without time zone,
     role_date_insert timestamp without time zone,
     role_date_update timestamp without time zone
 );
@@ -252,7 +252,22 @@ CREATE TABLE IF NOT EXISTS app_carto.bib_toponyme (
     toponyme_type varchar(50),
     toponyme_precision_geo varchar(255),
     geom geometry(Geometry,2154)
-)
+);
+
+/* Création de la table d'import de couche */
+CREATE TABLE IF NOT EXISTS app_carto.t_imported_layer (
+    imported_layer_id serial NOT NULL PRIMARY KEY,
+    role_id integer,
+    imported_layer_name varchar(255),
+    imported_layer_geojson jsonb,
+    imported_layer_import_date datetime without time zone,
+    imported_layer_last_view datetime without time zone,
+
+    CONSTRAINT fk_t_imported_layer_role_id FOREIGN KEY (role_id)
+        REFERENCES app_carto.t_roles (role_id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE NO ACTION
+);
 
 /*
  * Partie 2 : Script à jouer sur la base de données SIG

@@ -10,8 +10,8 @@ from sqlalchemy.exc import SQLAlchemyError
 #from sqlalchemy.sql.expression import true
 from functools import wraps
 
-from .models import Role, VLayerList, Layer, BibStatusType, VRegneList, VGroupTaxoList, BibCommune, BibMeshScale, BibGroupStatus
-from .schema import RoleSchema, VLayerListSchema, LayerSchema, BibGroupStatusSchema
+from .models import Role, VLayerList, Layer, BibStatusType, VRegneList, VGroupTaxoList, BibCommune, BibMeshScale, BibGroupStatus, ImportedLayer
+from .schema import RoleSchema, VLayerListSchema, LayerSchema, BibGroupStatusSchema, ImportedLayerSchema
 
 """from requests.api import request"""
 
@@ -1496,6 +1496,99 @@ def get_warning_calculator_layers_list():
     status_list = BibGroupStatusSchema(many=True).dump(BibGroupStatus.query.filter(BibGroupStatus.group_status_is_warning == True))
 
     return {"layers": layer_list, "status": status_list}
+
+@app.route('/api/upload_geodata', methods=['POST'])
+@valid_token_required
+def upload_geodata():
+    """ Enregistre la données temporairement, la transforme en GeoJson 
+        Et l'enregistre en base de données
+
+    Returns
+    -------
+        Identifiant de la couche ajouté en BDD
+    """
+
+    # Récupération de l'utilisateur courrant
+    token = request.cookies.get('token')
+    try:
+        role = Role.query.filter(Role.role_token == token).one()
+    except:
+        return jsonify({
+            'status': 'error',
+            'message': 'Erreur lors de la déconnexion : Aucun role associé au token'
+        }), 520
+
+    # Récupération des fichiers et stockage temporaire dans le dossier "static/tmp_upload/"
+    files = request.files.getlist("files[]")
+    for file in files:
+        file.save(os.path.join(app.root_path, "static/tmp_upload/", file.filename))
+        # On en profite pour récupérer le nom du fichier devant être trasformer (ex .shp pour le shapfile)
+        if file.filename.split('.')[1].lower() in ['shp', 'gpkg', 'tab', 'geojson', 'json', 'kmz', 'kml']:
+            filename = file.filename.split('.')[0]
+            extension = file.filename.split('.')[1]
+
+    # Création de la commande ogr2ogr en fonction des données d'entrées
+    #format = request.form["format"]
+    #proj = request.form["proj"]
+
+    srs_path = os.path.join(app.root_path, "static/tmp_upload/", filename + "." + extension)
+    dst_path = os.path.join(app.root_path, "static/tmp_upload/", filename + ".geojson")
+    
+    if extension.lower() in ['geojson', 'json'] :
+        # Dans le cas d'un geojson, on renome le fichier pour pouvoir le reprojeter
+        # en effet, ogr2ogr n'est pas en capacité d'écraser un fichier
+        os.rename(srs_path, os.path.join(app.root_path, "static/tmp_upload/", "tmp_" + filename + "." + extension))
+        srs_path = os.path.join(app.root_path, "static/tmp_upload/", "tmp_" + filename + "." + extension)
+    
+    # création et exécution de la commande ogr2ogr
+    command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 " + dst_path + " " + srs_path
+    os.system(command, )
+
+    # Lecture du résultat pour écriture dans la base de données
+    with open(dst_path) as json_file:
+        #print(json_file)
+        geojson = json.load(json_file)
+    
+        #print(geojson)
+
+    importedLayer =  ImportedLayer(
+        None,
+        role.role_id,
+        role,
+        request.form["layername"],
+        geojson,
+        datetime.now(),
+        datetime.now()
+    ) 
+
+    db_app.session.add(importedLayer)
+    db_app.session.commit() 
+
+    return jsonify(importedLayer.imported_layer_id)
+
+@app.route('/api/imported_layer/<ref_layer_id>', methods=['GET'])
+@valid_token_required
+def get_imported_layer(ref_layer_id):
+    """ Enregistre la données temporairement, la transforme en GeoJson 
+        Et l'enregistre en base de données
+
+    Returns
+    -------
+        GeoJson
+    """
+    imported_layer = ImportedLayer.query.get(ref_layer_id)
+    imported_layer_schema = ImportedLayerSchema().dump(imported_layer)
+
+    result = {
+        "geojson_layer": imported_layer.imported_layer_geojson,
+        "desc_layer": {
+            "layer_default_style": None,
+            "layer_label": imported_layer.imported_layer_name,
+            "layer_attribution": imported_layer.role.role_nom + " " + imported_layer.role.role_prenom
+        }
+    }
+
+    return result
 
 
 if __name__ == "__main__":

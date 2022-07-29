@@ -249,7 +249,7 @@
                                 <div class="tab-content" id="import-layer-tab-content">
                                     <!-- Panneau de mise en forme du formulaire d'upload de couche SIG -->
                                     <div class="tab-pane fade show active" id="upload-layer" role="tabpanel" aria-labelledby="upload-layer-tab">
-                                        <form id="form-upload-layer">
+                                        <form id="form-upload-layer" enctype="multipart/form-data">
                                             <div class="row">
                                                 <!-- Bloc de gauche -->
                                                 <div class="col-lg-6 border-end">
@@ -261,6 +261,7 @@
                                                             <option value="geojson">GeoJson</option>
                                                             <option value="gpkg">GeoPackage</option>
                                                             <option value="gpx">GPX</option>
+                                                            <option value="kmz">KML / KMZ</option>
                                                             <option value="tab">Mapinfo (TAB)</option>
                                                             <option value="shp">Shapefile</option>
                                                         </select>
@@ -271,15 +272,19 @@
                                                             L'import d'un fichier mapinfo (TAB) doit inclure à minima les fichiers ayant les extensions suivantes : <b>.tab, .dat, .id, .map</b>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <!-- Champ nom de la données -->
                                                     <div class="form-group">
                                                         <label for="form-upload-layer-data-name" class="form-label fw-bold mb-0 mt-2">Nom de la couche de donnée *</label>
                                                         <input type="text" class="form-control" id="form-upload-layer-data-name" placeholder="Nom">
                                                     </div>
 
-
-
+                                                    
+                                                </div>
+                                                <!-- Bloc de droite -->
+                                                <div class="col-lg-6">
+                                                    
+                                                    <!-- Sélection des fichiers -->
                                                     <div class="col-lg-6">
                                                         <div class="form-group">
                                                             <label for="form-upload-layer-files" class="form-label fw-bold mb-0 mt-2">Fichier(s) * :</label><br>
@@ -289,17 +294,16 @@
                                                             </ul>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <!-- Bloc de droite -->
-                                                <div class="col-lg-6">
-                                                    <div class="form-group">
+                                                    
+                                                    <!-- Sélection de la projection - INUTILE !! -->
+                                                    <!--<div class="form-group">
                                                         <label for="form-upload-layer-select-proj" class="form-label fw-bold mb-0 mt-2">Projection du fichier * :</label>
                                                         <select id="form-upload-layer-select-proj" class="form-select" aria-label="Default select example">
-                                                            <option value="2154" selected>Lambert-93 (EPSG:2154)</option>
-                                                            <option value="4326">WGS 84 (EPSG:4326)</option>
-                                                            <option value="3857">WGS 84 / Pseudo-Mercator (EPSG:3857)</option>
+                                                            <option value="EPSG:2154" selected>Lambert-93 (EPSG:2154)</option>
+                                                            <option value="EPSG:4326">WGS 84 (EPSG:4326)</option>
+                                                            <option value="EPSG:3857">WGS 84 / Pseudo-Mercator (EPSG:3857)</option>
                                                         </select>
-                                                    </div>
+                                                    </div>-->
                                                 </div>
                                             </div>
                                         </form>

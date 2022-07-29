@@ -1,5 +1,5 @@
 from .utils.env import ma
-from .models import Role, VLayerList, Layer, BibStatusType, BibGroupStatus, VGroupTaxoList
+from .models import Role, VLayerList, Layer, BibStatusType, BibGroupStatus, VGroupTaxoList, ImportedLayer
 
 class RoleSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -19,6 +19,11 @@ class LayerSchema(ma.SQLAlchemyAutoSchema):
 class BibGroupStatusSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = BibGroupStatus
+        load_instance = True
+
+class ImportedLayerSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = ImportedLayer
         load_instance = True
 
 #class BibToponymeSchema(ma.SQLAlchemyAutoSchema):

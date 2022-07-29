@@ -154,3 +154,7 @@ install_all/install_all.log
 # SVG
 backend/static/images/svg/*
 !backend/static/images/svg/.gitkeep
+
+# Dossier temporaire de stockage des fichier uploadé
+backend/static/tmp_upload/*
+!backend/static/tmp_upload/.gitkeep

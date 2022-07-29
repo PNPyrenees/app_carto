@@ -3,6 +3,7 @@ from .utils.env import db_app
 from datetime import datetime
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import JSONB
 #from geoalchemy2 import Geometry
 
 class Role(db_app.Model):
@@ -16,6 +17,8 @@ class Role(db_app.Model):
     role_token_expiration = db_app.Column(db_app.DateTime())
     role_date_insert = db_app.Column(db_app.DateTime(), default=datetime.now())
     role_date_update = db_app.Column(db_app.DateTime(), default=datetime.now())
+
+    importedLayers = relationship("ImportedLayer")
 
     def __init__(
         self,
@@ -211,6 +214,37 @@ class BibMeshScale(db_app.Model):
         self.mesh_scale_id = mesh_scale_id
         self.mesh_scale_label = mesh_scale_label
         self.active = active
+
+class ImportedLayer(db_app.Model):
+    __tablename__ = 't_imported_layer'
+    __table_args__ = {'schema': 'app_carto'}
+    imported_layer_id = db_app.Column(db_app.Integer, primary_key = True)
+    role_id = db_app.Column(db_app.Integer, ForeignKey('app_carto.t_roles.role_id'))
+    imported_layer_name = db_app.Column(db_app.String(255))
+    imported_layer_geojson = db_app.Column(JSONB)
+    imported_layer_import_date = db_app.Column(db_app.DateTime(), default=datetime.now())
+    imported_layer_last_view = db_app.Column(db_app.DateTime(), default=datetime.now())
+
+    role = relationship("Role", back_populates="importedLayers")
+
+    def __init__(
+        self,
+        imported_layer_id,
+        role_id,
+        role,
+        imported_layer_name,
+        imported_layer_geojson,
+        imported_layer_import_date,
+        imported_layer_last_view
+        
+    ):
+        self.imported_layer_id = imported_layer_id
+        self.role_id = role_id
+        self.role = role
+        self.imported_layer_name = imported_layer_name
+        self.imported_layer_geojson = imported_layer_geojson
+        self.imported_layer_import_date = imported_layer_import_date
+        self.imported_layer_last_view = imported_layer_last_view
 
 #class BibToponyme(db_app.Model):
 #    __tablename__ = 'bib_toponyme'
