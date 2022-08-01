@@ -5,7 +5,7 @@ from flask import Flask, render_template, send_from_directory, request, make_res
 import requests
 import json
 from datetime import datetime
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, func
 from sqlalchemy.exc import SQLAlchemyError
 #from sqlalchemy.sql.expression import true
 from functools import wraps
@@ -1528,9 +1528,6 @@ def upload_geodata():
             extension = file.filename.split('.')[1]
 
     # Création de la commande ogr2ogr en fonction des données d'entrées
-    #format = request.form["format"]
-    #proj = request.form["proj"]
-
     srs_path = os.path.join(app.root_path, "static/tmp_upload/", filename + "." + extension)
     dst_path = os.path.join(app.root_path, "static/tmp_upload/", filename + ".geojson")
     
@@ -1546,10 +1543,7 @@ def upload_geodata():
 
     # Lecture du résultat pour écriture dans la base de données
     with open(dst_path) as json_file:
-        #print(json_file)
         geojson = json.load(json_file)
-    
-        #print(geojson)
 
     importedLayer =  ImportedLayer(
         None,
@@ -1564,31 +1558,79 @@ def upload_geodata():
     db_app.session.add(importedLayer)
     db_app.session.commit() 
 
+    # Supression des données temporaires
+    # fichier(s) importé(s)
+    for file in files:
+        os.remove(os.path.join(app.root_path, "static/tmp_upload/", file.filename))
+    # fichier généré (geojson)
+    os.remove(dst_path)
+
     return jsonify(importedLayer.imported_layer_id)
 
-@app.route('/api/imported_layer/<ref_layer_id>', methods=['GET'])
+@app.route('/api/imported_layer/<ref_layer_id>', methods=['GET', 'DELETE'])
 @valid_token_required
 def get_imported_layer(ref_layer_id):
-    """ Enregistre la données temporairement, la transforme en GeoJson 
-        Et l'enregistre en base de données
+    """ Récupère ou supprime la couche de données
 
     Returns
     -------
         GeoJson
     """
+
     imported_layer = ImportedLayer.query.get(ref_layer_id)
-    imported_layer_schema = ImportedLayerSchema().dump(imported_layer)
 
-    result = {
-        "geojson_layer": imported_layer.imported_layer_geojson,
-        "desc_layer": {
-            "layer_default_style": None,
-            "layer_label": imported_layer.imported_layer_name,
-            "layer_attribution": imported_layer.role.role_nom + " " + imported_layer.role.role_prenom
+    # demande d'une couche importée
+    if request.method == 'GET':
+        
+        result = {
+            "geojson_layer": imported_layer.imported_layer_geojson,
+            "desc_layer": {
+                "layer_default_style": None,
+                "layer_label": imported_layer.imported_layer_name,
+                "layer_attribution": imported_layer.role.role_nom + " " + imported_layer.role.role_prenom
+            }
         }
-    }
 
+        imported_layer.imported_layer_last_view = datetime.now()
+    
+    # Suppression dune couche importée
+    if request.method == 'DELETE':
+        db_app.session.delete(imported_layer)
+        result = {"delete": True}
+
+    db_app.session.commit()
     return result
+
+
+
+@app.route('/api/imported_layer/get_layers_list', methods=['GET'])
+@valid_token_required
+def get_imported_layers_list():
+    """ Fourni la liste des couches de données
+    importé par l'utilisateur courant
+
+    Returns
+    -------
+        JSON
+    """    
+    # Récupération de l'utilisateur courrant
+    token = request.cookies.get('token')
+    try:
+        role = Role.query.filter(Role.role_token == token).one()
+    except:
+        return jsonify({
+            'status': 'error',
+            'message': 'Erreur lors de la déconnexion : Aucun role associé au token'
+        }), 520
+
+    myImportedLayer = db_app.session.query(
+        ImportedLayer.imported_layer_id,
+        ImportedLayer.imported_layer_name,
+        ImportedLayer.imported_layer_import_date,
+        ImportedLayer.imported_layer_last_view
+    ).filter_by(role_id=role.role_id).order_by(ImportedLayer.imported_layer_name, ImportedLayer.imported_layer_import_date)
+
+    return jsonify(ImportedLayerSchema(many=True).dump(myImportedLayer))
 
 
 if __name__ == "__main__":

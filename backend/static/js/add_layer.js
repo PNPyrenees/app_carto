@@ -17,6 +17,8 @@ document.getElementById("add-layer-modal").addEventListener('show.bs.modal', eve
         case 'add-shared-layer':
         case 'add-new-layer':
         case 'add-imported-layer':
+            buildMyImportedLayerContent()
+            break
     }
 })
 
@@ -143,9 +145,13 @@ var buildAddRefLayerContent = function(){
 document.getElementById('btn-add-ref-layer').addEventListener('click', event => {
     buildAddRefLayerContent()
 })
-/* btn-add-ref-layer */
+/* btn-add-obs-layer */
 document.getElementById('btn-add-obs-layer').addEventListener('click', event => {
     buildAddObsLayerForm()
+})
+/* btn-add-imported-layer */
+document.getElementById('btn-add-imported-layer').addEventListener('click', event => {
+    buildMyImportedLayerContent()
 })
 
 /**
@@ -171,7 +177,6 @@ var addRefLayerToMap = function(){
         credentials: "same-origin"
     })
     .then(res => {
-        //console.log(res)
         if (res.status != 200){
             throw res;
         } else {
@@ -182,7 +187,6 @@ var addRefLayerToMap = function(){
         addLayerModal.hide()
         layer_submit_button.disabled = false
         document.getElementById('loading-spinner').style.display = 'none'
-        //console.log(data.desc_layer)
     })
     .catch(error => {
         layer_submit_button.disabled = false
@@ -833,7 +837,6 @@ var getObsLayerGeojson = function(formdata) {
 
             layer_submit_button.disabled = false
             document.getElementById('loading-spinner').style.display = 'none'
-            //console.log(data)
         } else {
             throw "Aucune donnée trouvée";
         }
@@ -877,7 +880,178 @@ document.getElementById("add-layer-cancel").addEventListener("click", event => {
  * GESTION DE L'IMPORT DE COUCHE
  *********************************/
 
+/**
+ * Gestion de l'ouverture de la page d'import de données
+ */
+var buildMyImportedLayerContent = function() {
+    
+    /* On vide le forumlaire d'import */
+    document.getElementById("form-upload-layer-select-format").selectedIndex = 0 
+    document.getElementById("form-upload-layer-data-name").value = ''
+    document.getElementById("form-upload-layer-files").value = ''
+    document.getElementById("form-upload-layer-file-list").innerHTML = ''
+    document.getElementById("upload-layer-format-shp-warning").classList.add("hide")
+    document.getElementById("upload-layer-format-tab-warning").classList.add("hide")
 
+    /* Récupération de la liste des couches déjà importées par l'utilisateur */
+    getImportedLayerList().then(imported_layer_list => {
+
+        /* Mise en forme de la liste des couches importées */
+        var my_imported_layer_list = document.getElementById("my_imported_layer_list")
+
+        my_imported_layer_list.innerHTML = ''
+
+        imported_layer_list.forEach(layer => {
+            var li = document.createElement('li');
+            li.setAttribute('class','modal-imported-layer-item');
+            li.setAttribute('imported-layer-id',layer.imported_layer_id);
+
+            var row = document.createElement('div');
+            row.classList.add("row")
+
+            var col1 = document.createElement('div');
+            col1.classList.add("col-9")
+
+            // Gestion du nom de la couche
+            var div_imported_layer_name = document.createElement('div');
+            div_imported_layer_name.innerHTML = layer.imported_layer_name
+            col1.appendChild(div_imported_layer_name)
+
+            // Gestion des date (import / dernier accès)
+            var div_imported_layer_date = document.createElement('div');
+            div_imported_layer_date.classList.add("imported_layer_date")
+            
+            var import_date = new Date(layer.imported_layer_import_date)
+            var last_view = new Date(layer.imported_layer_last_view)
+
+            div_imported_layer_date.innerHTML = "Date d'import : " + import_date.toLocaleString('fr-FR') + " | " + "Dernier accès : " + last_view.toLocaleString('fr-FR')
+            col1.appendChild(div_imported_layer_date)
+
+            // Création de l'élément de suppression d'une couche importée
+            col2 = document.createElement('div');
+            col2.classList.add("text-end")
+            
+            var i = document.createElement('i');
+            i.classList.add("bi")
+            i.classList.add("bi-trash-fill")
+            i.classList.add("delete-imported-layer")
+            i.setAttribute("title", "Supprimer la couche")
+
+            i.addEventListener('click', (event) => {
+                event.currentTarget.closest("li").querySelector(".confirm-delete-imported-layer-div").classList.remove("hide")
+                event.currentTarget.classList.add("hide")
+            })
+
+            // Gestion de la confirmation de suppression
+            var div_confirm_delete = document.createElement('div');
+            div_confirm_delete.classList.add("hide", "div-confirm-delete", "confirm-delete-imported-layer-div")
+            div_confirm_delete.innerHTML = "Etes-vous sûr ?"
+
+            var div_btn = document.createElement('div');
+            // Boutton de confirmation de suppression
+            var btn_confirm_delete = document.createElement('button');
+            btn_confirm_delete.innerHTML = 'Oui'
+            btn_confirm_delete.classList.add("btn", "btn-danger", "me-1", "btn-confirm-delete-imported-layer")
+
+            // Spinner indiquant la suppression en cours
+            var div_spinner = document.createElement('div')
+            div_spinner.classList.add("spinner-grow", "spinner-grow-sm", "hide",  "delete-imported-layer-spinner")
+            btn_confirm_delete.prepend(div_spinner)
+
+            div_btn.append(btn_confirm_delete)
+
+            btn_confirm_delete.addEventListener('click', (event) => {
+                var li = event.currentTarget.closest("li")
+                let layer_id = li.getAttribute("imported-layer-id")
+
+                // On désactive le boutton
+                var btn_confirm_delete = li.querySelector(".btn-confirm-delete-imported-layer")
+                btn_confirm_delete.disabled = true
+
+                // On active le spinner 
+                btn_confirm_delete.querySelector(".delete-imported-layer-spinner").classList.remove("hide")
+
+                // Appel API pour suppression de la données
+                fetch(APP_URL + "/api/imported_layer/" + layer_id, {
+                    method:'DELETE',
+                }).then(res => {
+                    if (res.status != 200){
+                        // En envoi l"erreur dans le catch
+                        throw res;
+                    } else {
+                        li.remove()
+                    }
+                }).catch(error => {
+                    default_message = "Erreur lors de la supression de la couche importé"
+                    apiCallErrorCatcher(default_message, default_message)
+                })
+            })
+
+            // Boutton d'annulation de suppression
+            var btn_cancel_delete = document.createElement('button');
+            btn_cancel_delete.innerHTML = 'Annuler'
+            btn_cancel_delete.classList.add("btn", "btn-warning", "btn-cancel-delete-imported-layer")
+            div_btn.append(btn_cancel_delete)
+
+            btn_cancel_delete.addEventListener('click', (event) => {
+                event.currentTarget.closest("div.div-confirm-delete").classList.add("hide")
+                event.currentTarget.closest("li").querySelector(".delete-imported-layer").classList.remove("hide")
+            })
+
+            div_confirm_delete.append(div_btn)
+             
+            col2.appendChild(i)
+            col2.appendChild(div_confirm_delete)
+            
+            col2.classList.add("col-3")
+
+            // Ajout du bloc
+            row.appendChild(col1)
+            row.appendChild(col2)
+            li.appendChild(row)
+
+            my_imported_layer_list.appendChild(li)
+
+            // on active la coloration si on sur le "li"
+            li.addEventListener('click', (event) =>{
+                // On comence par désactiver tous les autres
+                let all_modal_imported_layer_item = document.getElementsByClassName('modal-imported-layer-item')
+                for (var i = 0; i < all_modal_imported_layer_item.length; i++) {
+                    all_modal_imported_layer_item[i].classList.remove('active')
+                }
+                // puis on acitve l'élément cliqué
+                event.currentTarget.classList.add('active')
+            })
+        })
+        
+    })
+}
+
+/**
+ * Fonctions permettant de récupérer la liste
+ * des couches de référence disponible
+ */
+ var getImportedLayerList = function(){
+    return fetch(APP_URL + "/api/imported_layer/get_layers_list", {
+        method: "GET",
+        headers: { 
+            "Accept": "application/json", 
+            "Content-Type": "application/json" 
+        },
+        credentials: "same-origin"
+    })
+    .then(res => {
+        if (res.status != 200){
+            throw res/*.json();*/
+        } else {
+            return res.json()
+        }
+    })
+    .catch(error => {
+        default_message = "Erreur lors de la récupération de la liste des couches importées"
+        apiCallErrorCatcher(error, default_message)
+    })
+}
 
 /**
  * Gestion de l'alerte en fonction du format de fichier
@@ -892,7 +1066,6 @@ document.getElementById("form-upload-layer-select-format").onchange = function(e
     document.getElementById("upload-layer-format-tab-warning").classList.add("hide")
 
     // En fonction du format on affiche l'alerte associé
-    console.log(value)
     if (value == ''){
         document.getElementById("form-upload-layer-files").setAttribute("accept", null)
     }
@@ -933,7 +1106,6 @@ document.getElementById("form-upload-layer-files").onchange = function(e){
     var divfilelist = document.getElementById("form-upload-layer-file-list")
     divfilelist.innerHTML= ''
     for (var i=0; i < this.files.length; i++){
-        //divfilelist.innerHTML += this.files[i].name + '\n'
         var li = document.createElement('li')
         li.innerHTML = this.files[i].name
         divfilelist.appendChild(li)
@@ -958,7 +1130,10 @@ var addImportedLayer = function (){
             uploadLayer()
             break
         case 'my-uploaded-layers-tab':
-            addImportedLayerToMap()
+            /* Récupération de l'identifiant de la couche sélectionnée */
+            selected_layer = document.getElementById("my_imported_layer_list").querySelector('.active')
+            
+            addImportedLayerToMap(selected_layer.getAttribute("imported-layer-id"))
             break
     }
 }
@@ -1023,13 +1198,11 @@ var checkUploadForm = function(){
 var postUploadFrom = function(){
     var formdata = buildImportLayerFormData()
 
-    console.log(formdata.get("layername"))
-
     return fetch(APP_URL + "/api/upload_geodata", {
         method: "POST",
         signal: signal,
         credentials: "same-origin",
-        body: formdata //JSON.stringify(formdata)
+        body: formdata 
     })
     .then(res => {
         if (res.status == 400){ 
@@ -1080,6 +1253,9 @@ var buildImportLayerFormData = function(){
  */
 var addImportedLayerToMap = function(importedLayerId){
 
+    controller = new AbortController;
+    signal = controller.signal;
+
     fetch(APP_URL + "/api/imported_layer/" + importedLayerId, {
         method: "GET",
         signal: signal,
@@ -1090,36 +1266,29 @@ var addImportedLayerToMap = function(importedLayerId){
         credentials: "same-origin"
     })
     .then(res => {
-        //console.log(res)
         if (res.status != 200){
             throw res;
         } else {
             return res.json()
         }
     }).then(data => {
-        console.log(data)
         addGeojsonLayer(data)
         addLayerModal.hide()
         layer_submit_button.disabled = false
         document.getElementById('loading-spinner').style.display = 'none'
-        //console.log(data.desc_layer)
     })
     .catch(error => {
-        console.log("ERREUR !!!!")
-        /*layer_submit_button.disabled = false
+        console.log(error)
+        layer_submit_button.disabled = false
+        document.getElementById('loading-spinner').style.display = 'none'
+        layer_submit_button.disabled = false
         document.getElementById('loading-spinner').style.display = 'none'
         
         if (error.message){
             default_message = "Demande de données annulée"
         } else {
-            default_message = "Erreur lors de la récupération de la liste des couches de référence"
+            default_message = "Erreur lors de la récupération de la couche de données"
         }
-        apiCallErrorCatcher("error", default_message)*/
+        apiCallErrorCatcher("error", default_message)
     })
-
-    // On débloque le bouton "ajouter" et on arrète le spinner
-    layer_submit_button.disabled = false
-    document.getElementById('loading-spinner').style.display = 'none'
-
-    console.log("Ajout sur la carte d'une couche précédement uploadé")
 }

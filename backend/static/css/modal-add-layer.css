@@ -17,13 +17,39 @@
     list-style-type: none;
 }
 
-.modal-ref-layer-item:hover{
+#my_imported_layer_list{
+    padding: 0;
+}
+
+.imported_layer_date{
+    color: #000;
+    font-size: 0.7em;
+    font-style: italic;
+}
+
+.delete-imported-layer{
+    color:#f00;
+    font-size: 30px;
+}
+
+.modal-imported-layer-item{
+    cursor: pointer;
+    color: #01965e;
+    list-style-type: none;
+    margin: none;
+    border: solid 1px #363b3e;
+    padding: 5px;
+}
+
+.modal-ref-layer-item:hover,
+.modal-imported-layer-item:hover{
     cursor: pointer;
     background-color: moccasin;
     /*color: mintcream;*/
 }
 
-.modal-ref-layer-item.active{
+.modal-ref-layer-item.active,
+.modal-imported-layer-item.active{
     /*cursor: pointer;*/
     background-color: #01965e!important;
     color: mintcream;
