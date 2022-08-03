@@ -1523,7 +1523,7 @@ def upload_geodata():
     for file in files:
         file.save(os.path.join(app.root_path, "static/tmp_upload/", file.filename))
         # On en profite pour récupérer le nom du fichier devant être trasformer (ex .shp pour le shapfile)
-        if file.filename.split('.')[1].lower() in ['shp', 'gpkg', 'tab', 'geojson', 'json', 'kmz', 'kml']:
+        if file.filename.split('.')[1].lower() in ['shp', 'gpkg', 'tab', 'geojson', 'json', 'kmz', 'kml', 'gpx']:
             filename = file.filename.split('.')[0]
             extension = file.filename.split('.')[1]
 
