@@ -542,5 +542,6 @@ En fonction de la version de départ, il faudra exécuter les scripts SQL **upda
 ## Mise à jour de l'application
 Pour mettre à jour la partie applicative, il faut se placer dans le dossier de l'application et lancer la commande suivante :
 ```
-$ git pull	
+$ git pull
+$ sudo supervisorctl restart app_carto	
 ```
