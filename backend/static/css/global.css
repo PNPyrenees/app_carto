@@ -160,6 +160,10 @@ html * {
 
 .dropdown-item:hover {background-color: #ddd;}
 
+.dropdown-item.disabled{
+    cursor: default !important;
+}
+
 .show {display: block !important;}
 .hide {display: none !important;}
 

@@ -19,6 +19,9 @@ document.getElementById("add-layer-modal").addEventListener('show.bs.modal', eve
         case 'add-imported-layer':
             buildMyImportedLayerContent()
             break
+        case 'add-drawing-layer':
+            buildMAddDrawingLayerContent()
+            break
     }
 })
 
@@ -43,6 +46,9 @@ layer_submit_button.addEventListener('click', event => {
         case 'add-new-layer':
         case 'add-imported-layer':
             addImportedLayer()
+            break
+        case 'add-drawing-layer':
+            addDrawingLayer()
             break
     }
 })
@@ -1291,4 +1297,19 @@ var addImportedLayerToMap = function(importedLayerId){
         }
         apiCallErrorCatcher("error", default_message)
     })
+}
+
+/********************************************
+ * GESTION DE L'AJOUT D'UNE COUCHE DE DESSIN
+ ********************************************/
+var buildMAddDrawingLayerContent = function(){
+    document.getElementById("form-drawing-layer-name").value = ''
+}
+
+var addDrawingLayer = function(){
+    let layer_label = document.getElementById("form-drawing-layer-name").value
+
+    addDrawingLayerOnMap(layer_label)
+
+    addLayerModal.hide()
 }

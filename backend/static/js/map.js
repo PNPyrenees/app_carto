@@ -715,6 +715,15 @@ var addLayerInLayerBar = function(vectorLayer){
 
     prototype = prototype.replace(/__LAYER_UID__/g, layer_uid)
     prototype = prototype.replace(/__LAYER_NAME__/g, layer_name)
+
+    // On active la fontion dédition si la couche est éditable
+    console.log(vectorLayer.get('isEditable'))
+    if (vectorLayer.get('isEditable') == true){
+        prototype = prototype.replace(/__EDIT_IS_DISABLED__/g, '')
+    } else {
+        prototype = prototype.replace(/__EDIT_IS_DISABLED__/g, 'disabled')
+    }
+    
     
     template = document.createElement('template')
     template.innerHTML = prototype
@@ -1070,27 +1079,6 @@ getFullDataTable = function(layer_uid){
         }
     })
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /**
  * Créer la table attributaire html
@@ -1861,16 +1849,6 @@ var setLayerOpacity = function(layer_uid, opacity){
     })
 }
 
-/**
- * Gestion de l'affichage d'information complémentaire
- * pour les données d'observation
- */
-/*document.getElementsByClassName("obs-layer-more-data-link").addEventListener("click", event => {
-    console.log(event.currentTarget.getAttribute("filters"))
-    console.log(event.currentTarget.getAttribute("data_id_type"))
-    console.log(event.currentTarget.getAttribute("data_id"))
-})*/
-
 var getMoreObsInfo = function(event, field_id, id){
     //console.log(event)
     // Récupération du layer_uid
@@ -1951,28 +1929,119 @@ var obs_more_info_table = new Tabulator("#obs-more-info-table", {
 })
 
 var buildMoreObsInfo = function(data){
-    /*new Tabulator("#obs-more-info-table", {
-        height:"100%",
-        layout: "fitData",
-        selectable: 1,
-        movableColumns:true,
-        formatter:"html",
-        resizeColumns: true,
-        tooltips: true,
-        data: [
-            {nom_valide: "TEST", nom_vern: "TEST VERN"}
-        ],
-        colmuns:[
-            {title: "Nom valide", field: "nom_valide"},
-            {title: "Nom vernaculaire", field: "nom_vern"},
-        ]
-    })*/
-
-
     obs_more_info_table.replaceData(data)
     obs_more_info_table.setSort([
         {column:"nom_scientifique", dir:"asc"},
         {column:"group2_inpn", dir:"asc"},
         {column:"regne", dir:"asc"},
     ])
+}
+
+/**********************************
+ * Gestion de la couche de dessin *
+ **********************************/
+
+// Tableau contenant la liste des couhe de dessin
+var drawing_layer_array = []
+
+// Fonction permettant de créer le style par défaut d'une couhe de dessin
+var build_drawing_layer_style = function(){
+    // Création des couleurs aléatoires
+    let fill_color = random_rgba(0.5)
+    let stroke_color = random_rgba(1)
+
+    layer_default_style = []
+ 
+    let tmp_polygon_style = {
+        "style_type": "Polygon",
+        "styles": [{
+            "fill_color": fill_color,
+            "stroke_color": "rgba(0,0,0,1)",
+            "stroke_width": 1,
+            "stroke_linedash": [],
+            "filter" : null
+        }]
+    }
+    layer_default_style.push(tmp_polygon_style)
+
+    tmp_line_style = {
+        "style_type": "Line",
+        "styles": [{
+            "stroke_color": stroke_color,
+            "stroke_width": 1,
+            "stroke_linedash": [],
+            "filter" : null
+        }]
+    }
+    layer_default_style.push(tmp_line_style)
+
+    tmp_point_style = {
+        "style_type": "Point",
+        "styles": [{
+            "fill_color": fill_color,
+            "stroke_color": "rgba(0,0,0,1)",
+            "stroke_width": 1,
+            "stroke_linedash": [],
+            "radius": 5,
+            "filter" : null
+        }]
+    }
+    layer_default_style.push(tmp_point_style)
+
+    return layer_default_style
+}
+
+var addDrawingLayerOnMap = function(layer_name){
+    // On initialise tout les feature comme visible
+    //vectorSource["visible"] = true
+    
+    zindex = map.getLayers().getLength() + 1
+
+    // Création du nom par défaut de la couche basé sur le nombre de couche de desssin
+    //let layer_name = "Couche de dessin n°"+drawing_layer_array.length + 1
+
+    // Construction du style de la couche
+    let json_style = build_drawing_layer_style()
+    let style = buildStyle(json_style)
+
+    // Mise par défaut des informations complémentaires de la couche
+    let desc_layer = {
+        "layer_default_style": null,
+        "layer_label": layer_name,
+        "layer_attribution": null
+    }
+
+    // Création du layer
+    let vectorLayer = new ol.layer.Vector({
+        layer_name: desc_layer.layer_label,
+        source: new ol.source.Vector({
+            attributions: desc_layer.layer_attribution,
+            visible: true
+        }),
+        isEditable: true,
+        isEditing: false,
+        style: style,
+        zIndex: zindex,
+        json_style: json_style,
+        additional_data: null,
+        description_layer: desc_layer
+    })
+    
+    drawing_layer_array.push(vectorLayer)
+    
+    map.addLayer(vectorLayer)
+
+    addLayerInLayerBar(vectorLayer)
+    
+    alert("En cours de dev !")
+}
+
+
+var enableLayerEdition = function(event){
+    
+    if (event.currentTarget.classList.contains("disabled")){
+        return
+    }
+
+    alert("here start editing !")
 }
