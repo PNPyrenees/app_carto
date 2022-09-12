@@ -260,8 +260,8 @@ CREATE TABLE IF NOT EXISTS app_carto.t_imported_layer (
     role_id integer,
     imported_layer_name varchar(255),
     imported_layer_geojson jsonb,
-    imported_layer_import_date datetime without time zone,
-    imported_layer_last_view datetime without time zone,
+    imported_layer_import_date timestamp without time zone,
+    imported_layer_last_view timestamp without time zone,
 
     CONSTRAINT fk_t_imported_layer_role_id FOREIGN KEY (role_id)
         REFERENCES app_carto.t_roles (role_id) MATCH SIMPLE
