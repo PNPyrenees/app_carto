@@ -776,17 +776,17 @@ buildLegendForLayer = function(layer_uid, json_style){
                     div_symbol.style.borderWidth = style.stroke_width + "px"
                     div_symbol.style.background = style.fill_color
                     
-                    if (style.stroke_linedash) {
-                        div_symbol.style.broderStyle = "dashed"
+                    if (style.stroke_linedash.length > 0) {
+                        div_symbol.style.borderStyle = "dashed"
                     }
                     break
                 case 'Line':
                     div_symbol.classList.add("legend-line")
-                    div_symbol.style.borderColor = style.stroke_color
-                    div_symbol.style.borderWidth = style.stroke_width + "px"
+                    div_symbol.style.borderTopColor = style.stroke_color
+                    div_symbol.style.borderTopWidth = style.stroke_width + "px"
                     
-                    if (style.stroke_linedash) {
-                        div_symbol.style.broderStyle = "dashed"
+                    if (style.stroke_linedash.length > 0) {
+                        div_symbol.style.borderTopStyle = "dashed"
                     }
                     break
                 case 'Point':
@@ -795,8 +795,8 @@ buildLegendForLayer = function(layer_uid, json_style){
                     div_symbol.style.borderWidth = style.stroke_width + "px"
                     div_symbol.style.background = style.fill_color
                     
-                    if (style.stroke_linedash) {
-                        div_symbol.style.broderStyle = "dashed"
+                    if (style.stroke_linedash.length > 0) {
+                        div_symbol.style.borderStyle = "dashed"
                     }
                     break
                 case 'Icon':
