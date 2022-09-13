@@ -686,7 +686,10 @@ var addGeojsonLayer = function(data, additional_data = null){
     let vectorLayer = new ol.layer.Vector({
         layer_name: data.desc_layer.layer_label,
         source: vectorSource,
+        layerType: "refLayerReadOnly",
+        isEditable: false,
         isEditing: false,
+        isCalculatorLayer: false,
         style: style,
         zIndex: zindex,
         json_style: layer_default_style,
@@ -739,6 +742,15 @@ var addLayerInLayerBar = function(vectorLayer){
         });
     })
 
+    console.log(template.content.querySelector(".layer-name"))
+    template.content.querySelector(".layer-name").addEventListener("click", event =>{
+        // Récupération de l'uid de la couche cliqué
+        let layer_uid = event.target.closest("li").getAttribute("layer-uid")
+
+        setSelectedLayerInLayerbar(layer_uid)
+    })
+
+
     document.getElementById("layer_list").prepend(template.content)
 
     // Construction de la légende de la couche
@@ -748,6 +760,10 @@ var addLayerInLayerBar = function(vectorLayer){
         //console.log(json_style)
     }
     //console.log(vectorLayer.get('additional_data'))
+
+    // On définit la couche ajouté comme couche selectionnée
+    setSelectedLayerInLayerbar(layer_uid)
+    
 }
 
 buildLegendForLayer = function(layer_uid, json_style){
@@ -1614,6 +1630,8 @@ var warning_calculator_style = [{
 var warning_calculator_source = new ol.source.Vector();
 var warning_calculator_layer = new ol.layer.Vector({
     layer_name: "Périmètre(s) de la zone d'étude",
+    layerType: "warningCalculatorLayer",
+    isEditable: true,
     isEditing: false,
     isCalculatorLayer: true,
     source: warning_calculator_source,
@@ -1633,10 +1651,9 @@ declareEditionForLayer = function (layer){
          * TODO avoir une moulinette ui contrôle si des 
          * objets des autres couches n'ont pas été sauvegardé
         */
-
         layer.set("isEditing", false)
     } else {
-        // On désactive l'édition sur toutes les couches
+        // On désactive l'édition sur toutes les couches (PAS FORCEMENT !!)
         map.getLayers().forEach(tmp_layer => {
             tmp_layer.set("isEditing", false)
         })
@@ -1674,9 +1691,9 @@ var enableLayerDrawing = function(layer, geomType){
             document.getElementById("btn-chanllenge-calculator-execute").classList.remove("disabled")
 
             // On affiche la couche dans la alégende si ce n'est pas déjà le cas
-            if (! layerIsInLegend(ol.util.getUid(warning_calculator_layer))){
+            /*if (! layerIsInLegend(ol.util.getUid(warning_calculator_layer))){
                 addLayerInLayerBar(warning_calculator_layer)
-            }
+            }*/
             // On s'assure que la couche est visible
             warning_calculator_layer.setVisible(true)
             // ainsi que le checkbox associé dans le layerBar est coché
@@ -2018,8 +2035,10 @@ var addDrawingLayerOnMap = function(layer_name){
             attributions: desc_layer.layer_attribution,
             visible: true
         }),
+        layerType: "drawingLayer",
         isEditable: true,
         isEditing: false,
+        isCalculatorLayer: false,
         style: style,
         zIndex: zindex,
         json_style: json_style,
@@ -2044,4 +2063,42 @@ var enableLayerEdition = function(event){
     }
 
     alert("here start editing !")
+}
+
+var setSelectedLayerInLayerbar = function(layer_uid){
+    let lis = document.getElementById("layer_list").querySelectorAll('li')
+    lis.forEach(li => {
+        if (li.getAttribute("layer-uid") == layer_uid){
+            li.classList.add('layer-is-selected')
+        } else {
+            li.classList.remove('layer-is-selected')
+        }
+    })
+
+    toolbarShowManagement(layer_uid)
+}
+
+var toolbarShowManagement = function(layer_uid){
+    
+    map.getLayers().forEach(layer => {
+        if (ol.util.getUid(layer) == layer_uid){
+            // si l couche sélectionné est celle d'édition pour la calculette des enjeux
+            // on affiche la boite à outil associé
+            if (layer.get("isCalculatorLayer") == true ){
+                // Si le bouton de la calculette des enjeux est actif
+                if (document.getElementById("btn-chanllenge-calculator").classList.contains("btn-active")){
+                    document.getElementById("chanllenge-calculator-group-edit-btn").classList.remove("hide")
+                }
+            } else {
+                document.getElementById("chanllenge-calculator-group-edit-btn").classList.add("hide")
+            }
+
+            //filters = layer.get("additional_data").formdata
+
+            //isCalculatorLayer
+        }
+    })
+
+
+    console.log('wait a minute please !')
 }

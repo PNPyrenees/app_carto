@@ -4,11 +4,25 @@ document.getElementById("btn-chanllenge-calculator").addEventListener("click", e
         // Utilisateur non connecté => on ouvre le modal de connexion
         loginModal.show()
     } else {
-        document.getElementById("chanllenge-calculator-group-edit-btn").classList.toggle("hide")
         event.currentTarget.classList.toggle("btn-active")
 
         // On déclare la couche warning_calculator comme étant en édition
         declareEditionForLayer(warning_calculator_layer)
+
+        //On ajoute la couche dans le layerbar
+        if (event.currentTarget.classList.contains("btn-active")){
+            map.getLayers().forEach(layer => {
+                if (layer.get("isCalculatorLayer") == true ){
+                    // Seulement si elle n'est pas déjà dans le layerbar 
+                    if (layerIsInLayerBar(ol.util.getUid(layer)) == false){
+                        addLayerInLayerBar(layer)
+                    }
+                }
+            })
+        } else {
+            // Ici, l'utilisateur à désactivé le boutton de la calculette des enjeux, on masque alors la toolbar associé
+            document.getElementById("chanllenge-calculator-group-edit-btn").classList.add("hide")
+        }
     }
 })
 
@@ -137,7 +151,7 @@ chanllenge_calculator_execute_button.addEventListener("click", event => {
 }
 
 /**
- * Gestion de l'affichaage de la fenêtre modal d'information sur la calcuette
+ * Gestion de l'affichage de la fenêtre modal d'information sur la calcuette
  */
 document.getElementById("btn-chanllenge-calculator-info").addEventListener("click", event => {
     document.getElementById("chanllenge-calculator-layer-list").innerHTML = ''

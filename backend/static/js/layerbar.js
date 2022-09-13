@@ -9,7 +9,7 @@ let blank_obj = document.createElement('li');
 blank_obj.id = "drag_and_drop_blank"
 
 function dragOver(e) {
-    console.log(e.target.tagName)
+    //console.log(e.target.tagName)
     if (e.target.classList.contains("btn") == false){ // Controunement bug déplacement sur bouton
         if (selected != e.target){
             if (isBefore(selected, e.target)) {
@@ -41,6 +41,11 @@ function dragEnd(e) {
 
     changeLayerOrder()
 
+    layer_name_elements = document.getElementById("layer_list").querySelectorAll(".layer-name")/*.style.pointerEvent = "initial"*/
+    layer_name_elements.forEach(layer_name_element => {
+        layer_name_element.style.pointerEvents = "initial"
+    })
+
     selected = null
 }
 
@@ -50,6 +55,11 @@ function dragStart(e) {
         e.dataTransfer.setData('text/plain', null)
         selected = e.target
         selected.style.opacity = 0.5
+
+        layer_name_elements = document.getElementById("layer_list").querySelectorAll(".layer-name")/*.style.pointerEvent = "initial"*/
+        layer_name_elements.forEach(layer_name_element => {
+            layer_name_element.style.pointerEvents = "none"
+        })
     }
 }
 
@@ -128,4 +138,20 @@ var layerToCSV = function(layer_uid){
             json2csv(features, layer.get("layer_name"))
         }
     })
+}
+
+/**
+ * Contrôle si une couche est déjà dans le layer bar
+ */
+var layerIsInLayerBar = function(layer_uid){
+    let lis = document.getElementById("layer_list").querySelectorAll("li")
+    let res = false 
+    lis.forEach(li => {
+        console.log(li.getAttribute("layer-uid") + " =? " + layer_uid)
+        if (li.getAttribute("layer-uid") == layer_uid){
+            res = true
+        }
+    })
+
+    return res
 }

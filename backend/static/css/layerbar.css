@@ -29,7 +29,8 @@
 }
 
 #layer_list > li > .row > .col-lg-2 > input,
-#layer_list > li > .row > .col-lg-3 > .dropdown * {
+#layer_list > li > .row > .col-lg-3 > .dropdown * ,
+#layer_list > li > .row > .layer-name {
     pointer-events: initial;
 }
 
@@ -142,3 +143,7 @@
     /*background-image: url(../images/svg/accommodation/accommodation_house2.svg);*/
     /*background-size: contain;*/
 /*}*/
+
+.layer-is-selected{
+    background-color: rgba(18,131,220,1)!important;
+}
