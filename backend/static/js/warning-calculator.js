@@ -4,30 +4,50 @@ document.getElementById("btn-chanllenge-calculator").addEventListener("click", e
         // Utilisateur non connecté => on ouvre le modal de connexion
         loginModal.show()
     } else {
-        event.currentTarget.classList.toggle("btn-active")
 
-        // On déclare la couche warning_calculator comme étant en édition
-        declareEditionForLayer(warning_calculator_layer)
+
+        
+        event.currentTarget.classList.toggle("btn-active")
 
         //On ajoute la couche dans le layerbar
         if (event.currentTarget.classList.contains("btn-active")){
             map.getLayers().forEach(layer => {
-                if (layer.get("isCalculatorLayer") == true ){
+                //if (layer.get("isCalculatorLayer") == true )
+                if (layer.get("layerType") == "warningCalculatorLayer") {
                     // Seulement si elle n'est pas déjà dans le layerbar 
                     if (layerIsInLayerBar(ol.util.getUid(layer)) == false){
                         addLayerInLayerBar(layer)
+                    } else {
+                        /* Ici, on simule un clck sur la couche associé à la calculette des enjeux pour l'activer dans le layerBar */
+                        let lis = document.getElementById("layer_list").querySelectorAll("li")
+                        let res = false 
+                        lis.forEach(li => {
+                            if (li.getAttribute("layer-uid") == ol.util.getUid(layer)){
+                                li.querySelector(".layer-name").click()
+                            }
+                        })
                     }
                 }
             })
-        } else {
+
+            // On déclare la couche warning_calculator comme étant en édition
+            //editionLayerManagement(warning_calculator_layer)
+        } /*else {
             // Ici, l'utilisateur à désactivé le boutton de la calculette des enjeux, on masque alors la toolbar associé
             document.getElementById("chanllenge-calculator-group-edit-btn").classList.add("hide")
-        }
+            // On déclare la couche warning_calculator comme étant en édition
+            //editionLayerManagement(warning_calculator_layer)
+            
+        }*/
+
+        // On déclare la couche warning_calculator comme étant en édition
+        editionLayerManagement(warning_calculator_layer)
+        //toolbarShowManagement(ol.util.getUid(warning_calculator_layer))
     }
 })
 
 /**
- * Activation de l'édition carto
+ * Activation de l'édition carto sur la couche associée à la calculette des enjeux
  */
 document.getElementById("btn-chanllenge-calculator-edit-feature").addEventListener("click", event => {
     // Si l'édition drawing est en cours alors on désactive les intéraction
@@ -35,8 +55,9 @@ document.getElementById("btn-chanllenge-calculator-edit-feature").addEventListen
         // Ici, on veut desactiver l'édition
         disableLayerDrawing()
     } else {
-        // Ici, on veut activer l'édition
+        // Ici, on veut activer l'édition et la modification
         enableLayerDrawing(warning_calculator_layer, "Polygon")
+        enableLayerModify(warning_calculator_layer)
 
         // S'il est activé, on désactive le bouton de suppression
         document.getElementById("btn-chanllenge-calculator-remove-feature").classList.remove("btn-active")

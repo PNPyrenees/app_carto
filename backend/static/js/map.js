@@ -229,13 +229,13 @@ const getDefaultStyle = function(){
             'LineString': new ol.style.Style({
                 stroke: new ol.style.Stroke({
                     color: stroke_color,
-                    width: 2,
+                    width: 5,
                 }),
             }),
             'MultiLineString': new ol.style.Style({
                 stroke: new ol.style.Stroke({
                     color: stroke_color,
-                    width: 2,
+                    width: 5,
                 }),
             }),
             'MultiPoint': new ol.style.Style({
@@ -720,7 +720,6 @@ var addLayerInLayerBar = function(vectorLayer){
     prototype = prototype.replace(/__LAYER_NAME__/g, layer_name)
 
     // On active la fontion dédition si la couche est éditable
-    console.log(vectorLayer.get('isEditable'))
     if (vectorLayer.get('isEditable') == true){
         prototype = prototype.replace(/__EDIT_IS_DISABLED__/g, '')
     } else {
@@ -742,7 +741,6 @@ var addLayerInLayerBar = function(vectorLayer){
         });
     })
 
-    console.log(template.content.querySelector(".layer-name"))
     template.content.querySelector(".layer-name").addEventListener("click", event =>{
         // Récupération de l'uid de la couche cliqué
         let layer_uid = event.target.closest("li").getAttribute("layer-uid")
@@ -1019,8 +1017,9 @@ removeLayer = function(layer_uid){
 
     // puis on la supprime
     if (layer){
-        //Cas particulier de la couche warning qui ne doit pas être supprimer
-        if (layer.get("isCalculatorLayer") == true){
+        //Cas particulier de la couche warning qui ne doit pas être supprimé
+        //if (layer.get("isCalculatorLayer") == true){
+        if (layer.get("layerType") == "warningCalculatorLayer") {
             // On rend invisible la couche
             layer.setVisible(false)
             // Et on supprime les objets qu'elle contient
@@ -1519,23 +1518,42 @@ var singleClickForFeatureInfo = function(event){
 var singleClickForRemovingFeature = function(event){
 
     map.forEachFeatureAtPixel(event.pixel, function(feature, layer) {
-        if (layer.get("isEditing") == true){
-            layer.getSource().removeFeature(feature)
+        //On récupère l'uid de la couche active en édition
+        document.getElementById("layer_list").querySelectorAll('li').forEach(li => {
+            if (li.classList.contains("layer-is-selected")){
+                layer_uid = li.getAttribute("layer-uid")
+            
+        
+                // On sassure s'être sur la couche active en édition
+                if(ol.util.getUid(layer) == layer_uid){
+                    // On s'assure d'être sur une couche en édition            
+                    if (layer.get("isEditing") == true){
 
-            // On controle s'il reste des feature dans la couche
-            if (layer.getSource().getFeatures().length == 0){
-                // Auquel cas, on désactive les bouton de suppression 
-                document.getElementById("btn-chanllenge-calculator-remove-feature").classList.add("disabled")
-                // et d'éxécution du calcul
-                document.getElementById("btn-chanllenge-calculator-execute").classList.add("disabled")
+                        
+                        layer.getSource().removeFeature(feature)
 
-                // On change la fonction à éxécuter lors d'un clic sur la carte
-                map.un('singleclick', singleClickForRemovingFeature)
-                map.on('singleclick', singleClickForFeatureInfo)
+                        // On controle s'il reste des feature dans la couche
+                        if (layer.getSource().getFeatures().length == 0){
+                            if(layer.get("layerType") == "warningCalculatorLayer"){
+                                // Auquel cas, on désactive les bouton de suppression 
+                                document.getElementById("btn-chanllenge-calculator-remove-feature").classList.add("disabled")
+                                // et d'éxécution du calcul
+                                document.getElementById("btn-chanllenge-calculator-execute").classList.add("disabled")
+                            }
+
+                            if(layer.get("layerType") == "drawingLayer"){
+                                // Auquel cas, on désactive les bouton de suppression 
+                                document.getElementById("btn-drawing-layer-remove-feature").classList.add("disabled")
+                            }
+
+                            // On change la fonction à éxécuter lors d'un clic sur la carte
+                            map.un('singleclick', singleClickForRemovingFeature)
+                            map.on('singleclick', singleClickForFeatureInfo)
+                        }
+                    }
+                }
             }
-
-        }
-
+        })
     })
 
     
@@ -1645,21 +1663,25 @@ map.addLayer(warning_calculator_layer)
 /**
  * Fonction permettant de déclarer l'édition sur une couche
  */
-declareEditionForLayer = function (layer){
-    if (layer.get("isEditing")){
-        /**
-         * TODO avoir une moulinette ui contrôle si des 
-         * objets des autres couches n'ont pas été sauvegardé
-        */
-        layer.set("isEditing", false)
-    } else {
-        // On désactive l'édition sur toutes les couches (PAS FORCEMENT !!)
-        map.getLayers().forEach(tmp_layer => {
-            tmp_layer.set("isEditing", false)
-        })
-        // On déclare l'édition sur la couche layer
-        layer.set("isEditing", true)
-    }
+ editionLayerManagement = function (layer){
+    let lis = document.getElementById("layer_list").querySelectorAll("li")
+
+    lis.forEach(li => {
+        if (li.getAttribute("layer-uid") == ol.util.getUid(layer)){
+
+            if (layer.get("isEditing")){
+                layer.set("isEditing", false)
+                li.querySelector(".layer-edition-menu-item").innerHTML = "Editer"
+                li.querySelector('.layer-name').style.fontStyle = 'normal'
+            } else {
+                layer.set("isEditing", true)
+                li.querySelector(".layer-edition-menu-item").innerHTML = "Arréter l'édition"
+                li.querySelector('.layer-name').style.fontStyle = 'italic'
+            }
+        }
+    })
+
+    numerisationToolbarShowManagement(ol.util.getUid(layer))
 }
 /**
  * Activation de l'édition de la couche
@@ -1675,48 +1697,64 @@ var enableLayerDrawing = function(layer, geomType){
     source = layer.getSource()
 
     // Création des intéraction pour la source
-    draw_interaction = new ol.interaction.Draw({
+    var draw_interaction = new ol.interaction.Draw({
         source: source,
         type: geomType,
     })
 
     // Gestion du drawEnd
     draw_interaction.on('drawend', function(evt){
-        //if (layer.get("layer_name") == "calculator_layer"){
-        if (layer.get("isCalculatorLayer")){
+        if (layer.get("layerType") == "warningCalculatorLayer"){
             // Ici, on est sur la couche de numérisation pour la calculette des enjeux
             // Activation des boutons de suppression d'un feature
             document.getElementById("btn-chanllenge-calculator-remove-feature").classList.remove("disabled")
+
             // Activation du bouton de lancement du calcul
             document.getElementById("btn-chanllenge-calculator-execute").classList.remove("disabled")
 
-            // On affiche la couche dans la alégende si ce n'est pas déjà le cas
-            /*if (! layerIsInLegend(ol.util.getUid(warning_calculator_layer))){
-                addLayerInLayerBar(warning_calculator_layer)
-            }*/
             // On s'assure que la couche est visible
             warning_calculator_layer.setVisible(true)
+
             // ainsi que le checkbox associé dans le layerBar est coché
-            //document.getElementById("layer_list").querySelector("li[layer-uid='"+ ol.util.getUid(warning_calculator_layer) +"']").querySelector("input[type='checkbox']").checked = true
             document.querySelector("li[layer-uid='"+ ol.util.getUid(warning_calculator_layer) +"'] input[type='checkbox']").checked = true
         }
+
+        if (layer.get("layerType") == "drawingLayer"){
+            document.getElementById("btn-drawing-layer-remove-feature").classList.remove("disabled")
+        }
     })
+    
+    // Ajout des intéractions à la carte
+    draw_interaction.setActive(true)
+    map.addInteraction(draw_interaction)
+}
+
+/**
+ * Activation de l'accrochage des points
+ */
+var enableLayerSnapping = function(layer){
+    // Récupérationde la source
+    source = layer.getSource()
     
     snap_interaction = new ol.interaction.Snap({
         source: source,
     })
-    
+
+    map.addInteraction(snap_interaction)
+}
+
+/**
+ * Activation de la modification des objets
+ */
+var enableLayerModify = function(layer){
+    // Récupérationde la source
+    source = layer.getSource()
+
     modify_interaction = new ol.interaction.Modify({
         source: source
     })
 
-    // Ajout des intéractions à la carte
-    draw_interaction.setActive(true)
-    map.addInteraction(draw_interaction)
-    map.addInteraction(snap_interaction)
     map.addInteraction(modify_interaction)
-
-    //layer.set("isEditing", true)
 }
 
 /**
@@ -1726,14 +1764,27 @@ var enableLayerDrawing = function(layer, geomType){
     // On réactive l'interaction singleclick
     map.on('singleclick', singleClickForFeatureInfo)
 
+    // On désactive les intéraction typ par type 
+    // Pour contourner un bug avec l'interaction snap
+
+    // on commence par les "Snap"
     map.getInteractions().forEach(interaction => {
-        if (interaction instanceof ol.interaction.Draw){
-            map.removeInteraction(interaction)
-        }
         if (interaction instanceof ol.interaction.Snap){
             map.removeInteraction(interaction)
         }
+    })
+
+    //Puis les "Modify"
+    map.getInteractions().forEach(interaction => {
         if (interaction instanceof ol.interaction.Modify){
+            map.removeInteraction(interaction)
+        }
+    })
+
+    // Et enfin les "Draw"
+    map.getInteractions().forEach(interaction => {
+        //console.log(interaction)
+        if (interaction instanceof ol.interaction.Draw){
             map.removeInteraction(interaction)
         }
     })
@@ -1965,7 +2016,7 @@ var drawing_layer_array = []
 var build_drawing_layer_style = function(){
     // Création des couleurs aléatoires
     let fill_color = random_rgba(0.5)
-    let stroke_color = random_rgba(1)
+    //let stroke_color = random_rgba(1)
 
     layer_default_style = []
  
@@ -1984,8 +2035,8 @@ var build_drawing_layer_style = function(){
     tmp_line_style = {
         "style_type": "Line",
         "styles": [{
-            "stroke_color": stroke_color,
-            "stroke_width": 1,
+            "stroke_color": fill_color,
+            "stroke_width": 5,
             "stroke_linedash": [],
             "filter" : null
         }]
@@ -2052,53 +2103,203 @@ var addDrawingLayerOnMap = function(layer_name){
 
     addLayerInLayerBar(vectorLayer)
     
-    alert("En cours de dev !")
+    // On active automatiquement l'édition
+    layer_uid = ol.util.getUid(vectorLayer)
+    document.getElementById("layer_list").querySelectorAll("li").forEach(li => {
+        if (li.getAttribute("layer-uid") == layer_uid){
+            li.querySelector(".layer-edition-menu-item").click()
+        }
+    })
+    
 }
 
-
-var enableLayerEdition = function(event){
+/**
+ * Activation de l'édition
+ */
+var enableLayerEdition = function(event, layer_uid){
     
     if (event.currentTarget.classList.contains("disabled")){
         return
     }
 
-    alert("here start editing !")
+    map.getLayers().forEach(layer => {
+        if (ol.util.getUid(layer) == layer_uid){            
+            editionLayerManagement(layer)
+            // On force la sélection de la couche lorsqu'on active ou désactive l'édtion sur une couche
+            setSelectedLayerInLayerbar(ol.util.getUid(layer))
+        }
+    })
 }
 
+/**
+ * Gestion de la mise en forme la liste de couche en fonction
+ * de la couche selectionnée (changement de la couleur de fond du li)
+ */
 var setSelectedLayerInLayerbar = function(layer_uid){
-    let lis = document.getElementById("layer_list").querySelectorAll('li')
-    lis.forEach(li => {
+    document.getElementById("layer_list").querySelectorAll('li').forEach(li => {
         if (li.getAttribute("layer-uid") == layer_uid){
             li.classList.add('layer-is-selected')
         } else {
             li.classList.remove('layer-is-selected')
         }
     })
-
-    toolbarShowManagement(layer_uid)
+    // En fonction de la couche selectionné, il faut afficher 
+    // ou non la boite d'édition associé
+    numerisationToolbarShowManagement(layer_uid)
 }
 
-var toolbarShowManagement = function(layer_uid){
+/**
+ * Fonction assurant l'affichage de la bonne boite de 
+ * bouton d'édition en fonction de la couche sélectionnée
+ */
+var numerisationToolbarShowManagement = function(layer_uid){
+
+    // On désactive les intractions (= draw)
+    disableLayerDrawing()
+    // Dans tous les cas on désactive si le bouton d'édition de la couche de calcul d'enjeux
+    document.getElementById("btn-chanllenge-calculator-edit-feature").classList.remove("btn-active")
+    document.getElementById("btn-chanllenge-calculator-remove-feature").classList.remove("btn-active")
+    // Ainsi que les bouton de la couche dessin
+    document.querySelectorAll(".btn-drawing-layer-addfeature").forEach(tmp_button => {
+        tmp_button.classList.remove("btn-active")
+    })
+    document.getElementById("btn-drawing-layer-remove-feature").classList.remove("btn-active")
+
+    // On desactive l'action de suppression sur un clic
+    map.on('singleclick', singleClickForFeatureInfo)
+    map.un('singleclick', singleClickForRemovingFeature)
+
     
+        
+        
     map.getLayers().forEach(layer => {
         if (ol.util.getUid(layer) == layer_uid){
-            // si l couche sélectionné est celle d'édition pour la calculette des enjeux
-            // on affiche la boite à outil associé
-            if (layer.get("isCalculatorLayer") == true ){
-                // Si le bouton de la calculette des enjeux est actif
-                if (document.getElementById("btn-chanllenge-calculator").classList.contains("btn-active")){
-                    document.getElementById("chanllenge-calculator-group-edit-btn").classList.remove("hide")
-                }
+            //On laisse activable ou non le bouton de suppression
+            if (layer.getSource().getFeatures().length == 0){
+                document.getElementById("btn-drawing-layer-remove-feature").classList.add("disabled")
             } else {
-                document.getElementById("chanllenge-calculator-group-edit-btn").classList.add("hide")
+                document.getElementById("btn-drawing-layer-remove-feature").classList.remove("disabled")
             }
 
-            //filters = layer.get("additional_data").formdata
 
-            //isCalculatorLayer
+            // si la couche sélectionnée est celle d'édition pour la calculette des enjeux
+            // on affiche la boite à outils associée
+            switch (layer.get("layerType")){
+                case "warningCalculatorLayer":
+                    // on masque les bouton d'édition si ce ne sont pas ceux de la couche de calcul d'enjeux qui est actif
+                    selected_layer_uid = document.getElementById("layer_list").querySelector(".layer-is-selected").getAttribute("layer-uid")
+                    if (selected_layer_uid == ol.util.getUid(layer)){
+                        document.getElementById("drawing-layer-group-edit-btn").classList.add("hide")
+                        document.getElementById("drawing-layer-group-edit-btn").removeAttribute("layer_uid")
+                    }
+
+                    //document.getElementById("drawing-layer-group-edit-btn").classList.add("hide")
+                    
+                    // Si l'édition est active sur la couche
+                    if (layer.get("isEditing")){
+                        //On desactive
+                        document.getElementById("chanllenge-calculator-group-edit-btn").classList.remove("hide")
+                        document.getElementById("btn-chanllenge-calculator").classList.add("btn-active")
+
+        
+                    } else {
+                        // On active
+                        document.getElementById("chanllenge-calculator-group-edit-btn").classList.add("hide")
+                        document.getElementById("btn-chanllenge-calculator").classList.remove("btn-active")
+                    }
+
+                    break
+                case "drawingLayer":
+                    // Dans tous les cas, on masque les bouton d'édition pour la couche de la calculette des enjeux
+                    document.getElementById("chanllenge-calculator-group-edit-btn").classList.add("hide")
+
+                    // Si l'édition est activé sur la couche
+                    if (layer.get("isEditing") == true){
+                        document.getElementById("drawing-layer-group-edit-btn").classList.remove("hide")
+                        // On affecte l'identifiant de la couche à la boite de bouton
+                        document.getElementById("drawing-layer-group-edit-btn").setAttribute("layer_uid", ol.util.getUid(layer))
+                    } else {
+                        document.getElementById("drawing-layer-group-edit-btn").classList.add("hide")
+                        document.getElementById("drawing-layer-group-edit-btn").removeAttribute("layer_uid")
+                    }
+                    break
+                default:
+                    document.getElementById("chanllenge-calculator-group-edit-btn").classList.add("hide")
+                    document.getElementById("drawing-layer-group-edit-btn").classList.add("hide")
+                    document.getElementById("drawing-layer-group-edit-btn").removeAttribute("layer_uid")
+            }
         }
     })
-
-
-    console.log('wait a minute please !')
 }
+
+// Ecouteur sur le bouton associé aux différents types d'objets (poin/ligne/polygon...)
+const addfeature_buttons = document.querySelectorAll(".btn-drawing-layer-addfeature")
+addfeature_buttons.forEach(addfeature_button => {
+    addfeature_button.addEventListener('click', function(event){
+        button = event.currentTarget
+        
+        if (button.classList.contains("btn-active")){
+            button.classList.remove("btn-active")
+            disableLayerDrawing()
+        } else {
+
+
+            // Gestion du highligt du bouton cliqué
+            document.querySelectorAll(".btn-drawing-layer-addfeature").forEach(tmp_button => {
+                tmp_button.classList.remove("btn-active")
+            })
+            document.getElementById("btn-drawing-layer-remove-feature").classList.remove("btn-active")
+            button.classList.add("btn-active")
+
+            // Récupération du type de geométrie demandé
+            geom_type = button.getAttribute("geom-type")
+            console.log(geom_type)
+            // Récupération de l'uid de la couche d'édition
+            layer_uid = button.closest("#drawing-layer-group-edit-btn").getAttribute("layer_uid")
+            
+            map.getLayers().forEach(layer => {
+                if (ol.util.getUid(layer) == layer_uid){
+                    enableLayerDrawing(layer, geom_type)
+                    enableLayerSnapping(layer)
+                }
+            })
+        }
+    })
+})
+
+/*document.getElementById("btn-drawing-layer-previous").addEventListener("click", function(){
+    map.getInteractions().forEach(interaction => {
+        if (interaction instanceof ol.interaction.Draw){
+            interaction.removeLastPoint()
+        }
+    })
+})*/
+
+
+/**
+ * Gestion du clique sur le bouton de suppression d'un feature d'une couche drawingLayer
+ */
+ document.getElementById("btn-drawing-layer-remove-feature").addEventListener("click", event => {
+    // Si le bouton est déjà actif, on le désactive
+    if (event.currentTarget.classList.contains("btn-active")){
+        // On désactive le select pour la suppression en 
+        // remettant la fonction d'interrogation des données
+        map.on('singleclick', singleClickForFeatureInfo)
+        map.un('singleclick', singleClickForRemovingFeature)
+
+    } else {
+        // On désactive l'édition
+        disableLayerDrawing()
+        document.querySelectorAll(".btn-drawing-layer-addfeature").forEach(tmp_button => {
+            tmp_button.classList.remove("btn-active")
+        })
+
+        // On change la fonction à éxécuter lors d'un clic sur la carte
+        map.un('singleclick', singleClickForFeatureInfo)
+        map.on('singleclick', singleClickForRemovingFeature)
+    }
+
+    event.currentTarget.classList.toggle("btn-active")
+
+    //removeSelectedFeaturesInLayer(warning_calculator_layer)
+})

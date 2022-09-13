@@ -172,6 +172,118 @@
                 </button>
             </div>
 
+            
+
+
+            <!-- Bouton d'édition pour la couche de dessin-->
+            <div id="drawing-layer-group-edit-btn" class="edit-layer-btn-group hide">
+                <button 
+                    id="btn-drawing-layer-previous" 
+                    type="button" 
+                    class="btn btn-primary check-auth" 
+                    toggle-tooltip="tooltip" 
+                    data-bs-placement="bottom" 
+                    data-bs-trigger="hover" 
+                    title="Annuler"
+                    geom-type="Polygon"
+                >
+                    <i id="icon-drawing-layer-edit-feature" class="bi bi-arrow-90deg-left"></i>
+                </button>
+
+                <button 
+                    id="btn-drawing-layer-add-polygon" 
+                    type="button" 
+                    class="btn btn-primary check-auth btn-drawing-layer-addfeature" 
+                    toggle-tooltip="tooltip" 
+                    data-bs-placement="bottom" 
+                    data-bs-trigger="hover" 
+                    title="Ajouter un polygone"
+                    geom-type="Polygon"
+                >
+                    <i id="icon-drawing-layer-edit-feature" class="bi bi-hexagon"></i>
+                </button>
+
+                <button 
+                    id="btn-drawing-layer-add-linestring" 
+                    type="button" 
+                    class="btn btn-primary check-auth btn-drawing-layer-addfeature" 
+                    toggle-tooltip="tooltip" 
+                    data-bs-placement="bottom" 
+                    data-bs-trigger="hover" 
+                    title="Ajouter une ligne"
+                    geom-type="LineString"
+                >
+                    <i id="icon-drawing-layer-edit-feature" class="bi bi-slash-lg"></i>
+                </button>
+
+                <button 
+                    id="btn-drawing-layer-add-point" 
+                    type="button" 
+                    class="btn btn-primary check-auth btn-drawing-layer-addfeature" 
+                    toggle-tooltip="tooltip" 
+                    data-bs-placement="bottom" 
+                    data-bs-trigger="hover" 
+                    title="Ajouter une point"
+                    geom-type="Point"
+                >
+                    <i id="icon-drawing-layer-edit-feature" class="bi bi-dot"></i>
+                </button>
+
+                <!--<button 
+                    id="btn-drawing-layer-add-circle" 
+                    type="button" 
+                    class="btn btn-primary check-auth btn-drawing-layer-addfeature" 
+                    toggle-tooltip="tooltip" 
+                    data-bs-placement="bottom" 
+                    data-bs-trigger="hover" 
+                    title="Ajouter un cercle"
+                    geom-type="Circle"
+                >
+                    <i id="icon-drawing-layer-edit-feature" class="bi bi-circle"></i>
+                </button>
+
+                <button 
+                    id="btn-drawing-layer-add-box" 
+                    type="button" 
+                    class="btn btn-primary check-auth btn-drawing-layer-addfeature" 
+                    toggle-tooltip="tooltip" 
+                    data-bs-placement="bottom" 
+                    data-bs-trigger="hover" 
+                    title="Ajouter un rectangle"
+                    geom-type="Box"
+                >
+                    <i id="icon-drawing-layer-edit-feature" class="bi bi-square"></i>
+                </button>-->
+
+                <button 
+                    id="btn-drawing-layer-remove-feature" 
+                    type="button" 
+                    class="btn btn-primary check-auth disabled" 
+                    toggle-tooltip="tooltip" 
+                    data-bs-placement="bottom" 
+                    data-bs-trigger="hover" 
+                    title="Supprimer un objet"
+                >
+                    <i id="icon-drawing-remove-feature" class="bi bi-trash"></i>
+                </button>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         </div>
     </div>
 

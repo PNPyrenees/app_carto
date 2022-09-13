@@ -147,7 +147,7 @@ var layerIsInLayerBar = function(layer_uid){
     let lis = document.getElementById("layer_list").querySelectorAll("li")
     let res = false 
     lis.forEach(li => {
-        console.log(li.getAttribute("layer-uid") + " =? " + layer_uid)
+        //console.log(li.getAttribute("layer-uid") + " =? " + layer_uid)
         if (li.getAttribute("layer-uid") == layer_uid){
             res = true
         }
