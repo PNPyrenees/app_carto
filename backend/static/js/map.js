@@ -188,9 +188,15 @@ showBasemap = function(layer_uid){
 /**
  * Retourne une couleur aléatoire en rgba
  */
-var random_rgba = function (opacity) {
-    var o = Math.round, r = Math.random, s = 255;
-    return 'rgba(' + o(r()*s) + ',' + o(r()*s) + ',' + o(r()*s) + ',' + opacity + ')';
+var random_color = function (opacity) {
+    var o = Math.round, r = Math.random, s = 255
+    let red = o(r()*s)
+    let green = o(r()*s)
+    let blue = o(r()*s)
+    let color_rgba = 'rgba(' + red + ',' + green + ',' + blue + ',' + opacity + ')'
+    let color_rgb = 'rgb(' + red + ',' + green + ',' + blue + ')'
+    //return 'rgba(' + o(r()*s) + ',' + o(r()*s) + ',' + o(r()*s) + ',' + opacity + ')'
+    return {color_rgba, color_rgb}
 }
 
 /**
@@ -199,8 +205,8 @@ var random_rgba = function (opacity) {
 const getDefaultStyle = function(){
 
     // Création des couleurs aléatoires
-    let fill_color = random_rgba(0.5)
-    let stroke_color = random_rgba(1)
+    let {color_rgba, color_rgb} = random_color(0.5)
+    //let stroke_color = random_rgba(1)
 
     return function (feature, resolution) {  
         
@@ -215,20 +221,20 @@ const getDefaultStyle = function(){
                     radius: 5,
                     fill: null,
                     stroke: new ol.style.Stroke({
-                        color: stroke_color,
+                        color: color_rgb,
                         width: 2
                     }),
                 })
             }),
             'LineString': new ol.style.Style({
                 stroke: new ol.style.Stroke({
-                    color: stroke_color,
+                    color: color_rgb,
                     width: 5,
                 }),
             }),
             'MultiLineString': new ol.style.Style({
                 stroke: new ol.style.Stroke({
-                    color: stroke_color,
+                    color: color_rgb,
                     width: 5,
                 }),
             }),
@@ -237,7 +243,7 @@ const getDefaultStyle = function(){
                     radius: 5,
                     fill: null,
                     stroke: new ol.style.Stroke({
-                        color: stroke_color,
+                        color: color_rgb,
                         width: 2
                     }),
                 })
@@ -248,7 +254,7 @@ const getDefaultStyle = function(){
                     width: 1,
                 }),
                 fill: new ol.style.Fill({
-                    color: fill_color,
+                    color: color_rgba,
                 }),
             }),
             'Polygon': new ol.style.Style({
@@ -258,7 +264,7 @@ const getDefaultStyle = function(){
                     width: 1,
                 }),
                 fill: new ol.style.Fill({
-                    color: fill_color,
+                    color: color_rgba,
                 }),
             }),
             'GeometryCollection': new ol.style.Style({
@@ -267,13 +273,13 @@ const getDefaultStyle = function(){
                     width: 2,
                 }),
                 fill: new ol.style.Fill({
-                    color: fill_color,
+                    color: color_rgba,
                 }),
                 image: new ol.style.Circle({
                     radius: 10,
                     fill: null,
                     stroke: new ol.style.Stroke({
-                        color: fill_color,
+                        color: color_rgba,
                     }),
                 }),
             }),
@@ -283,7 +289,7 @@ const getDefaultStyle = function(){
                     width: 2,
                 }),
                 fill: new ol.style.Fill({
-                    color: fill_color,
+                    color: color_rgba,
                 }),
             }),
         }
@@ -698,8 +704,8 @@ var addGeojsonLayer = function(data, additional_data = null){
     // Création d'un stryle json par défaut s'il n'y en a pas déjà un
     if (! layer_default_style){
         // Création des couleurs aléatoires
-        let fill_color = random_rgba(0.5)
-        let stroke_color = random_rgba(1)
+        let {color_rgba, color_rgb} = random_color(0.5)
+        //let stroke_color = random_rgba(1)
 
         // On récupère analyse les feature our connaitre les différentes géométrye
         var has_polygon = false
@@ -724,7 +730,7 @@ var addGeojsonLayer = function(data, additional_data = null){
             tmp_style = {
                 "style_type": "Polygon",
                 "styles": [{
-                    "fill_color": fill_color,
+                    "fill_color": color_rgba,
                     "stroke_color": "rgba(0,0,0,1)",
                     "stroke_width": 1,
                     "stroke_linedash": [],
@@ -737,8 +743,8 @@ var addGeojsonLayer = function(data, additional_data = null){
             tmp_style = {
                 "style_type": "Line",
                 "styles": [{
-                    "stroke_color": stroke_color,
-                    "stroke_width": 1,
+                    "stroke_color": color_rgb,
+                    "stroke_width": 5,
                     "stroke_linedash": [],
                     "filter" : null
                 }]
@@ -749,7 +755,7 @@ var addGeojsonLayer = function(data, additional_data = null){
             tmp_style = {
                 "style_type": "Point",
                 "styles": [{
-                    "fill_color": fill_color,
+                    "fill_color": color_rgba,
                     "stroke_color": "rgba(0,0,0,1)",
                     "stroke_width": 1,
                     "stroke_linedash": [],
@@ -2179,15 +2185,18 @@ document.addEventListener('keydown', function (e) {
  */
 var build_drawing_layer_style = function(){
     // Création des couleurs aléatoires
-    let fill_color = random_rgba(0.5)
+    let {color_rgba, color_rgb}  = random_color(0.5)
     //let stroke_color = random_rgba(1)
+
+    console.log("color_rgba : " + color_rgba)
+    console.log("color_rgb : " + color_rgb)
 
     layer_default_style = []
  
     let tmp_polygon_style = {
         "style_type": "Polygon",
         "styles": [{
-            "fill_color": fill_color,
+            "fill_color": color_rgba,
             "stroke_color": "rgba(0,0,0,1)",
             "stroke_width": 1,
             "stroke_linedash": [],
@@ -2199,7 +2208,7 @@ var build_drawing_layer_style = function(){
     tmp_line_style = {
         "style_type": "Line",
         "styles": [{
-            "stroke_color": fill_color,
+            "stroke_color": color_rgb,
             "stroke_width": 5,
             "stroke_linedash": [],
             "filter" : null
@@ -2210,7 +2219,7 @@ var build_drawing_layer_style = function(){
     tmp_point_style = {
         "style_type": "Point",
         "styles": [{
-            "fill_color": fill_color,
+            "fill_color": color_rgba,
             "stroke_color": "rgba(0,0,0,1)",
             "stroke_width": 1,
             "stroke_linedash": [],
