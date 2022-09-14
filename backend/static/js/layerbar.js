@@ -9,7 +9,6 @@ let blank_obj = document.createElement('li');
 blank_obj.id = "drag_and_drop_blank"
 
 function dragOver(e) {
-    //console.log(e.target.tagName)
     if (e.target.classList.contains("btn") == false){ // Controunement bug déplacement sur bouton
         if (selected != e.target){
             if (isBefore(selected, e.target)) {
@@ -147,7 +146,6 @@ var layerIsInLayerBar = function(layer_uid){
     let lis = document.getElementById("layer_list").querySelectorAll("li")
     let res = false 
     lis.forEach(li => {
-        //console.log(li.getAttribute("layer-uid") + " =? " + layer_uid)
         if (li.getAttribute("layer-uid") == layer_uid){
             res = true
         }

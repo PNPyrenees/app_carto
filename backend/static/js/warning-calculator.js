@@ -5,36 +5,41 @@ document.getElementById("btn-chanllenge-calculator").addEventListener("click", e
         loginModal.show()
     } else {
 
-
-        
-        event.currentTarget.classList.toggle("btn-active")
-
-        //On ajoute la couche dans le layerbar
+        // On active ou non le bouton en fonction de son état actuel
         if (event.currentTarget.classList.contains("btn-active")){
-            map.getLayers().forEach(layer => {
-                //if (layer.get("isCalculatorLayer") == true )
-                if (layer.get("layerType") == "warningCalculatorLayer") {
-                    // Seulement si elle n'est pas déjà dans le layerbar 
-                    if (layerIsInLayerBar(ol.util.getUid(layer)) == false){
-                        addLayerInLayerBar(layer)
-                    } else {
-                        /* Ici, on simule un clck sur la couche associé à la calculette des enjeux pour l'activer dans le layerBar */
-                        let lis = document.getElementById("layer_list").querySelectorAll("li")
-                        let res = false 
-                        lis.forEach(li => {
-                            if (li.getAttribute("layer-uid") == ol.util.getUid(layer)){
-                                li.querySelector(".layer-name").click()
-                            }
-                        })
-                    }
-                }
-            })
+            event.currentTarget.classList.remove("btn-active")
+        } else {
+            event.currentTarget.classList.add("btn-active")
 
-            // On déclare la couche warning_calculator comme étant en édition
-            //editionLayerManagement(warning_calculator_layer)
-        } /*else {
+            //On ajoute la couche dans le layerbar
+            //if (event.currentTarget.classList.contains("btn-active")){
+                map.getLayers().forEach(layer => {
+                    //if (layer.get("isCalculatorLayer") == true )
+                    if (layer.get("layerType") == "warningCalculatorLayer") {
+                        // Seulement si elle n'est pas déjà dans le layerbar 
+                        if (layerIsInLayerBar(ol.util.getUid(layer)) == false){
+                            addLayerInLayerBar(layer)
+                        } else {
+                            /* Ici, on simule un clic sur la couche associée à la calculette des enjeux pour l'activer dans le layerBar */
+                            let lis = document.getElementById("layer_list").querySelectorAll("li")
+                            let res = false 
+                            lis.forEach(li => {
+                                if (li.getAttribute("layer-uid") == ol.util.getUid(layer)){
+                                    li.querySelector(".layer-name").click()
+                                }
+                            })
+                        }
+                    }
+                })
+
+                // On déclare la couche warning_calculator comme étant en édition
+                //editionLayerManagement(warning_calculator_layer)
+            //} 
+        }
+        /*else {
+            event.currentTarget.classList.remove("btn-active")
             // Ici, l'utilisateur à désactivé le boutton de la calculette des enjeux, on masque alors la toolbar associé
-            document.getElementById("chanllenge-calculator-group-edit-btn").classList.add("hide")
+            //document.getElementById("chanllenge-calculator-group-edit-btn").classList.add("hide")
             // On déclare la couche warning_calculator comme étant en édition
             //editionLayerManagement(warning_calculator_layer)
             
@@ -101,7 +106,6 @@ chanllenge_calculator_execute_button.addEventListener("click", event => {
     var writer = new ol.format.GeoJSON();
     var geojson_txt = writer.writeFeatures(warning_calculator_source.getFeatures())
 
-    //console.log(geojson_txt)
     getWarningCalculatorData(geojson_txt)
 })
 
@@ -151,15 +155,12 @@ chanllenge_calculator_execute_button.addEventListener("click", event => {
         }
     })
     .then(data => {
-        //console.log(data)
         data.forEach(layer => {
             additional_data = {"formdata": "",}
             addGeojsonLayer(layer, additional_data)   
         });
     })
     .catch(error => {
-
-        //console.log(error)
         if (typeof error == "string") {
             apiCallErrorCatcher(error, error)
         } else {
@@ -179,7 +180,6 @@ document.getElementById("btn-chanllenge-calculator-info").addEventListener("clic
     // Récupération de la liste des couches à enjeux et des statuts utilisé
     getWarningCalculatorLayers().then(result => {
         result.layers.forEach(layer => {
-            //console.log(layer)
             let li = document.createElement("li")
             li.innerHTML = layer.layer_label
             document.getElementById("chanllenge-calculator-layer-list").appendChild(li)
@@ -191,7 +191,6 @@ document.getElementById("btn-chanllenge-calculator-info").addEventListener("clic
             li.innerHTML = status.group_status_label + ' (' + status.group_status_description + ')'
             document.getElementById("chanllenge-calculator-status-list").appendChild(li)
         })
-
 
         //Ouverture de la fenêtre modal
         chanllengeCalculatorInfoModal.show()
