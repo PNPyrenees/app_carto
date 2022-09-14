@@ -1913,6 +1913,7 @@ var enableLayerModify = function(layer){
  var disableLayerDrawing = function(){
     // On réactive l'interaction singleclick
     map.on('singleclick', singleClickForFeatureInfo)
+    map.un('singleclick', singleClickForRemovingFeature)
 
     // On désactive les intéraction type par type 
     // Pour contourner un bug avec l'interaction snap
