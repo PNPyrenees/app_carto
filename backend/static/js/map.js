@@ -206,7 +206,6 @@ const getDefaultStyle = function(){
 
     // Création des couleurs aléatoires
     let {color_rgba, color_rgb} = random_color(0.5)
-    //let stroke_color = random_rgba(1)
 
     return function (feature, resolution) {  
         
@@ -705,7 +704,6 @@ var addGeojsonLayer = function(data, additional_data = null){
     if (! layer_default_style){
         // Création des couleurs aléatoires
         let {color_rgba, color_rgb} = random_color(0.5)
-        //let stroke_color = random_rgba(1)
 
         // On récupère analyse les feature our connaitre les différentes géométrye
         var has_polygon = false
@@ -2186,7 +2184,6 @@ document.addEventListener('keydown', function (e) {
 var build_drawing_layer_style = function(){
     // Création des couleurs aléatoires
     let {color_rgba, color_rgb}  = random_color(0.5)
-    //let stroke_color = random_rgba(1)
 
     console.log("color_rgba : " + color_rgba)
     console.log("color_rgb : " + color_rgb)
