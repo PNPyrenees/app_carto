@@ -453,8 +453,19 @@
                     </div>
                 </div>
                 
-                <!-- Panneau d'édition d'une expression -->
-                <div id="expression_editor_panel" class="overflow-auto hide">
+                
+
+            </div>
+            <div id="style_layer_modal_footer" class="modal-footer">
+                <input type="hidden" name="layer-uid">
+                <button id="style-layer-submit" type="submit" class="btn btn-primary">Appliquer le style</button>
+                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Annuler</button>
+                <div id="form-login-error" class="invalid-feedback"></div>
+            </div>
+
+            <!-- Panneau d'édition d'une expression -->
+            <div id="expression_editor_bloc">
+                <div id="expression_editor_panel" class="overflow-auto">
                     <div class="row">
                         <div class="col-lg-6">
                             Liste des champs :
@@ -537,22 +548,11 @@
                         <div class="col-lg-2">
                             <button id="expression_editor_cancel_btn" class="btn btn-warning">Annuler</button>
                         </div>
-                    </div>
-                    <hr>
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <a href="https://www.google.fr">Lien vers la documentation</a>
+                        <div class="col-lg-8 text-end">
+                            <a href="https://www.google.fr" target="_blank">Lien vers la documentation</a>
                         </div>
                     </div>
                 </div>
-
-
-            </div>
-            <div id="style_layer_modal_footer" class="modal-footer">
-                <input type="hidden" name="layer-uid">
-                <button id="style-layer-submit" type="submit" class="btn btn-primary">Appliquer le style</button>
-                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Annuler</button>
-                <div id="form-login-error" class="invalid-feedback"></div>
             </div>
         </div>
     </div>

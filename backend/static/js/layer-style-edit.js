@@ -91,7 +91,7 @@ var styleFormHideAll = function(){
     })
 
     // On masque le fenêtre d'edition d'expression
-    document.getElementById("expression_editor_panel").classList.add("hide")
+    document.getElementById("expression_editor_bloc").classList.add("hide")
     
 }
 
@@ -1339,7 +1339,7 @@ var conditionalStyleEditExpression = function (event, conditionalStyleId){
         document.getElementById("expression_editor_field_list").insertAdjacentHTML('beforeend', prototype)
     })
 
-    document.getElementById("expression_editor_panel").classList.remove("hide")
+    document.getElementById("expression_editor_bloc").classList.remove("hide")
 }
 
 /**
@@ -1418,7 +1418,7 @@ document.getElementById("expression_editor_list_values_btn").addEventListener("c
  * Annulation de l'édition d'une expression
  */
 document.getElementById("expression_editor_cancel_btn").addEventListener("click", event => {
-    document.getElementById("expression_editor_panel").classList.add("hide")
+    document.getElementById("expression_editor_bloc").classList.add("hide")
 })
 
 /**
@@ -1437,5 +1437,5 @@ document.getElementById("expression_editor_valid_btn").addEventListener("click",
     conditionalStyle.querySelector(".conditional_style_" + geomType + "_expression").value = expression
 
     // Fermeture de la fenêtre d'édition de l'expression
-    document.getElementById("expression_editor_panel").classList.add("hide")
+    document.getElementById("expression_editor_bloc").classList.add("hide")
 })

@@ -81,12 +81,21 @@
     background: linear-gradient(to right, #30123b, #455bcd, #3e9bfe, #18d7ca, #18d7ca, #a4fc3c, #e1dd37, #fea431, #ef5811, #c12302, #7a0403);
 }
 
+#expression_editor_bloc{
+    position: absolute;
+    background-color: rgba(0,0,0,0.5);
+    height: 100%;
+    width: 100%;
+    left: 0%;
+    top: 0%;
+}
+
 #expression_editor_panel{
     position: absolute;
-    height: 770px;
+    height: 76vh;
     width: 60%;
     left: 20%;
-    top: 0%;
+    top: 5%;
     border: 5px solid #dee2e6;
     background-color: #ffffff;
     padding: 10px;
@@ -123,4 +132,9 @@
 
 .expression-field-selected{
     background-color: rgba(18,131,220,1) !important;
+}
+
+#style-layer-modal > .modal-dialog > .modal-content >.modal-body {
+    max-height: 80vh;
+    overflow: auto;
 }
