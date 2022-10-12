@@ -79,7 +79,7 @@ function isBefore(el1, el2) {
  * de renseigner le nom de la couche
  */
 var openRenameLayerModal = function(layer_uid){
-    document.getElementById("rename-layer-modal").querySelector("#layer-uid").value = layer_uid
+    document.getElementById("rename-layer-modal").querySelector("input[name='layer-uid']").value = layer_uid
 
     current_layer_name = document.getElementById("layer_list").querySelector("li[layer-uid='" + layer_uid + "'").querySelector(".layer-name").innerHTML
     rename_form.querySelector("#layer-name-input").value = current_layer_name
@@ -100,7 +100,7 @@ rename_form.addEventListener("submit", function (event) {
     } else {
         // on éxécute le renommage de la couche
         let layer_name = rename_form.querySelector("#layer-name-input").value
-        let layer_uid = rename_form.querySelector("#layer-uid").value
+        let layer_uid = rename_form.querySelector("input[name='layer-uid']").value
 
         // On renome la couche côté opelayers
         map.getLayers().forEach(layer => {
@@ -152,4 +152,24 @@ var layerIsInLayerBar = function(layer_uid){
     })
 
     return res
+}
+
+/**
+ * Fonction ouvrant la fenêtre modal permettant 
+ * de modifier le style de la couche
+ */
+ var openStyleLayerModal = function(layer_uid){
+
+    initStyleForm(layer_uid)
+    
+    
+
+    
+
+    //document.getElementById("style-layer-modal").querySelector(".modal-body").innerHTML = JSON.stringify(json_style)
+
+    //current_layer_name = document.getElementById("layer_list").querySelector("li[layer-uid='" + layer_uid + "'").querySelector(".layer-name").innerHTML
+    //rename_form.querySelector("#layer-name-input").value = current_layer_name
+    
+    styleLayerModal.show()
 }

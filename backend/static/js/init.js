@@ -46,6 +46,10 @@ var chanllengeCalculatorInfoModal = new bootstrap.Modal(document.getElementById(
 var obsMoreInfoModal = new bootstrap.Modal(document.getElementById("obs-more-info-modal"), {
     keyboard: false
 })
+
+var styleLayerModal = new bootstrap.Modal(document.getElementById("style-layer-modal"), {
+    keyboard: false
+})
 // On ré-initialise le modal à la fermeture
 /*var addLayerModalEl = document.getElementById("add-layer-modal")
 addLayerModalEl.addEventListener('hidden.bs.modal', function (event) {
@@ -281,4 +285,11 @@ const  stringDivider = function(str, width, spaceReplacer) {
       }
     }
     return str;
-  }
+}
+
+/**
+ * Fonction réalisant un arrondi à x décimals
+ */
+floatRound = function (value, decimals) {
+    return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+}

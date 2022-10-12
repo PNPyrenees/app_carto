@@ -37,6 +37,7 @@ AppCarto est une plateforme web développée principalement en python et en java
 - [select-pure](https://www.cssscript.com/multi-select-autocomplete-selectpure/)
 - [svg-inject](https://github.com/iconfu/svg-inject)
 - [tabulator](http://tabulator.info/)
+- [RainbowVis-JS](https://github.com/anomal/RainbowVis-JS)
 
 ### Présentation des fonctionnalités
 
@@ -301,20 +302,26 @@ Etiquette :
 ```
 
 ```
-Liste des opérateurs :
+Expression :
+Il est possible d'appliquer des filtres sur les valeur pour appliquer un style spécifique.
+Pour celà, il faut ajouter un noeud "expression" dans la définition du style.
+
+Le champ sur lequel s'applique la condition doit être écrit de la façon suivante (en remplaçant fieldName par le nom du champ) : feature.get('fieldName')
+
+Ensuite, renseigné l'un des opérateur suivant :
     - > : supérieur
     - < : inférieur
     - >= : supérieur ou égal
     - <= : inférieur ou égal
     - == : egal
     - != : différent de
-    - IN : valeur comprise dans une liste. La liste devant être de la forme suivante : ['valeur1', 'valeur2']
-    - NOT IN : valeur non présente dans une liste. La liste devant être de la forme suivante : ['valeur1', 'valeur2']
-    - LIKE : contenant une partie de la chaine de caractère. Exemple : 
-        - '%valeur' : fini par "valeur"
-        - 'valeur%' : commence par "valeur"
-        - '%valeur%' : contient "valeur"
-    - IS NULL : controle si le champ est sans valeur (null)
+    - includes : Permet de controler si une valeur est contenu ou non dans une liste . exemple
+        - ['value1', 'value2'].includes(feature.get('fieldName')) - (equivalent d'un IN en SQL)
+        - !['value1', 'value2'].includes(feature.get('fieldName')) - (equivalent d'un NOT IN en SQL)
+    - match : contenant une partie de la chaine de caractère (equivalent d'un LIKE en SQl). Cet opérateur s'appliquant à des chaine de caractère, il faut forcer le typage du champ. Exemple : 
+        - String(feature.get('fieldName')).match(/TextToSearch/) : Retourne vrai si la chaine de caractère contient TextToSeach
+        - String(feature.get('fieldName')).match(/^TextToSearch/) : Retourne vrai si la chaine de caractère commence par TextToSeach
+        - String(feature.get('fieldName')).match(/TextToSearch$/) : Retourne vrai si la chaine de caractère fini par TextToSeach
 ```
 
 #### Exemple de style simple :
@@ -330,8 +337,7 @@ Liste des opérateurs :
 	"fill_color": "rgba(145,82,45,0.5)",
 	"stroke_color": "rgba(0,0,0,1)",
 	"stroke_width": 1,
-	"stroke_linedash": [],
-	"filter" : null
+	"stroke_linedash": []
     }]
 }]
 ```
@@ -344,12 +350,11 @@ Liste des opérateurs :
     "style_type": "Point",
     "styles": [{
         "style_name": "nomDuStyle",
-	"fill_color": "rgba(145,82,45,0.5)",
-	"stroke_color": "rgba(0,0,0,1)",
-	"stroke_width": 1,
-	"stroke_linedash": [],
-        "radius": 5,
-	"filter" : null
+	    "fill_color": "rgba(145,82,45,0.5)",
+	    "stroke_color": "rgba(0,0,0,1)",
+	    "stroke_width": 1,
+	    "stroke_linedash": [],
+        "radius": 5
     }]
 }]
 ```
@@ -362,10 +367,9 @@ Liste des opérateurs :
     "style_type": "Line",
     "styles": [{
         "style_name": "nomDuStyle",
-	"stroke_color": "rgba(0,0,0,1)",
-	"stroke_width": 1,
-	"stroke_linedash": [],
-	"filter" : null
+        "stroke_color": "rgba(0,0,0,1)",
+        "stroke_width": 1,
+        "stroke_linedash": []
     }]
 }]
 ```
@@ -398,30 +402,18 @@ Liste des opérateurs :
     "style_type": "Polygon",
     "styles": [{
         "style_name": "Zone Coeur",
-	"fill_color": "rgba(2,125,13,0.5)",
-	"stroke_color": "rgba(2,125,13,1)",
-	"stroke_width": 3,
-	"stroke_linedash": [],
-	"filter" : {
-		"left_term": "id_local",
-        	"operator": "==",
-        	"right_term": "ZC_PNP",
-        	"and": [],
-        	"or": []
-      	}
+        "fill_color": "rgba(2,125,13,0.5)",
+        "stroke_color": "rgba(2,125,13,1)",
+        "stroke_width": 3,
+        "stroke_linedash": [],
+        "expression": "feature.get('id_local') == 'ZC_PNP'"
     },{
         "style_name": "Aire d'adhésion",
         "fill_color": "rgba(201,241,196,0.5)",
-	"stroke_color": "rgba(201,241,196,1)",
-	"stroke_width": 3,
-	"stroke_linedash": [],
-	"filter" : {
-		"left_term": "id_local",
-        	"operator": "==",
-        	"right_term": "AA_PNP",
-        	"and": [],
-        	"or": []
-      	}
+        "stroke_color": "rgba(201,241,196,1)",
+        "stroke_width": 3,
+        "stroke_linedash": [],
+        "expression": "feature.get('id_local') == 'AA_PNP'"
     }]
 }]
 ```
@@ -438,25 +430,7 @@ Liste des opérateurs :
         "stroke_color": "rgba(255,255,0,0.5)",
         "stroke_width": 2,
         "stroke_linedash": [],
-        "filter" : {
-            "left_term": "A",
-            "operator": "==",
-            "right_term": "test",
-            "and": [],
-            "or": [{
-                "left_term": "B",
-                "operator": "==",
-                "right_term": true,
-                "and": [{
-                    "left_term": "C",
-                    "operator": "==",
-                    "right_term": 1,
-                    "and": [],
-                    "or": []
-                }],
-                "or": []
-            }]
-        }
+        "expression": "feature.get('A') == 'test' || (feature.get('B') == true && feature.get('C') == 1)"
     }]
 }]
 ```
@@ -467,20 +441,18 @@ Liste des opérateurs :
     "style_type": "Polygon",
     "styles": [{
         "style_name": "nomDuStyle",
-	"fill_color": "rgba(145,82,45,0.5)",
-	"stroke_color": "rgba(0,0,0,1)",
-	"stroke_width": 1,
-	"stroke_linedash": [],
-	"filter" : null
+        "fill_color": "rgba(145,82,45,0.5)",
+        "stroke_color": "rgba(0,0,0,1)",
+        "stroke_width": 1,
+        "stroke_linedash": []
     }]
 },{
     "style_type": "Line",
     "styles": [{
         "style_name": "nomDuStyle",
-	"stroke_color": "rgba(0,0,0,1)",
-	"stroke_width": 1,
-	"stroke_linedash": [],
-	"filter" : null
+        "stroke_color": "rgba(0,0,0,1)",
+        "stroke_width": 1,
+        "stroke_linedash": []
     }]
 }]
 ```
@@ -492,7 +464,6 @@ Liste des opérateurs :
  */
 [{
     "styles": [{
-        "filter": null,
         "radius": 5,
         "fill_color": "rgba(0,0,0,1)",
         "stroke_color": "rgba(0,0,0,1)",
@@ -513,7 +484,6 @@ Liste des opérateurs :
  */
 [{
     "styles": [{
-        "filter": null,
         "radius": 5,
         "fill_color": "rgba(0,0,0,1)",
         "stroke_color": "rgba(0,0,0,1)",

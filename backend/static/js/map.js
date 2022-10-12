@@ -75,6 +75,7 @@ const selectedStyles = function(feature, resolution) {
             })
         }),
     }
+
     return styles[feature.getGeometry().getType()]
 }
 /**
@@ -427,7 +428,8 @@ const getStyleFromJson = function(json_styles){
                     // On bloucle dur les filtres
                     json_geom_style.styles.forEach(style => {
                         //Si la condition du style est respecté
-                        if(eval(buildFilter(style.filter))){
+                        //if(eval(buildFilter(style.filter))){
+                        if(style.expression == null || eval(style.expression)){
                             //On retourne le style
                             polygon_style = [new ol.style.Style({
                                 stroke: new ol.style.Stroke({
@@ -445,8 +447,16 @@ const getStyleFromJson = function(json_styles){
                     break
                 case 'Point':
                     json_geom_style.styles.forEach(style => {
+
+
+                        //console.log(style.expression.replace('"', ''))
+
+                        //console.log(buildFilter(style.filter))
+
+                        //console.log(style.expression)
                         //Si la condition du style est respecté
-                        if(eval(buildFilter(style.filter))){
+                        //if(eval(buildFilter(style.filter))){
+                        if(style.expression == null || eval(style.expression)){
                             //On retourne le style
                             point_style = [new ol.style.Style({
                                 image: new ol.style.Circle({
@@ -468,7 +478,8 @@ const getStyleFromJson = function(json_styles){
                 case 'Line':
                     json_geom_style.styles.forEach(style => {
                         //Si la condition du style est respecté
-                        if(eval(buildFilter(style.filter))){
+                        //if(eval(buildFilter(style.filter))){
+                        if(style.expression == null || eval(style.expression)){
                             //On retourne le style
                             line_style = [new ol.style.Style({
                                 stroke: new ol.style.Stroke({
@@ -484,7 +495,8 @@ const getStyleFromJson = function(json_styles){
                 case 'Icon':
                     json_geom_style.styles.forEach(style => {
                         //Si la condition du style est respecté
-                        if(eval(buildFilter(style.filter))){
+                        //if(eval(buildFilter(style.filter))){
+                        if(style.expression == null || eval(style.expression)){
                             //On retourne le style
                             icon_style = [new ol.style.Style({
                                 image: new ol.style.Icon({
@@ -563,7 +575,14 @@ var buildStyle = function(json_style){
                 if (ol.util.getUid(feature) == feature_uid){
                     feature["orginalLayerUid"]=layer_uid
                     //On ajoute le feature à la source
-                    selectedVectorSource.addFeature(feature)
+                    selectedVectorSource.addFeature(feature.clone())
+
+                    // On s'assure d'appliquer le style au niveau du feature
+                    // car si le feature à déjà un style, le style attribué 
+                    // au vectorSource ne le remplace pas
+                    selectedVectorSource.getFeatures().forEach(feature => {
+                        feature.setStyle(selectedStyles(feature))
+                    })
                     //On zoom sur l'extent de la source
                     if (zoomOn){
                         map.getView().fit(selectedVectorSource.getExtent(), map.getSize())
@@ -767,6 +786,8 @@ var addGeojsonLayer = function(data, additional_data = null){
 
     // Récupération de la fonction devant attribuer le style
     var style = buildStyle(layer_default_style)
+    //console.log("layer_default_style")
+    //console.log(layer_default_style)
 
     // Ajoute les données du geoJson dans un ol.source 
     let vectorSource = new ol.source.Vector({
@@ -986,13 +1007,14 @@ toggleLegend = function(layer_uid){
 /**
  * Converti un operateur en string en véritable opérateur
  */
- function compare(left_term, operator, right_term) {
+/* function compare(left_term, operator, right_term) {
     switch (operator) {
         case '>':   return left_term > right_term
         case '<':   return left_term < right_term
         case '>=':  return left_term >= right_term
         case '<=':  return left_term <= right_term
         case '==':  return left_term == right_term
+        case '=':   return left_term == right_term
         case '!=':  return left_term != right_term
         case 'IN':  return right_term.includes(left_term)
         case 'NOT IN':  return !right_term.includes(left_term)
@@ -1007,15 +1029,16 @@ toggleLegend = function(layer_uid){
                 return String(left_term).startsWith(right_term.replace('%', ''))
             }
         case 'IS NULL': return left_term == null
+        case 'IS NOT NULL': return left_term != null
         default: throw "Opérateur de comparaison incorrect"
     }
-}
+}*/
 
 /**
  * Fonction récursive permettant de transformer les filtres json
  * en filtre javascript/openlayers
  */
- function buildFilter(filter, str_filter="", logic_operator=""){
+/* function buildFilter(filter, str_filter="", logic_operator=""){
     // S'il n'y a pas de filtre
     if (!filter){
         // on retourne 1==1
@@ -1059,7 +1082,7 @@ toggleLegend = function(layer_uid){
     str_filter = str_filter + ")"
 
     return str_filter
-}
+}*/
 
 /*----------------------------------------------------*/
 /*-----------Gestion de l'ordre des couches-----------*/
@@ -1706,7 +1729,7 @@ var singleClickForRemovingFeature = function(event){
         })
         .then(data => {
 
-            console.log(data)
+            //console.log(data)
             buildMoreObsInfo(data)
             document.getElementById("obs-more-info-modal-loading").classList.add("hide")
         })
@@ -2186,8 +2209,8 @@ var build_drawing_layer_style = function(){
     // Création des couleurs aléatoires
     let {color_rgba, color_rgb}  = random_color(0.5)
 
-    console.log("color_rgba : " + color_rgba)
-    console.log("color_rgb : " + color_rgb)
+    //console.log("color_rgba : " + color_rgba)
+    //console.log("color_rgb : " + color_rgb)
 
     layer_default_style = []
  

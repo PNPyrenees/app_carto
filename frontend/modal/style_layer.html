@@ -1,0 +1,559 @@
+<div class="modal fade" id="style-layer-modal" tabindex="-1" aria-labelledby="style-layer-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen-lg-down modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="login-modal-label">Style de la couche</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                
+                <!-- Bloc permettant de définir le type de style (simple ou conditionnel)-->
+                <div class="row mb-3 align-items-center">
+                    <div class="col-lg-3">
+                        <label for="type_style_select">Type :</label>
+                        <select id="type_style_select" class="form-select w-75 d-inline">
+                            <option value="simple">Simple</option>
+                            <option value="conditional">Conditionnel</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Bloc regrouppant les boutton permettant de construire un style catégorisé, gradué ou d'ajout d'une règle -->
+                <div id="conditional_style_selector_bloc" class="row hide mb-3">
+                    <div class="col-lg-3">
+                        <button id="conditional_style_categorised_generator_btn" class="btn btn-dark w-100 conditional-style-generator-btn">Générateur de catégories</button>
+                    </div>
+                    
+                    <div class="col-lg-3">
+                        <button id="conditional_style_graduated_generator_btn" class="btn btn-dark w-100 conditional-style-generator-btn">Générateur de classes</button>
+                    </div>
+                    
+                    <div class="col-lg-3">
+                        <button id="conditional_style_new_rules_generator_btn" class="btn btn-dark w-100 conditional-style-generator-btn">Ajouter un règle</button>
+                    </div>
+                </div>
+
+                <!-- Regrouppe les champ de paramétrage d'un style catégorisé -->
+                <div id="categorised_style_editor_bloc" class="row mb-3 hide">
+                    <div class="col-lg-3 text-center">
+                        <select id="conditional_style_categorised_generator_field_select" class="form-select w-100 d-inline"></select>
+                    </div>
+                    <div class="col-lg-1">
+                        <!-- Boutton lançant le calcul des catégorie -->
+                        <button id="conditional_style_categorised_generator_execute" class="btn btn-primary" title="Générer les catégories"><i class="bi bi-play-fill"></i></button>
+                    </div>
+                </div>
+
+                <!-- Régrouppe les champ de paramétrage d'un style gradué -->
+                <div id="graduated_style_editor_bloc" class="row mb-3 hide">                    
+                    <div class="col-lg-3 text-center">
+                        <select id="conditional_style_graduated_generator_field_select" class="form-select w-100 d-inline"></select>
+                    </div>
+                    <div class="col-lg-3 text-center">
+                        <label>Nombre de classes : </label>
+                        <input id="conditional_style_graduated_generator_nb_class" type="number" class="d-inline w-25" value="5"></select>
+                    </div>
+                    <div class="col-lg-3">
+                        <label>Palette : </label>
+
+                        <!-- Un select/oiption ne peut pas être utilisé car la listé déroulante et géré par le système et pas par html/css -->
+                        <!-- Contournement avec un dropDown bootstrap -->                       
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle w-50" type="button" id="conditional_style_graduated_generator_grandient_dropdown" data-bs-toggle="dropdown" aria-expanded="false" value="#fff5f0,#fee0d2,#fcbba1,#fc9272,#fb6a4a,#ef3b2c,#cb181d,#a50f15,#67000d">
+                            </button>
+                            <ul id="select_grandient_dropdown" class="dropdown-menu" aria-labelledby="select_grandient_dropdown">
+                                <li><a class="dropdown-item text-center gradient-option gradient-option-red" href="#" onclick="selectGradient(['#fff5f0', '#fee0d2', '#fcbba1', '#fc9272', '#fb6a4a', '#ef3b2c', '#cb181d', '#a50f15', '#67000d'])">Rouge</a></li>
+                                <li><a class="dropdown-item text-center gradient-option gradient-option-blues" href="#" onclick="selectGradient(['#f7fbff', '#deebf7', '#c6dbef', '#9ecae1', '#6baed6', '#4292c6', '#2171b5', '#08519c', '#08306b'])">Bleu</a></li>
+                                <li><a class="dropdown-item text-center gradient-option gradient-option-green" href="#" onclick="selectGradient(['#f7fcf5', '#e5f5e0', '#c7e9c0', '#a1d99b', '#74c476', '#41ab5d', '#238b45', '#006d2c', '#00441b'])">Vert</a></li>
+                                <li><a class="dropdown-item text-center gradient-option gradient-option-grey" href="#" onclick="selectGradient(['#fafafa', '#050505'])">Gris</a></li>
+                                <li><a class="dropdown-item text-center gradient-option gradient-option-rdgy" href="#" onclick="selectGradient(['#ca0020', '#f4a582', '#ffffff', '#bababa', '#404040'])">Red2Grey</a></li>
+                                <li><a class="dropdown-item text-center gradient-option gradient-option-cividis" href="#" onclick="selectGradient(['#00204d', '#414d6b', '#7d7c78', '#beaf6f', '#ffea46'])">Cividis</a></li>
+                                <li><a class="dropdown-item text-center gradient-option gradient-option-magma" href="#" onclick="selectGradient(['#000004', '#52137c', '#ba3878', '#fb8560', '#fcfdbf'])">Magma</a></li>
+                                <li><a class="dropdown-item text-center gradient-option gradient-option-mako" href="#" onclick="selectGradient(['#0b0405', '#3e356b', '#357ba3', '#4bc2ad', '#def5e5'])">Mako</a></li>
+                                <li><a class="dropdown-item text-center gradient-option gradient-option-spectral" href="#" onclick="selectGradient(['#2b83ba', '#abdda4', '#ffffbf', '#fdae61', '#d7191c'])">Spectral</a></li>
+                                <li><a class="dropdown-item text-center gradient-option gradient-option-turbo" href="#" onclick="selectGradient(['#30123b', '#455bcd', '#3e9bfe', '#18d7ca', '#18d7ca', '#a4fc3c', '#e1dd37', '#fea431', '#ef5811', '#c12302', '#7a0403'])">Turbo</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-2">
+                        <input type="checkbox" id="conditional_style_graduated_generator_grandient_inverse"> Inverser
+                    </div>
+
+                    <div class="col-lg-1">
+                        <!-- Boutton lançant le calcul de la graduation -->
+                        <button id="conditional_style_graduated_generator_execute" class="btn btn-primary" title="Générer la graduation"><i class="bi bi-play-fill"></i></button>
+                    </div>
+                </div>
+
+                <!-- Bloc associé à un style simple-->
+                <div id="simple_style_form">
+                    <ul id="simple_style_form_geom_tab" class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="simple-style-tab-point" data-bs-toggle="tab" data-bs-target="#simple_style_form_point" type="button" role="tab" aria-controls="simple_style_form_point" aria-selected="true">Point</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"  id="simple-style-tab-line" data-bs-toggle="tab" data-bs-target="#simple_style_form_line" type="button" role="tab" aria-controls="simple_style_form_line" aria-selected="false">Ligne</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"  id="simple-style-tab-polygon" data-bs-toggle="tab" data-bs-target="#simple_style_form_polygon" type="button" role="tab" aria-controls="simple_style_form_polygon" aria-selected="false">Polygone</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content tab-content-border" id="simple_style_form_geom_tabs-content">
+                        <div class="tab-pane fade show active" id="simple_style_form_point" role="tabpanel" aria-labelledby="simple-style-tab-point">
+                            <div class="row mx-0">
+                                <!-- Remplissage de point -->
+                                <div id="simple_style_point_fill" class="col-lg-4">
+                                    <div class="row mx-0">
+                                        <div class="col-lg-12 text-center">
+                                            <label>Remplissage</label>
+                                        </div>
+                                        <hr>
+                                        <div class="col-lg-4 text-center">
+                                            <input type="color" id="head" name="head" value="#e66465" title="Couleur">
+                                        </div>
+                                        <div class="col-lg-4 text-center">
+                                            <input type="range" min="0" max="1" step="0.1" class="mw-100" title="Opacité" value="1">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="simple_style_point_radius" class="col-lg-2">
+                                    <div class="row mx-0">
+                                        <div class="col-lg-12 text-center">
+                                            <label>Taille</label>
+                                        </div>
+                                        <hr>
+                                        <div class="col-lg-12 text-center">
+                                            <input type="number" min="0" class="w-50" title="Taille du point" value="5"> px
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bordure de point -->
+                                <div id="simple_style_point_stroke" class="col-lg-6">
+                                    <div class="row mx-0">
+                                        <div class="col-lg-12 text-center">
+                                            <label>Bordure</label>
+                                        </div>
+                                        <hr>
+                                        <div class="col-lg-4 text-center">
+                                            <input type="color" id="head" name="head" value="#000000" title="Couleur" style="vertical-align: middle;">
+                                            <input type="checkbox">Pointillé
+                                        </div>
+                                        <div class="col-lg-4 text-center">
+                                            <input type="range" min="0" max="1" step="0.1" class="mw-100" title="Opacité" value="1">
+                                        </div>
+                                        <div class="col-lg-4 text-center">
+                                            <input id="simple_style_point_stroke_width" type="number" min="0" class="w-50" title="Epaisseur du trait" value="1"> px
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="simple_style_form_line" role="tabpanel" aria-labelledby="simple-style-tab-line">
+                            <div class="row mx-0">
+                                <!-- Ligne -->
+                                <div id="simple_style_line_stroke" class="col-lg-6">
+                                    <div class="row mx-0">
+                                        <div class="col-lg-12 text-center">
+                                            <label>Ligne</label>
+                                        </div>
+                                        <hr>
+                                        <div class="col-lg-4 text-center">
+                                            <input type="color" id="head" name="head" value="#e66465" title="Couleur" style="vertical-align: middle;">
+                                            <input type="checkbox">Pointillé
+                                        </div>
+                                        <div class="col-lg-4 text-center">
+                                            <input type="range" min="0" max="1" step="0.1" class="mw-100" title="Opacité">
+                                        </div>
+                                        <div class="col-lg-4 text-center">
+                                            <input id="simple_style_point_stroke_width" type="number" min="0" class="w-50" title="Epaisseur du trait" value="3"> px
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="simple_style_form_polygon" role="tabpanel" aria-labelledby="simple-style-tab-polygon">
+                            <div class="row mx-0">
+                                <!-- Remplissage de polygone -->
+                                <div id="simple_style_polygon_fill" class="col-lg-6">
+                                    <div class="row mx-0">
+                                        <div class="col-lg-12 text-center">
+                                            <label>Remplissage</label>
+                                        </div>
+                                        <hr>
+                                        <div class="col-lg-4 text-center">
+                                            <input type="color" id="head" name="head" value="#e66465" title="Couleur">
+                                        </div>
+                                        <div class="col-lg-4 text-center">
+                                            <input type="range" min="0" max="1" step="0.1" class="mw-100" title="Opacité" value="1">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bordure de polygone -->
+                                <div id="simple_style_polygon_stroke" class="col-lg-6">
+                                    <div class="row mx-0">
+                                        <div class="col-lg-12 text-center">
+                                            <label>Bordure</label>
+                                        </div>
+                                        <hr>
+                                        <div class="col-lg-4 text-center">
+                                            <input type="color" id="head" name="head" value="#000000" title="Couleur" style="vertical-align: middle;">
+                                            <input type="checkbox">Pointillé
+                                        </div>
+                                        <div class="col-lg-4 text-center">
+                                            <input type="range" min="0" max="1" step="0.1" class="mw-100" title="Opacité">
+                                        </div>
+                                        <div class="col-lg-4 text-center">
+                                            <input id="simple_style_point_stroke_width" type="number" min="0" class="w-50" title="Epaisseur du trait" value="1"> px
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bloc associé à un style conditionnel-->
+                <div id="conditional_style_form">
+                    <ul id="conditional_style_form_geom_tab" class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="conditional-style-tab-point" data-bs-toggle="tab" data-bs-target="#conditional_style_form_point" type="button" role="tab" aria-controls="conditional_style_form_point" aria-selected="true">Point</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"  id="conditional-style-tab-line" data-bs-toggle="tab" data-bs-target="#conditional_style_form_line" type="button" role="tab" aria-controls="conditional_style_form_line" aria-selected="false">Ligne</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"  id="conditional-style-tab-polygon" data-bs-toggle="tab" data-bs-target="#conditional_style_form_polygon" type="button" role="tab" aria-controls="conditional_style_form_polygon" aria-selected="false">Polygone</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content tab-content-border" id="conditional_style_form_geom_tabs-content">
+                        <!-- Style conditionnel de type point -->
+                        <div class="tab-pane fade show active" id="conditional_style_form_point" role="tabpanel" aria-labelledby="conditional-style-tab-point"
+                            prototype="
+                                &lt;div class=&quot;row mx-0 conditional-style conditional-style-hover-effect&quot; conditional-style-id=&quot;__IDX__&quot;&gt;
+                                    &lt;div class=&quot;col-lg-4&quot;&gt;
+                                        &lt;div class=&quot;col-lg-12&quot;&gt;
+                                            &lt;label&gt;Légende&lt;/label&gt;
+                                            &lt;i class=&quot;bi bi-trash remove-legend-class&quot; onclick=&quot;removeLegendClass(event)&quot; title=&quot;Supprimer cette légende&quot;&gt;&lt;/i&gt;
+                                        &lt;/div&gt;
+                                        &lt;input type=&quot;text&quot; class=&quot;conditional_style_point_label w-100&quot; value=&quot;__COND_STYLE_LABEL__&quot;&gt;
+                                    &lt;/div&gt;
+                                
+                                    &lt;div class=&quot;conditional_style_point_fill col-lg-6&quot;&gt;
+                                        &lt;div class=&quot;row mx-0&quot;&gt;
+                                            &lt;div class=&quot;col-lg-12 text-center&quot;&gt;
+                                                &lt;label&gt;Remplissage&lt;/label&gt;
+                                            &lt;/div&gt;
+                                            &lt;hr&gt;
+                                            &lt;div class=&quot;col-lg-4 text-center&quot;&gt;
+                                                &lt;input type=&quot;color&quot; name=&quot;head&quot; value=&quot;__COND_STYLE_FILL_COLOR__&quot; title=&quot;Couleur&quot;&gt;
+                                            &lt;/div&gt;
+                                            &lt;div class=&quot;col-lg-4 text-center&quot;&gt;
+                                                &lt;input type=&quot;range&quot; min=&quot;0&quot; max=&quot;1&quot; step=&quot;0.1&quot; class=&quot;mw-100&quot; title=&quot;Opacité&quot; value=&quot;__COND_STYLE_FILL_OPACITY__&quot;&gt;
+                                            &lt;/div&gt;
+                                        &lt;/div&gt;
+                                    &lt;/div&gt;
+
+                                    &lt;div class=&quot;conditional_style_point_radius col-lg-2&quot;&gt;
+                                        &lt;div class=&quot;row mx-0&quot;&gt;
+                                            &lt;div class=&quot;col-lg-12 text-center&quot;&gt;
+                                                &lt;label&gt;Taille&lt;/label&gt;
+                                            &lt;/div&gt;
+                                            &lt;hr&gt;
+                                                &lt;div class=&quot;col-lg-12 text-center&quot;&gt;
+                                                    &lt;input type=&quot;number&quot; min=&quot;0&quot; class=&quot;w-50&quot; title=&quot;Taille du point&quot; value=&quot;__COND_STYLE_POINT_RADIUS__&quot;&gt; px
+                                            &lt;/div&gt;
+                                        &lt;/div&gt;
+                                    &lt;/div&gt;
+                                
+                                    &lt;div class=&quot;col-lg-4&quot;&gt;
+                                        &lt;div class=&quot;col-lg-12&quot;&gt;
+                                            &lt;label&gt;Expression&lt;/label&gt;
+                                        &lt;/div&gt;
+                                        &lt;input class=&quot;conditional_style_point_expression&quot; type=&quot;text&quot; value=&quot;__COND_STYLE_FILTER__&quot; disabled&gt;
+                                        &lt;i class=&quot;bi bi-pencil conditional-style-edit-expression-btn&quot; onclick=&quot;conditionalStyleEditExpression(event, '__IDX__')&quot; title=&quot;Modifier l'expression'&quot;&gt;&lt;/i&gt;
+                                    &lt;/div&gt;
+                                
+                                    &lt;div class=&quot;conditional_style_point_stroke col-lg-8&quot;&gt;
+                                        &lt;div class=&quot;row mx-0&quot;&gt;
+                                            &lt;div class=&quot;col-lg-12 text-center&quot;&gt;
+                                                &lt;label&gt;Bordure&lt;/label&gt;
+                                            &lt;/div&gt;
+                                            &lt;hr&gt;
+                                            &lt;div class=&quot;col-lg-3 text-center&quot;&gt;
+                                                &lt;input type=&quot;color&quot; name=&quot;head&quot; value=&quot;__COND_STYLE_STROKE_COLOR__&quot; title=&quot;Couleur&quot; style=&quot;vertical-align: middle;&quot;&gt;
+                                            &lt;/div&gt;
+                                            &lt;div class=&quot;col-lg-3 text-center&quot;&gt;
+                                                &lt;input type=&quot;range&quot; min=&quot;0&quot; max=&quot;1&quot; step=&quot;0.1&quot; class=&quot;mw-100&quot; title=&quot;Opacité&quot; value=&quot;__COND_STYLE_STROKE_OPACITY__&quot;&gt;
+                                            &lt;/div&gt;
+                                            &lt;div class=&quot;col-lg-3 text-center&quot;&gt;
+                                                &lt;input type=&quot;number&quot; min=&quot;0&quot; class=&quot;conditional_style_point_stroke_width w-50&quot; title=&quot;Epaisseur du trait&quot; value=&quot;__COND_STYLE_STROKE_WIDTH__&quot;&gt; px
+                                            &lt;/div&gt;
+                                            &lt;div class=&quot;col-lg-3 text-center&quot;&gt;
+                                                &lt;input type=&quot;checkbox&quot; __COND_STYLE_STROKE_DASH_CHECKER__&gt; Pointillé
+                                            &lt;/div&gt;
+                                        &lt;/div&gt;
+                                    &lt;/div&gt;
+                                &lt;/div&gt;
+                                &lt;hr class=&quot;hr-bloc-legend&quot;&gt;"
+                        >
+                        </div>
+
+                        <!-- Style conditionnel de type ligne -->
+                        <div class="tab-pane fade show active" id="conditional_style_form_line" role="tabpanel" aria-labelledby="conditional-style-tab-line"
+                            prototype="
+                                &lt;div class=&quot;row mx-0 conditional-style conditional-style-hover-effect&quot; conditional-style-id=&quot;__IDX__&quot;&gt;
+                                    &lt;div class=&quot;col-lg-4&quot;&gt;
+                                        &lt;div class=&quot;col-lg-12&quot;&gt;
+                                            &lt;label&gt;Légende&lt;/label&gt;
+                                            &lt;i class=&quot;bi bi-trash remove-legend-class&quot; onclick=&quot;removeLegendClass(event)&quot; title=&quot;Supprimer cette légende&quot;&gt;&lt;/i&gt;
+                                        &lt;/div&gt;
+                                        &lt;input type=&quot;text&quot; class=&quot;conditional_style_line_label w-100&quot; value=&quot;__COND_STYLE_LABEL__&quot;&gt;
+                                    &lt;/div&gt;
+                                
+                                    &lt;div class=&quot;conditional_style_line_stroke col-lg-8&quot;&gt;
+                                        &lt;div class=&quot;row mx-0&quot;&gt;
+                                            &lt;div class=&quot;col-lg-12 text-center&quot;&gt;
+                                                &lt;label&gt;Ligne&lt;/label&gt;
+                                            &lt;/div&gt;
+                                            &lt;hr&gt;
+                                            &lt;div class=&quot;col-lg-4 text-center&quot;&gt;
+                                                &lt;input type=&quot;color&quot; name=&quot;head&quot; value=&quot;__COND_STYLE_STROKE_COLOR__&quot; title=&quot;Couleur&quot; style=&quot;vertical-align: middle;&quot;&gt;
+                                                &lt;input type=&quot;checkbox&quot; __COND_STYLE_STROKE_DASH_CHECKER__&gt;Pointillé
+                                            &lt;/div&gt;
+                                            &lt;div class=&quot;col-lg-4 text-center&quot;&gt;
+                                                &lt;input type=&quot;range&quot; min=&quot;0&quot; max=&quot;1&quot; step=&quot;0.1&quot; class=&quot;mw-100&quot; title=&quot;Opacité&quot; value=&quot;__COND_STYLE_STROKE_OPACITY__&quot;&gt;
+                                            &lt;/div&gt;
+                                            &lt;div class=&quot;col-lg-4 text-center&quot;&gt;
+                                                &lt;input type=&quot;number&quot; min=&quot;0&quot; class=&quot;conditional_style_line_stroke_width w-50&quot; title=&quot;Epaisseur du trait&quot; value=&quot;__COND_STYLE_STROKE_WIDTH__&quot;&gt; px
+                                            &lt;/div&gt;
+                                        &lt;/div&gt;
+                                    &lt;/div&gt;
+
+
+                                
+                                    &lt;div class=&quot;col-lg-4&quot;&gt;
+                                        &lt;div class=&quot;col-lg-12&quot;&gt;
+                                            &lt;label&gt;Expression&lt;/label&gt;
+                                        &lt;/div&gt;
+                                        &lt;input class=&quot;conditional_style_line_expression&quot; type=&quot;text&quot; value=&quot;__COND_STYLE_FILTER__&quot; disabled&gt;
+                                        &lt;i class=&quot;bi bi-pencil conditional-style-edit-expression-btn&quot; onclick=&quot;conditionalStyleEditExpression(event, '__IDX__')&quot; title=&quot;Modifier l'expression&quot;&gt;&lt;/i&gt;
+                                    &lt;/div&gt;
+                                &lt;/div&gt;
+                                &lt;hr class=&quot;hr-bloc-legend&quot;&gt;"
+                        >
+                        </div>
+
+                        <!-- Style conditionnel de type polygone -->
+                        <div class="tab-pane fade show active" id="conditional_style_form_polygon" role="tabpanel" aria-labelledby="conditional-style-tab-polygon"
+                            prototype="
+                                &lt;div class=&quot;row mx-0 conditional-style conditional-style-hover-effect&quot; conditional-style-id=&quot;__IDX__&quot;&gt;
+                                    &lt;div class=&quot;col-lg-4&quot;&gt;
+                                        &lt;div class=&quot;col-lg-12&quot;&gt;
+                                            &lt;label&gt;Légende&lt;/label&gt;
+                                            &lt;i class=&quot;bi bi-trash remove-legend-class&quot; onclick=&quot;removeLegendClass(event)&quot; title=&quot;Supprimer cette légende&quot;&gt;&lt;/i&gt;
+                                        &lt;/div&gt;
+                                        &lt;input type=&quot;text&quot; class=&quot;conditional_style_polygon_label w-100&quot; value=&quot;__COND_STYLE_LABEL__&quot;&gt;
+                                    &lt;/div&gt;
+                                
+                                    &lt;div class=&quot;conditional_style_polygon_fill col-lg-8&quot;&gt;
+                                        &lt;div class=&quot;row mx-0&quot;&gt;
+                                            &lt;div class=&quot;col-lg-12 text-center&quot;&gt;
+                                                &lt;label&gt;Remplissage&lt;/label&gt;
+                                            &lt;/div&gt;
+                                            &lt;hr&gt;
+                                            &lt;div class=&quot;col-lg-4 text-center&quot;&gt;
+                                                &lt;input type=&quot;color&quot; name=&quot;head&quot; value=&quot;__COND_STYLE_FILL_COLOR__&quot; title=&quot;Couleur&quot;&gt;
+                                            &lt;/div&gt;
+                                            &lt;div class=&quot;col-lg-4 text-center&quot;&gt;
+                                                &lt;input type=&quot;range&quot; min=&quot;0&quot; max=&quot;1&quot; step=&quot;0.1&quot; class=&quot;mw-100&quot; title=&quot;Opacité&quot; value=&quot;__COND_STYLE_FILL_OPACITY__&quot;&gt;
+                                            &lt;/div&gt;
+                                        &lt;/div&gt;
+                                    &lt;/div&gt;
+                                
+                                    &lt;div class=&quot;col-lg-4&quot;&gt;
+                                        &lt;div class=&quot;col-lg-12&quot;&gt;
+                                            &lt;label&gt;Expression&lt;/label&gt;
+                                        &lt;/div&gt;
+                                        &lt;input class=&quot;conditional_style_polygon_expression&quot; type=&quot;text&quot; value=&quot;__COND_STYLE_FILTER__&quot; disabled&gt;
+                                        &lt;i class=&quot;bi bi-pencil conditional-style-edit-expression-btn&quot; onclick=&quot;conditionalStyleEditExpression(event, '__IDX__')&quot; title=&quot;Modifier l'expression&quot;&gt;&lt;/i&gt;
+                                    &lt;/div&gt;
+                                
+                                    &lt;div class=&quot;conditional_style_polygon_stroke col-lg-8&quot;&gt;
+                                        &lt;div class=&quot;row mx-0&quot;&gt;
+                                            &lt;div class=&quot;col-lg-12 text-center&quot;&gt;
+                                                &lt;label&gt;Bordure&lt;/label&gt;
+                                            &lt;/div&gt;
+                                            &lt;hr&gt;
+                                            &lt;div class=&quot;col-lg-4 text-center&quot;&gt;
+                                                &lt;input type=&quot;color&quot; name=&quot;head&quot; value=&quot;__COND_STYLE_STROKE_COLOR__&quot; title=&quot;Couleur&quot; style=&quot;vertical-align: middle;&quot;&gt;
+                                                &lt;input type=&quot;checkbox&quot; __COND_STYLE_STROKE_DASH_CHECKER__&gt;Pointillé
+                                            &lt;/div&gt;
+                                            &lt;div class=&quot;col-lg-4 text-center&quot;&gt;
+                                                &lt;input type=&quot;range&quot; min=&quot;0&quot; max=&quot;1&quot; step=&quot;0.1&quot; class=&quot;mw-100&quot; title=&quot;Opacité&quot; value=&quot;__COND_STYLE_STROKE_OPACITY__&quot;&gt;
+                                            &lt;/div&gt;
+                                            &lt;div class=&quot;col-lg-4 text-center&quot;&gt;
+                                                &lt;input type=&quot;number&quot; min=&quot;0&quot; class=&quot;conditional_style_polygon_stroke_width w-50&quot; title=&quot;Epaisseur du trait&quot; value=&quot;__COND_STYLE_STROKE_WIDTH__&quot;&gt; px
+                                            &lt;/div&gt;
+                                        &lt;/div&gt;
+                                    &lt;/div&gt;
+                                &lt;/div&gt;
+                                &lt;hr class=&quot;hr-bloc-legend&quot;&gt;"
+                        >
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+                <!-- Pramétrage des étiquette -->
+                <label><input id="style_feature_label_checkbox" type="checkbox"> <b>Etiquette</b></label>
+                <div id="style_feature_label_bloc" class="hide">
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <label>Champ utilisé comme étiquette</label>
+                            <select id="style_feature_label_field" class="form-select"></select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <label>Taille de la police</label>
+                            <input id="style_feature_label_size" type="number" class="w-50" value="12"> px
+                        </div>
+                        <div class="col-lg-3">
+                            <label>Style de caractère</label>
+                            <select id="style_feature_label_weight" class="form-select w-50">
+                                <option value="Normal">Normal</option>
+                                <option value="Bold">Gras</option>
+                                <option value="Italic">Italic</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <label>Couleur du texte</label><br>
+                            <input id="style_feature_label_color" type="color" id="head" name="head" value="#000000" title="Couleur" style="vertical-align: middle;">
+                        </div>
+                        <div class="col-lg-3">
+                            <label>Couleur d'arrière plan</label><br>
+                            <input id="style_feature_label_background_color" type="color" id="head" name="head" value="#ffffff" title="Couleur" style="vertical-align: middle;">
+                        </div>
+
+                        <div class="col-lg-4">
+                            <label>Opacité de l'arrière plan</label>
+                            <input id="style_feature_label_background_opacity" type="range" min="0" max="1" step="0.1" class="mw-100" title="Opacité du fond" value="1">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Panneau d'édition d'une expression -->
+                <div id="expression_editor_panel" class="overflow-auto hide">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            Liste des champs :
+                            <ul id="expression_editor_field_list" class="overflow-auto" prototype="&lt;li class=&quot;expression_editor_selectable&quot; onclick=&quot;expressionFieldSelect(event)&quot; ondblclick=&quot;addFieldToExpression(event)&quot;&gt;__FIELDNAME__&lt;/li&gt;">
+                            </ul>
+                        </div>
+                        <div class="col-lg-6">
+                            Liste des valeurs :
+                            <ul id="expression_editor_field_value" class="overflow-auto" prototype="&lt;li class=&quot;expression_editor_selectable&quot; ondblclick=&quot;addValueToExpression(event)&quot;&gt;__VALUE__&lt;/li&gt;">
+                            </ul>                           
+                            <button id="expression_editor_list_values_btn" class="btn btn-dark" disabled>Lister les valeurs</button>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row mb-1">
+                        <div class="col-lg-12">
+                            Opérateur :
+                        </div>
+                    </div>
+                    <div class="row mb-1 text-center ps-1">
+                        <div class="col-lg-1 p-1">
+                            <button class="btn btn-info w-100" title="Egal" operator=" == " onclick="addOperatorToExpression(event)">==</button>
+                        </div>
+                        <div class="col-lg-1 p-1">
+                            <button class="btn btn-info w-100" title="Différent" operator=" != " onclick="addOperatorToExpression(event)">!=</button>
+                        </div>
+                        <div class="col-lg-1 p-1">
+                            <button class="btn btn-info w-100" title="Inférieur" operator=" &lt; " onclick="addOperatorToExpression(event)">&lt;</button>
+                        </div>
+                        <div class="col-lg-1 p-1">
+                            <button class="btn btn-info w-100" title="Supérieur" operator=" &gt; " onclick="addOperatorToExpression(event)">&gt;</button>
+                        </div>
+                        <div class="col-lg-1 p-1">
+                            <button class="btn btn-info w-100" title="Inférieur ou égal" operator=" &lt;= " onclick="addOperatorToExpression(event)">&le;</button>
+                        </div>
+                        <div class="col-lg-1 p-1">
+                            <button class="btn btn-info w-100" title="Supérieur ou égal" operator=" &gt;= " onclick="addOperatorToExpression(event)">&ge;</button>
+                        </div>
+                    </div>
+                    <div class="row mb-1 text-center ps-1">
+                        <div class="col-lg-1 p-1">
+                            <button class="btn btn-info w-100" title="Valeur contenu dans une liste" operator="[valeur1, valeur2].includes(nomDuChamp)" onclick="addOperatorToExpression(event)">IN</button>
+                        </div>
+                        <div class="col-lg-2 p-1">
+                            <button class="btn btn-info w-100" title="Valeur n'est pas contenu dans une liste" operator="![valeur1, valeur2].includes(nomDuChamp)" onclick="addOperatorToExpression(event)">NOT IN</button>
+                        </div>
+                        <div class="col-lg-2 p-1">
+                            <button class="btn btn-info w-100" title="Valeur contenant une chaine de caractère" operator="String(nomDuChamp).match(/TextToSearch/)" onclick="addOperatorToExpression(event)">CONTAINS</button>
+                        </div>
+                        <div class="col-lg-3 p-1">
+                            <button class="btn btn-info w-100" title="Chaine de caractèère començant par" operator="String(nomDuChamp).match(/^TextToSearch/)" onclick="addOperatorToExpression(event)">BEGIN WITH</button>
+                        </div>
+                        <div class="col-lg-3 p-1">
+                            <button class="btn btn-info w-100" title="Chaine de caractère finissant par" operator="String(nomDuChamp).match(/TextToSearch$/)" onclick="addOperatorToExpression(event)">END WITH</button>
+                        </div>
+                    </div>
+                    <div class="row mb-1 text-center ps-1">
+                        <div class="col-lg-2 p-1">
+                            <button class="btn btn-info w-100" title="Opérateur logique ET" operator=" && " onclick="addOperatorToExpression(event)">AND</button>
+                        </div>
+                        <div class="col-lg-2 p-1">
+                            <button class="btn btn-info w-100" title="Opérateur logiqure OU" operator=" || " onclick="addOperatorToExpression(event)">OR</button>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            Expression :
+                        </div>
+                        <div class="col-lg-12">
+                            <textarea id="expression_editor_textarea" spellcheck="false" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <input id="expression_editor_conditional_style_id" type="hidden">
+                        <div class="col-lg-2">
+                            <button id="expression_editor_valid_btn" class="btn btn-primary">Valider</button>
+                        </div>
+                        <div class="col-lg-2">
+                            <button id="expression_editor_cancel_btn" class="btn btn-warning">Annuler</button>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <a href="https://www.google.fr">Lien vers la documentation</a>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <div id="style_layer_modal_footer" class="modal-footer">
+                <input type="hidden" name="layer-uid">
+                <button id="style-layer-submit" type="submit" class="btn btn-primary">Appliquer le style</button>
+                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Annuler</button>
+                <div id="form-login-error" class="invalid-feedback"></div>
+            </div>
+        </div>
+    </div>
+</div>

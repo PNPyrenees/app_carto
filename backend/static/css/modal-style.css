@@ -1,0 +1,126 @@
+.tab-content-border{
+    border-bottom: 1px solid #dee2e6;
+    border-left: 1px solid #dee2e6;
+    border-right: 1px solid #dee2e6;
+    padding: 5px;
+}
+
+.conditional-style-hover-effect:hover{
+    background-color: rgb(255, 249, 238);
+}
+
+.conditional-style-edit-expression-btn {
+    cursor: pointer;
+}
+
+#conditional_style_form_geom_tabs-content {
+    max-height: 50vh;
+    overflow-y: scroll;
+    min-height: 100px;
+}
+
+.conditional-style-generator-bloc{
+    margin-top: 10px;
+}
+
+.remove-legend-class{
+    cursor: pointer;
+}
+
+#conditional_style_graduated_generator_grandient_dropdown{
+    width: 500%!important;
+    vertical-align: inherit;
+    background: linear-gradient(to right, #fff5f0, #fee0d2, #fcbba1, #fc9272, #fb6a4a, #ef3b2c, #cb181d, #a50f15, #67000d);
+}
+
+#select_grandient_dropdown{
+    min-width: 12rem;
+}
+
+.gradient-option:hover{
+    font-weight: bold;
+}
+
+.gradient-option-spectral{
+    background: linear-gradient(to right, #2b83ba, #abdda4, #ffffbf, #fdae61, #d7191c);
+}
+
+.gradient-option-blues{
+    background: linear-gradient(to right, #f7fbff, #deebf7, #c6dbef, #9ecae1, #6baed6, #4292c6, #2171b5, #08519c, #08306b);
+}
+
+.gradient-option-cividis{
+    background: linear-gradient(to right, #00204d, #414d6b, #7d7c78, #beaf6f, #ffea46);
+}
+
+.gradient-option-green{
+    background: linear-gradient(to right, #f7fcf5, #e5f5e0, #c7e9c0, #a1d99b, #74c476, #41ab5d, #238b45, #006d2c, #00441b);
+}
+
+.gradient-option-grey{
+    background: linear-gradient(to right, #fafafa, #050505);
+}
+
+.gradient-option-red{
+    background: linear-gradient(to right, #fff5f0, #fee0d2, #fcbba1, #fc9272, #fb6a4a, #ef3b2c, #cb181d, #a50f15, #67000d);
+}
+
+.gradient-option-magma{
+    background: linear-gradient(to right, #000004, #52137c, #ba3878, #fb8560, #fcfdbf);
+}
+
+.gradient-option-mako{
+    background: linear-gradient(to right, #0b0405, #3e356b, #357ba3, #4bc2ad, #def5e5);
+}
+
+.gradient-option-rdgy{
+    background: linear-gradient(to right, #ca0020, #f4a582, #ffffff, #bababa, #404040);
+}
+
+.gradient-option-turbo{
+    background: linear-gradient(to right, #30123b, #455bcd, #3e9bfe, #18d7ca, #18d7ca, #a4fc3c, #e1dd37, #fea431, #ef5811, #c12302, #7a0403);
+}
+
+#expression_editor_panel{
+    position: absolute;
+    height: 770px;
+    width: 60%;
+    left: 20%;
+    top: 0%;
+    border: 5px solid #dee2e6;
+    background-color: #ffffff;
+    padding: 10px;
+}
+
+#expression_editor_panel > .row{
+    max-width: 100%;
+}
+
+#expression_editor_field_list,
+#expression_editor_field_value{
+    height: 150px;
+    border: 2px solid #000000;
+    margin-bottom: 2px;
+    list-style-type: none;
+    padding-left: 2px;
+}
+
+#expression_editor_textarea{
+    width: 100%;
+}
+
+.expression_editor_selectable{
+    cursor: pointer;
+    -moz-user-select: none; /* Firefox */
+    -webkit-user-select: none; /* Chrome, Safari, Opéra depuis la version 15 */
+    -ms-user-select: none; /* Internet explorer depuis la version 10 et Edge */
+    user-select: none; /* Propriété standard */
+}
+
+.expression_editor_selectable:hover{
+    background-color: rgb(255, 249, 238);
+}
+
+.expression-field-selected{
+    background-color: rgba(18,131,220,1) !important;
+}

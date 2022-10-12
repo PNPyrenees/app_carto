@@ -721,11 +721,13 @@ def build_obs_layer_query(postdata):
 
     if postdata["scale"] == 999 :
         select_column = """ 
+            row_number() over() AS row_id,
             '<div class="obs-layer-more-data-link" onclick="getMoreObsInfo(event, ''geom'', ''' || ST_AsText(o.geom) || ''')">Plus d''info</div>' AS "lien",
             o.geom
         """
     else :
         select_column = """ 
+            row_number() over() AS row_id,
             '<div class="obs-layer-more-data-link" onclick="getMoreObsInfo(event, ''mesh_id'', ' || m.mesh_id || ')">Plus d''info</div>' AS "lien",
             m.geom
         """
@@ -796,8 +798,7 @@ def getObsLayerStyle(restituion_type, scale, query):
                     "style_type": "Polygon",
                     "styles": [{
                         "style_name": "Surfacique",
-                        "filter": "",
-                        "fill_color": "rgba(0, 255, 81, 0.5)",
+                        "fill_color": "rgba(0, 255, 81, 0.8)",
                         "stroke_color": "rgba(0, 0, 0, 1)",
                         "stroke_width": 1,
                         "stroke_linedash": []
@@ -806,7 +807,6 @@ def getObsLayerStyle(restituion_type, scale, query):
                     "style_type": "Line",
                     "styles": [{
                         "style_name": "Linéaire",
-                        "filter": "",
                         "stroke_color": "rgba(0, 255, 81, 1)",
                         "stroke_width": 2,
                         "stroke_linedash": []
@@ -815,8 +815,7 @@ def getObsLayerStyle(restituion_type, scale, query):
                     "style_type": "Point",
                     "styles": [{
                         "style_name": "Point",
-                        "filter": "",
-                        "fill_color": "rgba(0, 255, 81, 0.5)",
+                        "fill_color": "rgba(0, 255, 81, 0.8)",
                         "stroke_color": "rgba(0, 0, 0, 1)",
                         "stroke_width": 1,
                         "stroke_linedash": [],
@@ -830,8 +829,7 @@ def getObsLayerStyle(restituion_type, scale, query):
                 "style_type": "Polygon",
                 "styles": [{
                     "style_name": "Zone de présence",
-                    "filter": "",
-                    "fill_color": "rgba(0, 255, 81, 0.5)",
+                    "fill_color": "rgba(0, 255, 81, 0.8)",
                     "stroke_color": "rgba(0, 0, 0, 1)",
                     "stroke_width": 1,
                     "stroke_linedash": []
@@ -889,13 +887,7 @@ def getObsLayerStyle(restituion_type, scale, query):
                 
                 tmp_style = {
                     "style_name": style_name,
-                    "filter": {
-                        "operator": "<=",
-                        "left_term": style_field_filter,
-                        "right_term": style_query_datas["borne_" + str(i)],
-                        "or": [],
-                        "and": []
-                    },
+                    "expression": "feature.get('" +style_field_filter + "') <= " + str(style_query_datas["borne_" + str(i)]),
                     "fill_color": app.config['OBS_LAYER_CLASS_COLOR'][i],
                     "stroke_color": "rgba(0, 0, 0, 1)",
                     "stroke_width": 1,
@@ -906,19 +898,7 @@ def getObsLayerStyle(restituion_type, scale, query):
             if i > 0 :
                 tmp_style = {
                     "style_name": "De " + str(style_query_datas["borne_" + str(i - 1)]) + " à " + str(style_query_datas["borne_" + str(i)]) + " " + legend_alias,
-                    "filter": {
-                        "operator": ">",
-                        "left_term": style_field_filter,
-                        "right_term": style_query_datas["borne_" + str(i -1)],
-                        "or": [],
-                        "and": [{
-                            "left_term": style_field_filter,
-                            "operator": "<=",
-                            "right_term": style_query_datas["borne_" + str(i)],
-                            "and": [],
-                            "or": []
-                        }]
-                    },
+                    "expression": "feature.get('" +style_field_filter + "') > " + str(style_query_datas["borne_" + str(i-1)]) + " && feature.get('" +style_field_filter + "') <= " + str(style_query_datas["borne_" + str(i)]),
                     "fill_color": app.config['OBS_LAYER_CLASS_COLOR'][i],
                     "stroke_color": "rgba(0, 0, 0, 1)",
                     "stroke_width": 1,
@@ -931,13 +911,7 @@ def getObsLayerStyle(restituion_type, scale, query):
             if i == len(app.config['OBS_LAYER_CLASSIFICATION_BORNE']) -1:
                 tmp_style = {
                     "style_name": "Plus de " + str(style_query_datas["borne_" + str(i)]) + " " + legend_alias,
-                    "filter": {
-                        "operator": ">",
-                        "left_term": style_field_filter,
-                        "right_term": style_query_datas["borne_" + str(i)],
-                        "or": [],
-                        "and": []
-                    },
+                    "expression": "feature.get('" +style_field_filter + "') > " + str(style_query_datas["borne_" + str(i)]),
                     "fill_color": app.config['OBS_LAYER_CLASS_COLOR'][i + 1],
                     "stroke_color": "rgba(0, 0, 0, 1)",
                     "stroke_width": 1,
@@ -965,13 +939,7 @@ def getObsLayerStyle(restituion_type, scale, query):
                     
                     tmp_style = {
                         "style_name": style_name,
-                        "filter": {
-                            "operator": "<=",
-                            "left_term": style_field_filter,
-                            "right_term": style_query_datas["borne_" + str(i)],
-                            "or": [],
-                            "and": []
-                        },
+                        "expression": "feature.get('" +style_field_filter + "') <= " + str(style_query_datas["borne_" + str(i)]),
                         "fill_color": app.config['OBS_LAYER_CLASS_COLOR'][i],
                         "stroke_color": "rgba(0, 0, 0, 1)",
                         "stroke_width": 1,
@@ -982,19 +950,7 @@ def getObsLayerStyle(restituion_type, scale, query):
                 if i > 0 :
                     tmp_style = {
                         "style_name": "De " + str(style_query_datas["borne_" + str(i - 1)]) + " à " + str(style_query_datas["borne_" + str(i)]) + " " + legend_alias,
-                        "filter": {
-                            "operator": ">",
-                            "left_term": style_field_filter,
-                            "right_term": style_query_datas["borne_" + str(i -1)],
-                            "or": [],
-                            "and": [{
-                                "left_term": style_field_filter,
-                                "operator": "<=",
-                                "right_term": style_query_datas["borne_" + str(i)],
-                                "and": [],
-                                "or": []
-                            }]
-                        },
+                        "expression": "feature.get('" +style_field_filter + "') > " + str(style_query_datas["borne_" + str(i-1)]) + " && feature.get('" +style_field_filter + "') <= " + str(style_query_datas["borne_" + str(i)]),
                         "fill_color": app.config['OBS_LAYER_CLASS_COLOR'][i],
                         "stroke_color": "rgba(0, 0, 0, 1)",
                         "stroke_width": 1,
@@ -1007,13 +963,7 @@ def getObsLayerStyle(restituion_type, scale, query):
                 if i == len(app.config['OBS_LAYER_CLASSIFICATION_BORNE']) -1:
                     tmp_style = {
                         "style_name": "Plus de " + str(style_query_datas["borne_" + str(i)]) + " " + legend_alias,
-                        "filter": {
-                            "operator": ">",
-                            "left_term": style_field_filter,
-                            "right_term": style_query_datas["borne_" + str(i)],
-                            "or": [],
-                            "and": []
-                        },
+                        "expression": "feature.get('" +style_field_filter + "') > " + str(style_query_datas["borne_" + str(i)]),
                         "fill_color": app.config['OBS_LAYER_CLASS_COLOR'][i + 1],
                         "stroke_color": "rgba(0, 0, 0, 1)",
                         "stroke_width": 1,
@@ -1041,13 +991,7 @@ def getObsLayerStyle(restituion_type, scale, query):
                     
                     tmp_style = {
                         "style_name": style_name,
-                        "filter": {
-                            "operator": "<=",
-                            "left_term": style_field_filter,
-                            "right_term": style_query_datas["borne_" + str(i)],
-                            "or": [],
-                            "and": []
-                        },
+                        "expression": "feature.get('" +style_field_filter + "') <= " + str(style_query_datas["borne_" + str(i)]),
                         "stroke_color": app.config['OBS_LAYER_CLASS_COLOR'][i],
                         "stroke_width": 2,
                         "stroke_linedash": []
@@ -1057,19 +1001,7 @@ def getObsLayerStyle(restituion_type, scale, query):
                 if i > 0 :
                     tmp_style = {
                         "style_name": "De " + str(style_query_datas["borne_" + str(i - 1)]) + " à " + str(style_query_datas["borne_" + str(i)]) + " " + legend_alias,
-                        "filter": {
-                            "operator": ">",
-                            "left_term": style_field_filter,
-                            "right_term": style_query_datas["borne_" + str(i -1)],
-                            "or": [],
-                            "and": [{
-                                "left_term": style_field_filter,
-                                "operator": "<=",
-                                "right_term": style_query_datas["borne_" + str(i)],
-                                "and": [],
-                                "or": []
-                            }]
-                        },
+                        "expression": "feature.get('" +style_field_filter + "') > " + str(style_query_datas["borne_" + str(i-1)]) + " && feature.get('" +style_field_filter + "') <= " + str(style_query_datas["borne_" + str(i)]),
                         "stroke_color": app.config['OBS_LAYER_CLASS_COLOR'][i],
                         "stroke_width": 2,
                         "stroke_linedash": []
@@ -1081,13 +1013,7 @@ def getObsLayerStyle(restituion_type, scale, query):
                 if i == len(app.config['OBS_LAYER_CLASSIFICATION_BORNE']) -1:
                     tmp_style = {
                         "style_name": "Plus de " + str(style_query_datas["borne_" + str(i)]) + " " + legend_alias,
-                        "filter": {
-                            "operator": ">",
-                            "left_term": style_field_filter,
-                            "right_term": style_query_datas["borne_" + str(i)],
-                            "or": [],
-                            "and": []
-                        },
+                        "expression": "feature.get('" +style_field_filter + "') > " + str(style_query_datas["borne_" + str(i)]),
                         "stroke_color": app.config['OBS_LAYER_CLASS_COLOR'][i + 1],
                         "stroke_width": 2,
                         "stroke_linedash": []
