@@ -2135,17 +2135,21 @@ addfeature_buttons.forEach(addfeature_button => {
         map.on('singleclick', singleClickForFeatureInfo)
         map.un('singleclick', singleClickForRemovingFeature)
 
+        unHigtlightAllDrawingLayerButton()
+
     } else {
+        console.log("clicked !!")
         // On désactive l'édition
         disableLayerDrawing()
-        unHigtlightAllDrawingLayerButton()
+        //unHigtlightAllDrawingLayerButton()
 
         // On change la fonction à éxécuter lors d'un clic sur la carte
         map.un('singleclick', singleClickForFeatureInfo)
         map.on('singleclick', singleClickForRemovingFeature)
+
+        drawingLayerEditButtonHighlight(button)
     }
 
-    drawingLayerEditButtonHighlight(button)
 })
 
 /**
