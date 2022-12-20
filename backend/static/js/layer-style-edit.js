@@ -293,7 +293,7 @@ var buildFormForConditionnalStyle = function(json_style){
 }
 
 /**
- * euple le formulaire d'édition des étiquettes
+ * Peuple le formulaire d'édition des étiquettes
  */
 var buildFormLabel = function(layer){
     // Pour commencer, on désactive (s'il est actif) l'affichage du formulaire dédié aux étiquettes
@@ -453,6 +453,7 @@ document.getElementById("style-layer-submit").addEventListener("click", function
     }
 
     // On applique le style à la couche
+    layer.setStyle(buildStyle(new_json_style));
     layer.set("json_style", new_json_style)
     layer.getSource().getFeatures().forEach(feature => {
         feature.setStyle(buildStyle(new_json_style))
