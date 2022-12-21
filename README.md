@@ -322,6 +322,10 @@ Ensuite, renseigné l'un des opérateur suivant :
         - String(feature.get('fieldName')).match(/TextToSearch/) : Retourne vrai si la chaine de caractère contient TextToSeach
         - String(feature.get('fieldName')).match(/^TextToSearch/) : Retourne vrai si la chaine de caractère commence par TextToSeach
         - String(feature.get('fieldName')).match(/TextToSearch$/) : Retourne vrai si la chaine de caractère fini par TextToSeach
+
+En cas d'apostrophe dans la valeur, il y a deux possibilité : 
+- Utiliser le caractère d'échappement **\\** -> feature.get('fieldName') == 'text avec l\\'apostrophe'
+- Soit remplacer les simples quotes entourant la chaine de caractère par **\"** -> feature.get('fieldName') == \"text avec l'apostrophe\"
 ```
 
 #### Exemple de style simple :
