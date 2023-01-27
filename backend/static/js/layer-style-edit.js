@@ -1025,7 +1025,7 @@ document.getElementById("conditional_style_categorised_generator_execute").addEv
             // Création du bloc "filtre"
             var prototype = document.getElementById("conditional_style_form_" + styleTypeLowerCase).getAttribute("prototype")
 
-            prototype = prototype.replace(/__IDX__/g, geomType + '_' + index)
+            prototype = prototype.replace(/__IDX__/g, styleTypeLowerCase + '_' + index)
             prototype = prototype.replace(/__COND_STYLE_LABEL__/g, conditionalStyleName)
             prototype = prototype.replace(/__COND_STYLE_FILL_COLOR__/g, conditionalStyleFillColor)
             prototype = prototype.replace(/__COND_STYLE_FILL_OPACITY__/g, conditionalStyleFillOpacity)
@@ -1183,7 +1183,7 @@ document.getElementById("conditional_style_graduated_generator_execute").addEven
             // Création du bloc "filtre"
             var prototype = document.getElementById("conditional_style_form_" + styleTypeLowerCase).getAttribute("prototype")
 
-            prototype = prototype.replace(/__IDX__/g, geomType + '_' + index)
+            prototype = prototype.replace(/__IDX__/g, styleTypeLowerCase + '_' + index)
             prototype = prototype.replace(/__COND_STYLE_LABEL__/g, conditionalStyleName)
             prototype = prototype.replace(/__COND_STYLE_FILL_COLOR__/g, conditionalStyleFillColor)
             prototype = prototype.replace(/__COND_STYLE_FILL_OPACITY__/g, conditionalStyleFillOpacity)

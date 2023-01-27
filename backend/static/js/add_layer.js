@@ -1155,6 +1155,9 @@ var uploadLayer = function(){
         (postUploadFrom()).then(data => {            
             addImportedLayerToMap(data)
         })  
+    } else {
+        document.getElementById("add-layer-submit").disabled = false
+        document.getElementById('loading-spinner').style.display = 'none'
     }
 }
 
