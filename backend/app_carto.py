@@ -1487,7 +1487,11 @@ def upload_geodata():
     # Supression des données temporaires
     # fichier(s) importé(s)
     for file in files:
-        os.remove(os.path.join(app.root_path, "static/tmp_upload/", file.filename))
+        if extension.lower() in ['geojson', 'json'] :
+            # Cas particulier pour les GeoJson
+            os.remove(os.path.join(app.root_path, "static/tmp_upload/", "tmp_" + file.filename))
+        else :
+            os.remove(os.path.join(app.root_path, "static/tmp_upload/", file.filename))
     # fichier généré (geojson)
     os.remove(dst_path)
 
