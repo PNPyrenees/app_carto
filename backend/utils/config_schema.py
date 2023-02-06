@@ -8,6 +8,7 @@ from marshmallow import (
 # Default BASEMAP
 BASEMAPS = [
     {
+        "type" : "Tile",
         "name" : "IGN-Orthophotos",
         "url" : "https://wxs.ign.fr/decouverte/geoportail/wmts?SERVICE=WMTS&REQUEST=GetCapabilities",
         "layer" : "ORTHOIMAGERY.ORTHOPHOTOS",
@@ -16,6 +17,7 @@ BASEMAPS = [
         "format" : "image/jpeg"
     },
     {
+        "type" : "Tile",
         "name" : "IGN-Plan",
         "url" : "https://wxs.ign.fr/decouverte/geoportail/wmts?SERVICE=WMTS&REQUEST=GetCapabilities",
         "layer" : "GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2",

@@ -64,3 +64,11 @@ OBS_LAYER_CLASS_COLOR = ["rgba(237, 248, 251, 0.9)", "rgba(179, 205, 227, 0.9)",
     attributions = "©IGN"
     isDefault = 1
     format = "image/png"
+[[BASEMAPS]]
+    type = "XYZ"
+    name = "OSM-OpenTopoMap"
+    url = "https://{a-c}.tile.opentopomap.org/{z}/{x}/{y}.png"
+    layer = ""
+    attributions = "©OSM"
+    isDefault = 0
+    format = ""

@@ -124,29 +124,72 @@ for (let i = 0; i < 20; i++) {
 }
 
 BASEMAPS.forEach(basemap => {
-    let basemap_layer = new ol.layer.Tile({
+    switch (basemap.type) {
+        case "Tile":
+
+            console.log("here i am a tile")
+
+            basemap_layer = new ol.layer.Tile({
+                opacity: 1,
+                visible: parseInt(basemap.isDefault),
+                isEditing: false,
+                isBasemap: true,
+                description_layer: {"layer_attribution": basemap.attributions},
+                source: new ol.source.WMTS({
+                    attributions: basemap.attributions,
+                    url: basemap.url,
+                    layer: basemap.layer,
+                    matrixSet: "PM",
+                    format: basemap.format,
+                    projection: "EPSG:3857",
+                    tileGrid: new ol.tilegrid.WMTS({
+                        origin: [-20037508, 20037508],
+                        resolutions: resolutions,
+                        matrixIds: matrixIds
+                    }),
+                    style: "normal",
+                    wrapX: true,
+                    crossOrigin: "anonymous"
+                })
+            })
+
+            break
+        case "XYZ":
+
+            console.log("here i am a XYZ")
+
+            basemap_layer = new ol.layer.Tile({
+                opacity: 1,
+                visible: parseInt(basemap.isDefault),
+                isEditing: false,
+                isBasemap: true,
+                description_layer: {"layer_attribution": basemap.attributions},
+                source: new ol.source.XYZ({
+                    attributions: basemap.attributions,
+                    url: basemap.url,
+                    projection: "EPSG:3857",
+                    tileGrid: new ol.tilegrid.WMTS({
+                        origin: [-20037508, 20037508],
+                        resolutions: resolutions,
+                        matrixIds: matrixIds
+                    }),
+                    wrapX: true,
+                    crossOrigin: "anonymous"
+                })
+            })
+            /**/
+           
+            break
+    }
+
+    /*let basemap_layer = new ol.layer.Tile({
         opacity: 1,
         visible: parseInt(basemap.isDefault),
         isEditing: false,
         isBasemap: true,
         description_layer: {"layer_attribution": basemap.attributions},
-        source: new ol.source.WMTS({
-            attributions: basemap.attributions,
-            url: basemap.url,
-            layer: basemap.layer,
-            matrixSet: "PM",
-            format: basemap.format,
-            projection: "EPSG:3857",
-            tileGrid: new ol.tilegrid.WMTS({
-                origin: [-20037508, 20037508],
-                resolutions: resolutions,
-                matrixIds: matrixIds
-            }),
-            style: "normal",
-            wrapX: true,
-            crossOrigin: "anonymous"
-        })
-    })
+        source: source
+    })*/
 
     map.addLayer(basemap_layer)
 
