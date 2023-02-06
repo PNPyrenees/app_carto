@@ -126,9 +126,6 @@ for (let i = 0; i < 20; i++) {
 BASEMAPS.forEach(basemap => {
     switch (basemap.type) {
         case "Tile":
-
-            console.log("here i am a tile")
-
             basemap_layer = new ol.layer.Tile({
                 opacity: 1,
                 visible: parseInt(basemap.isDefault),
@@ -155,9 +152,6 @@ BASEMAPS.forEach(basemap => {
 
             break
         case "XYZ":
-
-            console.log("here i am a XYZ")
-
             basemap_layer = new ol.layer.Tile({
                 opacity: 1,
                 visible: parseInt(basemap.isDefault),
@@ -177,19 +171,9 @@ BASEMAPS.forEach(basemap => {
                     crossOrigin: "anonymous"
                 })
             })
-            /**/
            
             break
     }
-
-    /*let basemap_layer = new ol.layer.Tile({
-        opacity: 1,
-        visible: parseInt(basemap.isDefault),
-        isEditing: false,
-        isBasemap: true,
-        description_layer: {"layer_attribution": basemap.attributions},
-        source: source
-    })*/
 
     map.addLayer(basemap_layer)
 
