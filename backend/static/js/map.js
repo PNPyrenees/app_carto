@@ -124,6 +124,7 @@ for (let i = 0; i < 20; i++) {
 }
 
 BASEMAPS.forEach(basemap => {
+    var basemap_layer
     switch (basemap.type) {
         case "Tile":
             basemap_layer = new ol.layer.Tile({
