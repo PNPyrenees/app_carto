@@ -51,6 +51,7 @@ OBS_LAYER_CLASS_COLOR = ["rgba(237, 248, 251, 0.9)", "rgba(179, 205, 227, 0.9)",
 
 # Fond de carte
 [[BASEMAPS]]
+    type = "Tile"
     name = "IGN-Orthophotos"
     url = "https://wxs.ign.fr/decouverte/geoportail/wmts?SERVICE=WMTS&REQUEST=GetCapabilities"
     layer = "ORTHOIMAGERY.ORTHOPHOTOS"
@@ -58,6 +59,7 @@ OBS_LAYER_CLASS_COLOR = ["rgba(237, 248, 251, 0.9)", "rgba(179, 205, 227, 0.9)",
     isDefault = 0
     format = "image/jpeg"
 [[BASEMAPS]]
+    type = "Tile"
     name = "IGN-Plan"
     url = "https://wxs.ign.fr/decouverte/geoportail/wmts?SERVICE=WMTS&REQUEST=GetCapabilities"
     layer = "GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2"
