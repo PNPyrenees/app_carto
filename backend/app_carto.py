@@ -1464,7 +1464,7 @@ def upload_geodata():
         srs_path = os.path.join(app.root_path, "static/tmp_upload/", "tmp_" + filename + "." + extension)
     
     # création et exécution de la commande ogr2ogr
-    command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 " + dst_path + " " + srs_path
+    command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 \"" + dst_path + "\" \"" + srs_path + "\""
     os.system(command, )
 
     # Lecture du résultat pour écriture dans la base de données
