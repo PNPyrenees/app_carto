@@ -1463,9 +1463,46 @@ def upload_geodata():
         os.rename(srs_path, os.path.join(app.root_path, "static/tmp_upload/", "tmp_" + filename + "." + extension))
         srs_path = os.path.join(app.root_path, "static/tmp_upload/", "tmp_" + filename + "." + extension)
     
-    # création et exécution de la commande ogr2ogr
-    command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 \"" + dst_path + "\" \"" + srs_path + "\""
-    os.system(command, )
+    # Get list of layer name in file
+    l_layer_in_file = os.popen("ogrinfo -ro -so -q \"" + srs_path + "\" | cut -d ' ' -f 2", 'r').read().split('\n')[:-1]
+
+    print(l_layer_in_file)
+
+    # L'objectif est de regroupper tous les objets de toutes les couches du fichier source 
+    # dans un même fichier GeoJSON qui fonctionne avec une seule couche (appelée data) mais 
+    # pouvant être composée d'objet ayant différent type de geometrie
+    loop_idx = 0
+    for layername in l_layer_in_file:
+        if loop_idx == 0:
+            # Premier layer, il faut créer le fichier destination
+            command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 -nln data \"" + dst_path + "\" \"" + srs_path + "\" \"" + layername + "\""
+        else :
+            # Autre layer, il faut ajouter les données au fichier existant
+            command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 -nln data -update -append \"" + dst_path + "\" \"" + srs_path + "\" \"" + layername + "\""
+        
+        os.system(command, )
+        loop_idx += 1
+
+
+
+#    # création et exécution de la commande ogr2ogr
+#    if extension.lower() in ['gpx'] :
+#        #command = "for layer in \"$(ogrinfo -ro -so -q " + srs_path + " | cut -d ' ' -f 2)\" \
+#        #    do \
+#        #        ogr2ogr -f GeoJSON \"file_${layer}.json\" file.kml \"${layer}\" \
+#        #    done"
+#
+#        #command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 \"" + dst_path + "\" \"" + srs_path + "\" -sql \"SELECT * FROM waypoints\" && ogr2ogr -update -append -f GeoJSON -t_srs EPSG:3857 \"" + dst_path + "\" \"" + srs_path + "\" -sql \"SELECT * FROM tracks\" "
+#        command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 -nln data \"" + dst_path + "\" \"" + srs_path + "\" waypoints "
+#        os.system(command, )
+#        command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 -nln data -update -append \"" + dst_path + "\" \"" + srs_path + "\" tracks "
+#        os.system(command, )
+#        #command = "ogr2ogr -f GeoJSON -append -t_srs EPSG:3857 -nln data -update -append \"" + dst_path + "\" \"" + srs_path + "\" routes "
+#        #os.system(command, )
+#        #command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 \"" + dst_path + "\" \"" + srs_path + "\" -sql \"SELECT * FROM tracks UNION SELECT * FROM waypoints \" "
+#    else :
+#        command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 \"" + dst_path + "\" \"" + srs_path + "\""
+#        os.system(command, )
 
     # Lecture du résultat pour écriture dans la base de données
     with open(dst_path) as json_file:
