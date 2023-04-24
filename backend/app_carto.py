@@ -1478,31 +1478,10 @@ def upload_geodata():
             command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 -nln data \"" + dst_path + "\" \"" + srs_path + "\" \"" + layername + "\""
         else :
             # Autre layer, il faut ajouter les données au fichier existant
-            command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 -nln data -update -append \"" + dst_path + "\" \"" + srs_path + "\" \"" + layername + "\""
+            command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 -nln data -update -append -addfields \"" + dst_path + "\" \"" + srs_path + "\" \"" + layername + "\""
         
         os.system(command, )
         loop_idx += 1
-
-
-
-#    # création et exécution de la commande ogr2ogr
-#    if extension.lower() in ['gpx'] :
-#        #command = "for layer in \"$(ogrinfo -ro -so -q " + srs_path + " | cut -d ' ' -f 2)\" \
-#        #    do \
-#        #        ogr2ogr -f GeoJSON \"file_${layer}.json\" file.kml \"${layer}\" \
-#        #    done"
-#
-#        #command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 \"" + dst_path + "\" \"" + srs_path + "\" -sql \"SELECT * FROM waypoints\" && ogr2ogr -update -append -f GeoJSON -t_srs EPSG:3857 \"" + dst_path + "\" \"" + srs_path + "\" -sql \"SELECT * FROM tracks\" "
-#        command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 -nln data \"" + dst_path + "\" \"" + srs_path + "\" waypoints "
-#        os.system(command, )
-#        command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 -nln data -update -append \"" + dst_path + "\" \"" + srs_path + "\" tracks "
-#        os.system(command, )
-#        #command = "ogr2ogr -f GeoJSON -append -t_srs EPSG:3857 -nln data -update -append \"" + dst_path + "\" \"" + srs_path + "\" routes "
-#        #os.system(command, )
-#        #command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 \"" + dst_path + "\" \"" + srs_path + "\" -sql \"SELECT * FROM tracks UNION SELECT * FROM waypoints \" "
-#    else :
-#        command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 \"" + dst_path + "\" \"" + srs_path + "\""
-#        os.system(command, )
 
     # Lecture du résultat pour écriture dans la base de données
     with open(dst_path) as json_file:
@@ -1523,14 +1502,14 @@ def upload_geodata():
 
     # Supression des données temporaires
     # fichier(s) importé(s)
-    for file in files:
-        if extension.lower() in ['geojson', 'json'] :
-            # Cas particulier pour les GeoJson
-            os.remove(os.path.join(app.root_path, "static/tmp_upload/", "tmp_" + file.filename))
-        else :
-            os.remove(os.path.join(app.root_path, "static/tmp_upload/", file.filename))
-    # fichier généré (geojson)
-    os.remove(dst_path)
+#    for file in files:
+#        if extension.lower() in ['geojson', 'json'] :
+#            # Cas particulier pour les GeoJson
+#            os.remove(os.path.join(app.root_path, "static/tmp_upload/", "tmp_" + file.filename))
+#        else :
+#            os.remove(os.path.join(app.root_path, "static/tmp_upload/", file.filename))
+#    # fichier généré (geojson)
+#    os.remove(dst_path)
 
     return jsonify(importedLayer.imported_layer_id)
 
