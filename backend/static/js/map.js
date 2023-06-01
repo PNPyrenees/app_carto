@@ -211,6 +211,17 @@ showBasemap = function(layer_uid){
     selectedVectorSource.clear()
 }
 
+/**
+ * Gestion de l'affichage des coordonnées correspondant 
+ * à la position de la souris
+ */
+map.on('pointermove', function(evt) {
+    var coords = ol.proj.toLonLat(evt.coordinate);
+    console.log(coords)
+
+    document.getElementById('bloc-coords').innerHTML = coords[1].toFixed(8) + " ; " + coords[0].toFixed(8);
+});
+
 /*----------------------------------------------------*/
 /*------ Gestion des styles appliqués aux couches-----*/
 /*----------------------------------------------------*/
