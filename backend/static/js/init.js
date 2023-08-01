@@ -1,4 +1,4 @@
-window.addEventListener('load', (event) => {  
+window.addEventListener('load', (event) => {
     /** 
      * On lance l'initialisation de la carte
      */
@@ -9,12 +9,12 @@ window.addEventListener('load', (event) => {
      */
     if (checkToken() === true) {
         var username = getCookie('username')
-        if(username){
+        if (username) {
             document.getElementById('btn-login').classList.remove("active")
-                document.getElementById('icon-login').classList.remove("active")
-                document.getElementById('btn-logout').classList.add("active")
-                document.getElementById('icon-logout').classList.add("active")
-                document.getElementById('username-label').innerHTML = username.replace(/"/g, '')
+            document.getElementById('icon-login').classList.remove("active")
+            document.getElementById('btn-logout').classList.add("active")
+            document.getElementById('icon-logout').classList.add("active")
+            document.getElementById('username-label').innerHTML = username.replace(/"/g, '')
         }
     }
 });
@@ -67,34 +67,34 @@ addLayerModalEl.addEventListener('hidden.bs.modal', function (event) {
  * Fonction permettant de gérer les erreurs
  * lors des appel à l'API
  */
-apiCallErrorCatcher = function(error, default_message = null) {
-    if (error.status == 403){
+apiCallErrorCatcher = function (error, default_message = null) {
+    if (error.status == 403) {
         // Ici, le token n'est plus valide côté serveur
         // Donc on ferme le modal courant et on ouvre le modal d'authentification
         // On retarde l'action car le modal doit être  
         // totallement ouvert pour pouvoir être fermé
-        setTimeout(function(){
+        setTimeout(function () {
             addLayerModal.hide()
             forceOpenLoginModal()
-        }, 1000)  
+        }, 1000)
     }
 
     // Gestion de l'affichage du message d'erreur
     if (typeof error == "string") {
         showAlert(default_message)
-    } else { 
+    } else {
         /*if (error.status == 500){
             showAlert(default_message)
         } else {*/
-            err = error.json()
-            err.then(err => { 
-                if (err.message != undefined){
-                    message = err.message
-                    showAlert(message)    
-                } else {
-                    showAlert(default_message)
-                }
-            })
+        err = error.json()
+        err.then(err => {
+            if (err.message != undefined) {
+                message = err.message
+                showAlert(message)
+            } else {
+                showAlert(default_message)
+            }
+        })
         //}
     }
 }
@@ -103,10 +103,10 @@ apiCallErrorCatcher = function(error, default_message = null) {
 /**
  * Activation des popup
  */
- var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
- var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-   return new bootstrap.Popover(popoverTriggerEl)
- })
+var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+    return new bootstrap.Popover(popoverTriggerEl)
+})
 
 /**
  * Activation des tooltips
@@ -116,13 +116,13 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl)
 })
 
- /**
-  * Dans les modal
-  * Gestion de l'affichage des div en fontion du "menu"
-  */
+/**
+ * Dans les modal
+ * Gestion de l'affichage des div en fontion du "menu"
+ */
 let allCheckBox = document.querySelectorAll('.modal-btn-check')
 
-allCheckBox.forEach(checkbox => { 
+allCheckBox.forEach(checkbox => {
     checkbox.addEventListener('change', event => {
         if (event.target.checked) {
             document.querySelectorAll('.modal-div-content').forEach(div => {
@@ -137,14 +137,14 @@ allCheckBox.forEach(checkbox => {
 /**
  * Gestion de l'affichage du bandeau d'alerte
  */
-showAlert = function(message) {
+showAlert = function (message) {
     message_element = document.getElementById("alert-message")
     message_element.innerHTML = message
 
     alert_container = document.getElementById("alert-container")
     alert_container.classList.add("show")
 
-    window.setTimeout(function() {
+    window.setTimeout(function () {
         alert_container.classList.remove("show")
     }, 3000);
 }
@@ -153,14 +153,14 @@ showAlert = function(message) {
  * Gestion de l'affichage des dropdown
  */
 // on affiche le dropdown en cliquant sur le bouton asscocié
-var openDropdown = function(obj){
+var openDropdown = function (obj) {
 
     obj.closest(".dropdown").querySelector(".dropdown-content").classList.toggle("show");
     obj.closest(".dropdown").querySelector(".dropdown-content").classList.toggle("hide");
 }
 
 // on ferme le dropdown quand on click en dehors
-window.onclick = function(event) {
+window.onclick = function (event) {
     if (!event.target.matches('.btn-dropdown')) {
         var dropdowns = document.getElementsByClassName("dropdown-content");
         var i;
@@ -217,8 +217,8 @@ checkMinMax = function(minValue, maxValue){
 }
 */
 // Controle que valeur est bien définit
-checkRequired = function(value){
-    if (value){
+checkRequired = function (value) {
+    if (value) {
         return true
     } else {
         return false
@@ -246,20 +246,20 @@ for (var i = 0; i < l_btn_toggle_sub_group.length; i++) {
     });
 }*/
 
-var json2csv = function(json_data, csv_name) {
+var json2csv = function (json_data, csv_name) {
     // Construction du CSV
     const replacer = (key, value) => value === null ? '' : value
     const header = Object.keys(json_data[0])
     const csv = "data:text/csv;charset=utf-8," + [
         header.join(','), // header row first
         ...json_data.map(row => header.map(fieldName => JSON.stringify(row[fieldName], replacer)).join(','))
-      ].join('\r\n')
-    
+    ].join('\r\n')
+
     // Création d'un élément HTML fictif sur lequel on déclanche l'event click
     var encodedUri = encodeURI(csv)
     var link = document.createElement("a")
     link.setAttribute("href", encodedUri)
-    link.setAttribute("download", csv_name+".csv")
+    link.setAttribute("download", csv_name + ".csv")
     link.click();
 }
 
@@ -267,22 +267,22 @@ var json2csv = function(json_data, csv_name) {
  * Foncton permettant de découpper une chaine 
  * de caractère pour un affichage HTML
  */
-const  stringDivider = function(str, width, spaceReplacer) {
+const stringDivider = function (str, width, spaceReplacer) {
     if (str.length > width) {
-      let p = width;
-      while (p > 0 && str[p] != ' ' && str[p] != '-') {
-        p--;
-      }
-      if (p > 0) {
-        let left;
-        if (str.substring(p, p + 1) == '-') {
-          left = str.substring(0, p + 1);
-        } else {
-          left = str.substring(0, p);
+        let p = width;
+        while (p > 0 && str[p] != ' ' && str[p] != '-') {
+            p--;
         }
-        const right = str.substring(p + 1);
-        return left + spaceReplacer + stringDivider(right, width, spaceReplacer);
-      }
+        if (p > 0) {
+            let left;
+            if (str.substring(p, p + 1) == '-') {
+                left = str.substring(0, p + 1);
+            } else {
+                left = str.substring(0, p);
+            }
+            const right = str.substring(p + 1);
+            return left + spaceReplacer + stringDivider(right, width, spaceReplacer);
+        }
     }
     return str;
 }
@@ -291,5 +291,21 @@ const  stringDivider = function(str, width, spaceReplacer) {
  * Fonction réalisant un arrondi à x décimals
  */
 floatRound = function (value, decimals) {
-    return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+    return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+}
+
+/**
+ * Fonction permettant de générer un fichier et de lancer le téléchargement
+ */
+const download = function (filename, text) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
 }

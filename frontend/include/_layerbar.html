@@ -1,9 +1,8 @@
 <div id="layerbar">
     <button target="layerbar" class="rounded-pill responsive-btn responsive-btn-close">
-            <i class="bi bi-arrow-left responsive-btn-icon"></i>
+        <i class="bi bi-arrow-left responsive-btn-icon"></i>
     </button>
-    <ul id="layer_list" 
-        data-prototype="
+    <ul id="layer_list" data-prototype="
             &lt;li class=&quot;layer_list_element&quot; layer-uid=&quot;__LAYER_UID__&quot; draggable=&quot;true&quot; ondragend=&quot;dragEnd(event)&quot; ondragover=&quot;dragOver(event)&quot; ondragstart=&quot;dragStart(event)&quot; ondrop=&quot;drop(event)&quot;&gt;
                 &lt;div class=&quot;row&quot;&gt; 
                     &lt;div class=&quot;col-lg-2 mt-auto mb-auto&quot;&gt;
@@ -16,21 +15,20 @@
                             &lt;div id=&quot;layer-list-dropdown-content&quot; class=&quot;dropdown-content hide&quot; draggable=&quot;true&quot; ondragstart=&quot;event.preventDefault(); event.stopPropagation();&quot;&gt; 
                                 &lt;div class=&quot;dropdown-item&quot; onclick=&quot;getFullDataTable(__LAYER_UID__)&quot;&gt;Afficher la table attributaire&lt;/div&gt; 
                                 &lt;div class=&quot;dropdown-item&quot; onclick=&quot;layerToCSV(__LAYER_UID__)&quot;&gt;Exporter la table attributaire en CSV&lt;/div&gt; 
+                                &lt;div class=&quot;dropdown-item&quot; onclick=&quot;exportGeoJson(__LAYER_UID__)&quot;&gt;Exporter&lt;/div&gt; 
                                 &lt;div class=&quot;dropdown-item&quot; onclick=&quot;toggleLegend(__LAYER_UID__)&quot;&gt;Afficher/Masquer la légende&lt;/div&gt; 
                                 &lt;div class=&quot;dropdown-item&quot; onclick=&quot;openRenameLayerModal(__LAYER_UID__)&quot;&gt;Renomer la couche&lt;/div&gt; 
                                 &lt;div class=&quot;dropdown-item layer-edition-menu-item __EDIT_IS_DISABLED__&quot; onclick=&quot;enableLayerEdition(event, __LAYER_UID__)&quot;&gt;Editer&lt;/div&gt;
                                 &lt;div class=&quot;dropdown-item&quot; onclick=&quot;openStyleLayerModal(__LAYER_UID__)&quot;&gt;Modifier le style&lt;/div&gt; 
                                 &lt;div class=&quot;dropdown-item hide&quot; onclick=&quot;alert('Filtrer')&quot;&gt;Filtrer&lt;/div&gt; 
                                 &lt;div class=&quot;dropdown-item&quot; onclick=&quot;removeLayer(__LAYER_UID__)&quot;&gt;Supprimer&lt;/div&gt; 
-                                &lt;div class=&quot;dropdown-item hide&quot; onclick=&quot;alert('Exporter')&quot;&gt;Exporter&lt;/div&gt; 
                                 &lt;div class=&quot;dropdown-item hide&quot; onclick=&quot;alert('Partager')&quot;&gt;Partager&lt;/div&gt; 
                             &lt;/div&gt; 
                         &lt;/div&gt; 
                     &lt;/div&gt; 
                 &lt;/div&gt; 
                 &lt;div id=&quot;layer-legend-__LAYER_UID__&quot; class=&quot;layer-legend hide&quot;&gt;&lt;/div&gt;  
-            &lt;/li&gt;"
-    >
+            &lt;/li&gt;">
         <!--<li layer-uid="__LAYER_UID__" draggable="true" ondragend="dragEnd(event)" ondragover="dragOver(event)" ondragstart="dragStart(event)" ondrop="drop(event)">
             <div class="row">
                 <div class="col-lg-2 mt-auto mb-auto"><input type="checkbox" class="checkbox-layer" checked="true"></div>

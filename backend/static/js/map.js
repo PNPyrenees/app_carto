@@ -2359,6 +2359,8 @@ var build_drawing_layer_style = function () {
     return layer_default_style
 }
 
+
+
 /**
  * Fonction ajoutant une couche de dessin à la carte
  */
@@ -2383,7 +2385,8 @@ var addDrawingLayerOnMap = function (layer_name) {
         layer_name: desc_layer.layer_label,
         source: new ol.source.Vector({
             attributions: desc_layer.layer_attribution,
-            visible: true
+            visible: true,
+            projection: 'EPSG:3857',
         }),
         layerType: "drawingLayer",
         isEditable: true,
@@ -2429,3 +2432,23 @@ var addDrawingLayerOnMap = function (layer_name) {
         return false
     }
 }*/
+
+/*----------------------------------------------------*/
+/*------------------EXPORT GeoJson--------------------*/
+/*----------------------------------------------------*/
+var exportGeoJson = function (layer_uid) {
+    map.getLayers().forEach(layer => {
+        if (ol.util.getUid(layer) == layer_uid) {
+            var writer = new ol.format.GeoJSON({ featureProjection: 'EPSG:2154' })
+
+            var geojsonStr = new ol.format.GeoJSON().writeFeatures(layer.getSource().getFeatures(), {
+                dataProjection: 'EPSG:4326',
+                featureProjection: 'EPSG:3857'
+            });
+
+            filename = layer.get('layer_name') + '.geojson'
+            download(filename, geojsonStr)
+        }
+    })
+}
+
