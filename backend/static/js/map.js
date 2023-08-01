@@ -3,8 +3,8 @@
 /*----------------------------------------------------*/
 /**
  * Style par défaut
- */        
-const selectedStyles = function(feature, resolution) {
+ */
+const selectedStyles = function (feature, resolution) {
 
     let hilgth_color = "#ff0000"
     let hilgth_strok_width = "5"
@@ -81,12 +81,12 @@ const selectedStyles = function(feature, resolution) {
 /**
  * Création d'une couche dédié aux objets sélectionnés
  */
- let selectedVectorSource = new ol.source.Vector()
- let selectedVectorLayer = new ol.layer.Vector({
-     source: selectedVectorSource,
-     style: selectedStyles,
-     zIndex: 999,
- })
+let selectedVectorSource = new ol.source.Vector()
+let selectedVectorLayer = new ol.layer.Vector({
+    source: selectedVectorSource,
+    style: selectedStyles,
+    zIndex: 999,
+})
 
 var scale_line = new ol.control.ScaleLine({
     units: "metric",
@@ -102,7 +102,7 @@ map = new ol.Map({
     target: 'map',
     view: new ol.View({
         projection: 'EPSG:3857',
-        center: ol.proj.transform(CENTER, 'EPSG:4326','EPSG:3857'),
+        center: ol.proj.transform(CENTER, 'EPSG:4326', 'EPSG:3857'),
         zoom: ZOOM_LEVEL,
         maxZoom: 18,
     }),
@@ -132,7 +132,7 @@ BASEMAPS.forEach(basemap => {
                 visible: parseInt(basemap.isDefault),
                 isEditing: false,
                 isBasemap: true,
-                description_layer: {"layer_attribution": basemap.attributions},
+                description_layer: { "layer_attribution": basemap.attributions },
                 source: new ol.source.WMTS({
                     attributions: basemap.attributions,
                     url: basemap.url,
@@ -158,7 +158,7 @@ BASEMAPS.forEach(basemap => {
                 visible: parseInt(basemap.isDefault),
                 isEditing: false,
                 isBasemap: true,
-                description_layer: {"layer_attribution": basemap.attributions},
+                description_layer: { "layer_attribution": basemap.attributions },
                 source: new ol.source.XYZ({
                     attributions: basemap.attributions,
                     url: basemap.url,
@@ -172,18 +172,18 @@ BASEMAPS.forEach(basemap => {
                     crossOrigin: "anonymous"
                 })
             })
-           
+
             break
     }
 
     map.addLayer(basemap_layer)
 
     let div_item = document.createElement('div')
-    div_item.setAttribute('class','dropdown-item')
+    div_item.setAttribute('class', 'dropdown-item')
     div_item.setAttribute('layer-uid', ol.util.getUid(basemap_layer))
     div_item.appendChild(document.createTextNode(basemap.name))
-    div_item.setAttribute('onclick','showBasemap(' + ol.util.getUid(basemap_layer) + ')')
-    
+    div_item.setAttribute('onclick', 'showBasemap(' + ol.util.getUid(basemap_layer) + ')')
+
     document.getElementById("basemap-dropdown-content").appendChild(div_item)
 })
 
@@ -193,11 +193,11 @@ map.addLayer(selectedVectorLayer)
 /**
  * Gestion du changement de fond de carte
  */
-showBasemap = function(layer_uid){
+showBasemap = function (layer_uid) {
     map.getLayers().forEach(layer => {
-        if (layer.get("isBasemap") == true){
+        if (layer.get("isBasemap") == true) {
             layer.setVisible(false)
-            if (ol.util.getUid(layer) == layer_uid){
+            if (ol.util.getUid(layer) == layer_uid) {
                 layer.setVisible(true)
             }
         }
@@ -207,7 +207,7 @@ showBasemap = function(layer_uid){
 /**
  * Fonction vidant la couche de sélection 
  */
- clearSelectedSource = function(){
+clearSelectedSource = function () {
     selectedVectorSource.clear()
 }
 
@@ -215,9 +215,8 @@ showBasemap = function(layer_uid){
  * Gestion de l'affichage des coordonnées correspondant 
  * à la position de la souris
  */
-map.on('pointermove', function(evt) {
+map.on('pointermove', function (evt) {
     var coords = ol.proj.toLonLat(evt.coordinate);
-    console.log(coords)
 
     document.getElementById('bloc-coords').innerHTML = coords[1].toFixed(8) + " ; " + coords[0].toFixed(8);
 });
@@ -230,27 +229,27 @@ map.on('pointermove', function(evt) {
  */
 var random_color = function (opacity) {
     var o = Math.round, r = Math.random, s = 255
-    let red = o(r()*s)
-    let green = o(r()*s)
-    let blue = o(r()*s)
+    let red = o(r() * s)
+    let green = o(r() * s)
+    let blue = o(r() * s)
     let color_rgba = 'rgba(' + red + ',' + green + ',' + blue + ',' + opacity + ')'
     let color_rgb = 'rgb(' + red + ',' + green + ',' + blue + ')'
     //return 'rgba(' + o(r()*s) + ',' + o(r()*s) + ',' + o(r()*s) + ',' + opacity + ')'
-    return {color_rgba, color_rgb}
+    return { color_rgba, color_rgb }
 }
 
 /**
  * Style par défaut
  */
-const getDefaultStyle = function(){
+const getDefaultStyle = function () {
 
     // Création des couleurs aléatoires
-    let {color_rgba, color_rgb} = random_color(0.5)
+    let { color_rgba, color_rgb } = random_color(0.5)
 
-    return function (feature, resolution) {  
-        
-        
-        if (feature.visible == false){
+    return function (feature, resolution) {
+
+
+        if (feature.visible == false) {
             return null
         }
 
@@ -340,14 +339,14 @@ const getDefaultStyle = function(){
 /**
  * Construction de l'étiquette
  */
-const getFeatureLabel = function(feature_label, feature, resolution){
+const getFeatureLabel = function (feature_label, feature, resolution) {
     // Pas d'étiquette si ce n'est pas définit dans la json
-    if (! feature_label){
+    if (!feature_label) {
         return null
-    } 
+    }
 
     // Si il n'ya a pas de valeur dans l'attribut utilisé pour le label on s'arrète
-    if (! feature.get(feature_label.text)){
+    if (!feature.get(feature_label.text)) {
         return null
     }
 
@@ -358,18 +357,18 @@ const getFeatureLabel = function(feature_label, feature, resolution){
         max_resolution = feature_label.max_resolution
     }
     // Découpage de la chaine de caractère 
-    if (resolution <= max_resolution){
+    if (resolution <= max_resolution) {
         // gestion différente si la valeur est un numérique ou une chaine de caractère
         let tmp_label_value = feature.get(feature_label.text)
-        switch (typeof tmp_label_value){
-            case 'string' : 
+        switch (typeof tmp_label_value) {
+            case 'string':
                 text = stringDivider(tmp_label_value, 16, '\n')
                 break
-            case 'number': 
+            case 'number':
                 text = tmp_label_value.toString()
                 break
             case 'boolean':
-                if (tmp_label_value == true){
+                if (tmp_label_value == true) {
                     text = 'OUI'
                 } else {
                     text = 'NON'
@@ -379,35 +378,35 @@ const getFeatureLabel = function(feature_label, feature, resolution){
 
     // Construction du font
     var weight = 'Normal'
-    if (feature_label.weight){
+    if (feature_label.weight) {
         weight = feature_label.weight
     }
 
     var size = 14
-    if (feature_label.size){
+    if (feature_label.size) {
         size = feature_label.size
     }
-    
-    var font = weight + ' ' + size + 'px/1 Arial' 
+
+    var font = weight + ' ' + size + 'px/1 Arial'
 
     // Construction de la couleur du texte
     var text_color = "rgba(0,0,0,1)"
-    if (feature_label.color){
+    if (feature_label.color) {
         text_color = feature_label.color
     }
-    var fill = new ol.style.Fill({color: text_color})
+    var fill = new ol.style.Fill({ color: text_color })
 
     // Récupération du fond de l'étiquette
     var background_color = "rgba(255,255,255,0.7)"
-    if (feature_label.background_color){
+    if (feature_label.background_color) {
         background_color = feature_label.background_color
     }
 
-    background = new ol.style.Fill({color: background_color})
+    background = new ol.style.Fill({ color: background_color })
 
     // Définition du placement du text
     var placement, baseline, align, offsetX, offsetY
-    switch (feature.getGeometry().getType()){
+    switch (feature.getGeometry().getType()) {
         case 'Polygon':
         case 'MultiPolygon':
         case 'LineString':
@@ -446,11 +445,11 @@ const getFeatureLabel = function(feature_label, feature, resolution){
 /**
  * Construction d'un style openlayers à partir d'un json
  */
-const getStyleFromJson = function(json_styles){
+const getStyleFromJson = function (json_styles) {
     // On retourne une fonction interprétable par openLayers
     return function (feature, resolution) {
         // Pas de style si le feature est déclaré comme non visible (=filtré)
-        if (feature.visible == false){
+        if (feature.visible == false) {
             return null
         }
 
@@ -468,7 +467,7 @@ const getStyleFromJson = function(json_styles){
                     json_geom_style.styles.forEach(style => {
                         //Si la condition du style est respecté
                         //if(eval(buildFilter(style.filter))){
-                        if(style.expression == null || eval(style.expression)){
+                        if (style.expression == null || eval(style.expression)) {
                             //On retourne le style
                             polygon_style = [new ol.style.Style({
                                 stroke: new ol.style.Stroke({
@@ -495,7 +494,7 @@ const getStyleFromJson = function(json_styles){
                         //console.log(style.expression)
                         //Si la condition du style est respecté
                         //if(eval(buildFilter(style.filter))){
-                        if(style.expression == null || eval(style.expression)){
+                        if (style.expression == null || eval(style.expression)) {
                             //On retourne le style
                             point_style = [new ol.style.Style({
                                 image: new ol.style.Circle({
@@ -504,7 +503,7 @@ const getStyleFromJson = function(json_styles){
                                         color: style.fill_color,
                                     }),
                                     stroke: new ol.style.Stroke({
-                                        color: style.stroke_color, 
+                                        color: style.stroke_color,
                                         lineDash: style.stroke_linedash,
                                         width: style.stroke_width
                                     }),
@@ -518,11 +517,11 @@ const getStyleFromJson = function(json_styles){
                     json_geom_style.styles.forEach(style => {
                         //Si la condition du style est respecté
                         //if(eval(buildFilter(style.filter))){
-                        if(style.expression == null || eval(style.expression)){
+                        if (style.expression == null || eval(style.expression)) {
                             //On retourne le style
                             line_style = [new ol.style.Style({
                                 stroke: new ol.style.Stroke({
-                                    color: style.stroke_color, 
+                                    color: style.stroke_color,
                                     lineDash: style.stroke_linedash,
                                     width: style.stroke_width
                                 }),
@@ -535,12 +534,12 @@ const getStyleFromJson = function(json_styles){
                     json_geom_style.styles.forEach(style => {
                         //Si la condition du style est respecté
                         //if(eval(buildFilter(style.filter))){
-                        if(style.expression == null || eval(style.expression)){
+                        if (style.expression == null || eval(style.expression)) {
                             //On retourne le style
                             icon_style = [new ol.style.Style({
                                 image: new ol.style.Icon({
-                                    src: style.icon_svg_path, 
-                                    color:  style.icon_color,
+                                    src: style.icon_svg_path,
+                                    color: style.icon_color,
                                     scale: style.icon_scale,
                                     opacity: style.icon_opacity
                                 }),
@@ -552,24 +551,24 @@ const getStyleFromJson = function(json_styles){
             }
         })
 
-        if (polygon_style){
+        if (polygon_style) {
             feature_style['Polygon'] = polygon_style
             feature_style['MultiPolygon'] = polygon_style
         }
 
-        if (line_style){
+        if (line_style) {
             feature_style['LineString'] = line_style
             feature_style['MultiLineString'] = line_style
         }
 
-        if (point_style){
+        if (point_style) {
             feature_style['Point'] = point_style
             feature_style['MultiPoint'] = point_style
         }
 
         // Si le style icon est définit alors on écrase le 
         // style attribué aux points (et multipoints)
-        if (icon_style){
+        if (icon_style) {
             feature_style['Point'] = icon_style
             feature_style['MultiPoint'] = icon_style
         }
@@ -577,7 +576,7 @@ const getStyleFromJson = function(json_styles){
         // Si on a pas récupéré de style depuis 
         // le json alors on attribut le style par défaut 
         // pour l'objet courant
-        if (feature_style){
+        if (feature_style) {
             //return feature_style
             return feature_style[feature.getGeometry().getType()];
         } else {
@@ -590,7 +589,7 @@ const getStyleFromJson = function(json_styles){
  * Si le json style existe alors on construit la symbologie
  * sinon on retourne le style par défaut pour la couche
  */
-var buildStyle = function(json_style){
+var buildStyle = function (json_style) {
     if (json_style) {
         return getStyleFromJson(json_style)
     } else {
@@ -601,18 +600,18 @@ var buildStyle = function(json_style){
 /**
  * Gestion du highlight d'un feature
  */
- highlightFeature = function(layer_uid, feature_uid, zoomOn=true, showOne=true){
+highlightFeature = function (layer_uid, feature_uid, zoomOn = true, showOne = true) {
     // On vide la couche de sélection seulement si on veut
     // highligth un seul feature
-    if(showOne){
+    if (showOne) {
         clearSelectedSource()
     }
     //On recherche le feature 
     map.getLayers().forEach(layer => {
         if (ol.util.getUid(layer) == layer_uid) {
-            layer.getSource().getFeatures().forEach(feature => { 
-                if (ol.util.getUid(feature) == feature_uid){
-                    feature["orginalLayerUid"]=layer_uid
+            layer.getSource().getFeatures().forEach(feature => {
+                if (ol.util.getUid(feature) == feature_uid) {
+                    feature["orginalLayerUid"] = layer_uid
                     //On ajoute le feature à la source
                     selectedVectorSource.addFeature(feature.clone())
 
@@ -623,7 +622,7 @@ var buildStyle = function(json_style){
                         feature.setStyle(selectedStyles(feature))
                     })
                     //On zoom sur l'extent de la source
-                    if (zoomOn){
+                    if (zoomOn) {
                         map.getView().fit(selectedVectorSource.getExtent(), map.getSize())
                     }
                 }
@@ -635,9 +634,9 @@ var buildStyle = function(json_style){
 /**
  * Gestion de l'opacité
  */
- var setLayerOpacity = function(layer_uid, opacity){
+var setLayerOpacity = function (layer_uid, opacity) {
     map.getLayers().forEach(layer => {
-        if (ol.util.getUid(layer) == layer_uid){
+        if (ol.util.getUid(layer) == layer_uid) {
             layer.setOpacity(parseFloat(opacity))
         }
     })
@@ -649,7 +648,7 @@ var buildStyle = function(json_style){
 /**
  * Recherche d'un lieux dit et zoom sur la carte
  */
- document.getElementById("search-toponyme-input").addEventListener("keyup", event => {
+document.getElementById("search-toponyme-input").addEventListener("keyup", event => {
     if (controller !== undefined) {
         // Cancel the previous request
         controller.abort();
@@ -671,15 +670,15 @@ var buildStyle = function(json_style){
         getAutocompleteToponyme(search_name).then(toponymes_list => {
             document.getElementById("toponyme-autocomplete").classList.remove("hide")
 
-            if (toponymes_list.geojson_layer.features){                
+            if (toponymes_list.geojson_layer.features) {
                 //Création des élément HTML de la liste des résultats
                 toponymes_list.geojson_layer.features.forEach(toponyme => {
 
                     toponyme_nom = toponyme.properties.toponyme_nom
 
-                    if (toponyme.properties.toponyme_type && toponyme.properties.toponyme_precision_geo){
+                    if (toponyme.properties.toponyme_type && toponyme.properties.toponyme_precision_geo) {
                         toponyme_nom += ' (' + toponyme.properties.toponyme_type + ' - ' + toponyme.properties.toponyme_precision_geo + ')'
-                    } else if (toponyme.properties.toponyme_type){
+                    } else if (toponyme.properties.toponyme_type) {
                         toponyme_nom += ' (' + toponyme.properties.toponyme_type + ')'
                     } else if (toponyme.properties.toponyme_precision_geo) {
                         toponyme_nom += ' (' + toponyme.properties.toponyme_precision_geo + ')'
@@ -695,12 +694,12 @@ var buildStyle = function(json_style){
 
                     // On ajoute un listener lors d'un clique sur un des éléments
                     // qui zoom sur les coordonnée associé à l'élément
-                    div.addEventListener('click', (event) =>{
+                    div.addEventListener('click', (event) => {
                         // On masque la liste des propositions
                         document.getElementById("toponyme-autocomplete").classList.add("hide")
 
                         let coordinates = JSON.parse(event.currentTarget.getAttribute("coordinates"))
-                        map.getView().fit(coordinates, {maxZoom: 16})
+                        map.getView().fit(coordinates, { maxZoom: 16 })
 
                         document.getElementById("search-toponyme-input").value = event.currentTarget.innerHTML
                     })
@@ -724,26 +723,26 @@ var buildStyle = function(json_style){
 /**
  * Appel API pour l'autocomplétion du lieux-dits
  */
-var getAutocompleteToponyme = function (search_name){
+var getAutocompleteToponyme = function (search_name) {
     return fetch(APP_URL + "/api/toponyme_autocomplete?search_name=" + search_name + "&limit=20", {
         method: "GET",
         signal: signal,
-        headers: { 
-            "Accept": "application/json", 
-            "Content-Type": "application/json" 
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
         },
         credentials: "same-origin"
     })
-    .then(res => {
-        if (res.status != 200){
-            throw res
-        } else {
-            return res.json()
-        }
-    })
-    .catch(error => {
-        default_message = "Erreur lors de l'autocompétion du taxon"
-    })
+        .then(res => {
+            if (res.status != 200) {
+                throw res
+            } else {
+                return res.json()
+            }
+        })
+        .catch(error => {
+            default_message = "Erreur lors de l'autocompétion du taxon"
+        })
 }
 
 /*----------------------------------------------------*/
@@ -752,37 +751,37 @@ var getAutocompleteToponyme = function (search_name){
 /**
  * Fonction ajoutant une couche GeoJSON à la carte
  */
-var addGeojsonLayer = function(data, additional_data = null){
+var addGeojsonLayer = function (data, additional_data = null) {
 
     geojson = data.geojson_layer
 
     let layer_default_style = data.desc_layer.layer_default_style
 
     // Création d'un stryle json par défaut s'il n'y en a pas déjà un
-    if (! layer_default_style){
+    if (!layer_default_style) {
         // Création des couleurs aléatoires
-        let {color_rgba, color_rgb} = random_color(0.5)
+        let { color_rgba, color_rgb } = random_color(0.5)
 
         // On récupère analyse les feature our connaitre les différentes géométrye
         var has_polygon = false
         var has_Line = false
         var has_point = false
         geojson.features.forEach(feature => {
-            if (feature.geometry){
-                if (feature.geometry.type == "Polygon" || feature.geometry.type == "MultiPolygon"){
+            if (feature.geometry) {
+                if (feature.geometry.type == "Polygon" || feature.geometry.type == "MultiPolygon") {
                     has_polygon = true
                 }
-                else if (feature.geometry.type == "LineString" || feature.geometry.type == "MultiLineString"){
+                else if (feature.geometry.type == "LineString" || feature.geometry.type == "MultiLineString") {
                     has_Line = true
                 }
-                else if (feature.geometry.type == "Point" || feature.geometry.type == "MultiPoint"){
+                else if (feature.geometry.type == "Point" || feature.geometry.type == "MultiPoint") {
                     has_point = true
                 }
             }
         })
 
         layer_default_style = []
-        if (has_polygon){
+        if (has_polygon) {
             tmp_style = {
                 "style_type": "Polygon",
                 "styles": [{
@@ -790,24 +789,24 @@ var addGeojsonLayer = function(data, additional_data = null){
                     "stroke_color": "rgba(0,0,0,1)",
                     "stroke_width": 1,
                     "stroke_linedash": [],
-                    "filter" : null
+                    "filter": null
                 }]
             }
             layer_default_style.push(tmp_style)
         }
-        if (has_Line){
+        if (has_Line) {
             tmp_style = {
                 "style_type": "Line",
                 "styles": [{
                     "stroke_color": color_rgb,
                     "stroke_width": 5,
                     "stroke_linedash": [],
-                    "filter" : null
+                    "filter": null
                 }]
             }
             layer_default_style.push(tmp_style)
         }
-        if (has_point){
+        if (has_point) {
             tmp_style = {
                 "style_type": "Point",
                 "styles": [{
@@ -816,7 +815,7 @@ var addGeojsonLayer = function(data, additional_data = null){
                     "stroke_width": 1,
                     "stroke_linedash": [],
                     "radius": 5,
-                    "filter" : null
+                    "filter": null
                 }]
             }
             layer_default_style.push(tmp_style)
@@ -836,7 +835,7 @@ var addGeojsonLayer = function(data, additional_data = null){
 
     // On initialise tout les feature comme visible
     vectorSource["visible"] = true
-    
+
     zindex = map.getLayers().getLength() + 1
 
     // Création du layer
@@ -864,9 +863,9 @@ var addGeojsonLayer = function(data, additional_data = null){
 /**
  * Fonction ajoutant la couche dans le layerBar
  */
-var addLayerInLayerBar = function(vectorLayer){
+var addLayerInLayerBar = function (vectorLayer) {
     let prototype = document.getElementById("layer_list").getAttribute('data-prototype')
-    
+
     layer_uid = ol.util.getUid(vectorLayer) //- 1 
 
     layer_name = vectorLayer.get('layer_name')
@@ -875,13 +874,13 @@ var addLayerInLayerBar = function(vectorLayer){
     prototype = prototype.replace(/__LAYER_NAME__/g, layer_name)
 
     // On active la fontion dédition si la couche est éditable
-    if (vectorLayer.get('isEditable') == true){
+    if (vectorLayer.get('isEditable') == true) {
         prototype = prototype.replace(/__EDIT_IS_DISABLED__/g, '')
     } else {
         prototype = prototype.replace(/__EDIT_IS_DISABLED__/g, 'disabled')
     }
-    
-    
+
+
     template = document.createElement('template')
     template.innerHTML = prototype
 
@@ -890,13 +889,13 @@ var addLayerInLayerBar = function(vectorLayer){
         let layer_uid = event.target.closest("li").getAttribute("layer-uid")
 
         map.getLayers().forEach(layer => {
-            if (ol.util.getUid(layer) == layer_uid){
+            if (ol.util.getUid(layer) == layer_uid) {
                 layer.setVisible(!layer.getVisible())
             }
         });
     })
 
-    template.content.querySelector(".layer-name").addEventListener("click", event =>{
+    template.content.querySelector(".layer-name").addEventListener("click", event => {
         // Récupération de l'uid de la couche cliqué
         let layer_uid = event.target.closest("li").getAttribute("layer-uid")
 
@@ -908,7 +907,7 @@ var addLayerInLayerBar = function(vectorLayer){
 
     // Construction de la légende de la couche
     json_style = vectorLayer.get('json_style')
-    if (json_style){
+    if (json_style) {
         buildLegendForLayer(layer_uid, json_style)
     }
 
@@ -919,101 +918,128 @@ var addLayerInLayerBar = function(vectorLayer){
 /**
  * Fonction créant la légende associé à la couche
  */
-buildLegendForLayer = function(layer_uid, json_style){
+buildLegendForLayer = function (layer_uid, json_style) {
 
     // Récupération de l'objet associé à la légende de la couche layer_uid
-    layer_legend = document.getElementById("layer-legend-"+layer_uid)
+    layer_legend = document.getElementById("layer-legend-" + layer_uid)
     // On vide le contenu de la légende actuelle
     layer_legend.innerHTML = ""
+
+    // récupération de la liste des géométrie contenu dans la couche
+    l_geomType = []
+    map.getLayers().forEach(layer => {
+        if (ol.util.getUid(layer) == layer_uid) {
+            layer.getSource().getFeatures().forEach(feature => {
+                if (!l_geomType.includes(feature.getGeometry().getType())) {
+                    l_geomType.push(feature.getGeometry().getType())
+                }
+            })
+        }
+    })
+
+    // on surcharge la valeur LineString par Line pour qu'lle puisse être reconnu 
+    // avec le type de géométrie déclaré dans le json_style
+    var index = l_geomType.indexOf('LineString');
+    if (index !== -1) {
+        l_geomType[index] = 'Line';
+    }
+
+    console.log(l_geomType)
 
     legends = []
     json_style.forEach(tmp_json_style => {
         geom_type = tmp_json_style.style_type
 
-        
-        tmp_json_style.styles.forEach(style => {
-            // Création de la ligne
-            legend_row = document.createElement("div")
-            legend_row.classList.add("legend-row")
+        if (l_geomType.includes(geom_type)) {
 
-            // Création de la colonne recevant le symbol graphique
-            legend_col_symbol = document.createElement("div")
-            legend_col_symbol.classList.add("legend-col-symbol")
-            legend_col_symbol.classList.add("m-auto")
-            legend_col_symbol.classList.add("mb-auto")
-            legend_col_symbol.classList.add("d-flex")
-            legend_col_symbol.classList.add("justify-content-center")
+            tmp_json_style.styles.forEach(style => {
 
-            // Création du symbol
-            div_symbol = document.createElement("div")            
 
-            switch (geom_type){
-                case 'Polygon':
-                    div_symbol.classList.add("legend-poly")
-                    div_symbol.style.borderColor = style.stroke_color
-                    div_symbol.style.borderWidth = style.stroke_width + "px"
-                    div_symbol.style.background = style.fill_color
-                    
-                    if (style.stroke_linedash.length > 0) {
-                        div_symbol.style.borderStyle = "dashed"
-                    }
-                    break
-                case 'Line':
-                    div_symbol.classList.add("legend-line")
-                    div_symbol.style.borderTopColor = style.stroke_color
-                    div_symbol.style.borderTopWidth = style.stroke_width + "px"
-                    
-                    if (style.stroke_linedash.length > 0) {
-                        div_symbol.style.borderTopStyle = "dashed"
-                    }
-                    break
-                case 'Point':
-                    div_symbol.classList.add("legend-point")
-                    div_symbol.style.borderColor = style.stroke_color
-                    div_symbol.style.borderWidth = style.stroke_width + "px"
-                    div_symbol.style.background = style.fill_color
-                    
-                    if (style.stroke_linedash.length > 0) {
-                        div_symbol.style.borderStyle = "dashed"
-                    }
-                    break
-                case 'Icon':
-                    svgImage = document.createElement("img")
-                    svgImage.setAttribute("src", style.icon_svg_path)
-                    svgImage.style.fill = style.icon_color
-                    svgImage.setAttribute("width", "30px")
-                    svgImage.setAttribute("height", "30px")
 
-                    // On utilise svgInject pour transformer la balise img en balise svg 
-                    // et ainsi pouvoir attribuer la couleur à l'icône
-                    SVGInject(svgImage, {
-                        afterInject: function(img, svg){
-                            svg.querySelector("path").style.fill = style.icon_color
+
+                // Création de la ligne
+                legend_row = document.createElement("div")
+                legend_row.classList.add("legend-row")
+
+                // Création de la colonne recevant le symbol graphique
+                legend_col_symbol = document.createElement("div")
+                legend_col_symbol.classList.add("legend-col-symbol")
+                legend_col_symbol.classList.add("m-auto")
+                legend_col_symbol.classList.add("mb-auto")
+                legend_col_symbol.classList.add("d-flex")
+                legend_col_symbol.classList.add("justify-content-center")
+
+                // Création du symbol
+                div_symbol = document.createElement("div")
+
+                switch (geom_type) {
+                    case 'Polygon':
+                        div_symbol.classList.add("legend-poly")
+                        div_symbol.style.borderColor = style.stroke_color
+                        div_symbol.style.borderWidth = style.stroke_width + "px"
+                        div_symbol.style.background = style.fill_color
+
+                        if (style.stroke_linedash.length > 0) {
+                            div_symbol.style.borderStyle = "dashed"
                         }
-                    })
-                    
-                    div_symbol.append(svgImage)
-                    
-                    break
-            }
+                        break
+                    case 'Line':
+                        div_symbol.classList.add("legend-line")
+                        div_symbol.style.borderTopColor = style.stroke_color
+                        div_symbol.style.borderTopWidth = style.stroke_width + "px"
 
-            // Création du label associé au style
-            legend_col_label = document.createElement("div")
-            legend_col_label.classList.add("legend-col-label")
-            legend_col_label.classList.add("mt-auto")
-            legend_col_label.classList.add("mb-auto")
-            
-            if (style.style_name) {
-                legend_col_label.innerHTML = style.style_name
-            } 
+                        if (style.stroke_linedash.length > 0) {
+                            div_symbol.style.borderTopStyle = "dashed"
+                        }
+                        break
+                    case 'Point':
+                        div_symbol.classList.add("legend-point")
+                        div_symbol.style.borderColor = style.stroke_color
+                        div_symbol.style.borderWidth = style.stroke_width + "px"
+                        div_symbol.style.background = style.fill_color
 
-            // Assemblage des divs
-            legend_col_symbol.append(div_symbol)
-            legend_row.append(legend_col_symbol)
-            legend_row.append(legend_col_label)
+                        if (style.stroke_linedash.length > 0) {
+                            div_symbol.style.borderStyle = "dashed"
+                        }
+                        break
+                    case 'Icon':
+                        svgImage = document.createElement("img")
+                        svgImage.setAttribute("src", style.icon_svg_path)
+                        svgImage.style.fill = style.icon_color
+                        svgImage.setAttribute("width", "30px")
+                        svgImage.setAttribute("height", "30px")
 
-            legends.push(legend_row)
-        })        
+                        // On utilise svgInject pour transformer la balise img en balise svg 
+                        // et ainsi pouvoir attribuer la couleur à l'icône
+                        SVGInject(svgImage, {
+                            afterInject: function (img, svg) {
+                                svg.querySelector("path").style.fill = style.icon_color
+                            }
+                        })
+
+                        div_symbol.append(svgImage)
+
+                        break
+                }
+
+                // Création du label associé au style
+                legend_col_label = document.createElement("div")
+                legend_col_label.classList.add("legend-col-label")
+                legend_col_label.classList.add("mt-auto")
+                legend_col_label.classList.add("mb-auto")
+
+                if (style.style_name) {
+                    legend_col_label.innerHTML = style.style_name
+                }
+
+                // Assemblage des divs
+                legend_col_symbol.append(div_symbol)
+                legend_row.append(legend_col_symbol)
+                legend_row.append(legend_col_label)
+
+                legends.push(legend_row)
+            })
+        }
     })
 
     legends.forEach(legend => {
@@ -1033,14 +1059,14 @@ buildLegendForLayer = function(layer_uid, json_style){
     slider.setAttribute("ondragstart", "event.preventDefault(); event.stopPropagation();")
 
     layer_legend.append(slider)
-    
+
 }
 
 /**
  * Affiche ou maque la légende
  */
-toggleLegend = function(layer_uid){
-    document.getElementById("layer-legend-"+layer_uid).classList.toggle("hide")
+toggleLegend = function (layer_uid) {
+    document.getElementById("layer-legend-" + layer_uid).classList.toggle("hide")
 }
 
 /**
@@ -1130,7 +1156,7 @@ toggleLegend = function(layer_uid){
  * Fonction changeant l'ordre des couche sur la carte 
  * en fonction de l'ordre des couche dans le layerBar
  */
-var changeLayerOrder = function(){
+var changeLayerOrder = function () {
     items = document.getElementById("layer_list").getElementsByTagName("li")
     for (var i = 0; i < items.length; ++i) {
         nb_layers = map.getLayers().getLength()
@@ -1138,7 +1164,7 @@ var changeLayerOrder = function(){
         new_index = nb_layers - i
 
         map.getLayers().forEach(layer => {
-            if (ol.util.getUid(layer) == layer_uid){
+            if (ol.util.getUid(layer) == layer_uid) {
                 layer.setZIndex(new_index)
             }
         });
@@ -1151,20 +1177,20 @@ var changeLayerOrder = function(){
 /**
  * Suppression d'une couche sur la carte
  */
-removeLayer = function(layer_uid){
+removeLayer = function (layer_uid) {
 
     //On recherche la couche
     var layer = null
     map.getLayers().forEach(tmp_layer => {
         current_layer_uid = ol.util.getUid(tmp_layer)
-        if (current_layer_uid == layer_uid){
+        if (current_layer_uid == layer_uid) {
             layer = tmp_layer
             return
         }
     })
 
     // puis on la supprime
-    if (layer){
+    if (layer) {
         //Cas particulier de la couche warning qui ne doit pas être supprimé
         if (layer.get("layerType") == "warningCalculatorLayer") {
             // On rend invisible la couche
@@ -1182,7 +1208,7 @@ removeLayer = function(layer_uid){
         }
 
         // Si la couche supprimé est la couche active alors on s'assure que l'édition est désactivé
-        if (document.querySelector("#layer_list li[layer-uid='" + layer_uid + "']").classList.contains("layer-is-selected")){
+        if (document.querySelector("#layer_list li[layer-uid='" + layer_uid + "']").classList.contains("layer-is-selected")) {
             disableLayerDrawing()
 
             // On masque les éventuelle boite à outil ouverte
@@ -1190,35 +1216,35 @@ removeLayer = function(layer_uid){
                 document.getElementById("chanllenge-calculator-group-edit-btn").classList.add("hide")
             } else {
                 document.getElementById("drawing-layer-group-edit-btn").classList.add("hide")
-            }            
+            }
         }
-        
+
         // On supprime la couche du layer bar
         document.querySelector("#layer_list li[layer-uid='" + layer_uid + "']").remove()
-        
+
         // On efface la table attributaire si elle est ouverte
         tab_id = "layer-data-table-" + current_layer_uid
-        if (document.querySelector(".nav-layer-item[target=" + tab_id + "]")){               
+        if (document.querySelector(".nav-layer-item[target=" + tab_id + "]")) {
             document.getElementById(tab_id).remove()
             document.querySelector(".nav-layer-item[target=" + tab_id + "]").remove()
         }
 
         // On efface le ou les features de la couche qui sont dans selectedVectorSource
         selectedVectorSource.getFeatures().forEach(feature => {
-            if (feature.orginalLayerUid == layer_uid){
+            if (feature.orginalLayerUid == layer_uid) {
                 selectedVectorSource.removeFeature(feature)
             }
-        })       
+        })
 
         // On supprime les entré de cette couche dans 
         // le fenêtre d'affichage des données attributaire
         // (celle qui s'ouvre quand on clique sur la carte)
         attr_data = document.getElementById("bloc-clicked-features-attributes").querySelector(".layer-item[layer-uid=\"" + layer_uid + "\"]")
-        if (attr_data){
+        if (attr_data) {
             attr_data.remove()
 
             // S'il n'y a plus de données dans le bloc attributaire, on le ferme
-            if (attr_data = document.getElementById("bloc-clicked-features-attributes").querySelector(".layer-item") == null){
+            if (attr_data = document.getElementById("bloc-clicked-features-attributes").querySelector(".layer-item") == null) {
                 hideBlockClickedFeaturesAttributes()
             }
         }
@@ -1233,9 +1259,9 @@ removeLayer = function(layer_uid){
  * Seul les entités répondant aux filtres doivent être affichées
  */
 var table
-getFullDataTable = function(layer_uid){
+getFullDataTable = function (layer_uid) {
     map.getLayers().forEach(layer => {
-        if (ol.util.getUid(layer) == layer_uid){
+        if (ol.util.getUid(layer) == layer_uid) {
             var first_iteration = true
             data = []
             layer.getSource().getFeatures().forEach(feature => {
@@ -1244,7 +1270,7 @@ getFullDataTable = function(layer_uid){
                 feature_uid = ol.util.getUid(feature)
 
                 feature_data = feature.getProperties()
-                
+
                 // On ajoute l'uid dans le json
                 feature_data["ol_uid"] = feature_uid
 
@@ -1263,12 +1289,12 @@ getFullDataTable = function(layer_uid){
 /**
  * Créer la table attributaire html
  */
-createAttributeTable = function(layer_name, layer_uid, data){
+createAttributeTable = function (layer_name, layer_uid, data) {
 
     tab_id = "layer-data-table-" + layer_uid //+ '-' + date_id
 
     //On controle si le tableau existe
-    if (document.querySelector(".nav-layer-item[target=" + tab_id + "]")){
+    if (document.querySelector(".nav-layer-item[target=" + tab_id + "]")) {
         // Si c'est le cas, on masque tout
         inactiveAllAttributeTables()
         // et on l'affiche que le tableau concerné
@@ -1283,21 +1309,21 @@ createAttributeTable = function(layer_name, layer_uid, data){
     tab_element.setAttribute("layer-uid", layer_uid)
     document.getElementById("data-block").append(tab_element)
 
-  
+
     //Création du tableau
     table = new Tabulator("#" + tab_id, {
-        
-        height:"100%",
+
+        height: "100%",
         layout: "fitData",
         selectable: 1,
         data: data,
-        autoColumns:true,
-        movableColumns:true,
-        formatter:"html",
+        autoColumns: true,
+        movableColumns: true,
+        formatter: "html",
         resizeColumns: true,
         tooltips: true,
-        
-        autoColumnsDefinitions:function(definitions){
+
+        autoColumnsDefinitions: function (definitions) {
             //Ajout d'un champ filtre dans l'en-tête de chaque colonne            
             definitions.forEach((column) => {
                 column.headerFilter = true
@@ -1307,18 +1333,18 @@ createAttributeTable = function(layer_name, layer_uid, data){
                 column.formatter = "html"
 
                 // On masque la colonne feature_uid
-                if (column.field == "ol_uid"){
+                if (column.field == "ol_uid") {
                     column["visible"] = false
                 }
             });
-    
+
             return definitions;
         },
     });
     table["layeruid"] = layer_uid
 
     // Action lors de la sélection d'un ligne
-    table.on("rowSelected", function(row){
+    table.on("rowSelected", function (row) {
         //On récupère l'uid de la couche et du feature associé à la ligne cliqué
         let layer_uid = row.getTable().layeruid
         let feature_uid = row.getData().ol_uid
@@ -1329,18 +1355,18 @@ createAttributeTable = function(layer_name, layer_uid, data){
     })
 
     // Action lors de la désélection d'un ligne
-    table.on("rowDeselected", function(row){
+    table.on("rowDeselected", function (row) {
         ///On vide la couche de sélection
         clearSelectedSource()
     })
 
     // Action lorsqu'on filtre les données du tableau
     // N'affiche que les objets géographiques répondant positivement au filtre
-    table.on("dataFiltered", function(filters, rows){
-        setTimeout(function(){ 
+    table.on("dataFiltered", function (filters, rows) {
+        setTimeout(function () {
             table = rows[0].getTable()
             let layer_uid = table.layeruid
-            
+
             let l_feature_uid = []
             rows.forEach(row => {
                 l_feature_uid.push(row.getData().ol_uid)
@@ -1365,7 +1391,7 @@ createAttributeTable = function(layer_name, layer_uid, data){
     btn_close.classList.add("btn-close")
     btn_close.classList.add("btn-close-attribute-table")
     btn_close.setAttribute("type", "button")
-    btn_close.addEventListener("click", event=> {
+    btn_close.addEventListener("click", event => {
         event.stopPropagation()
 
         let nav_element = event.currentTarget.parentNode
@@ -1376,13 +1402,13 @@ createAttributeTable = function(layer_name, layer_uid, data){
         document.getElementById(target_table).remove()
 
         let nav_attribute_table = nav_element.parentNode
-        
+
         nav_element.remove()
 
         // Si la table attributaire était afficher, il faut en afficher une autre (la première !)
-        if (nav_is_active){
+        if (nav_is_active) {
             let first_attribute_table = nav_attribute_table.querySelectorAll(".nav-layer-item")[0]
-            if (first_attribute_table){
+            if (first_attribute_table) {
                 activeAttributeTable(first_attribute_table)
             }
         }
@@ -1398,13 +1424,13 @@ createAttributeTable = function(layer_name, layer_uid, data){
 /**
  * Filtre les features 
  */
- filterFeature = function(layer_uid, l_feature_uid){
+filterFeature = function (layer_uid, l_feature_uid) {
     map.getLayers().forEach(layer => {
         if (ol.util.getUid(layer) == layer_uid) {
             source = layer.getSource()
-            if (source instanceof ol.source.Vector){
-                source.getFeatures().forEach(feature => { 
-                    if (l_feature_uid.includes(ol.util.getUid(feature))){
+            if (source instanceof ol.source.Vector) {
+                source.getFeatures().forEach(feature => {
+                    if (l_feature_uid.includes(ol.util.getUid(feature))) {
                         feature["visible"] = true
                     } else {
                         feature["visible"] = false
@@ -1419,7 +1445,7 @@ createAttributeTable = function(layer_name, layer_uid, data){
 /**
  * Gestion du changement de table attributaire
  */
-clickNavAttributeTableEvent = function(){
+clickNavAttributeTableEvent = function () {
     // On désactive tout
     inactiveAllAttributeTables()
 
@@ -1427,15 +1453,15 @@ clickNavAttributeTableEvent = function(){
     activeAttributeTable(this)
 }
 
-activeAttributeTable = function(nav_item){
+activeAttributeTable = function (nav_item) {
     // On ajoute la class active au nav_item
     nav_item.classList.add("active")
     // On afficher le tableau associé
     target = nav_item.getAttribute("target")
-    document.getElementById(target).style.display="block"
+    document.getElementById(target).style.display = "block"
 }
 
-inactiveAllAttributeTables = function(){
+inactiveAllAttributeTables = function () {
     // On retire la class ".active"
     items = document.getElementsByClassName("nav-layer-item")
     for (var i = 0; i < items.length; i++) {
@@ -1456,7 +1482,7 @@ inactiveAllAttributeTables = function(){
  * Fonction d'interrogation des données affichant les donnéess 
  * attributaires des entités présentes sous le clic
  */
-var singleClickForFeatureInfo = function(event){
+var singleClickForFeatureInfo = function (event) {
 
     // On commence par vider tous les feature dans
     // la couche de sélection
@@ -1473,14 +1499,14 @@ var singleClickForFeatureInfo = function(event){
     var entity_index = 1
     var nb_entity = 0
     // On boucle sur les entités présent sous le clic
-    map.forEachFeatureAtPixel(event.pixel, function(feature, layer) {
+    map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
         has_feature = true
         let layer_uid = ol.util.getUid(layer)
         let feature_uid = ol.util.getUid(feature)
 
         // on s'assure de ne pas être sur un feature de la couche de sélection
         // ou de la couche "calculator_layer"
-        if (layer_uid == ol.util.getUid(selectedVectorLayer) || layer_uid == ol.util.getUid(warning_calculator_layer)){
+        if (layer_uid == ol.util.getUid(selectedVectorLayer) || layer_uid == ol.util.getUid(warning_calculator_layer)) {
             return
         }
 
@@ -1490,7 +1516,7 @@ var singleClickForFeatureInfo = function(event){
 
         // Construction de l'arborescence des feature cliqué
         // Si c'est une nouvelle couche, on créé l'élément .layer-item
-        if (layer_uid != previous_layer){
+        if (layer_uid != previous_layer) {
             entity_index = 1
             li_layer_item = document.createElement("li")
             li_layer_item.classList.add("layer-item")
@@ -1509,7 +1535,7 @@ var singleClickForFeatureInfo = function(event){
             ul_feature_list.classList.add("feature-list")
 
             li_layer_item.append(ul_feature_list)
-        
+
         }
 
         //Création de l'objet feature-item
@@ -1538,7 +1564,7 @@ var singleClickForFeatureInfo = function(event){
         i_zoom_to_feature.setAttribute("title", "Zoomer sur l'entité")
 
         li_feature_item.append(i_zoom_to_feature)
-        
+
 
         //On créé la liste recevant les propriétés du feature
         var ul_properties_list = document.createElement("ul")
@@ -1549,12 +1575,12 @@ var singleClickForFeatureInfo = function(event){
 
         //On peuple la liste des attributs
         var properties = feature.getProperties()
-        for (var key in properties){
+        for (var key in properties) {
             let value = properties[key]
 
             // On n'affiche pas la géométrie
-            if (key != "geometry"){
-                
+            if (key != "geometry") {
+
                 var li_propertie_item = document.createElement("li")
                 li_propertie_item.classList.add("propertie-item")
 
@@ -1578,13 +1604,13 @@ var singleClickForFeatureInfo = function(event){
 
         li_layer_item.querySelector(".feature-list").append(li_feature_item)
 
-        if (layer_uid != previous_layer){
+        if (layer_uid != previous_layer) {
             ul_layer_list.append(li_layer_item)
         }
 
         // On conserve le nom de la couche courante
         previous_layer = layer_uid
-        entity_index ++
+        entity_index++
         nb_entity++
     })
 
@@ -1592,7 +1618,7 @@ var singleClickForFeatureInfo = function(event){
     document.getElementById("bloc-clicked-features-attributes-content").append(ul_layer_list)
 
     // S'il n'y a qu'une seule entité, et déploie la fiche info
-    if (nb_entity == 1){
+    if (nb_entity == 1) {
         document.getElementById("bloc-clicked-features-attributes-content").querySelector(".feature-item .clickable").click()
     }
 
@@ -1602,8 +1628,8 @@ var singleClickForFeatureInfo = function(event){
         return new bootstrap.Tooltip(tooltipTriggerEl)
     })
 
-    if (has_feature){
-        if (document.getElementById("bloc-clicked-features-attributes").classList.contains("hide")){
+    if (has_feature) {
+        if (document.getElementById("bloc-clicked-features-attributes").classList.contains("hide")) {
             document.getElementById("bloc-clicked-features-attributes").classList.remove("hide")
             document.getElementById("bloc-clicked-features-attributes").classList.add("show")
         }
@@ -1615,11 +1641,11 @@ var singleClickForFeatureInfo = function(event){
 /**
  * Gestion de l'affichage de la sous-liste des features dans bloc-clicked-features-attributes
  */
- showFeaturesList = function(element){
+showFeaturesList = function (element) {
 
     let feature_list = element.parentNode.querySelectorAll('.feature-list')
 
-    if(feature_list[0].classList.contains("hide")){
+    if (feature_list[0].classList.contains("hide")) {
         feature_list[0].classList.remove("hide")
         feature_list[0].classList.add("show")
     } else {
@@ -1631,11 +1657,11 @@ var singleClickForFeatureInfo = function(event){
 /**
  * Gestion de l'affichage de la sous-liste des properties dans bloc-clicked-features-attributes
  */
-showPropertiesList = function(element){
+showPropertiesList = function (element) {
 
     let properties_list = element.parentNode.querySelectorAll('.properties-list')
 
-    if(properties_list[0].classList.contains("hide")){
+    if (properties_list[0].classList.contains("hide")) {
         properties_list[0].classList.remove("hide")
         properties_list[0].classList.add("show")
     } else {
@@ -1647,7 +1673,7 @@ showPropertiesList = function(element){
 /**
  * Zoom sur un feature depuis .bloc-clicked-features-attributes
  */
-zoomToFeature = function(element){
+zoomToFeature = function (element) {
     // Récupération de l'uid du layer
     layer_uid = element.closest(".layer-item").getAttribute("layer-uid")
     //récupération de l'uid du feature
@@ -1657,9 +1683,9 @@ zoomToFeature = function(element){
     map.getLayers().forEach(layer => {
         if (ol.util.getUid(layer) == layer_uid) {
             source = layer.getSource()
-            if (source instanceof ol.source.Vector){
-                source.getFeatures().forEach(feature => { 
-                    if (ol.util.getUid(feature) == feature_uid){
+            if (source instanceof ol.source.Vector) {
+                source.getFeatures().forEach(feature => {
+                    if (ol.util.getUid(feature) == feature_uid) {
                         map.getView().fit(feature.getGeometry().getExtent(), map.getSize())
                     }
                 })
@@ -1668,7 +1694,7 @@ zoomToFeature = function(element){
     })
 }
 
-hideBlockClickedFeaturesAttributes = function(){
+hideBlockClickedFeaturesAttributes = function () {
     document.getElementById("bloc-clicked-features-attributes").classList.add("hide")
     document.getElementById("bloc-clicked-features-attributes").classList.remove("show")
 
@@ -1680,33 +1706,35 @@ document.getElementById("close-bloc-clicked-features-attributes-btn").addEventLi
 /**
  * Fonction de suppression des données lors d'un clic
  */
-var singleClickForRemovingFeature = function(event){
+var singleClickForRemovingFeature = function (event) {
 
-    map.forEachFeatureAtPixel(event.pixel, function(feature, layer) {
+    map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
         //On récupère l'uid de la couche active en édition
         document.getElementById("layer_list").querySelectorAll('li').forEach(li => {
-            if (li.classList.contains("layer-is-selected")){
+            if (li.classList.contains("layer-is-selected")) {
                 layer_uid = li.getAttribute("layer-uid")
-            
-        
-                // On sassure s'être sur la couche active en édition
-                if(ol.util.getUid(layer) == layer_uid){
-                    // On s'assure d'être sur une couche en édition            
-                    if (layer.get("isEditing") == true){
 
-                        
+
+                // On sassure s'être sur la couche active en édition
+                if (ol.util.getUid(layer) == layer_uid) {
+                    // On s'assure d'être sur une couche en édition            
+                    if (layer.get("isEditing") == true) {
+
                         layer.getSource().removeFeature(feature)
 
+                        // Reconstruction de la légende
+                        buildLegendForLayer(layer_uid, layer.get('json_style'))
+
                         // On controle s'il reste des feature dans la couche
-                        if (layer.getSource().getFeatures().length == 0){
-                            if(layer.get("layerType") == "warningCalculatorLayer"){
+                        if (layer.getSource().getFeatures().length == 0) {
+                            if (layer.get("layerType") == "warningCalculatorLayer") {
                                 // Auquel cas, on désactive les bouton de suppression 
                                 document.getElementById("btn-chanllenge-calculator-remove-feature").classList.add("disabled")
                                 // et d'éxécution du calcul
                                 document.getElementById("btn-chanllenge-calculator-execute").classList.add("disabled")
                             }
 
-                            if(layer.get("layerType") == "drawingLayer"){
+                            if (layer.get("layerType") == "drawingLayer") {
                                 // Auquel cas, on désactive les bouton de suppression 
                                 document.getElementById("btn-drawing-layer-remove-feature").classList.add("disabled")
                             }
@@ -1719,21 +1747,21 @@ var singleClickForRemovingFeature = function(event){
                 }
             }
         })
-    })    
+    })
 }
 
 /**
  * Fonction spécifique aux données d'observation permettant 
  * de récupérer des informations complémentaires 
  */
- var getMoreObsInfo = function(event, field_id, id){
+var getMoreObsInfo = function (event, field_id, id) {
     // Récupération du layer_uid
     var parent = event.target.closest("[layer-uid]")
     layer_uid = parent.getAttribute("layer-uid")
 
     var filters
     map.getLayers().forEach(layer => {
-        if (ol.util.getUid(layer) == layer_uid){
+        if (ol.util.getUid(layer) == layer_uid) {
             filters = layer.get("additional_data").formdata
         }
     })
@@ -1750,16 +1778,16 @@ var singleClickForRemovingFeature = function(event){
     obsMoreInfoModal.show()
 
     fetch(APP_URL + "/api/layer/get_obs_object_detail", {
-            method: "POST",
-            headers: { 
-                "Accept": "application/json", 
-                "Content-Type": "application/json" 
-            },
-            credentials: "same-origin",
-            body: JSON.stringify(body)
-        })
+        method: "POST",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        },
+        credentials: "same-origin",
+        body: JSON.stringify(body)
+    })
         .then(res => {
-            if (res.status != 200){
+            if (res.status != 200) {
                 // En envoi l"erreur dans le catch
                 throw res;
             } else {
@@ -1779,31 +1807,31 @@ var singleClickForRemovingFeature = function(event){
 }
 
 var obs_more_info_table = new Tabulator("#obs-more-info-table", {
-    height:"100%",
+    height: "100%",
     data: [],
     layout: "fitData",
-    pagination:"local",
-    paginationSize:20,
+    pagination: "local",
+    paginationSize: 20,
     tooltips: true,
-    columns:[
-        {title:"Règne", field:"regne", headerFilter:"input"},
-        {title:"groupe taxnomique", field:"group2_inpn", headerFilter:"input"},
-        {title:"Nom scientifique", field:"nom_scientifique", headerFilter:"input", width:275},
-        {title:"Nom vernaculaire", field:"nom_vern", width:200, headerFilter:"input", width:160},
-        {title:"Nb obs", field:"nb_obs", headerFilter:"input"},
-        {title:"Première obs", field:"first_obs", headerFilter:"input"},
-        {title:"Dernière obs", field:"last_obs", headerFilter:"input"},
-        {title:"Observateurs", field:"observateurs", width:200, headerFilter:"input"},
-        {title:"Statut", field:"status", width:200, headerFilter:"input"},
+    columns: [
+        { title: "Règne", field: "regne", headerFilter: "input" },
+        { title: "groupe taxnomique", field: "group2_inpn", headerFilter: "input" },
+        { title: "Nom scientifique", field: "nom_scientifique", headerFilter: "input", width: 275 },
+        { title: "Nom vernaculaire", field: "nom_vern", width: 200, headerFilter: "input", width: 160 },
+        { title: "Nb obs", field: "nb_obs", headerFilter: "input" },
+        { title: "Première obs", field: "first_obs", headerFilter: "input" },
+        { title: "Dernière obs", field: "last_obs", headerFilter: "input" },
+        { title: "Observateurs", field: "observateurs", width: 200, headerFilter: "input" },
+        { title: "Statut", field: "status", width: 200, headerFilter: "input" },
     ]
 })
 
-var buildMoreObsInfo = function(data){
+var buildMoreObsInfo = function (data) {
     obs_more_info_table.replaceData(data)
     obs_more_info_table.setSort([
-        {column:"nom_scientifique", dir:"asc"},
-        {column:"group2_inpn", dir:"asc"},
-        {column:"regne", dir:"asc"},
+        { column: "nom_scientifique", dir: "asc" },
+        { column: "group2_inpn", dir: "asc" },
+        { column: "regne", dir: "asc" },
     ])
 }
 
@@ -1825,11 +1853,11 @@ var warning_calculator_style = [{
     "style_type": "Polygon",
     "styles": [{
         "style_name": "Périmètre de la zone d'étude",
-		"fill_color": "rgba(255, 255, 255, 0.4)",
-		"stroke_color": "rgba(0,153,255,1)",
-		"stroke_width": 4,
-		"stroke_linedash": [],
-		"filter" : null
+        "fill_color": "rgba(255, 255, 255, 0.4)",
+        "stroke_color": "rgba(0,153,255,1)",
+        "stroke_width": 4,
+        "stroke_linedash": [],
+        "filter": null
     }]
 }]
 
@@ -1856,13 +1884,13 @@ map.addLayer(warning_calculator_layer)
 /**
  * Fonction permettant de déclarer l'édition sur une couche
  */
-editionLayerManagement = function (layer){
+editionLayerManagement = function (layer) {
     let lis = document.getElementById("layer_list").querySelectorAll("li")
 
     lis.forEach(li => {
-        if (li.getAttribute("layer-uid") == ol.util.getUid(layer)){
+        if (li.getAttribute("layer-uid") == ol.util.getUid(layer)) {
 
-            if (layer.get("isEditing")){
+            if (layer.get("isEditing")) {
                 layer.set("isEditing", false)
                 li.querySelector(".layer-edition-menu-item").innerHTML = "Editer"
                 li.querySelector('.layer-name').style.fontStyle = 'normal'
@@ -1880,7 +1908,7 @@ editionLayerManagement = function (layer){
 /**
  * Activation de l'édition de la couche
  */
-var enableLayerDrawing = function(layer, geomType){
+var enableLayerDrawing = function (layer, geomType) {
     // On désactive les intéraction en cours
     disableLayerDrawing()
 
@@ -1897,22 +1925,22 @@ var enableLayerDrawing = function(layer, geomType){
     })
 
     // Action au commencement de l'edition
-    draw_interaction.on('drawstart', function(evt){
-        if (layer.get("layerType") == "drawingLayer"){
+    draw_interaction.on('drawstart', function (evt) {
+        if (layer.get("layerType") == "drawingLayer") {
             document.getElementById("btn-drawing-layer-previous").classList.remove("disabled")
         }
     })
 
     // Action lorsque l'édition est abandonnée
-    draw_interaction.on('drawabort', function(evt){
-        if (layer.get("layerType") == "drawingLayer"){
+    draw_interaction.on('drawabort', function (evt) {
+        if (layer.get("layerType") == "drawingLayer") {
             document.getElementById("btn-drawing-layer-previous").classList.add("disabled")
         }
     })
 
     // Action lorsque l'édition est terminée
-    draw_interaction.on('drawend', function(evt){
-        if (layer.get("layerType") == "warningCalculatorLayer"){
+    draw_interaction.on('drawend', function (evt) {
+        if (layer.get("layerType") == "warningCalculatorLayer") {
             // Ici, on est sur la couche de numérisation pour la calculette des enjeux
             // Activation des boutons de suppression d'un feature
             document.getElementById("btn-chanllenge-calculator-remove-feature").classList.remove("disabled")
@@ -1924,15 +1952,24 @@ var enableLayerDrawing = function(layer, geomType){
             warning_calculator_layer.setVisible(true)
 
             // ainsi que le checkbox associé dans le layerBar est coché
-            document.querySelector("li[layer-uid='"+ ol.util.getUid(warning_calculator_layer) +"'] input[type='checkbox']").checked = true
+            document.querySelector("li[layer-uid='" + ol.util.getUid(warning_calculator_layer) + "'] input[type='checkbox']").checked = true
         }
 
-        if (layer.get("layerType") == "drawingLayer"){
+        if (layer.get("layerType") == "drawingLayer") {
             document.getElementById("btn-drawing-layer-remove-feature").classList.remove("disabled")
             document.getElementById("btn-drawing-layer-previous").classList.add("disabled")
+
+            // Reconstruction de la légende (après un timeout sinon l'objet n'est pas créé à temps)
+            setTimeout(() => {
+                buildLegendForLayer(ol.util.getUid(layer), layer.get('json_style'))
+            }, 500)
+
+
+
+
         }
     })
-    
+
     // Ajout des intéractions à la carte
     draw_interaction.setActive(true)
     map.addInteraction(draw_interaction)
@@ -1941,10 +1978,10 @@ var enableLayerDrawing = function(layer, geomType){
 /**
  * Activation de l'accrochage des points
  */
-var enableLayerSnapping = function(layer){
+var enableLayerSnapping = function (layer) {
     // Récupérationde la source
     source = layer.getSource()
-    
+
     snap_interaction = new ol.interaction.Snap({
         source: source,
     })
@@ -1955,7 +1992,7 @@ var enableLayerSnapping = function(layer){
 /**
  * Activation de la modification des objets
  */
-var enableLayerModify = function(layer){
+var enableLayerModify = function (layer) {
 
     map.un('singleclick', singleClickForFeatureInfo)
 
@@ -1972,7 +2009,7 @@ var enableLayerModify = function(layer){
 /**
  *  Désactivation de l'édition de la couche
  */
- var disableLayerDrawing = function(){
+var disableLayerDrawing = function () {
     // On réactive l'interaction singleclick
     map.on('singleclick', singleClickForFeatureInfo)
     map.un('singleclick', singleClickForRemovingFeature)
@@ -1982,37 +2019,37 @@ var enableLayerModify = function(layer){
 
     // on commence par les "Snap"
     map.getInteractions().forEach(interaction => {
-        if (interaction instanceof ol.interaction.Snap){
+        if (interaction instanceof ol.interaction.Snap) {
             map.removeInteraction(interaction)
         }
     })
 
     //Puis les "Modify"
     map.getInteractions().forEach(interaction => {
-        if (interaction instanceof ol.interaction.Modify){
+        if (interaction instanceof ol.interaction.Modify) {
             map.removeInteraction(interaction)
         }
     })
 
     // Et enfin les "Draw"
     map.getInteractions().forEach(interaction => {
-        if (interaction instanceof ol.interaction.Draw){
+        if (interaction instanceof ol.interaction.Draw) {
             map.removeInteraction(interaction)
         }
     })
-} 
+}
 
 /**
  * Activation de l'édition
  */
- var enableLayerEdition = function(event, layer_uid){
-    
-    if (event.currentTarget.classList.contains("disabled")){
+var enableLayerEdition = function (event, layer_uid) {
+
+    if (event.currentTarget.classList.contains("disabled")) {
         return
     }
 
     map.getLayers().forEach(layer => {
-        if (ol.util.getUid(layer) == layer_uid){            
+        if (ol.util.getUid(layer) == layer_uid) {
             editionLayerManagement(layer)
             // On force la sélection de la couche lorsqu'on active ou désactive l'édtion sur une couche
             setSelectedLayerInLayerbar(ol.util.getUid(layer))
@@ -2024,9 +2061,9 @@ var enableLayerModify = function(layer){
  * Gestion de la mise en forme la liste de couche en fonction
  * de la couche selectionnée (changement de la couleur de fond du li)
  */
-var setSelectedLayerInLayerbar = function(layer_uid){
+var setSelectedLayerInLayerbar = function (layer_uid) {
     document.getElementById("layer_list").querySelectorAll('li').forEach(li => {
-        if (li.getAttribute("layer-uid") == layer_uid){
+        if (li.getAttribute("layer-uid") == layer_uid) {
             li.classList.add('layer-is-selected')
         } else {
             li.classList.remove('layer-is-selected')
@@ -2041,7 +2078,7 @@ var setSelectedLayerInLayerbar = function(layer_uid){
  * Fonction assurant l'affichage de la bonne boite de 
  * bouton d'édition en fonction de la couche sélectionnée
  */
-var numerisationToolbarShowManagement = function(layer_uid){
+var numerisationToolbarShowManagement = function (layer_uid) {
 
     // On désactive les intractions (= draw)
     disableLayerDrawing()
@@ -2054,11 +2091,11 @@ var numerisationToolbarShowManagement = function(layer_uid){
     // On desactive l'action de suppression sur un clic
     map.on('singleclick', singleClickForFeatureInfo)
     map.un('singleclick', singleClickForRemovingFeature)
-        
+
     map.getLayers().forEach(layer => {
-        if (ol.util.getUid(layer) == layer_uid){
+        if (ol.util.getUid(layer) == layer_uid) {
             //On laisse activable ou non le bouton de suppression
-            if (layer.getSource().getFeatures().length == 0){
+            if (layer.getSource().getFeatures().length == 0) {
                 document.getElementById("btn-drawing-layer-remove-feature").classList.add("disabled")
             } else {
                 document.getElementById("btn-drawing-layer-remove-feature").classList.remove("disabled")
@@ -2066,17 +2103,17 @@ var numerisationToolbarShowManagement = function(layer_uid){
 
             // si la couche sélectionnée est celle d'édition pour la calculette des enjeux
             // on affiche la boite à outils associée
-            switch (layer.get("layerType")){
+            switch (layer.get("layerType")) {
                 case "warningCalculatorLayer":
                     // on masque les bouton d'édition si ce ne sont pas ceux de la couche de calcul d'enjeux qui est actif
                     selected_layer_uid = document.getElementById("layer_list").querySelector(".layer-is-selected").getAttribute("layer-uid")
-                    if (selected_layer_uid == ol.util.getUid(layer)){
+                    if (selected_layer_uid == ol.util.getUid(layer)) {
                         document.getElementById("drawing-layer-group-edit-btn").classList.add("hide")
                         document.getElementById("drawing-layer-group-edit-btn").removeAttribute("layer_uid")
                     }
-                    
+
                     // Si l'édition est active sur la couche
-                    if (layer.get("isEditing")){
+                    if (layer.get("isEditing")) {
                         //On desactive
                         document.getElementById("chanllenge-calculator-group-edit-btn").classList.remove("hide")
                         document.getElementById("btn-chanllenge-calculator").classList.add("btn-active")
@@ -2092,7 +2129,7 @@ var numerisationToolbarShowManagement = function(layer_uid){
                     document.getElementById("chanllenge-calculator-group-edit-btn").classList.add("hide")
 
                     // Si l'édition est activé sur la couche
-                    if (layer.get("isEditing") == true){
+                    if (layer.get("isEditing") == true) {
                         document.getElementById("drawing-layer-group-edit-btn").classList.remove("hide")
                         // On affecte l'identifiant de la couche à la boite de bouton
                         document.getElementById("drawing-layer-group-edit-btn").setAttribute("layer_uid", ol.util.getUid(layer))
@@ -2113,7 +2150,7 @@ var numerisationToolbarShowManagement = function(layer_uid){
 /**
  * Fonction assurant la gestion du highligth des boutons d'édition de la couche de dessin
  */
-var drawingLayerEditButtonHighlight = function(button) {
+var drawingLayerEditButtonHighlight = function (button) {
     unHigtlightAllDrawingLayerButton()
     button.classList.add("btn-active")
 }
@@ -2122,7 +2159,7 @@ var drawingLayerEditButtonHighlight = function(button) {
  * Fonction désactivant le highlight de tous les boutons associés à la boite 
  * d'outil d'une couche (hors couche de la calculette des enjeux)
  */
-var unHigtlightAllDrawingLayerButton = function (){
+var unHigtlightAllDrawingLayerButton = function () {
     document.querySelectorAll(".btn-drawing-layer-addfeature").forEach(tmp_button => {
         tmp_button.classList.remove("btn-active")
     })
@@ -2135,10 +2172,10 @@ var unHigtlightAllDrawingLayerButton = function (){
  */
 const addfeature_buttons = document.querySelectorAll(".btn-drawing-layer-addfeature")
 addfeature_buttons.forEach(addfeature_button => {
-    addfeature_button.addEventListener('click', function(event){
+    addfeature_button.addEventListener('click', function (event) {
         button = event.currentTarget
-        
-        if (button.classList.contains("btn-active")){
+
+        if (button.classList.contains("btn-active")) {
             button.classList.remove("btn-active")
             disableLayerDrawing()
         } else {
@@ -2151,9 +2188,9 @@ addfeature_buttons.forEach(addfeature_button => {
 
             // Récupération de l'uid de la couche d'édition
             layer_uid = button.closest("#drawing-layer-group-edit-btn").getAttribute("layer_uid")
-            
+
             map.getLayers().forEach(layer => {
-                if (ol.util.getUid(layer) == layer_uid){
+                if (ol.util.getUid(layer) == layer_uid) {
                     enableLayerDrawing(layer, geom_type)
                     enableLayerSnapping(layer)
                 }
@@ -2165,10 +2202,10 @@ addfeature_buttons.forEach(addfeature_button => {
 /**
  * Gestion du clique sur le bouton de suppression d'un feature d'une couche drawingLayer
  */
- document.getElementById("btn-drawing-layer-remove-feature").addEventListener("click", event => {
+document.getElementById("btn-drawing-layer-remove-feature").addEventListener("click", event => {
     button = event.currentTarget
     // Si le bouton est déjà actif, on le désactive
-    if (button.classList.contains("btn-active")){
+    if (button.classList.contains("btn-active")) {
         // On désactive le select pour la suppression en 
         // remettant la fonction d'interrogation des données
         map.on('singleclick', singleClickForFeatureInfo)
@@ -2177,7 +2214,7 @@ addfeature_buttons.forEach(addfeature_button => {
         unHigtlightAllDrawingLayerButton()
 
     } else {
-        console.log("clicked !!")
+        //console.log("clicked !!")
         // On désactive l'édition
         disableLayerDrawing()
         //unHigtlightAllDrawingLayerButton()
@@ -2199,21 +2236,21 @@ document.getElementById("btn-drawing-layer-modify").addEventListener("click", ev
 
     disableLayerDrawing()
 
-    if (button.classList.contains("btn-active")){
+    if (button.classList.contains("btn-active")) {
         unHigtlightAllDrawingLayerButton()
     } else {
-        
+
 
         drawingLayerEditButtonHighlight(button)
 
         layer_uid = button.closest("#drawing-layer-group-edit-btn").getAttribute("layer_uid")
-                
+
         map.getLayers().forEach(layer => {
-            if (ol.util.getUid(layer) == layer_uid){
+            if (ol.util.getUid(layer) == layer_uid) {
                 enableLayerModify(layer)
                 enableLayerSnapping(layer)
             }
-        })  
+        })
     }
 })
 
@@ -2223,7 +2260,7 @@ document.getElementById("btn-drawing-layer-modify").addEventListener("click", ev
 document.getElementById("btn-drawing-layer-previous").addEventListener("click", event => {
 
     map.getInteractions().forEach(interaction => {
-        if (interaction instanceof ol.interaction.Draw){
+        if (interaction instanceof ol.interaction.Draw) {
             interaction.removeLastPoint()
         }
     })
@@ -2233,9 +2270,9 @@ document.getElementById("btn-drawing-layer-previous").addEventListener("click", 
  * Fonction supprimant un point si l'utilisateur appui sur la touche suppr
  */
 document.addEventListener('keydown', function (e) {
-    if (e.code == "Delete"){
+    if (e.code == "Delete") {
         map.getInteractions().forEach(interaction => {
-            if (interaction instanceof ol.interaction.Modify){
+            if (interaction instanceof ol.interaction.Modify) {
                 interaction.removePoint()
             }
         })
@@ -2248,15 +2285,15 @@ document.addEventListener('keydown', function (e) {
 /**
  * Fonction permettant de créer le style par défaut d'une couhe de dessin
  */
-var build_drawing_layer_style = function(){
+var build_drawing_layer_style = function () {
     // Création des couleurs aléatoires
-    let {color_rgba, color_rgb}  = random_color(0.5)
+    let { color_rgba, color_rgb } = random_color(0.5)
 
     //console.log("color_rgba : " + color_rgba)
     //console.log("color_rgb : " + color_rgb)
 
     layer_default_style = []
- 
+
     let tmp_polygon_style = {
         "style_type": "Polygon",
         "styles": [{
@@ -2264,7 +2301,7 @@ var build_drawing_layer_style = function(){
             "stroke_color": "rgba(0,0,0,1)",
             "stroke_width": 1,
             "stroke_linedash": [],
-            "filter" : null
+            "filter": null
         }]
     }
     layer_default_style.push(tmp_polygon_style)
@@ -2275,7 +2312,7 @@ var build_drawing_layer_style = function(){
             "stroke_color": color_rgb,
             "stroke_width": 5,
             "stroke_linedash": [],
-            "filter" : null
+            "filter": null
         }]
     }
     layer_default_style.push(tmp_line_style)
@@ -2288,7 +2325,7 @@ var build_drawing_layer_style = function(){
             "stroke_width": 1,
             "stroke_linedash": [],
             "radius": 5,
-            "filter" : null
+            "filter": null
         }]
     }
     layer_default_style.push(tmp_point_style)
@@ -2299,9 +2336,9 @@ var build_drawing_layer_style = function(){
 /**
  * Fonction ajoutant une couche de dessin à la carte
  */
-var addDrawingLayerOnMap = function(layer_name){
+var addDrawingLayerOnMap = function (layer_name) {
     // On initialise tout les feature comme visible
-    
+
     zindex = map.getLayers().getLength() + 1
 
     // Construction du style de la couche
@@ -2332,15 +2369,15 @@ var addDrawingLayerOnMap = function(layer_name){
         additional_data: null,
         description_layer: desc_layer
     })
-    
+
     map.addLayer(vectorLayer)
 
     addLayerInLayerBar(vectorLayer)
-    
+
     // On active automatiquement l'édition
     layer_uid = ol.util.getUid(vectorLayer)
     document.getElementById("layer_list").querySelectorAll("li").forEach(li => {
-        if (li.getAttribute("layer-uid") == layer_uid){
+        if (li.getAttribute("layer-uid") == layer_uid) {
             li.querySelector(".layer-edition-menu-item").click()
         }
     })
