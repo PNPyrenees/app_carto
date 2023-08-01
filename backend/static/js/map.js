@@ -937,14 +937,43 @@ buildLegendForLayer = function (layer_uid, json_style) {
         }
     })
 
-    // on surcharge la valeur LineString par Line pour qu'lle puisse être reconnu 
-    // avec le type de géométrie déclaré dans le json_style
+    // Surcharge de la valeur LineString par Line et les types "multi" par les type "simple" 
+    // pour qu'ils puissent être reconnus avec le type de géométrie déclaré dans le json_style
     var index = l_geomType.indexOf('LineString');
     if (index !== -1) {
         l_geomType[index] = 'Line';
     }
+    var index = l_geomType.indexOf('MultiPoint');
+    if (index !== -1) {
+        if (l_geomType.includes('Point')) {
+            // Si 'Point' est déjà déclaré on supprime la valeur 'MultiPoint' de la liste
+            l_geomType.splice(index, 1);
+        } else {
+            // Sinon on remplace la valeur 'MultiPoint' par 'Point'
+            l_geomType[index] = 'Point';
+        }
 
-    console.log(l_geomType)
+    }
+    var index = l_geomType.indexOf('MultiLineString');
+    if (index !== -1) {
+        if (l_geomType.includes('Line')) {
+            // Si 'Line' est déjà déclaré on supprime la valeur 'MultiLineString' de la liste
+            l_geomType.splice(index, 1);
+        } else {
+            // Sinon on remplace la valeur 'MultiLineString' par 'Line'
+            l_geomType[index] = 'Line';
+        }
+    }
+    var index = l_geomType.indexOf('MultiPolygon');
+    if (index !== -1) {
+        if (l_geomType.includes('Polygon')) {
+            // Si 'Polygon' est déjà déclaré on supprime la valeur 'MultiPolygon' de la liste
+            l_geomType.splice(index, 1);
+        } else {
+            // Sinon on remplace la valeur 'MultiPolygon' par 'Polygon'
+            l_geomType[index] = 'Polygon';
+        }
+    }
 
     legends = []
     json_style.forEach(tmp_json_style => {
@@ -953,9 +982,6 @@ buildLegendForLayer = function (layer_uid, json_style) {
         if (l_geomType.includes(geom_type)) {
 
             tmp_json_style.styles.forEach(style => {
-
-
-
 
                 // Création de la ligne
                 legend_row = document.createElement("div")
