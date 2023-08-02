@@ -2470,18 +2470,6 @@ map.addLayer(measureVector)
 let sketch;
 
 /**
- * The help tooltip element.
- * @type {HTMLElement}
- */
-let helpTooltipElement;
-
-/**
- * Overlay to show the help messages.
- * @type {Overlay}
- */
-let helpTooltip;
-
-/**
  * The measure tooltip element.
  * @type {HTMLElement}
  */
@@ -2492,44 +2480,6 @@ let measureTooltipElement;
  * @type {Overlay}
  */
 let measureTooltip;
-
-/**
- * Message to show when the user is drawing a polygon.
- * @type {string}
- */
-const continuePolygonMsg = 'Click to continue drawing the polygon';
-
-/**
- * Message to show when the user is drawing a line.
- * @type {string}
- */
-const continueLineMsg = 'Click to continue drawing the line';
-
-/**
- * Handle pointer move.
- * @param {import("../src/ol/MapBrowserEvent").default} evt The event.
- */
-const pointerMoveHandler = function (evt) {
-    if (evt.dragging) {
-        return;
-    }
-    /** @type {string} */
-    let helpMsg = 'Click to start drawing';
-
-    if (sketch) {
-        const geom = sketch.getGeometry();
-        if (geom instanceof ol.geom.Polygon) {
-            helpMsg = continuePolygonMsg;
-        } else if (geom instanceof ol.geom.LineString) {
-            helpMsg = continueLineMsg;
-        }
-    }
-
-    helpTooltipElement.innerHTML = helpMsg;
-    helpTooltip.setPosition(evt.coordinate);
-
-    helpTooltipElement.classList.remove('hidden');
-};
 
 let measure;
 
@@ -2593,7 +2543,6 @@ function addInteraction(type) {
     map.addInteraction(measure);
 
     createMeasureTooltip();
-    createHelpTooltip();
 
     let listener;
     measure.on('drawstart', function (evt) {
@@ -2628,23 +2577,6 @@ function addInteraction(type) {
         createMeasureTooltip();
         ol.Observable.unByKey(listener);
     });
-}
-
-/**
- * Creates a new help tooltip
- */
-function createHelpTooltip() {
-    if (helpTooltipElement) {
-        helpTooltipElement.parentNode.removeChild(helpTooltipElement);
-    }
-    helpTooltipElement = document.createElement('div');
-    helpTooltipElement.className = 'ol-tooltip hidden';
-    helpTooltip = new ol.Overlay({
-        element: helpTooltipElement,
-        offset: [15, 0],
-        positioning: 'center-left',
-    });
-    map.addOverlay(helpTooltip);
 }
 
 /**
@@ -2693,7 +2625,6 @@ document.getElementById("btn-measure").addEventListener("click", event => {
 
             // Suppression des overlays
             map.removeOverlay(measureTooltip)
-            map.removeOverlay(helpTooltip);
 
             // On supprime l'interaction (cas ou l'objet de mesure n'est pas finalisé !)
             map.removeInteraction(measure);
@@ -2702,15 +2633,11 @@ document.getElementById("btn-measure").addEventListener("click", event => {
 
             document.getElementById("measure-group-btn").classList.remove('hide')
             event.currentTarget.classList.add("btn-active")
-
-
-
         }
     }
 })
 
-
-
+// Click sur le bouton de calcul de surface
 document.getElementById("btn-measure-area").addEventListener("click", event => {
     if (event.currentTarget.classList.contains("btn-active")) {
         // On désactive s'il est actif //
@@ -2734,6 +2661,7 @@ document.getElementById("btn-measure-area").addEventListener("click", event => {
     }
 })
 
+// Click sur le bouton de calcul de longueur
 document.getElementById("btn-measure-length").addEventListener("click", event => {
     if (event.currentTarget.classList.contains("btn-active")) {
         // On désactive s'il est actif //
