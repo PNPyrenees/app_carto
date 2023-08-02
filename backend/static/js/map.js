@@ -2112,7 +2112,8 @@ var numerisationToolbarShowManagement = function (layer_uid) {
     document.getElementById("btn-chanllenge-calculator-edit-feature").classList.remove("btn-active")
     document.getElementById("btn-chanllenge-calculator-remove-feature").classList.remove("btn-active")
     // Ainsi que les bouton de la couche dessin
-    unHigtlightAllDrawingLayerButton()
+    //unHigtlightAllDrawingLayerButton()
+    unHighlightAllToolsBtn()
 
     // On desactive l'action de suppression sur un clic
     map.on('singleclick', singleClickForFeatureInfo)
@@ -2174,23 +2175,21 @@ var numerisationToolbarShowManagement = function (layer_uid) {
 }
 
 /**
- * Fonction assurant la gestion du highligth des boutons d'édition de la couche de dessin
+ * Fonction assurant le highlight du toolButton passé en paramètre
  */
-var drawingLayerEditButtonHighlight = function (button) {
-    unHigtlightAllDrawingLayerButton()
+var highlightToolBtn = function (button) {
+    //unHigtlightAllDrawingLayerButton()
+    unHighlightAllToolsBtn()
     button.classList.add("btn-active")
 }
 
 /**
- * Fonction désactivant le highlight de tous les boutons associés à la boite 
- * d'outil d'une couche (hors couche de la calculette des enjeux)
+ * Fonction retirant le highlight à tous les toolButton 
  */
-var unHigtlightAllDrawingLayerButton = function () {
-    document.querySelectorAll(".btn-drawing-layer-addfeature").forEach(tmp_button => {
-        tmp_button.classList.remove("btn-active")
+function unHighlightAllToolsBtn() {
+    document.getElementById("tools-btn-group").querySelectorAll(".btn-active").forEach(btn => {
+        btn.classList.remove("btn-active")
     })
-    document.getElementById("btn-drawing-layer-remove-feature").classList.remove("btn-active")
-    document.getElementById("btn-drawing-layer-modify").classList.remove("btn-active")
 }
 
 /**
@@ -2207,7 +2206,8 @@ addfeature_buttons.forEach(addfeature_button => {
         } else {
 
             // Gestion du highligt du bouton cliqué
-            drawingLayerEditButtonHighlight(button)
+            //drawingLayerEditButtonHighlight(button)
+            highlightToolBtn(button)
 
             // Récupération du type de geométrie demandé
             geom_type = button.getAttribute("geom-type")
@@ -2237,19 +2237,18 @@ document.getElementById("btn-drawing-layer-remove-feature").addEventListener("cl
         map.on('singleclick', singleClickForFeatureInfo)
         map.un('singleclick', singleClickForRemovingFeature)
 
-        unHigtlightAllDrawingLayerButton()
+        unHighlightAllToolsBtn()
 
     } else {
-        //console.log("clicked !!")
         // On désactive l'édition
         disableLayerDrawing()
-        //unHigtlightAllDrawingLayerButton()
 
         // On change la fonction à éxécuter lors d'un clic sur la carte
         map.un('singleclick', singleClickForFeatureInfo)
         map.on('singleclick', singleClickForRemovingFeature)
 
-        drawingLayerEditButtonHighlight(button)
+        //drawingLayerEditButtonHighlight(button)
+        highlightToolBtn(button)
     }
 
 })
@@ -2263,11 +2262,10 @@ document.getElementById("btn-drawing-layer-modify").addEventListener("click", ev
     disableLayerDrawing()
 
     if (button.classList.contains("btn-active")) {
-        unHigtlightAllDrawingLayerButton()
+        unHighlightAllToolsBtn()
     } else {
 
-
-        drawingLayerEditButtonHighlight(button)
+        highlightToolBtn(button)
 
         layer_uid = button.closest("#drawing-layer-group-edit-btn").getAttribute("layer_uid")
 
@@ -2451,4 +2449,312 @@ var exportGeoJson = function (layer_uid) {
         }
     })
 }
+
+/*----------------------------------------------------*/
+/*-----------Mesure de surface et longueur------------*/
+/*----------------------------------------------------*/
+/* inspiré de https://openlayers.org/en/latest/examples/measure.html */
+
+const measureSource = new ol.source.Vector();
+
+const measureVector = new ol.layer.Vector({
+    source: measureSource,
+});
+
+map.addLayer(measureVector)
+
+/**
+ * Currently drawn feature.
+ * @type {import("../src/ol/Feature.js").default}
+ */
+let sketch;
+
+/**
+ * The help tooltip element.
+ * @type {HTMLElement}
+ */
+let helpTooltipElement;
+
+/**
+ * Overlay to show the help messages.
+ * @type {Overlay}
+ */
+let helpTooltip;
+
+/**
+ * The measure tooltip element.
+ * @type {HTMLElement}
+ */
+let measureTooltipElement;
+
+/**
+ * Overlay to show the measurement.
+ * @type {Overlay}
+ */
+let measureTooltip;
+
+/**
+ * Message to show when the user is drawing a polygon.
+ * @type {string}
+ */
+const continuePolygonMsg = 'Click to continue drawing the polygon';
+
+/**
+ * Message to show when the user is drawing a line.
+ * @type {string}
+ */
+const continueLineMsg = 'Click to continue drawing the line';
+
+/**
+ * Handle pointer move.
+ * @param {import("../src/ol/MapBrowserEvent").default} evt The event.
+ */
+const pointerMoveHandler = function (evt) {
+    if (evt.dragging) {
+        return;
+    }
+    /** @type {string} */
+    let helpMsg = 'Click to start drawing';
+
+    if (sketch) {
+        const geom = sketch.getGeometry();
+        if (geom instanceof ol.geom.Polygon) {
+            helpMsg = continuePolygonMsg;
+        } else if (geom instanceof ol.geom.LineString) {
+            helpMsg = continueLineMsg;
+        }
+    }
+
+    helpTooltipElement.innerHTML = helpMsg;
+    helpTooltip.setPosition(evt.coordinate);
+
+    helpTooltipElement.classList.remove('hidden');
+};
+
+let measure;
+
+/**
+ * Format length output.
+ * @param {LineString} line The line.
+ * @return {string} The formatted length.
+ */
+const formatLength = function (line) {
+    const length = ol.sphere.getLength(line);
+    let output;
+    if (length > 100) {
+        output = Math.round((length / 1000) * 100) / 100 + ' ' + 'km';
+    } else {
+        output = Math.round(length * 100) / 100 + ' ' + 'm';
+    }
+    return output;
+};
+
+/**
+ * Format area output.
+ * @param {Polygon} polygon The polygon.
+ * @return {string} Formatted area.
+ */
+const formatArea = function (polygon) {
+    const area = ol.sphere.getArea(polygon);
+    let output;
+    if (area > 10000) {
+        output = Math.round((area / 1000000) * 100) / 100 + ' ' + 'km<sup>2</sup>';
+    } else {
+        output = Math.round(area * 100) / 100 + ' ' + 'm<sup>2</sup>';
+    }
+    return output;
+};
+
+function addInteraction(type) {
+    //const type = typeSelect.value == 'area' ? 'Polygon' : 'LineString';
+    measure = new ol.interaction.Draw({
+        source: measureSource,
+        type: type,
+        style: new ol.style.Style({
+            fill: new ol.style.Fill({
+                color: 'rgba(255, 255, 255, 0.2)',
+            }),
+            stroke: new ol.style.Stroke({
+                color: 'rgba(0, 0, 0, 0.5)',
+                lineDash: [10, 10],
+                width: 2,
+            }),
+            image: new ol.style.Circle({
+                radius: 5,
+                stroke: new ol.style.Stroke({
+                    color: 'rgba(0, 0, 0, 0.7)',
+                }),
+                fill: new ol.style.Fill({
+                    color: 'rgba(255, 255, 255, 0.2)',
+                }),
+            }),
+        }),
+    });
+    map.addInteraction(measure);
+
+    createMeasureTooltip();
+    createHelpTooltip();
+
+    let listener;
+    measure.on('drawstart', function (evt) {
+        // set sketch
+        sketch = evt.feature;
+
+        /** @type {import("../src/ol/coordinate.js").Coordinate|undefined} */
+        let tooltipCoord = evt.coordinate;
+
+        listener = sketch.getGeometry().on('change', function (evt) {
+            const geom = evt.target;
+            let output;
+            if (geom instanceof ol.geom.Polygon) {
+                output = formatArea(geom);
+                tooltipCoord = geom.getInteriorPoint().getCoordinates();
+            } else if (geom instanceof ol.geom.LineString) {
+                output = formatLength(geom);
+                tooltipCoord = geom.getLastCoordinate();
+            }
+            measureTooltipElement.innerHTML = output;
+            measureTooltip.setPosition(tooltipCoord);
+        });
+    });
+
+    measure.on('drawend', function () {
+        measureTooltipElement.className = 'ol-tooltip ol-tooltip-static';
+        measureTooltip.setOffset([0, -7]);
+        // unset sketch
+        sketch = null;
+        // unset tooltip so that a new one can be created
+        measureTooltipElement = null;
+        createMeasureTooltip();
+        ol.Observable.unByKey(listener);
+    });
+}
+
+/**
+ * Creates a new help tooltip
+ */
+function createHelpTooltip() {
+    if (helpTooltipElement) {
+        helpTooltipElement.parentNode.removeChild(helpTooltipElement);
+    }
+    helpTooltipElement = document.createElement('div');
+    helpTooltipElement.className = 'ol-tooltip hidden';
+    helpTooltip = new ol.Overlay({
+        element: helpTooltipElement,
+        offset: [15, 0],
+        positioning: 'center-left',
+    });
+    map.addOverlay(helpTooltip);
+}
+
+/**
+ * Creates a new measure tooltip
+ */
+function createMeasureTooltip() {
+    if (measureTooltipElement) {
+        measureTooltipElement.parentNode.removeChild(measureTooltipElement);
+    }
+    measureTooltipElement = document.createElement('div');
+    measureTooltipElement.className = 'ol-tooltip ol-tooltip-measure';
+    measureTooltip = new ol.Overlay({
+        element: measureTooltipElement,
+        offset: [0, -15],
+        positioning: 'bottom-center',
+        stopEvent: false,
+        insertFirst: false,
+    });
+    map.addOverlay(measureTooltip);
+}
+
+// Gestion de l'affichage des boutons d'outil de mesure
+document.getElementById("btn-measure").addEventListener("click", event => {
+    if (checkToken() === false) {
+        // Utilisateur non connecté => on ouvre le modal de connexion
+        loginModal.show()
+    } else {
+        if (event.currentTarget.classList.contains("btn-active")) {
+            // désactivation des outil de mesure //
+
+            event.currentTarget.classList.remove("btn-active")
+            document.getElementById("measure-group-btn").classList.add('hide')
+
+            // Désactivation des bouttons de mesure
+            document.getElementById("measure-group-btn").querySelectorAll('button').forEach(btn => {
+                btn.classList.remove("btn-active")
+            })
+
+            // On vide la couche de mesure
+            measureSource.clear()
+
+            // Suppression des infobulle de mesure
+            document.querySelectorAll(".ol-tooltip-static").forEach(tooltip => {
+                tooltip.parentNode.remove()
+            })
+
+            // Suppression des overlays
+            map.removeOverlay(measureTooltip)
+            map.removeOverlay(helpTooltip);
+
+            // On supprime l'interaction (cas ou l'objet de mesure n'est pas finalisé !)
+            map.removeInteraction(measure);
+        } else {
+            // activation des outils de mesure //
+
+            document.getElementById("measure-group-btn").classList.remove('hide')
+            event.currentTarget.classList.add("btn-active")
+
+
+
+        }
+    }
+})
+
+
+
+document.getElementById("btn-measure-area").addEventListener("click", event => {
+    if (event.currentTarget.classList.contains("btn-active")) {
+        // On désactive s'il est actif //
+
+        unHighlightAllToolsBtn()
+
+        map.on('singleclick', singleClickForFeatureInfo)
+
+        map.removeInteraction(measure);
+    } else {
+        // On active s'il est inactif //
+
+        // Highlight du boutton associé
+        highlightToolBtn(event.currentTarget)
+
+        // et les interactions
+        disableLayerDrawing()
+
+        map.un('singleclick', singleClickForFeatureInfo)
+        addInteraction('Polygon')
+    }
+})
+
+document.getElementById("btn-measure-length").addEventListener("click", event => {
+    if (event.currentTarget.classList.contains("btn-active")) {
+        // On désactive s'il est actif //
+
+        unHighlightAllToolsBtn()
+
+        map.on('singleclick', singleClickForFeatureInfo)
+
+        map.removeInteraction(measure);
+    } else {
+        // On active s'il est inactif //
+
+        // Highlight du boutton associé
+        highlightToolBtn(event.currentTarget)
+
+        // et les interactions
+        disableLayerDrawing()
+
+        map.un('singleclick', singleClickForFeatureInfo)
+        addInteraction('LineString')
+    }
+})
+
 

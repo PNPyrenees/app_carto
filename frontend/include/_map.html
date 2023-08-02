@@ -1,14 +1,15 @@
 <div id="map-browser" class="d-inline-block">
     <div id="map-block">
-        
 
-        <div id="map" class="map" {#tabindex="0"#}>
+
+        <div id="map" class="map" {#tabindex="0" #}>
 
             <div id="search-toponyme">
 
                 <div class="input-group">
-                    <input type="text" class="form-control form-control-lg" id="search-toponyme-input" placeholder="Rechercher un toponyme">
-                    <span  id="toponyme-autocomplete-loading" class="input-group-text">
+                    <input type="text" class="form-control form-control-lg" id="search-toponyme-input"
+                        placeholder="Rechercher un toponyme">
+                    <span id="toponyme-autocomplete-loading" class="input-group-text">
                         <span id="toponyme-autocomplete-spinner" class="spinner-grow spinner-grow-sm"></span>
                     </span>
                 </div>
@@ -20,7 +21,8 @@
 
             <div id="basemap-selector">
                 <div class="dropdown">
-                    <button class="btn btn-secondary btn-opt-layer bi bi-layers-half btn-dropdown" onclick="openDropdown(this)" title="Fond de carte"></button>
+                    <button class="btn btn-secondary btn-opt-layer bi bi-layers-half btn-dropdown"
+                        onclick="openDropdown(this)" title="Fond de carte"></button>
                     <div id="basemap-dropdown-content" class="dropdown-content hide">
                     </div>
                 </div>
@@ -102,206 +104,149 @@
                         
                     </ul>-->
                 </div>
-                
+
                 <div id="close-bloc-clicked-features-attributes" class="text-center">
-                    <button id="close-bloc-clicked-features-attributes-btn" class="btn btn-warning ml-auto mr-auto">Fermer</button>
+                    <button id="close-bloc-clicked-features-attributes-btn"
+                        class="btn btn-warning ml-auto mr-auto">Fermer</button>
                 </div>
             </div>
 
             <!-- 
                 --  Emplacement des bouton d'édition 
             -->
-
-            <!-- Bouton d'édition pour la calculette des enjeux calculette des enjeux-->
-            <div id="chanllenge-calculator-group-edit-btn" class="edit-layer-btn-group hide">
-                <!--<div class="btn-group-vertical" class="text-center">-->
-                    <button 
-                        id="btn-chanllenge-calculator-edit-feature" 
-                        type="button" 
-                        class="btn btn-primary check-auth" 
-                        toggle-tooltip="tooltip" 
-                        data-bs-placement="bottom" 
-                        data-bs-trigger="hover" 
-                        title="Editer la zone d'extraction"
-                    >
+            <div id="tools-btn-group" class="tools-btn-group">
+                <!-- Bouton d'édition pour la calculette des enjeux calculette des enjeux-->
+                <div id="chanllenge-calculator-group-edit-btn" class="edit-layer-btn-group hide">
+                    <!--<div class="btn-group-vertical" class="text-center">-->
+                    <button id="btn-chanllenge-calculator-edit-feature" type="button" class="btn btn-primary check-auth"
+                        toggle-tooltip="tooltip" data-bs-placement="bottom" data-bs-trigger="hover"
+                        title="Editer la zone d'extraction">
                         <i id="icon-chanllenge-calculator-edit-feature" class="bi bi-pencil"></i>
                     </button>
-                <!--</div>-->
+                    <!--</div>-->
 
-                <!--<div class="btn-group-vertical" class="text-center">-->
-                    <button 
-                        id="btn-chanllenge-calculator-remove-feature" 
-                        type="button" 
-                        class="btn btn-primary check-auth disabled" 
-                        toggle-tooltip="tooltip" 
-                        data-bs-placement="bottom" 
-                        data-bs-trigger="hover" 
-                        title="Supprimer un périmètre"
-                    >
+                    <!--<div class="btn-group-vertical" class="text-center">-->
+                    <button id="btn-chanllenge-calculator-remove-feature" type="button"
+                        class="btn btn-primary check-auth disabled" toggle-tooltip="tooltip" data-bs-placement="bottom"
+                        data-bs-trigger="hover" title="Supprimer un périmètre">
                         <i id="icon-chanllenge-calculator-remove-feature" class="bi bi-trash"></i>
                     </button>
-                <!--</div>-->
+                    <!--</div>-->
 
-                <!--<div class="btn-group-vertical" class="text-center">-->
-                    <button 
-                        id="btn-chanllenge-calculator-execute" 
+                    <!--<div class="btn-group-vertical" class="text-center">-->
+                    <button id="btn-chanllenge-calculator-execute" type="button"
+                        class="btn btn-primary check-auth disabled" toggle-tooltip="tooltip" data-bs-placement="bottom"
+                        data-bs-trigger="hover" title="Lancer le calcul des enjeux">
+                        <div id="warning-calculator-spinner" class="spinner-grow spinner-grow-sm hide" role="status">
+                        </div>
+                        <i id="icon-chanllenge-calculator-execute" class="bi bi-play-fill"></i>
+                    </button>
+                    <!--</div>-->
+
+                    <button id="btn-chanllenge-calculator-info" type="button" class="btn btn-primary check-auth"
+                        {#modal-target="chanllenge-calculator-info-modal" #} toggle-tooltip="tooltip"
+                        data-bs-placement="bottom" data-bs-trigger="hover" title="Informations sur la calculette">
+                        <div id="chanllenge-calculator-info-spinner" class="spinner-grow spinner-grow-sm hide"
+                            role="status"></div>
+                        <i id="icon-chanllenge-calculator-info" class="bi bi-info-circle"></i>
+                    </button>
+                </div>
+
+
+
+
+                <!-- Bouton d'édition pour la couche de dessin-->
+                <div id="drawing-layer-group-edit-btn" class="edit-layer-btn-group hide">
+                    <button id="btn-drawing-layer-previous" type="button" class="btn btn-primary check-auth disabled"
+                        toggle-tooltip="tooltip" data-bs-placement="bottom" data-bs-trigger="hover" title="Annuler"
+                        geom-type="Polygon">
+                        <i class="bi bi-arrow-90deg-left"></i>
+                    </button>
+
+                    <button id="btn-drawing-layer-add-polygon" type="button"
+                        class="btn btn-primary check-auth btn-drawing-layer-addfeature" toggle-tooltip="tooltip"
+                        data-bs-placement="bottom" data-bs-trigger="hover" title="Ajout de polygones"
+                        geom-type="Polygon">
+                        <i class="bi bi-hexagon-fill"></i>
+                    </button>
+
+                    <button id="btn-drawing-layer-add-linestring" type="button"
+                        class="btn btn-primary check-auth btn-drawing-layer-addfeature" toggle-tooltip="tooltip"
+                        data-bs-placement="bottom" data-bs-trigger="hover" title="Ajout de lignes"
+                        geom-type="LineString">
+                        <i class="bi bi-slash-lg"></i>
+                    </button>
+
+                    <button id="btn-drawing-layer-add-point" type="button"
+                        class="btn btn-primary check-auth btn-drawing-layer-addfeature" toggle-tooltip="tooltip"
+                        data-bs-placement="bottom" data-bs-trigger="hover" title="Ajout de points" geom-type="Point">
+                        <i class="bi bi-dot"></i>
+                    </button>
+
+                    <button id="btn-drawing-layer-modify" type="button"
+                        class="btn btn-primary check-auth btn-drawing-layer-modify" toggle-tooltip="tooltip"
+                        data-bs-placement="bottom" data-bs-trigger="hover" title="Outil de déplacement de noeuds"
+                        geom-type="">
+                        <i class="bi bi-magic"></i>
+                    </button>
+
+                    <!--<button 
+                        id="btn-drawing-layer-add-circle" 
                         type="button" 
-                        class="btn btn-primary check-auth disabled" 
+                        class="btn btn-primary check-auth btn-drawing-layer-addfeature" 
                         toggle-tooltip="tooltip" 
                         data-bs-placement="bottom" 
                         data-bs-trigger="hover" 
-                        title="Lancer le calcul des enjeux"
+                        title="Ajouter un cercle"
+                        geom-type="Circle"
                     >
-                        <div id="warning-calculator-spinner" class="spinner-grow spinner-grow-sm hide" role="status"></div>
-                        <i id="icon-chanllenge-calculator-execute" class="bi bi-play-fill"></i>
+                        <i id="icon-drawing-layer-edit-feature" class="bi bi-circle"></i>
                     </button>
-                <!--</div>-->
 
-                <button 
-                    id="btn-chanllenge-calculator-info" 
-                    type="button" 
-                    class="btn btn-primary check-auth" 
-                    {#modal-target="chanllenge-calculator-info-modal"#}
-                    toggle-tooltip="tooltip" 
-                    data-bs-placement="bottom" 
-                    data-bs-trigger="hover" 
-                    title="Informations sur la calculette"
-                >
-                    <div id="chanllenge-calculator-info-spinner" class="spinner-grow spinner-grow-sm hide" role="status"></div>
-                    <i id="icon-chanllenge-calculator-info" class="bi bi-info-circle"></i>
-                </button>
-            </div>
+                    <button 
+                        id="btn-drawing-layer-add-box" 
+                        type="button" 
+                        class="btn btn-primary check-auth btn-drawing-layer-addfeature" 
+                        toggle-tooltip="tooltip" 
+                        data-bs-placement="bottom" 
+                        data-bs-trigger="hover" 
+                        title="Ajouter un rectangle"
+                        geom-type="Box"
+                    >
+                        <i id="icon-drawing-layer-edit-feature" class="bi bi-square"></i>
+                    </button>-->
 
-            
+                    <button id="btn-drawing-layer-remove-feature" type="button"
+                        class="btn btn-primary check-auth disabled" toggle-tooltip="tooltip" data-bs-placement="bottom"
+                        data-bs-trigger="hover" title="Supprimer un objet">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
 
+                <!-- Bouton pour les outil de mesure-->
+                <div id="measure-group-btn" class="edit-layer-btn-group hide">
+                    <button id="btn-measure-area" type="button" class="btn btn-primary check-auth"
+                        toggle-tooltip="tooltip" data-bs-placement="bottom" data-bs-trigger="hover"
+                        title="Mesure de surface">
+                        <i id="icon-measure-area" class="bi bi-heptagon"></i>
+                    </button>
 
-            <!-- Bouton d'édition pour la couche de dessin-->
-            <div id="drawing-layer-group-edit-btn" class="edit-layer-btn-group hide">
-                <button 
-                    id="btn-drawing-layer-previous" 
-                    type="button" 
-                    class="btn btn-primary check-auth disabled" 
-                    toggle-tooltip="tooltip" 
-                    data-bs-placement="bottom" 
-                    data-bs-trigger="hover" 
-                    title="Annuler"
-                    geom-type="Polygon"
-                >
-                    <i class="bi bi-arrow-90deg-left"></i>
-                </button>
-
-                <button 
-                    id="btn-drawing-layer-add-polygon" 
-                    type="button" 
-                    class="btn btn-primary check-auth btn-drawing-layer-addfeature" 
-                    toggle-tooltip="tooltip" 
-                    data-bs-placement="bottom" 
-                    data-bs-trigger="hover" 
-                    title="Ajout de polygones"
-                    geom-type="Polygon"
-                >
-                    <i class="bi bi-hexagon-fill"></i>
-                </button>
-
-                <button 
-                    id="btn-drawing-layer-add-linestring" 
-                    type="button" 
-                    class="btn btn-primary check-auth btn-drawing-layer-addfeature" 
-                    toggle-tooltip="tooltip" 
-                    data-bs-placement="bottom" 
-                    data-bs-trigger="hover" 
-                    title="Ajout de lignes"
-                    geom-type="LineString"
-                >
-                    <i class="bi bi-slash-lg"></i>
-                </button>
-
-                <button 
-                    id="btn-drawing-layer-add-point" 
-                    type="button" 
-                    class="btn btn-primary check-auth btn-drawing-layer-addfeature" 
-                    toggle-tooltip="tooltip" 
-                    data-bs-placement="bottom" 
-                    data-bs-trigger="hover" 
-                    title="Ajout de points"
-                    geom-type="Point"
-                >
-                    <i class="bi bi-dot"></i>
-                </button>
-
-                <button 
-                    id="btn-drawing-layer-modify" 
-                    type="button" 
-                    class="btn btn-primary check-auth btn-drawing-layer-modify" 
-                    toggle-tooltip="tooltip" 
-                    data-bs-placement="bottom" 
-                    data-bs-trigger="hover" 
-                    title="Outil de déplacement de noeuds"
-                    geom-type=""
-                >
-                    <i class="bi bi-magic"></i>
-                </button>
-
-                <!--<button 
-                    id="btn-drawing-layer-add-circle" 
-                    type="button" 
-                    class="btn btn-primary check-auth btn-drawing-layer-addfeature" 
-                    toggle-tooltip="tooltip" 
-                    data-bs-placement="bottom" 
-                    data-bs-trigger="hover" 
-                    title="Ajouter un cercle"
-                    geom-type="Circle"
-                >
-                    <i id="icon-drawing-layer-edit-feature" class="bi bi-circle"></i>
-                </button>
-
-                <button 
-                    id="btn-drawing-layer-add-box" 
-                    type="button" 
-                    class="btn btn-primary check-auth btn-drawing-layer-addfeature" 
-                    toggle-tooltip="tooltip" 
-                    data-bs-placement="bottom" 
-                    data-bs-trigger="hover" 
-                    title="Ajouter un rectangle"
-                    geom-type="Box"
-                >
-                    <i id="icon-drawing-layer-edit-feature" class="bi bi-square"></i>
-                </button>-->
-
-                <button 
-                    id="btn-drawing-layer-remove-feature" 
-                    type="button" 
-                    class="btn btn-primary check-auth disabled" 
-                    toggle-tooltip="tooltip" 
-                    data-bs-placement="bottom" 
-                    data-bs-trigger="hover" 
-                    title="Supprimer un objet"
-                >
-                    <i class="bi bi-trash"></i>
-                </button>
+                    <button id="btn-measure-length" type="button" class="btn btn-primary check-auth"
+                        toggle-tooltip="tooltip" data-bs-placement="bottom" data-bs-trigger="hover"
+                        title="Mesure de longueur">
+                        <i id="icon-measure-length" class="bi bi-slash-lg"></i>
+                    </button>
+                </div>
             </div>
 
 
-
-        <!-- Bloc Recevant les coordonnées de la position du curseur-->
-        <div id="bloc-coords"></div>
-        
-
-
-
-
-
-
-
-
-
-
-
+            <!-- Bloc Recevant les coordonnées de la position du curseur-->
+            <div id="bloc-coords"></div>
 
         </div>
     </div>
 
-    
+
 
     <div id="nav-attribute-table"></div>
     <div id="data-block">

@@ -2,56 +2,38 @@
     <button target="toolbar" class="rounded-pill responsive-btn responsive-btn-close">
         <i class="bi bi-arrow-left responsive-btn-icon"></i>
     </button>
-    
+
     <!-- Bouton add-layer -->
     <div class="btn-group-vertical" class="text-center">
-        <button 
-            id="btn-add-layer" 
-            type="button" 
-            class="btn btn-primary check-auth" 
-            modal-target="add-layer-modal" 
-            toggle-tooltip="tooltip" 
-            data-bs-placement="right" 
-            data-bs-trigger="hover" 
-            title="Ajouter ou créer une couche de données"
-        >
+        <button id="btn-add-layer" type="button" class="btn btn-primary check-auth" modal-target="add-layer-modal"
+            toggle-tooltip="tooltip" data-bs-placement="right" data-bs-trigger="hover"
+            title="Ajouter ou créer une couche de données">
             <i id="icon-add-layer" class="bi bi-stack"></i>
         </button>
     </div>
 
-    
-
     <!-- Bouton calculette des enjeux-->
     <div class="btn-group-vertical" class="text-center">
-        <button 
-            id="btn-chanllenge-calculator" 
-            type="button" 
-            class="btn btn-primary check-auth toogle-sub-btn-group" 
-            toggle-tooltip="tooltip" 
-            data-bs-placement="right" 
-            data-bs-trigger="hover" 
-            title="Calculette des enjeux"
-            sub-btn-group-target="sub-btn-chanllenge-calculator-group"
-        >
+        <button id="btn-chanllenge-calculator" type="button" class="btn btn-primary check-auth toogle-sub-btn-group"
+            toggle-tooltip="tooltip" data-bs-placement="right" data-bs-trigger="hover" title="Calculette des enjeux"
+            sub-btn-group-target="sub-btn-chanllenge-calculator-group">
             <i id="icon-chanllenge-calculator" class="bi bi-exclamation-octagon"></i>
         </button>
     </div>
 
-    
-
     <!-- Bouton export PDF -->
     <div class="btn-group-vertical" class="text-center">
-        <button 
-            id="btn-pdf-generator" 
-            type="button" 
-            class="btn btn-primary check-auth" 
-            modal-target="pdf-generator-modal"
-            toggle-tooltip="tooltip" 
-            data-bs-placement="right" 
-            data-bs-trigger="hover" 
-            title="Exporter la carte en pdf"
-        >
+        <button id="btn-pdf-generator" type="button" class="btn btn-primary check-auth"
+            modal-target="pdf-generator-modal" toggle-tooltip="tooltip" data-bs-placement="right"
+            data-bs-trigger="hover" title="Exporter la carte en pdf">
             <i id="icon-pdf-generator" class="bi bi-file-earmark-pdf"></i>
+        </button>
+    </div>
+
+    <div class="btn-group-vertical" class="text-center">
+        <button id="btn-measure" type="button" class="btn btn-primary check-auth" toggle-tooltip="tooltip"
+            data-bs-placement="right" data-bs-trigger="hover" title="Outils de mesure">
+            <i id="icon-pdf-generator" class="bi bi-rulers"></i>
         </button>
     </div>
 

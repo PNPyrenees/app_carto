@@ -271,15 +271,18 @@
     cursor: pointer;
 }
 
-.edit-layer-btn-group{
-    /*width: 58px;*/
+.tools-btn-group{
     position: absolute;
-    /*left: 300px;*/
     left: 16%;
-    /*top: 70px;*/
     top: 8vh;
     z-index: 99;
-    /*background-color: moccasin;*/
+}
+
+.edit-layer-btn-group{
+    /*position: absolute;
+    left: 16%;
+    top: 8vh;
+    z-index: 99;*/
     background-color: rgba(0,60,136,.7);
     border: 2px solid rgba(255,255,255,.7);
     padding: 10px;
@@ -361,3 +364,39 @@ ul#selected-toponyme > li > i {
 #obs-more-info-modal > .modal-dialog > .modal-content{
     min-height: 90vh;
 }
+
+.ol-tooltip {
+    position: relative;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+    color: white;
+    padding: 4px 8px;
+    opacity: 0.7;
+    white-space: nowrap;
+    font-size: 12px;
+    cursor: default;
+    user-select: none;
+  }
+  .ol-tooltip-measure {
+    opacity: 1;
+    font-weight: bold;
+  }
+  .ol-tooltip-static {
+    background-color: #ffcc33;
+    color: black;
+    border: 1px solid white;
+  }
+  .ol-tooltip-measure:before,
+  .ol-tooltip-static:before {
+    border-top: 6px solid rgba(0, 0, 0, 0.5);
+    border-right: 6px solid transparent;
+    border-left: 6px solid transparent;
+    content: "";
+    position: absolute;
+    bottom: -6px;
+    margin-left: -7px;
+    left: 50%;
+  }
+  .ol-tooltip-static:before {
+    border-top-color: #ffcc33;
+  }
