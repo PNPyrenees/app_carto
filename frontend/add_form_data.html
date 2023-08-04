@@ -1,0 +1,64 @@
+<div class="modal-header">
+    <h5 class="modal-title" id="feature-form-modal-label">Création / édition</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    {% for formObject in layer_definition %}
+        {# Si c'est le champ géométrique, on ne l'affiche pas #}
+        {% if not formObject.data_type.startswith('geometry') %}
+
+            <div class="form-group">
+
+                {{formObject.column_name}} : 
+
+                {% if formObject.data_type == 'integer' %} 
+                    <input id="feature-form-{{formObject.column_name}}" column_name="{{formObject.column_name}}" class="form-control form-control-lg" type="number" constraint="{{formObject.constraint}}" placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}">
+                {% endif %}
+
+                {% if formObject.data_type == 'float' %}
+                    <input id="feature-form-{{formObject.column_name}}" column_name="{{formObject.column_name}}" class="form-control form-control-lg" type="number" constraint="{{formObject.constraint}}" placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}">
+                {% endif %}
+
+                {% if formObject.data_type == 'varchar' %}
+                    <input id="feature-form-{{formObject.column_name}}" column_name="{{formObject.column_name}}" class="form-control form-control-lg" type="text" constraint="{{formObject.constraint}}" placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}" {% if formObject.character_maximum_length is not none %}maxlength="{{formObject.character_maximum_length}}"{% endif %}>
+                {% endif %}
+
+                {% if formObject.data_type == 'text' %}
+                    <input id="feature-form-{{formObject.column_name}}" column_name="{{formObject.column_name}}" class="form-control form-control-lg" type="textarea" constraint="{{formObject.constraint}}" placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}" {% if formObject.character_maximum_length is not none %}maxlength="{{formObject.character_maximum_length}}"{% endif %}>
+                {% endif %}
+
+                {% if formObject.data_type == 'boolean' %}
+                    <div id="feature-form-{{formObject.column_name}}" column_name="{{formObject.column_name}}" class="form-control form-control-lg" constraint="{{formObject.constraint}}">
+                        {% if formObject.default_value == true %}
+                            <input id="feature-form-{{formObject.column_name}}-true" type="radio" name="formObject.column_name" checked>
+                        {% else %}
+                            <input id="feature-form-{{formObject.column_name}}-true" type="radio" name="formObject.column_name">
+                        {% endif %}
+                        <label for="feature-form-{{formObject.column_name}}-true">True</label>
+
+                        {% if formObject.default_value == false %}
+                            <input id="feature-form-{{formObject.column_name}}-false" type="radio" name="formObject.column_name" checked>
+                        {% else %}
+                            <input id="feature-form-{{formObject.column_name}}-false" type="radio" name="formObject.column_name">
+                        {% endif %}
+
+                        <label for="feature-form-{{formObject.column_name}}-false">False</label>
+                    </div>
+                {% endif %}
+
+                {% if formObject.data_type == 'date' %}
+                    <input id="feature-form-{{formObject.column_name}}" column_name="{{formObject.column_name}}" class="form-control form-control-lg" type="date" constraint="{{formObject.constraint}}" placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}">
+                {% endif %}
+            </div>
+
+        {% endif %}
+    {% endfor %}
+</div>
+<div class="modal-footer">
+    <button id="feature-form-submit" type="submit" class="btn btn-primary">
+        <div id="feature-form-loading-spinner" class="spinner-grow spinner-grow-sm hide" role="status"></div>
+        Enregistrer
+    </button>
+    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Annuler</button>
+    <div id="feature-form-error" class="invalid-feedback"></div>
+</div>

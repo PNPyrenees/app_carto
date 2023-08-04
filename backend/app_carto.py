@@ -191,10 +191,10 @@ def logout():
     
     try:
         role = Role.query.filter(Role.role_token == token).one()
-    except:
+    except Exception as error:
         return jsonify({
             'status': 'error',
-            'message': 'Erreur lors de la déconnexion : Aucun role associé au token'
+            'message': """Erreur lors de la déconnexion : Aucun role associé au token - {}""".format(error)
         }), 520
 
     # On efface les valeur associé au Token
@@ -255,12 +255,12 @@ def get_ref_layer_data(ref_layer_id):
 
     try :
         layer_datas = db_sig.execute(statement).fetchone()._asdict()
-    except :
+    except Exception as error:
         return jsonify({
             "status": "error",
             'message': """Erreur lors de la récupération de la couche de référence. 
-                Veuillez contacter l'administrateur afin de contrôler la configuration de la couche {}.{}
-                """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
+                Veuillez contacter l'administrateur afin de contrôler la configuration de la couche {}.{} - {}
+                """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"], error)
         }), 404
 
     layer_datas['desc_layer'] = layer_schema
@@ -1438,10 +1438,10 @@ def upload_geodata():
     token = request.cookies.get('token')
     try:
         role = Role.query.filter(Role.role_token == token).one()
-    except:
+    except Exception as error:
         return jsonify({
             'status': 'error',
-            'message': 'Erreur lors de la déconnexion : Aucun role associé au token'
+            'message': """Erreur lors de la déconnexion : Aucun role associé au token - {}""".format(error)
         }), 520
 
     # Récupération des fichiers et stockage temporaire dans le dossier "static/tmp_upload/"
@@ -1563,10 +1563,10 @@ def get_imported_layers_list():
     token = request.cookies.get('token')
     try:
         role = Role.query.filter(Role.role_token == token).one()
-    except:
+    except Exception as error:
         return jsonify({
             'status': 'error',
-            'message': 'Erreur lors de la déconnexion : Aucun role associé au token'
+            'message': """Erreur lors de la déconnexion : Aucun role associé au token - {}""".format(error)
         }), 520
 
     myImportedLayer = db_app.session.query(
@@ -1578,6 +1578,92 @@ def get_imported_layers_list():
 
     return jsonify(ImportedLayerSchema(many=True).dump(myImportedLayer))
 
+
+# Fonction retournant le formulaire html adapté pour ajouter une données à la table <layer_id>
+@app.route('/api/get_add_form_data_for_layer/<layer_id>', methods=['GET'])
+@valid_token_required
+def get_layer_definition(layer_id):
+
+    layer = Layer.query.get(layer_id)
+    layer_schema = LayerSchema().dump(layer)
+
+    statement = text("""
+        WITH geom_column_info AS (
+            SELECT 
+                pg_namespace.nspname AS table_schema,
+                pg_class.relname AS table_name,
+                pg_attribute.attname AS column_name,
+                format_type(atttypid, atttypmod) AS geom_type--, * 
+            FROM 
+                pg_catalog.pg_attribute 
+                INNER JOIN pg_catalog.pg_class ON pg_class.oid = pg_attribute.attrelid
+                INNER JOIN pg_catalog.pg_namespace ON pg_namespace.oid = pg_class.relnamespace	
+            WHERE
+                format_type(atttypid, atttypmod) like 'geometry%'
+        )
+        SELECT
+            c.table_schema,
+            c.table_name,
+            c.column_name,
+            CASE 
+                WHEN c.data_type = 'USER-DEFINED' THEN gci.geom_type
+                WHEN c.data_type in ('smallint', 'integer', 'bigint') THEN 'integer'
+                WHEN c.data_type in ('decimal', 'numeric', 'real', 'double precision') THEN 'float'
+                WHEN c.data_type in ('character varying', 'varchar') THEN 'varchar'
+                ELSE c.data_type
+            END AS data_type,
+            c.character_maximum_length,
+            c.is_nullable,
+            ccu.constraint_name,
+            tc.constraint_type,
+            CASE 
+                WHEN cc.check_clause like '%ANY%' THEN
+                    eval('SELECT ' || left(split_part(cc.check_clause, ' ANY ', 2), -2))
+                ELSE cc.check_clause
+            END AS constraint,
+            c.column_default AS default_value
+        FROM
+            information_schema.columns c 	
+            LEFT JOIN information_schema.constraint_column_usage ccu ON 
+                c.table_catalog = ccu.table_catalog 
+                AND c.table_schema = ccu.table_schema
+                AND c.table_name = ccu.table_name
+                AND c.column_name = ccu.column_name
+            LEFT JOIN information_schema.table_constraints tc ON
+                c.table_catalog = tc.table_catalog
+                AND c.table_schema = tc.table_schema
+                AND c.table_name = tc.table_name
+                AND ccu.constraint_name = tc.constraint_name
+            LEFT JOIN information_schema.check_constraints cc ON
+                tc.constraint_catalog = cc.constraint_catalog 
+                AND tc.constraint_schema = cc.constraint_schema
+                AND tc.constraint_name = cc.constraint_name 
+            LEFT JOIN geom_column_info gci ON 
+                c.table_schema = gci.table_schema
+                AND c.table_name = gci.table_name
+                AND c.column_name = gci.column_name
+        WHERE
+            c.table_schema = '{}'
+            and c.table_name = '{}';
+    """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"]))
+
+    try :
+        tmp_layer_defintion = db_sig.execute(statement).fetchall()#._asdict()
+    except Exception as error:
+        return jsonify({
+            "status": "error",
+            'message': """Erreur lors de la récupération de la définition d'une couche. 
+                Veuillez contacter l'administrateur afin de contrôler la configuration de la couche {}.{} - {}
+                """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"], error)
+        }), 404
+
+
+    layer_definition = []
+    for data in tmp_layer_defintion:
+        layer_definition.append(data._asdict())
+
+    return render_template('add_form_data.html', layer_definition=layer_definition)
+    #return jsonify(result)
 
 if __name__ == "__main__":
     app.run()
