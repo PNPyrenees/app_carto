@@ -203,6 +203,7 @@ var addRefLayerToMap = function(){
         } else {
             default_message = "Erreur lors de la récupération de la liste des couches de référence"
         }
+        console.error(error)
         apiCallErrorCatcher("error", default_message)
     })
 }

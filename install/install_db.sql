@@ -29,7 +29,9 @@ CREATE TABLE app_carto.t_layers (
     layer_is_default boolean,
     layer_default_style jsonb,
     layer_is_warning boolean,
-    layer_attribution varchar(255)
+    layer_attribution varchar(255),
+    layer_is_editable boolean,
+    layer_allowed_geometry varchar[]
 );
 
 CREATE VIEW app_carto.v_layers_list_by_group AS

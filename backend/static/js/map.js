@@ -733,16 +733,16 @@ var getAutocompleteToponyme = function (search_name) {
         },
         credentials: "same-origin"
     })
-        .then(res => {
-            if (res.status != 200) {
-                throw res
-            } else {
-                return res.json()
-            }
-        })
-        .catch(error => {
-            default_message = "Erreur lors de l'autocompétion du taxon"
-        })
+    .then(res => {
+        if (res.status != 200) {
+            throw res
+        } else {
+            return res.json()
+        }
+    })
+    .catch(error => {
+        default_message = "Erreur lors de l'autocompétion du taxon"
+    })
 }
 
 /*----------------------------------------------------*/
@@ -757,28 +757,43 @@ var addGeojsonLayer = function (data, additional_data = null) {
 
     let layer_default_style = data.desc_layer.layer_default_style
 
+    // Création des couleurs aléatoires
+    var { color_rgba, color_rgb } = random_color(0.5)
+
     // Création d'un stryle json par défaut s'il n'y en a pas déjà un
     if (!layer_default_style) {
-        // Création des couleurs aléatoires
-        let { color_rgba, color_rgb } = random_color(0.5)
-
-        // On récupère analyse les feature our connaitre les différentes géométrye
+        // On récupère analyse les features pour connaitre les différentes géométrie
         var has_polygon = false
         var has_Line = false
         var has_point = false
-        geojson.features.forEach(feature => {
-            if (feature.geometry) {
-                if (feature.geometry.type == "Polygon" || feature.geometry.type == "MultiPolygon") {
-                    has_polygon = true
+        if  (geojson.features){
+            geojson.features.forEach(feature => {
+                if (feature.geometry) {
+                    if (feature.geometry.type == "Polygon" || feature.geometry.type == "MultiPolygon") {
+                        has_polygon = true
+                    }
+                    else if (feature.geometry.type == "LineString" || feature.geometry.type == "MultiLineString") {
+                        has_Line = true
+                    }
+                    else if (feature.geometry.type == "Point" || feature.geometry.type == "MultiPoint") {
+                        has_point = true
+                    }
                 }
-                else if (feature.geometry.type == "LineString" || feature.geometry.type == "MultiLineString") {
-                    has_Line = true
-                }
-                else if (feature.geometry.type == "Point" || feature.geometry.type == "MultiPoint") {
-                    has_point = true
-                }
+            })
+        } 
+
+        // Cas ou la couche est vide, il faut récupérer les géométries autorisés
+        if (data.desc_layer.layer_allowed_geometry){
+            if (data.desc_layer.layer_allowed_geometry.includes('Polygon')) {
+                has_polygon = true
             }
-        })
+            if (data.desc_layer.layer_allowed_geometry.includes('LineString')) {
+                has_Line = true
+            }            
+            if (data.desc_layer.layer_allowed_geometry.includes('Point')) {
+                has_point = true
+            }
+        }
 
         layer_default_style = []
         if (has_polygon) {
@@ -824,33 +839,45 @@ var addGeojsonLayer = function (data, additional_data = null) {
 
     // Récupération de la fonction devant attribuer le style
     var style = buildStyle(layer_default_style)
-    //console.log("layer_default_style")
-    //console.log(layer_default_style)
 
     // Ajoute les données du geoJson dans un ol.source 
-    let vectorSource = new ol.source.Vector({
-        features: new ol.format.GeoJSON().readFeatures(geojson),
+    var vectorSource = new ol.source.Vector({
         attributions: data.desc_layer.layer_attribution
     })
+    if  (geojson.features){
+        // On surcharge le vectorSource si la couche appelée possède des données
+        vectorSource = new ol.source.Vector({
+            features: new ol.format.GeoJSON().readFeatures(geojson),
+            attributions: data.desc_layer.layer_attribution
+        })
+    }
 
     // On initialise tout les feature comme visible
     vectorSource["visible"] = true
 
     zindex = map.getLayers().getLength() + 1
 
+    console.log(data.desc_layer)
+
+    var layerType = "refLayerReadOnly"
+    if (data.desc_layer.layer_is_editable == true){
+        layerType = "editableLayer"
+    }
+
     // Création du layer
     let vectorLayer = new ol.layer.Vector({
         layer_name: data.desc_layer.layer_label,
         source: vectorSource,
-        layerType: "refLayerReadOnly",
-        isEditable: false,
+        layerType: layerType,
+        isEditable: data.desc_layer.layer_is_editable,
         isEditing: false,
         isCalculatorLayer: false,
         style: style,
         zIndex: zindex,
         json_style: layer_default_style,
         additional_data: additional_data,
-        description_layer: data.desc_layer
+        description_layer: data.desc_layer,
+        allowed_geometry: data.desc_layer.layer_allowed_geometry
     })
 
     // Ajout du layer sur la carte
@@ -1940,6 +1967,7 @@ var enableLayerDrawing = function (layer, geomType) {
 
     // On désactive l'interaction singleclick
     map.un('singleclick', singleClickForFeatureInfo)
+    map.un('singleclick', openFormFeatureDataEdit)
 
     // Récupérationde la source
     source = layer.getSource()
@@ -1952,8 +1980,11 @@ var enableLayerDrawing = function (layer, geomType) {
 
     // Action au commencement de l'edition
     draw_interaction.on('drawstart', function (evt) {
-        if (layer.get("layerType") == "drawingLayer") {
-            document.getElementById("btn-drawing-layer-previous").classList.remove("disabled")
+        switch (layer.get("layerType")){
+            case "drawingLayer":
+            case "editableLayer":
+                document.getElementById("btn-drawing-layer-previous").classList.remove("disabled")
+                break
         }
     })
 
@@ -1989,10 +2020,33 @@ var enableLayerDrawing = function (layer, geomType) {
             setTimeout(() => {
                 buildLegendForLayer(ol.util.getUid(layer), layer.get('json_style'))
             }, 500)
+        }
 
+        if (layer.get("layerType") == "editableLayer"){
+            // Reconstruction de la légende (après un timeout sinon l'objet n'est pas créé à temps)
+            setTimeout(() => {
+                buildLegendForLayer(ol.util.getUid(layer), layer.get('json_style'))
+            }, 500)
 
+            document.getElementById("btn-drawing-layer-remove-feature").classList.remove("disabled")
+            document.getElementById("btn-drawing-layer-previous").classList.add("disabled")
 
+            getFeatureFrom(layer.get('description_layer').layer_id).then(res => {
+                // Attribution du layer_uid au formulaire
+                document.getElementById("feature-form-layer-uid").value = ol.util.getUid(layer) 
+                // Attribution du feature_uid au formulaire
+                document.getElementById("feature-form-feature-uid").value = ol.util.getUid(evt.feature) 
 
+                // Récupération de la géométrie
+                var format = new ol.format.WKT()
+                var tmp_elements = document.getElementsByClassName("feature_form_element")
+                for (var i = 0; i < tmp_elements.length; i++){
+                    if (tmp_elements[i].querySelector("input[propertie_type='geometry'")){
+                        tmp_elements[i].querySelector("input[propertie_type='geometry'").value = format.writeFeature(evt.feature)
+                    }
+
+                }
+            })
         }
     })
 
@@ -2101,6 +2155,57 @@ var setSelectedLayerInLayerbar = function (layer_uid) {
 }
 
 /**
+ * Activation de fonction de click sur un feature 
+ * pour éditer ces données attributaires
+ */
+document.getElementById("btn-drawing-layer-edit-feature-info").addEventListener("click", event => enableEditAttribute())
+var enableEditAttribute = function(){
+    var button = document.getElementById("btn-drawing-layer-edit-feature-info")
+
+    if(button.classList.contains("btn-active")){
+        map.on('singleclick', singleClickForFeatureInfo)
+        map.un('singleclick', openFormFeatureDataEdit)
+        button.classList.remove("btn-active")
+
+    } else {
+        disableLayerDrawing()
+        highlightToolBtn(button)
+
+        map.un('singleclick', singleClickForFeatureInfo)
+        map.on('singleclick', openFormFeatureDataEdit)
+    }
+}
+ 
+ /**
+  * Gestion du click sur un feature 
+  * Cas d'une couche éditable
+  */
+var openFormFeatureDataEdit = function(event){
+    // On commence par vider tous les feature dans
+    // la couche de sélection
+    clearSelectedSource()
+
+    map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
+        let layer_uid = ol.util.getUid(layer)
+        let feature_uid = ol.util.getUid(feature)
+
+        // on s'assure d'être sur une couche éditable
+        current_editable_layer_uid = document.getElementById("layer_list").querySelector(".layer-is-selected").getAttribute("layer-uid")
+        if (layer_uid == current_editable_layer_uid) {
+
+            highlightFeature(layer_uid, feature_uid, false, false)
+
+            getFeatureFrom(layer.get('description_layer').layer_id).then(res => {
+
+                document.getElementById("feature-form-layer-uid").value = layer_uid
+                document.getElementById("feature-form-feature-uid").value = feature_uid
+                populateFormFromFeature(feature)
+            })
+        }
+    })
+}
+
+/**
  * Fonction assurant l'affichage de la bonne boite de 
  * bouton d'édition en fonction de la couche sélectionnée
  */
@@ -2108,11 +2213,8 @@ var numerisationToolbarShowManagement = function (layer_uid) {
 
     // On désactive les intractions (= draw)
     disableLayerDrawing()
-    // Dans tous les cas on désactive si le bouton d'édition de la couche de calcul d'enjeux
-    document.getElementById("btn-chanllenge-calculator-edit-feature").classList.remove("btn-active")
-    document.getElementById("btn-chanllenge-calculator-remove-feature").classList.remove("btn-active")
-    // Ainsi que les bouton de la couche dessin
-    //unHigtlightAllDrawingLayerButton()
+
+    // Ainsi que les bouton d'édition actif
     unHighlightAllToolsBtn()
 
     // On desactive l'action de suppression sur un clic
@@ -2152,8 +2254,11 @@ var numerisationToolbarShowManagement = function (layer_uid) {
 
                     break
                 case "drawingLayer":
-                    // Dans tous les cas, on masque les bouton d'édition pour la couche de la calculette des enjeux
+                case "editableLayer":
+                    // Dans tous les cas, on masque les bouton d'édition pour la couche de la calculette des enjeux et de la couche éditable
                     document.getElementById("chanllenge-calculator-group-edit-btn").classList.add("hide")
+                    // On masque par défaut le bouton d'édition des données attributaires
+                    document.getElementById("btn-drawing-layer-edit-feature-info").classList.add("hide")
 
                     // Si l'édition est activé sur la couche
                     if (layer.get("isEditing") == true) {
@@ -2163,6 +2268,34 @@ var numerisationToolbarShowManagement = function (layer_uid) {
                     } else {
                         document.getElementById("drawing-layer-group-edit-btn").classList.add("hide")
                         document.getElementById("drawing-layer-group-edit-btn").removeAttribute("layer_uid")
+                    }
+
+                    // Dans le cas d'une couche de données éditable (hors couche de dessin)
+                    // on n'active que les boutton associé aux géométries autorisés
+                    if (layer.get("layerType") == 'editableLayer'){
+                        // Par défaut on désactive tous
+                        document.getElementById("btn-drawing-layer-add-polygon").disabled = true
+                        document.getElementById("btn-drawing-layer-add-linestring").disabled = true
+                        document.getElementById("btn-drawing-layer-add-point").disabled = true
+
+                        // Puis on réactive les bouton en fonction des géométries autorisées
+                        if (layer.get("allowed_geometry").includes('Polygon')){
+                            document.getElementById("btn-drawing-layer-add-polygon").disabled = false
+                        }
+                        if (layer.get('allowed_geometry').includes('LineString')){
+                            document.getElementById("btn-drawing-layer-add-linestring").disabled = false
+                        }
+                        if (layer.get('allowed_geometry').includes('Point')){
+                            document.getElementById("btn-drawing-layer-add-point").disabled = false
+                        }
+
+                        // on active l'affichage du bouton d'édition des données attributaires
+                        document.getElementById("btn-drawing-layer-edit-feature-info").classList.remove("hide")
+                    } else {
+                        // Ici, on active tous les boutons
+                        document.getElementById("btn-drawing-layer-add-polygon").disabled = false
+                        document.getElementById("btn-drawing-layer-add-linestring").disabled = false
+                        document.getElementById("btn-drawing-layer-add-point").disabled = false
                     }
                     break
                 default:
@@ -2357,8 +2490,6 @@ var build_drawing_layer_style = function () {
     return layer_default_style
 }
 
-
-
 /**
  * Fonction ajoutant une couche de dessin à la carte
  */
@@ -2446,6 +2577,22 @@ var exportGeoJson = function (layer_uid) {
 
             filename = layer.get('layer_name') + '.geojson'
             download(filename, geojsonStr)
+        }
+    })
+}
+
+var exportKml = function (layer_uid) {
+    map.getLayers().forEach(layer => {
+        if (ol.util.getUid(layer) == layer_uid) {
+            var writer = new ol.format.GeoJSON({ featureProjection: 'EPSG:4326' })
+
+            var kmlStr = new ol.format.KML().writeFeatures(layer.getSource().getFeatures(), {
+                dataProjection: 'EPSG:4326',
+                featureProjection: 'EPSG:3857'
+            });
+
+            filename = layer.get('layer_name') + '.kml'
+            download(filename, kmlStr)
         }
     })
 }
@@ -2598,7 +2745,9 @@ function createMeasureTooltip() {
     map.addOverlay(measureTooltip);
 }
 
-// Gestion de l'affichage des boutons d'outil de mesure
+/*
+ * Gestion de l'affichage des boutons d'outil de mesure
+ */
 document.getElementById("btn-measure").addEventListener("click", event => {
     if (checkToken() === false) {
         // Utilisateur non connecté => on ouvre le modal de connexion
@@ -2637,7 +2786,9 @@ document.getElementById("btn-measure").addEventListener("click", event => {
     }
 })
 
-// Click sur le bouton de calcul de surface
+/**
+ * Click sur le bouton de calcul de surface
+ */
 document.getElementById("btn-measure-area").addEventListener("click", event => {
     if (event.currentTarget.classList.contains("btn-active")) {
         // On désactive s'il est actif //
@@ -2661,7 +2812,9 @@ document.getElementById("btn-measure-area").addEventListener("click", event => {
     }
 })
 
-// Click sur le bouton de calcul de longueur
+/**
+ * Click sur le bouton de calcul de longueur
+ */
 document.getElementById("btn-measure-length").addEventListener("click", event => {
     if (event.currentTarget.classList.contains("btn-active")) {
         // On désactive s'il est actif //

@@ -50,6 +50,7 @@
         {% include 'modal/challenge_calculator_info_modal.html' %}
         {% include 'modal/obs_more_info_modal.html' %}
         {% include 'modal/style_layer.html' %}
+        {% include 'modal/feature_edit.html' %}
 
 
         {# Variable à passer au javascript #}
@@ -74,6 +75,7 @@
         <!--<script type="module" src="{{ url_for('static', filename='js/add_layer.js') }}"></script>-->
         <script type="text/javascript" src="{{ url_for('static', filename='js/layer-style-edit.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/layerbar.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/feature_edit.js') }}"></script>
 
         <script type="text/javascript" src="{{ url_for('static', filename='lib/openlayers-v6.7.0-dist/ol.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/map.js') }}"></script>

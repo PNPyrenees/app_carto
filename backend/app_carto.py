@@ -1580,7 +1580,7 @@ def get_imported_layers_list():
 
 
 # Fonction retournant le formulaire html adapté pour ajouter une données à la table <layer_id>
-@app.route('/api/get_add_form_data_for_layer/<layer_id>', methods=['GET'])
+@app.route('/api/get_feature_form_for_layer/<layer_id>', methods=['GET'])
 @valid_token_required
 def get_layer_definition(layer_id):
 
@@ -1616,11 +1616,16 @@ def get_layer_definition(layer_id):
             c.is_nullable,
             ccu.constraint_name,
             tc.constraint_type,
+			CASE 
+                WHEN cc.check_clause not like '%ANY%' THEN
+                    cc.check_clause
+                ELSE NULL
+            END AS constraint,
             CASE 
                 WHEN cc.check_clause like '%ANY%' THEN
-                    eval('SELECT ' || left(split_part(cc.check_clause, ' ANY ', 2), -2))
-                ELSE cc.check_clause
-            END AS constraint,
+                    to_jsonb((eval('select' || left(split_part(cc.check_clause, ' ANY ', 2), -2)))::varchar[])
+                ELSE NULL
+            END AS l_values,
             c.column_default AS default_value
         FROM
             information_schema.columns c 	

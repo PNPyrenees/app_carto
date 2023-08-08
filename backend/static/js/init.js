@@ -50,6 +50,10 @@ var obsMoreInfoModal = new bootstrap.Modal(document.getElementById("obs-more-inf
 var styleLayerModal = new bootstrap.Modal(document.getElementById("style-layer-modal"), {
     keyboard: false
 })
+
+var featureEditModal = new bootstrap.Modal(document.getElementById("feature-edit-modal"), {
+    keyboard: false
+})
 // On ré-initialise le modal à la fermeture
 /*var addLayerModalEl = document.getElementById("add-layer-modal")
 addLayerModalEl.addEventListener('hidden.bs.modal', function (event) {
@@ -309,3 +313,60 @@ const download = function (filename, text) {
 
     document.body.removeChild(element);
 }
+
+var simpleJsonToHtmlTable = function(jsonData){
+
+    var $table = document.createElement('table')
+
+    
+    for (let key in jsonData){
+        value = jsonData[key]
+
+        var $td1 = document.createElement('td') 
+        $td1.innerHTML = key
+
+        var $td2 = document.createElement('td') 
+        $td2.innerHTML = value
+
+        var $tr = document.createElement('tr')
+        $tr.appendChild($td1)
+        $tr.appendChild($td2)
+
+        $table.appendChild($tr)
+    }
+
+    return $table
+}
+
+/**
+ * Validates that the input string is a valid date formatted as "yyyy-mm-dd"
+ */ 
+function isValidDate(dateString)
+{
+    // First check for the pattern
+    if(!/^\d{4}\-\d{1,2}\-\d{1,2}$/.test(dateString))
+        return false;
+
+    // Parse the date parts to integers
+    var parts = dateString.split("-");
+    var day = parseInt(parts[2], 10);
+    var month = parseInt(parts[1], 10);
+    var year = parseInt(parts[0], 10);
+
+    console.log("day : " + day)
+    console.log("month : " + month)
+    console.log("year : " + year)
+
+    // Check the ranges of month and year
+    if(month == 0 || month > 12)
+        return false;
+
+    var monthLength = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+
+    // Adjust for leap years
+    if(year % 400 == 0 || (year % 100 != 0 && year % 4 == 0))
+        monthLength[1] = 29;
+
+    // Check the range of the day
+    return day > 0 && day <= monthLength[month - 1];
+};

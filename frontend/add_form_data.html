@@ -1,34 +1,101 @@
 <div class="modal-header">
-    <h5 class="modal-title" id="feature-form-modal-label">Création / édition</h5>
+    <h5 class="modal-title" id="feature-form-modal-label">Création / édition d'un objet</h5>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <div class="modal-body">
-    {% for formObject in layer_definition %}
-        {# Si c'est le champ géométrique, on ne l'affiche pas #}
-        {% if not formObject.data_type.startswith('geometry') %}
+    <div class="form-group">
+        <input id="feature-form-layer-uid" type="hidden">
+        <input id="feature-form-feature-uid" type="hidden">
 
-            <div class="form-group">
+        {% for formObject in layer_definition %}
 
-                {{formObject.column_name}} : 
+            <div class="feature_form_element" type="hidden" feature_form_column_name="{{formObject.column_name}}">
 
-                {% if formObject.data_type == 'integer' %} 
-                    <input id="feature-form-{{formObject.column_name}}" column_name="{{formObject.column_name}}" class="form-control form-control-lg" type="number" constraint="{{formObject.constraint}}" placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}">
+                {% if not formObject.data_type.startswith('geometry') %}
+                    {{formObject.column_name}} : 
                 {% endif %}
 
-                {% if formObject.data_type == 'float' %}
-                    <input id="feature-form-{{formObject.column_name}}" column_name="{{formObject.column_name}}" class="form-control form-control-lg" type="number" constraint="{{formObject.constraint}}" placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}">
+                {# GEOMETRY #}
+                {% if formObject.data_type.startswith('geometry') %} 
+                    <input 
+                        id="feature-form-{{formObject.column_name}}" 
+                        column_name="{{formObject.column_name}}" 
+                        propertie_type="geometry" 
+                        class="form-control form-control-lg" 
+                        type="hidden" 
+                        constraint="{% if formObject.constraint is not none %}{{formObject.constraint}}{% endif %}"
+                        placeholder=""
+                        is_nullable="false"
+                    >
                 {% endif %}
 
-                {% if formObject.data_type == 'varchar' %}
-                    <input id="feature-form-{{formObject.column_name}}" column_name="{{formObject.column_name}}" class="form-control form-control-lg" type="text" constraint="{{formObject.constraint}}" placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}" {% if formObject.character_maximum_length is not none %}maxlength="{{formObject.character_maximum_length}}"{% endif %}>
+                {# INTEGER #}
+                {% if formObject.data_type == 'integer' and formObject.l_values == None  %} 
+                    <input 
+                        id="feature-form-{{formObject.column_name}}" 
+                        column_name="{{formObject.column_name}}" 
+                        propertie_type="integer" 
+                        class="form-control form-control-lg" 
+                        type="text" 
+                        constraint="{% if formObject.constraint is not none %}{{formObject.constraint}}{% endif %}" 
+                        placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}"
+                        is_nullable="{% if formObject.is_nullable == 'YES' %}true{% else %}false{% endif %}"
+                    >
                 {% endif %}
 
+                {# FLOAT #}
+                {% if formObject.data_type == 'float' and formObject.l_values == None  %}
+                    <input 
+                        id="feature-form-{{formObject.column_name}}" 
+                        column_name="{{formObject.column_name}}" 
+                        propertie_type="float" 
+                        class="form-control form-control-lg" 
+                        type="text" 
+                        constraint="{% if formObject.constraint is not none %}{{formObject.constraint}}{% endif %}" 
+                        placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}"
+                        is_nullable="{% if formObject.is_nullable == 'YES' %}true{% else %}false{% endif %}"
+                    >
+                {% endif %}
+
+                {# VARCHAR #}
+                {% if formObject.data_type == 'varchar' and formObject.l_values == None %}
+                    <input 
+                        id="feature-form-{{formObject.column_name}}" 
+                        column_name="{{formObject.column_name}}" 
+                        propertie_type="varchar" 
+                        class="form-control form-control-lg" 
+                        type="text" 
+                        constraint="{% if formObject.constraint is not none %}{{formObject.constraint}}{% endif %}" 
+                        placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}" 
+                        {% if formObject.character_maximum_length is not none %}maxlength="{{formObject.character_maximum_length}}"{% endif %}
+                        is_nullable="{% if formObject.is_nullable == 'YES' %}true{% else %}false{% endif %}"
+                    >
+                {% endif %}
+
+                {# TEXT #}
                 {% if formObject.data_type == 'text' %}
-                    <input id="feature-form-{{formObject.column_name}}" column_name="{{formObject.column_name}}" class="form-control form-control-lg" type="textarea" constraint="{{formObject.constraint}}" placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}" {% if formObject.character_maximum_length is not none %}maxlength="{{formObject.character_maximum_length}}"{% endif %}>
+                    <input 
+                        id="feature-form-{{formObject.column_name}}" 
+                        column_name="{{formObject.column_name}}" 
+                        propertie_type="text" 
+                        class="form-control form-control-lg" 
+                        type="textarea" 
+                        constraint="{% if formObject.constraint is not none %}{{formObject.constraint}}{% endif %}" 
+                        placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}" 
+                        {% if formObject.character_maximum_length is not none %}maxlength="{{formObject.character_maximum_length}}"{% endif %}
+                        is_nullable="{% if formObject.is_nullable == 'YES' %}true{% else %}false{% endif %}"
+                    >
                 {% endif %}
 
+                {# BOOLEAN #}
                 {% if formObject.data_type == 'boolean' %}
-                    <div id="feature-form-{{formObject.column_name}}" column_name="{{formObject.column_name}}" class="form-control form-control-lg" constraint="{{formObject.constraint}}">
+                    <div id="feature-form-{{formObject.column_name}}" 
+                        column_name="{{formObject.column_name}}" 
+                        class="form-control form-control-lg" 
+                        propertie_type="boolean" 
+                        constraint="{% if formObject.constraint is not none %}{{formObject.constraint}}{% endif %}"
+                        is_nullable="{% if formObject.is_nullable == 'YES' %}true{% else %}false{% endif %}"
+                    >
                         {% if formObject.default_value == true %}
                             <input id="feature-form-{{formObject.column_name}}-true" type="radio" name="formObject.column_name" checked>
                         {% else %}
@@ -46,19 +113,61 @@
                     </div>
                 {% endif %}
 
+                {# DATE #}
                 {% if formObject.data_type == 'date' %}
-                    <input id="feature-form-{{formObject.column_name}}" column_name="{{formObject.column_name}}" class="form-control form-control-lg" type="date" constraint="{{formObject.constraint}}" placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}">
+                    <input 
+                        id="feature-form-{{formObject.column_name}}" 
+                        column_name="{{formObject.column_name}}" 
+                        propertie_type="date" 
+                        class="form-control form-control-lg" 
+                        type="date" 
+                        constraint="{% if formObject.constraint is not none %}{{formObject.constraint}}{% endif %}" 
+                        placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}"
+                        is_nullable="{% if formObject.is_nullable == 'YES' %}true{% else %}false{% endif %}"
+                    >
+                {% endif %}
+
+                {# SELECT #}
+                {% if formObject.l_values != None %}
+                    <div id="feature-form-{{formObject.column_name}}" 
+                        column_name="{{formObject.column_name}}" 
+                        class="form-control form-control-lg" 
+                        propertie_type="select" 
+                        constraint="{% if formObject.constraint is not none %}{{formObject.constraint}}{% endif %}"
+                        is_nullable="{% if formObject.is_nullable == 'YES' %}true{% else %}false{% endif %}"
+                    >
+                        <select>
+                            <option></option>
+                            {% for option in formObject.l_values %}
+                                <option value="{{option}}">{{option}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 {% endif %}
             </div>
+        {% endfor %}
+    </div>  
 
-        {% endif %}
-    {% endfor %}
 </div>
 <div class="modal-footer">
-    <button id="feature-form-submit" type="submit" class="btn btn-primary">
+    
+    
+
+    <button id="feature-form-submit" type="submit" class="btn btn-primary" onclick="writeFeatureProperties()">
         <div id="feature-form-loading-spinner" class="spinner-grow spinner-grow-sm hide" role="status"></div>
         Enregistrer
     </button>
-    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Annuler</button>
-    <div id="feature-form-error" class="invalid-feedback"></div>
+    <button id="feature-form-abort" type="button" class="btn btn-warning" {#onclick="showConfirmAbortEditFeature()"#} data-bs-dismiss="modal">Annuler</button>
+
+    <div id="feature-form-error" class="text-danger hide"></div>
+    <!--<div id="valid-feature-form-abort" class="hide row border">
+        <div class="col-lg-12 text-warning">
+        <bold>Attention !</bold> cette action va également supprimer l'objet géographique ! 
+        Êtes-vous sur de vouloir annuler la création de l'objet ?
+        </div>
+        <div class="col-lg-12 text-center">
+            <button id="valid-feature-form-abort-btn" type="button" class="btn btn-danger" onclick="abortEditFeature()">Oui</button>
+            <button id="valid-feature-form-abort-btn" type="button" class="btn btn-primary" onclick="hideConfirmAbortEditFeature()">Non</button>
+        </div>
+    </div>-->
 </div>

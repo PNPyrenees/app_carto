@@ -65,6 +65,8 @@ class Layer(db_app.Model):
     layer_attribution = db_app.Column(db_app.String(255))
     layer_geom_column = db_app.Column(db_app.String(50))
     layer_columns = db_app.Column(db_app.ARRAY(db_app.String))
+    layer_is_editable = db_app.Column(db_app.Boolean)
+    layer_allowed_geometry = db_app.Column(db_app.ARRAY(db_app.String))
 
     def __init__(
         self,
@@ -78,7 +80,9 @@ class Layer(db_app.Model):
         layer_is_warning,
         layer_attribution,
         layer_geom_column,
-        layer_columns
+        layer_columns,
+        layer_is_editable,
+        layer_allowed_geometry
     ):
         self.layer_id = layer_id
         self.layer_schema_name = layer_schema_name
@@ -91,6 +95,8 @@ class Layer(db_app.Model):
         self.layer_attribution = layer_attribution
         self.layer_geom_column = layer_geom_column
         self.layer_columns = layer_columns
+        self.layer_is_editable = layer_is_editable
+        self.layer_allowed_geometry = layer_allowed_geometry
 
 class VLayerList(db_app.Model):
     __tablename__ = 'v_layers_list_by_group'

@@ -218,3 +218,21 @@ input[type="date"] > span.datetime-edit-field {
     top: 9rem;
     border-radius: 4px;
 }
+
+#feature-form-error{
+    min-width: 100%;
+}
+
+.error-table {
+    min-width: 100% !important;
+}
+
+.error-table > tr {
+    border: #f5c2c7 2px solid;
+}
+
+.error-table > tr > td {
+    color: #842029;
+    background-color : #f8d7da;
+    border: #f5c2c7 2px solid;
+}
