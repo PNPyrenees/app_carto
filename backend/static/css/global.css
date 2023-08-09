@@ -236,3 +236,26 @@ input[type="date"] > span.datetime-edit-field {
     background-color : #f8d7da;
     border: #f5c2c7 2px solid;
 }
+
+#global-spinner {
+    position: absolute;
+    min-width: 100%;
+    min-height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 9999;
+}
+
+#global-spinner > #spinner-container {
+    position: absolute;
+    height: 100px;
+    width: 100px;
+    top: 50%;
+    left: 50%;
+    margin-left: -50px;
+    margin-top: -50px;
+}
+
+#global-spinner > #spinner-container > .spinner-border {
+    height: 100px;
+    width: 100px;
+}
