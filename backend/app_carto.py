@@ -1,6 +1,7 @@
 import os
 import re
 from pathlib import Path
+from readline import insert_text
 from flask import Flask, render_template, send_from_directory, request, make_response, jsonify, Markup
 import requests
 import json
@@ -13,6 +14,7 @@ from functools import wraps
 from .models import Role, VLayerList, Layer, BibStatusType, VRegneList, VGroupTaxoList, BibCommune, BibMeshScale, BibGroupStatus, ImportedLayer
 from .schema import RoleSchema, VLayerListSchema, LayerSchema, BibGroupStatusSchema, ImportedLayerSchema
 
+import logging 
 """from requests.api import request"""
 
 from .utils.env import read_config, db_app, ma
@@ -30,6 +32,13 @@ app.config['JSON_SORT_KEYS'] = False
 
 db_app.init_app(app)
 db_sig = create_engine(app.config['SQLALCHEMY_SIG_DATABASE_URI'])
+
+
+logging.basicConfig(filename="logs/app_carto_errors.log", 
+                format='%(asctime)s %(message)s', 
+                filemode='w') 
+logger=logging.getLogger()
+logger.setLevel(logging.DEBUG) 
 
 def valid_token_required(f):
     """ Fonction de type décorateur permettant 
@@ -1579,14 +1588,9 @@ def get_imported_layers_list():
     return jsonify(ImportedLayerSchema(many=True).dump(myImportedLayer))
 
 
-# Fonction retournant le formulaire html adapté pour ajouter une données à la table <layer_id>
-@app.route('/api/get_feature_form_for_layer/<layer_id>', methods=['GET'])
-@valid_token_required
-def get_layer_definition(layer_id):
-
-    layer = Layer.query.get(layer_id)
-    layer_schema = LayerSchema().dump(layer)
-
+# Fonction permettant de produire la requête (texte) récupérant la structure 
+# d'une table
+def get_column_definition(layer_schema_name, layer_table_name):
     statement = text("""
         WITH geom_column_info AS (
             SELECT 
@@ -1650,18 +1654,27 @@ def get_layer_definition(layer_id):
         WHERE
             c.table_schema = '{}'
             and c.table_name = '{}';
-    """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"]))
+    """.format(layer_schema_name, layer_table_name))
 
     try :
-        tmp_layer_defintion = db_sig.execute(statement).fetchall()#._asdict()
+       return db_sig.execute(statement).fetchall()
     except Exception as error:
         return jsonify({
             "status": "error",
             'message': """Erreur lors de la récupération de la définition d'une couche. 
                 Veuillez contacter l'administrateur afin de contrôler la configuration de la couche {}.{} - {}
-                """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"], error)
+                """.format(layer_schema_name, layer_table_name, error)
         }), 404
 
+# Fonction retournant le formulaire html adapté pour ajouter une données à la table <layer_id>
+@app.route('/api/get_feature_form_for_layer/<layer_id>', methods=['GET'])
+@valid_token_required
+def get_layer_definition(layer_id):
+
+    layer = Layer.query.get(layer_id)
+    layer_schema = LayerSchema().dump(layer)
+
+    tmp_layer_defintion = get_column_definition(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
 
     layer_definition = []
     for data in tmp_layer_defintion:
@@ -1669,6 +1682,325 @@ def get_layer_definition(layer_id):
 
     return render_template('add_form_data.html', layer_definition=layer_definition)
     #return jsonify(result)
+
+@app.route('/api/add_features_for_layer/<layer_id>', methods=['POST'])
+@valid_token_required
+def add_features_for_layer(layer_id):
+    """ Ecrit les données dans la table correspondant à layer id
+    puis retourn les données tel qu'elles ont été enregistrées
+    Returns
+    -------
+        Array<GEOJSON>
+    """
+
+    feature_data = request.json
+
+    layer = Layer.query.get(layer_id)
+    layer_schema = LayerSchema().dump(layer)
+
+    layer_definition = get_column_definition(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
+
+    # Création de la requête d'insertion
+    column_names = []
+    values = []
+    for column in layer_definition:
+
+        column_name = column["column_name"]
+        column_names.append(column_name)
+
+        value = feature_data[column_name]
+        # On adapte le valeur en fonction de leur type
+        if value is not None :
+            if column["data_type"] in ['varchar', 'date']:
+                value = "'" + value + "'"
+            if column["data_type"].startswith("geometry"):
+                srid = column["data_type"].split(",")[1].replace(")","")
+                value = "ST_Transform(ST_GeomFromText('" + value + "', 3857), " + srid + ")"
+        else :
+            value = 'NULL'
+
+        #logger.debug(column_name)
+
+        values.append(value)
+
+    
+    insert_statement = """
+        INSERT INTO {}.{} ({}) VALUES ({})
+    """.format(
+        layer_schema["layer_schema_name"], 
+        layer_schema["layer_table_name"],
+        ", ".join(column_names),
+        ", ".join(map(str, values))
+    )
+
+    try :
+       insert_exec = db_sig.execute(insert_statement)#._asdict()
+    except Exception as error:
+        return jsonify({
+            "status": "error",
+            'message': """Erreur lors de l'écriture de la données en base' 
+                Veuillez contacter l'administrateur afin de contrôler la configuration de la couche {}.{} - {}
+                """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"], error)
+        }), 404
+
+    return jsonify(True)
+
+# Donne la clé primaire pour la table renseigné en paramètre
+def get_primary_key_of_layer(layer_schema_name, layer_table_name):
+    get_primary_key_column_statement = """
+        SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS data_type
+        FROM   pg_index i
+        JOIN   pg_attribute a ON a.attrelid = i.indrelid
+                            AND a.attnum = ANY(i.indkey)
+        WHERE  i.indrelid = '{}.{}'::regclass
+        AND    i.indisprimary;
+    """.format(layer_schema_name, layer_table_name)
+
+    try :
+        primary_key_column = db_sig.execute(get_primary_key_column_statement).fetchall()#._asdict()
+    except Exception as error:
+        return jsonify({
+            "status": "error",
+            'message': """Erreur lors de la récupération de la clés primaire pour la table {}.{}
+                """.format(layer_schema_name, layer_table_name)
+        }), 404
+
+    primary_key = []
+    for data in primary_key_column:
+        primary_key.append(data._asdict())
+
+    return primary_key[0] # Exemple : 'attname': 'id', 'data_type': 'integer'}
+
+@app.route('/api/update_features_for_layer/<layer_id>', methods=['POST'])
+@valid_token_required
+def update_features_for_layer(layer_id):
+    """ Ecrit les données dans la table correspondant à layer id
+    puis retourn les données tel qu'elles ont été enregistrées
+    Returns
+    -------
+        Array<GEOJSON>
+    """
+
+    feature_data = request.json
+
+    layer = Layer.query.get(layer_id)
+    layer_schema = LayerSchema().dump(layer)
+
+    layer_definition = get_column_definition(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
+
+    primary_key = get_primary_key_of_layer(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
+    
+    logger.debug(primary_key)
+
+    update_statement = """
+        UPDATE {}.{} 
+        SET
+    """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
+
+    # Création de la requête d'insertion
+    
+    first = True
+    for column in layer_definition:
+        if first != True:
+            update_statement = update_statement + ""","""
+        
+        column_name = column["column_name"]
+
+        logger.debug("column_name : " + column_name)
+
+        value = feature_data[column_name]
+        # On adapte le valeur en fonction de leur type
+        if column_name != primary_key["attname"] :
+            if value is not None :
+                if column["data_type"] in ['varchar', 'date']:
+                    value = "'" + value + "'"
+                if column["data_type"].startswith("geometry"):
+                    srid = column["data_type"].split(",")[1].replace(")","")
+                    value = "ST_Transform(ST_GeomFromText('" + value + "', 3857), " + srid + ")"
+            else :
+                value = 'NULL'
+
+            update_statement = update_statement + """
+                {} = {}
+            """.format(column_name, value)
+
+            first = False
+
+    update_statement = update_statement + """
+        WHERE {} = {}
+    """.format(primary_key["attname"], feature_data[primary_key["attname"]])
+
+    try :
+       update_exec = db_sig.execute(update_statement)#._asdict()
+    except Exception as error:
+        return jsonify({
+            "status": "error",
+            'message': """Erreur lors de la modification de la données en base' 
+                Veuillez contacter l'administrateur afin de contrôler la configuration de la couche {}.{} - {}
+                """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"], error)
+        }), 404
+
+
+    returned_data_statement = """
+        SELECT * FROM {}.{}
+        WHERE {} = {}
+    """.format(
+        layer_schema["layer_schema_name"], 
+        layer_schema["layer_table_name"],
+        primary_key["attname"],
+        feature_data[primary_key["attname"]]
+    )
+
+    try :
+       returned_data = db_sig.execute(returned_data_statement).fetchone()._asdict()
+    except Exception as error:
+        return jsonify({
+            "status": "error",
+            'message': """Erreur lors de la modification de la données en base' 
+                Veuillez contacter l'administrateur afin de contrôler la configuration de la couche {}.{} - {}
+                """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"], error)
+        }), 404
+
+    logger.debug(returned_data)
+
+    return returned_data
+
+    # Récupération de la column prmary key
+    #for column in layer_definition:
+    #    if column["constraint_type"] == 'PRIMARY KEY':
+    #        pk_column = column["column_name"]
+    #        pk_column_type = column["data_type"]
+    
+    # On fait une sauvegarde de la couche
+    backup_statement = """
+        CREATE TABLE backup.{} AS SELECT * FROM {}.{}
+    """.format(
+        layer_schema["layer_table_name"],
+        layer_schema["layer_schema_name"],
+        layer_schema["layer_table_name"] 
+    )
+
+    
+
+    # Identification des features supprimés
+    #l_pkid=[]
+    #for feature in geojson_data["features"]:
+    #    value = feature["properties"][pk_column]
+    #    if pk_column_type in ['varchar', 'date']:
+    #        value = "'" + value + "'"
+    #
+    #    l_pkid.append(value)
+    #
+    #delete_statement = """
+    #    DELETE FROM {}.{} WHERE {} NOT IN ({});
+    #""".format(
+    #    layer_schema["layer_schema_name"], 
+    #    layer_schema["layer_table_name"],
+    #    pk_column,
+    #    ", ".join(l_pkid)
+    #)
+
+
+
+
+
+
+
+
+
+
+
+    return jsonify(delete_statement)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    get_primary_key_column_statement = """
+        SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS data_type
+        FROM   pg_index i
+        JOIN   pg_attribute a ON a.attrelid = i.indrelid
+                            AND a.attnum = ANY(i.indkey)
+        WHERE  i.indrelid = '{}.{}'::regclass
+        AND    i.indisprimary;
+    """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
+
+    try :
+        primary_key_column = db_sig.execute(get_primary_key_column_statement).fetchall()#._asdict()
+    except Exception as error:
+        return jsonify({
+            "status": "error",
+            'message': """Erreur lors de la récupération de la clés primaire pour la table {}.{}
+                """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
+        }), 404
+
+    primary_key = []
+    for data in primary_key_column:
+        primary_key.append(data._asdict())
+
+    # On identifie si le feature est un inser, un update ou un delete
+    for feature in geojson_data["features"]:
+        # NE FONCTIONE QUE POUR LES TABLES AYANT 
+        # QU'UNE SUELE COLONNE COMME PRIMARY KEY
+        search_statement = """
+            SELECT count(*) FROM {}.{} WHERE {} = {}
+        """.format(
+                layer_schema["layer_schema_name"], 
+                layer_schema["layer_table_name"],
+                primary_key[0]["attname"],
+                feature["properties"][primary_key[0]["attname"]]
+            )
+
+    #    try :
+    #        is_found = db_sig.execute(search_statement).fetchall()
+    #    except Exception as error:
+    #        return jsonify({
+    #            "status": "error",
+    #            'message': """Erreur lors de la de la recherhce de l'existence du feature
+    #                """
+    #        }), 404
+
+    
+
+    #insert_request = []
+    
+    #    insert_request.append(feature["properties"])
+
+    #print(insert_request)
+    column_names = []
+    values = []
+    for feature in geojson_data["features"]:
+        for key,value in feature["properties"]:
+            #for key,value in jsonify(propertie.iteritems()):
+            column_names.append(key)
+            values.append(value)
+
+    insert_statement = """
+        INSERT INTO {}.{} ({}) VALUES ({})
+    """.format(
+        layer_schema["layer_schema_name"], 
+        layer_schema["layer_table_name"],
+        column_names.join(", "),
+        values.join(", ")
+    )
+    #column_names = ["foo", "bar"].join(",")
+    #placeholders = ["?","?"].join( "," )
+    #statement = "INSERT INTO table_name (" + column_names + ") VALUES ("+placeholders+")" 
+
+
+    return jsonify(insert_statement)
+
 
 if __name__ == "__main__":
     app.run()

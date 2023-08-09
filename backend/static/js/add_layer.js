@@ -6,7 +6,7 @@
  */
 document.getElementById("add-layer-modal").addEventListener('show.bs.modal', event => {
     active_menu = document.getElementById("add-layer-menu").querySelector('input[type="radio"]:checked')
-    switch (active_menu.getAttribute('target')){
+    switch (active_menu.getAttribute('target')) {
         case 'add-ref-layer':
             buildAddRefLayerContent()
             break
@@ -34,7 +34,7 @@ const layer_submit_button = document.getElementById("add-layer-submit")
 
 layer_submit_button.addEventListener('click', event => {
     active_menu = document.getElementById("add-layer-menu").querySelector('input[type="radio"]:checked')
-    switch (active_menu.getAttribute('target')){
+    switch (active_menu.getAttribute('target')) {
         case 'add-ref-layer':
             addRefLayerToMap()
             break
@@ -57,35 +57,36 @@ layer_submit_button.addEventListener('click', event => {
  * Fonctions permettant de récupérer la liste
  * des couches de référence disponible
  */
-var getRefLayerList = function(){
+var getRefLayerList = function () {
     return fetch(APP_URL + "/api/layer/get_layers_list", {
         method: "GET",
-        headers: { 
-            "Accept": "application/json", 
-            "Content-Type": "application/json" 
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
         },
         credentials: "same-origin"
     })
-    .then(res => {
-        if (res.status != 200){
-            throw res/*.json();*/
-        } else {
-            return res.json()
-        }
-    })
-    .catch(error => {
-        default_message = "Erreur lors de la récupération de la liste des couches de référence"
-        apiCallErrorCatcher(error, default_message)
-    })
+        .then(res => {
+            if (res.status != 200) {
+                throw res/*.json();*/
+            } else {
+                return res.json()
+            }
+        })
+        .catch(error => {
+            default_message = "Erreur lors de la récupération de la liste des couches de référence"
+            apiCallErrorCatcher(error, default_message)
+            console.log(error)
+        })
 }
 
 /**
  * Construction du contenu du div "add-ref-layer-content"
  */
-var buildAddRefLayerContent = function(){
+var buildAddRefLayerContent = function () {
     getRefLayerList().then(layer_list => {
         //Si getRefLayerList ne retourne rien alors on ne va pas plus loin
-        if (!layer_list){
+        if (!layer_list) {
             return
         }
 
@@ -107,7 +108,7 @@ var buildAddRefLayerContent = function(){
             accordion_prototype = accordion_prototype.replace(/__GROUP_NAME__/g, layer_group.layer_group)
             accordion_prototype = accordion_prototype.replace(/__ACCORDION_HEADER_ID__/g, accordion_add_ref_layer_heading_id)
             accordion_prototype = accordion_prototype.replace(/__COLLAPSE_ID__/g, accordion_add_ref_layer_collapse_id)
-            
+
             // Passage du prototype string vers element html
             template = document.createElement('template')
             template.innerHTML = accordion_prototype
@@ -115,15 +116,15 @@ var buildAddRefLayerContent = function(){
             // On ajoute chaque couche du groupe
             layer_group.l_layers.forEach(layer => {
                 var li = document.createElement('li');
-                li.setAttribute('class','modal-ref-layer-item');
+                li.setAttribute('class', 'modal-ref-layer-item');
                 /*li.classList.add("li-ref_layer")*/
-                li.setAttribute('layer-id',layer.layer_id);
+                li.setAttribute('layer-id', layer.layer_id);
 
                 li.appendChild(document.createTextNode(layer.layer_label))
                 template.content.querySelector(".modal-ref-layer-list").appendChild(li)
 
                 // on active la coloration si on sur le "li"
-                li.addEventListener('click', (event) =>{
+                li.addEventListener('click', (event) => {
                     // On comence par désactiver tous les autres
                     let all_modal_ref_layer_item = document.getElementsByClassName('modal-ref-layer-item')
                     for (var i = 0; i < all_modal_ref_layer_item.length; i++) {
@@ -140,7 +141,7 @@ var buildAddRefLayerContent = function(){
             i++
         })
     })
-    let accordion_prototype = document.getElementById('accordion-add-ref-layer').getAttribute('data-prototype')    
+    let accordion_prototype = document.getElementById('accordion-add-ref-layer').getAttribute('data-prototype')
 }
 
 /**
@@ -163,7 +164,7 @@ document.getElementById('btn-add-imported-layer').addEventListener('click', even
 /**
  * Ajoute une couche de référence à la carte
  */
-var addRefLayerToMap = function(){
+var addRefLayerToMap = function () {
     layer_submit_button.disabled = true
     document.getElementById('loading-spinner').style.display = 'inline-block'
 
@@ -176,195 +177,195 @@ var addRefLayerToMap = function(){
     fetch(APP_URL + "/api/ref_layer/" + ref_layer_id, {
         method: "GET",
         signal: signal,
-        headers: { 
-            "Accept": "application/json", 
-            "Content-Type": "application/json" 
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
         },
         credentials: "same-origin"
     })
-    .then(res => {
-        if (res.status != 200){
-            throw res;
-        } else {
-            return res.json()
-        }
-    }).then(data => {
-        addGeojsonLayer(data)
-        addLayerModal.hide()
-        layer_submit_button.disabled = false
-        document.getElementById('loading-spinner').style.display = 'none'
-    })
-    .catch(error => {
-        layer_submit_button.disabled = false
-        document.getElementById('loading-spinner').style.display = 'none'
-        
-        if (error.message){
-            default_message = "Demande de données annulée"
-        } else {
-            default_message = "Erreur lors de la récupération de la liste des couches de référence"
-        }
-        console.error(error)
-        apiCallErrorCatcher("error", default_message)
-    })
+        .then(res => {
+            if (res.status != 200) {
+                throw res;
+            } else {
+                return res.json()
+            }
+        }).then(data => {
+            addGeojsonLayer(data)
+            addLayerModal.hide()
+            layer_submit_button.disabled = false
+            document.getElementById('loading-spinner').style.display = 'none'
+        })
+        .catch(error => {
+            layer_submit_button.disabled = false
+            document.getElementById('loading-spinner').style.display = 'none'
+
+            if (error.message) {
+                default_message = "Demande de données annulée"
+            } else {
+                default_message = "Erreur lors de la récupération de la liste des couches de référence"
+            }
+            console.error(error)
+            apiCallErrorCatcher("error", default_message)
+        })
 }
 
 
 /**
  * Gestion du formulaire de recherche de données d'observation
  *//**
- * Appel API pour récupérer la liste des groupe taxonomique
- */
-var getRegneList = function(){
+* Appel API pour récupérer la liste des groupe taxonomique
+*/
+var getRegneList = function () {
     return fetch(APP_URL + "/api/layer/get_regne_list", {
         method: "GET",
-        headers: { 
-            "Accept": "application/json", 
-            "Content-Type": "application/json" 
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
         },
         credentials: "same-origin"
     })
-    .then(res => {
-        if (res.status != 200){
-            throw res
-        } else {
-            return res.json()
-        }
-    })
-    .catch(error => {
-        default_message = "Erreur lors de la récupération de la liste des regnes"
-        apiCallErrorCatcher(error, default_message)
-    })
+        .then(res => {
+            if (res.status != 200) {
+                throw res
+            } else {
+                return res.json()
+            }
+        })
+        .catch(error => {
+            default_message = "Erreur lors de la récupération de la liste des regnes"
+            apiCallErrorCatcher(error, default_message)
+        })
 }
 
 /**
  * Appel API pour récupérer la liste des groupe taxonomique
  */
-var getGroupTaxoList = function(){
+var getGroupTaxoList = function () {
     return fetch(APP_URL + "/api/layer/get_group_taxo_list", {
         method: "GET",
-        headers: { 
-            "Accept": "application/json", 
-            "Content-Type": "application/json" 
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
         },
         credentials: "same-origin"
     })
-    .then(res => {
-        if (res.status != 200){
-            throw res
-        } else {
-            return res.json()
-        }
-    })
-    .catch(error => {
-        default_message = "Erreur lors de la récupération de la liste des groupes taxonomiques"
-        apiCallErrorCatcher(error, default_message)
-    })
+        .then(res => {
+            if (res.status != 200) {
+                throw res
+            } else {
+                return res.json()
+            }
+        })
+        .catch(error => {
+            default_message = "Erreur lors de la récupération de la liste des groupes taxonomiques"
+            apiCallErrorCatcher(error, default_message)
+        })
 }
 
 /**
  * Appel API pour la récupération de la liste des status
  */
-var getStatutList = function(){
+var getStatutList = function () {
     return fetch(APP_URL + "/api/layer/get_statut_list", {
         method: "GET",
-        headers: { 
-            "Accept": "application/json", 
-            "Content-Type": "application/json" 
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
         },
         credentials: "same-origin"
     })
-    .then(res => {
-        if (res.status != 200){
-            throw res
-        } else {
-            return res.json()
-        }
-    })
-    .catch(error => {
-        default_message = "Erreur lors de la récupération de la liste des statuts"
-        apiCallErrorCatcher(error, default_message)
-    })
+        .then(res => {
+            if (res.status != 200) {
+                throw res
+            } else {
+                return res.json()
+            }
+        })
+        .catch(error => {
+            default_message = "Erreur lors de la récupération de la liste des statuts"
+            apiCallErrorCatcher(error, default_message)
+        })
 }
 
 /**
  * Appel API pour la récupération de la liste des communes
  */
-var getCommuneList = function(){
+var getCommuneList = function () {
     return fetch(APP_URL + "/api/layer/get_commune_list", {
         method: "GET",
-        headers: { 
-            "Accept": "application/json", 
-            "Content-Type": "application/json" 
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
         },
         credentials: "same-origin"
     })
-    .then(res => {
-        if (res.status != 200){
-            throw res
-        } else {
-            return res.json()
-        }
-    })
-    .catch(error => {
-        default_message = "Erreur lors de la récupération de la liste des commune"
-        apiCallErrorCatcher(error, default_message)
-    })
+        .then(res => {
+            if (res.status != 200) {
+                throw res
+            } else {
+                return res.json()
+            }
+        })
+        .catch(error => {
+            default_message = "Erreur lors de la récupération de la liste des commune"
+            apiCallErrorCatcher(error, default_message)
+        })
 }
 
 /**
  * Appel API pour la récupération de la liste des echelles de restitution
  */
-var getScaleList = function(){
+var getScaleList = function () {
     return fetch(APP_URL + "/api/layer/get_scale_list", {
         method: "GET",
-        headers: { 
-            "Accept": "application/json", 
-            "Content-Type": "application/json" 
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
         },
         credentials: "same-origin"
     })
-    .then(res => {
-        if (res.status != 200){
-            throw res
-        } else {
-            return res.json()
-        }
-    })
-    .catch(error => {
-        default_message = "Erreur lors de la récupération de la liste des échelles de restitution"
-        apiCallErrorCatcher(error, default_message)
-    })
+        .then(res => {
+            if (res.status != 200) {
+                throw res
+            } else {
+                return res.json()
+            }
+        })
+        .catch(error => {
+            default_message = "Erreur lors de la récupération de la liste des échelles de restitution"
+            apiCallErrorCatcher(error, default_message)
+        })
 }
 
 /**
  * Création de la liste des cases à cocher des groupes de statuts
  */
-var getGroupStatusList = function(){
+var getGroupStatusList = function () {
     return fetch(APP_URL + "/api/layer/get_group_statut_list", {
         method: "GET",
-        headers: { 
-            "Accept": "application/json", 
-            "Content-Type": "application/json" 
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
         },
         credentials: "same-origin"
     })
-    .then(res => {
-        if (res.status != 200){
-            throw res
-        } else {
-            return res.json()
-        }
-    })
-    .catch(error => {
-        default_message = "Erreur lors de la récupération de la liste des groupe de statut"
-        apiCallErrorCatcher(error, default_message)
-    })
+        .then(res => {
+            if (res.status != 200) {
+                throw res
+            } else {
+                return res.json()
+            }
+        })
+        .catch(error => {
+            default_message = "Erreur lors de la récupération de la liste des groupe de statut"
+            apiCallErrorCatcher(error, default_message)
+        })
 }
 
 /**
  * Initialisation des liste déroulante
  */
-var buildAddObsLayerForm = function(){
+var buildAddObsLayerForm = function () {
     // ré-initialisation du formulaire
     document.getElementById("selected-taxon").innerHTML = ""
     document.getElementById("form-add-obs-layer-infrataxon-checkbox").checked = false
@@ -470,7 +471,7 @@ var buildAddObsLayerForm = function(){
     // Liste des echelles de restitution
     getScaleList().then(scale_list => {
         //Ajout de l'echelle brut
-        scale_list.unshift({label: "Données brutes", value: 999})
+        scale_list.unshift({ label: "Données brutes", value: 999 })
 
         document.getElementById("form-add-obs-layer-select-scale").innerHTML = "";
         new SelectPure("#form-add-obs-layer-select-scale", {
@@ -481,13 +482,13 @@ var buildAddObsLayerForm = function(){
             onChange: values => {
                 // Gestion de l'affichage de l'alerte en cas de sélection d'une restituion brute
                 document.getElementById("brut-data-warning").classList.add("hide")
-                if (values == 999){
+                if (values == 999) {
                     document.getElementById("brut-data-warning").classList.remove("hide")
                 }
-                
+
                 document.getElementById("form-add-obs-layer-scale-value").value = JSON.stringify(values)
             }
-        }); 
+        });
     })
 
     // Liste de checkbox des groupes de statuts
@@ -513,18 +514,18 @@ var buildAddObsLayerForm = function(){
             label.setAttribute("data-bs-placement", "right")
             label.setAttribute("data-bs-trigger", "hover")
             label.setAttribute("title", group_status.description)
-            label.innerHTML= group_status.label
+            label.innerHTML = group_status.label
             div.append(label)
 
             document.getElementById("form-group-status-checkboxes").append(div)
 
             // Activation du tooltip
             new bootstrap.Tooltip(label)
-            
+
 
         })
 
-        
+
     })
 }
 
@@ -534,23 +535,23 @@ var buildAddObsLayerForm = function(){
 // Formatage de la date du jour pour l'input
 var today = new Date();
 var dd = today.getDate();
-var mm = today.getMonth()+1; //January is 0!
+var mm = today.getMonth() + 1; //January is 0!
 var yyyy = today.getFullYear();
-if(dd<10){
-        dd='0'+dd
-} 
-if(mm<10){
-    mm='0'+mm
+if (dd < 10) {
+    dd = '0' + dd
+}
+if (mm < 10) {
+    mm = '0' + mm
 }
 today = yyyy + "-" + mm + "-" + dd
 
 // On détermine la date max
-document.getElementById("form-add-obs-layer-date-start").setAttribute("max", today )
+document.getElementById("form-add-obs-layer-date-start").setAttribute("max", today)
 document.getElementById("form-add-obs-layer-date-end").setAttribute("max", today)
 
 // Lorsque date min change, on modifie la valeur mini de date-end
 document.getElementById("form-add-obs-layer-date-start").addEventListener("change", event => {
-    if (event.target.value){
+    if (event.target.value) {
         document.getElementById("form-add-obs-layer-date-start").style.color = "#000"
         document.getElementById("form-add-obs-layer-date-end").setAttribute("min", event.target.value)
     } else {
@@ -560,7 +561,7 @@ document.getElementById("form-add-obs-layer-date-start").addEventListener("chang
 })
 
 document.getElementById("form-add-obs-layer-date-end").addEventListener("change", event => {
-    if (event.target.value){
+    if (event.target.value) {
         document.getElementById("form-add-obs-layer-date-end").style.color = "#000"
         document.getElementById("form-add-obs-layer-date-start").setAttribute("max", event.target.value)
     } else {
@@ -577,30 +578,30 @@ document.getElementById("form-add-obs-layer-date-end").addEventListener("change"
 // GEONATURE_URL
 
 // Fonction réalisant l'appel API pour l'auto complétion
-var getAutocompleteTaxon = function(search_name){
+var getAutocompleteTaxon = function (search_name) {
 
     return fetch(GEONATURE_URL + "/geonature/api/synthese/taxons_autocomplete?search_name=" + search_name + "&limit=20", {
         method: "GET",
         signal: signal,
-        headers: { 
-            "Accept": "application/json", 
-            "Content-Type": "application/json" 
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
         },
         credentials: "same-origin"
     })
-    .then(res => {
-        if (res.status != 200){
-            throw res
-        } else {
-            return res.json()
-        }
-    })
-    .catch(error => {
-        default_message = "Erreur lors de l'autocompétion du taxon"
+        .then(res => {
+            if (res.status != 200) {
+                throw res
+            } else {
+                return res.json()
+            }
+        })
+        .catch(error => {
+            default_message = "Erreur lors de l'autocompétion du taxon"
 
-        console.log(error)
-        //apiCallErrorCatcher(error, default_message)
-    })
+            console.log(error)
+            //apiCallErrorCatcher(error, default_message)
+        })
 }
 
 // Lancement de la recherche d'auto-complétion
@@ -615,10 +616,10 @@ document.getElementById("search-taxon-input").addEventListener("keyup", event =>
         controller = new AbortController;
         signal = controller.signal;
     }
-    
+
     //On vide le bloc affichant le résultat de la recherche
     document.getElementById("taxon-autocomplete").innerHTML = ""
-    
+
     var search_name = event.target.value
 
     document.getElementById("taxon-autocomplete-spinner").style.display = "block"
@@ -626,10 +627,10 @@ document.getElementById("search-taxon-input").addEventListener("keyup", event =>
     // On lance la recherche s'l y a plus de trois caractère de tapé
     if (search_name.length >= 3) {
 
-        
+
         getAutocompleteTaxon(search_name).then(taxon_list => {
             // On aliment le bloc d'affichage des résultat que s'il y a des résultat
-            if (taxon_list){                
+            if (taxon_list) {
                 //Création des élément HTML de la liste des résultats
                 taxon_list.forEach(taxon => {
                     var div = document.createElement('div')
@@ -640,10 +641,10 @@ document.getElementById("search-taxon-input").addEventListener("keyup", event =>
 
                     // On ajoute un listener lors d'un clique sur un des éléments
                     // qui ajoute le taxon cliqué dans la lsite des taxon sélectionné
-                    div.addEventListener('click', (event) =>{
+                    div.addEventListener('click', (event) => {
                         var li = document.createElement("li")
                         li.setAttribute("cdnom", event.currentTarget.getAttribute("data-value"))
-                        
+
                         var i = document.createElement("i")
                         i.classList.add("bi")
                         i.classList.add("bi-trash")
@@ -654,7 +655,7 @@ document.getElementById("search-taxon-input").addEventListener("keyup", event =>
 
                         li.append(i)
 
-                        text = document.createTextNode(" "+event.currentTarget.getAttribute("lb-nom"));
+                        text = document.createTextNode(" " + event.currentTarget.getAttribute("lb-nom"));
                         li.append(text)
 
                         document.getElementById("selected-taxon").append(li)
@@ -677,10 +678,10 @@ document.getElementById("search-taxon-input").addEventListener("keyup", event =>
 })
 
 // Gestion de la fermeture de la liste des propositions de taxon
-document.onclick = function(e){
-    if(e.target.id !== 'taxon-autocomplete'){
-      //element clicked wasn't the div; hide the div
-      document.getElementById("taxon-autocomplete").style.display = 'none';
+document.onclick = function (e) {
+    if (e.target.id !== 'taxon-autocomplete') {
+        //element clicked wasn't the div; hide the div
+        document.getElementById("taxon-autocomplete").style.display = 'none';
     }
 };
 
@@ -689,14 +690,14 @@ document.onclick = function(e){
  * en fonction du paramétrage des filtres
  */
 
-var addObsLayerForm = function (){
+var addObsLayerForm = function () {
     //Vérification de la validité du formulaire
-    if (checkFormAddObsLayerRequiredField()){
+    if (checkFormAddObsLayerRequiredField()) {
         formdata = buildObsLayerFormData()
         // On affiche le spinner
         layer_submit_button.disabled = true
         document.getElementById('loading-spinner').style.display = 'inline-block'
-        
+
         getObsLayerGeojson(formdata).then(data => {
             //On masque le spinner
             layer_submit_button.disabled = false
@@ -708,7 +709,7 @@ var addObsLayerForm = function (){
 /**
  * Sérialisation du formulaire
  */
-var buildObsLayerFormData = function(){
+var buildObsLayerFormData = function () {
     cd_nom_list = []
     document.getElementById("selected-taxon").querySelectorAll("li").forEach(li => {
         cd_nom_list.push(Number(li.getAttribute("cdnom")))
@@ -717,12 +718,12 @@ var buildObsLayerFormData = function(){
     include_infra_taxon = document.getElementById("form-add-obs-layer-infrataxon-checkbox").checked
 
     regne_list = []
-    if (document.getElementById("form-add-obs-layer-regne-value").value){
+    if (document.getElementById("form-add-obs-layer-regne-value").value) {
         regne_list = JSON.parse(document.getElementById("form-add-obs-layer-regne-value").value)
     }
 
     grp_taxon_list = []
-    if (document.getElementById("form-add-obs-layer-grp-tax-value").value){
+    if (document.getElementById("form-add-obs-layer-grp-tax-value").value) {
         grp_taxon_list = JSON.parse(document.getElementById("form-add-obs-layer-grp-tax-value").value)
     }
 
@@ -733,7 +734,7 @@ var buildObsLayerFormData = function(){
     periode_max = document.getElementById("form-add-obs-layer-periode-end").value
 
     status_list = []
-    if (document.getElementById("form-add-obs-layer-statut-value").value){
+    if (document.getElementById("form-add-obs-layer-statut-value").value) {
         JSON.parse(document.getElementById("form-add-obs-layer-statut-value").value).forEach(status => {
             status_list.push(Number(status))
         })
@@ -741,28 +742,28 @@ var buildObsLayerFormData = function(){
 
     grp_status_list = []
     document.getElementById("form-group-status-checkboxes").querySelectorAll("input").forEach(checkbox => {
-        if (checkbox.checked){
+        if (checkbox.checked) {
             grp_status_list.push(Number(checkbox.getAttribute("data-value")))
         }
     })
 
     commune_list = []
-    if (document.getElementById("form-add-obs-layer-commune-value").value){
+    if (document.getElementById("form-add-obs-layer-commune-value").value) {
         commune_list = JSON.parse(document.getElementById("form-add-obs-layer-commune-value").value)
     }
-    
+
     altitude_min = Number(document.getElementById("form-add-obs-layer-altitude-min").value)
     altitude_max = Number(document.getElementById("form-add-obs-layer-altitude-max").value)
-    
+
     restitution = String(document.getElementById("form-add-obs-layer-restitution-value").value)
 
     scale = Number(document.getElementById("form-add-obs-layer-scale-value").value)
 
     formdata = {
         "cd_nom_list": cd_nom_list,
-        "include_infra_taxon" : include_infra_taxon,
+        "include_infra_taxon": include_infra_taxon,
         "regne_list": regne_list,
-        "grp_taxon_list" : grp_taxon_list,
+        "grp_taxon_list": grp_taxon_list,
         "date_min": date_min,
         "date_max": date_max,
         "periode_min": periode_min,
@@ -782,15 +783,15 @@ var buildObsLayerFormData = function(){
  * Vérification du respect des champs obligatoire 
  * du formulaire d'ajout d'une couche de données d'observation
  */
-var checkFormAddObsLayerRequiredField = function(){
+var checkFormAddObsLayerRequiredField = function () {
     var form = document.getElementById("form-add-obs-layer")
 
     var formIsValid = true
-    
+
     // Vérification que le ype de restitution est renseigné
     form_field = form.querySelector("#form-add-obs-layer-restitution-value")
     form_field.parentNode.querySelector("label").style.color = "#000"
-    if (! checkRequired(form_field.value)){
+    if (!checkRequired(form_field.value)) {
         form_field.parentNode.querySelector("label").style.color = "#f00"
         formIsValid = false
     }
@@ -798,7 +799,7 @@ var checkFormAddObsLayerRequiredField = function(){
     // Vérification que l'echelle de restitution est renseigné
     form_field = form.querySelector("#form-add-obs-layer-scale-value")
     form_field.parentNode.querySelector("label").style.color = "#000"
-    if (! checkRequired(form_field.value)){
+    if (!checkRequired(form_field.value)) {
         form_field.parentNode.querySelector("label").style.color = "#f00"
         formIsValid = false
     }
@@ -809,68 +810,68 @@ var checkFormAddObsLayerRequiredField = function(){
 /**
  * Appel API pour récupérer les données à afficher
  */
-var getObsLayerGeojson = function(formdata) {
+var getObsLayerGeojson = function (formdata) {
     controller = new AbortController;
     signal = controller.signal;
 
     return fetch(APP_URL + "/api/layer/get_obs_layer_data", {
         method: "POST",
         signal: signal,
-        headers: { 
-            "Accept": "application/json", 
-            "Content-Type": "application/json" 
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
         },
         credentials: "same-origin",
         body: JSON.stringify(formdata)
     })
-    .then(res => {
-        if (res.status == 400){ 
-            res.json().then(err => {
-                console.log(JSON.stringify(err.message[0]))
-                apiCallErrorCatcher("error", JSON.stringify(err.message[0]))
-            })
-        } else if (res.status != 200){
-            // En envoi l"erreur dans le catch
-            throw res;
-        } else {
-            return res.json()
-        }
-    })
-    .then(data => {
-        if (data.geojson_layer.features){
-            additional_data = {"formdata": formdata,}
-            addGeojsonLayer(data, additional_data)
-            addLayerModal.hide()
+        .then(res => {
+            if (res.status == 400) {
+                res.json().then(err => {
+                    console.log(JSON.stringify(err.message[0]))
+                    apiCallErrorCatcher("error", JSON.stringify(err.message[0]))
+                })
+            } else if (res.status != 200) {
+                // En envoi l"erreur dans le catch
+                throw res;
+            } else {
+                return res.json()
+            }
+        })
+        .then(data => {
+            if (data.geojson_layer.features) {
+                additional_data = { "formdata": formdata, }
+                addGeojsonLayer(data, additional_data)
+                addLayerModal.hide()
+
+                layer_submit_button.disabled = false
+                document.getElementById('loading-spinner').style.display = 'none'
+            } else {
+                throw "Aucune donnée trouvée";
+            }
+        })
+        .catch(error => {
 
             layer_submit_button.disabled = false
             document.getElementById('loading-spinner').style.display = 'none'
-        } else {
-            throw "Aucune donnée trouvée";
-        }
-    })
-    .catch(error => {
 
-        layer_submit_button.disabled = false
-        document.getElementById('loading-spinner').style.display = 'none'
-        
-        if (error.message){
-            error = "Demande de données annulée"
-        }
-
-        if (typeof error == "string") {
-            apiCallErrorCatcher("error", error)
-        } else {
-            if (error.status == 500){
-                default_message = "Erreur lors de la récupération de la couche de données d'observation"
-                apiCallErrorCatcher(default_message, default_message)
-            } else {
-                default_message = "Erreur lors de la récupération de la couche de données d'observation"
-                apiCallErrorCatcher("error", default_message)
+            if (error.message) {
+                error = "Demande de données annulée"
             }
 
-            
-        }        
-    })
+            if (typeof error == "string") {
+                apiCallErrorCatcher("error", error)
+            } else {
+                if (error.status == 500) {
+                    default_message = "Erreur lors de la récupération de la couche de données d'observation"
+                    apiCallErrorCatcher(default_message, default_message)
+                } else {
+                    default_message = "Erreur lors de la récupération de la couche de données d'observation"
+                    apiCallErrorCatcher("error", default_message)
+                }
+
+
+            }
+        })
 }
 
 /**
@@ -890,10 +891,10 @@ document.getElementById("add-layer-cancel").addEventListener("click", event => {
 /**
  * Gestion de l'ouverture de la page d'import de données
  */
-var buildMyImportedLayerContent = function() {
-    
+var buildMyImportedLayerContent = function () {
+
     /* On vide le forumlaire d'import */
-    document.getElementById("form-upload-layer-select-format").selectedIndex = 0 
+    document.getElementById("form-upload-layer-select-format").selectedIndex = 0
     document.getElementById("form-upload-layer-data-name").value = ''
     document.getElementById("form-upload-layer-files").value = ''
     document.getElementById("form-upload-layer-file-list").innerHTML = ''
@@ -910,8 +911,8 @@ var buildMyImportedLayerContent = function() {
 
         imported_layer_list.forEach(layer => {
             var li = document.createElement('li');
-            li.setAttribute('class','modal-imported-layer-item');
-            li.setAttribute('imported-layer-id',layer.imported_layer_id);
+            li.setAttribute('class', 'modal-imported-layer-item');
+            li.setAttribute('imported-layer-id', layer.imported_layer_id);
 
             var row = document.createElement('div');
             row.classList.add("row")
@@ -927,7 +928,7 @@ var buildMyImportedLayerContent = function() {
             // Gestion des date (import / dernier accès)
             var div_imported_layer_date = document.createElement('div');
             div_imported_layer_date.classList.add("imported_layer_date")
-            
+
             var import_date = new Date(layer.imported_layer_import_date)
             var last_view = new Date(layer.imported_layer_last_view)
 
@@ -937,7 +938,7 @@ var buildMyImportedLayerContent = function() {
             // Création de l'élément de suppression d'une couche importée
             col2 = document.createElement('div');
             col2.classList.add("text-end")
-            
+
             var i = document.createElement('i');
             i.classList.add("bi")
             i.classList.add("bi-trash-fill")
@@ -962,7 +963,7 @@ var buildMyImportedLayerContent = function() {
 
             // Spinner indiquant la suppression en cours
             var div_spinner = document.createElement('div')
-            div_spinner.classList.add("spinner-grow", "spinner-grow-sm", "hide",  "delete-imported-layer-spinner")
+            div_spinner.classList.add("spinner-grow", "spinner-grow-sm", "hide", "delete-imported-layer-spinner")
             btn_confirm_delete.prepend(div_spinner)
 
             div_btn.append(btn_confirm_delete)
@@ -980,9 +981,9 @@ var buildMyImportedLayerContent = function() {
 
                 // Appel API pour suppression de la données
                 fetch(APP_URL + "/api/imported_layer/" + layer_id, {
-                    method:'DELETE',
+                    method: 'DELETE',
                 }).then(res => {
-                    if (res.status != 200){
+                    if (res.status != 200) {
                         // En envoi l"erreur dans le catch
                         throw res;
                     } else {
@@ -1006,10 +1007,10 @@ var buildMyImportedLayerContent = function() {
             })
 
             div_confirm_delete.append(div_btn)
-             
+
             col2.appendChild(i)
             col2.appendChild(div_confirm_delete)
-            
+
             col2.classList.add("col-3")
 
             // Ajout du bloc
@@ -1020,7 +1021,7 @@ var buildMyImportedLayerContent = function() {
             my_imported_layer_list.appendChild(li)
 
             // on active la coloration si on sur le "li"
-            li.addEventListener('click', (event) =>{
+            li.addEventListener('click', (event) => {
                 // On comence par désactiver tous les autres
                 let all_modal_imported_layer_item = document.getElementsByClassName('modal-imported-layer-item')
                 for (var i = 0; i < all_modal_imported_layer_item.length; i++) {
@@ -1030,7 +1031,7 @@ var buildMyImportedLayerContent = function() {
                 event.currentTarget.classList.add('active')
             })
         })
-        
+
     })
 }
 
@@ -1038,62 +1039,62 @@ var buildMyImportedLayerContent = function() {
  * Fonctions permettant de récupérer la liste
  * des couches de référence disponible
  */
- var getImportedLayerList = function(){
+var getImportedLayerList = function () {
     return fetch(APP_URL + "/api/imported_layer/get_layers_list", {
         method: "GET",
-        headers: { 
-            "Accept": "application/json", 
-            "Content-Type": "application/json" 
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
         },
         credentials: "same-origin"
     })
-    .then(res => {
-        if (res.status != 200){
-            throw res/*.json();*/
-        } else {
-            return res.json()
-        }
-    })
-    .catch(error => {
-        default_message = "Erreur lors de la récupération de la liste des couches importées"
-        apiCallErrorCatcher(error, default_message)
-    })
+        .then(res => {
+            if (res.status != 200) {
+                throw res/*.json();*/
+            } else {
+                return res.json()
+            }
+        })
+        .catch(error => {
+            default_message = "Erreur lors de la récupération de la liste des couches importées"
+            apiCallErrorCatcher(error, default_message)
+        })
 }
 
 /**
  * Gestion de l'alerte en fonction du format de fichier
  * Et gestion du filtre sur les extension au niveau de  l'input "files"
  */
-document.getElementById("form-upload-layer-select-format").onchange = function(e){
+document.getElementById("form-upload-layer-select-format").onchange = function (e) {
     // On récupère la valeur sélectionné
     value = e.currentTarget.value
-    
+
     //On masque les alertes
     document.getElementById("upload-layer-format-shp-warning").classList.add("hide")
     document.getElementById("upload-layer-format-tab-warning").classList.add("hide")
 
     // En fonction du format on affiche l'alerte associé
-    if (value == ''){
+    if (value == '') {
         document.getElementById("form-upload-layer-files").setAttribute("accept", null)
     }
-    if (value == 'shp'){
+    if (value == 'shp') {
         document.getElementById("upload-layer-format-shp-warning").classList.remove("hide")
         document.getElementById("form-upload-layer-files").setAttribute("accept", ".shp, .prj, .dbf, .shx")
     }
-    if (value == 'tab'){
+    if (value == 'tab') {
         document.getElementById("upload-layer-format-tab-warning").classList.remove("hide")
         document.getElementById("form-upload-layer-files").setAttribute("accept", ".tab, .dat, .id, .map")
     }
-    if (value == 'geojson'){
+    if (value == 'geojson') {
         document.getElementById("form-upload-layer-files").setAttribute("accept", ".geojson, .json")
     }
-    if (value == 'gpkg'){
+    if (value == 'gpkg') {
         document.getElementById("form-upload-layer-files").setAttribute("accept", ".gpkg")
     }
-    if (value == 'gpx'){
+    if (value == 'gpx') {
         document.getElementById("form-upload-layer-files").setAttribute("accept", ".gpx")
     }
-    if (value == 'kmz'){
+    if (value == 'kmz') {
         document.getElementById("form-upload-layer-files").setAttribute("accept", ".kml, .kmz")
     }
 }
@@ -1102,17 +1103,17 @@ document.getElementById("form-upload-layer-select-format").onchange = function(e
 /**
  * Amélioration apparence input type=files
  */
-document.getElementById("form-upload-layer-files-btn").onclick = function(){
+document.getElementById("form-upload-layer-files-btn").onclick = function () {
     document.getElementById("form-upload-layer-files").click()
 }
 
 /**
  * Lister le nom des fichiers sélectionnés
  */
-document.getElementById("form-upload-layer-files").onchange = function(e){
+document.getElementById("form-upload-layer-files").onchange = function (e) {
     var divfilelist = document.getElementById("form-upload-layer-file-list")
-    divfilelist.innerHTML= ''
-    for (var i=0; i < this.files.length; i++){
+    divfilelist.innerHTML = ''
+    for (var i = 0; i < this.files.length; i++) {
         var li = document.createElement('li')
         li.innerHTML = this.files[i].name
         divfilelist.appendChild(li)
@@ -1122,7 +1123,7 @@ document.getElementById("form-upload-layer-files").onchange = function(e){
 /**
  * Gestion de l'ajout d'une couche importé (ou à uploader)
  */
-var addImportedLayer = function (){
+var addImportedLayer = function () {
 
     // On bloque le bouton "ajouter" et on lance le spinner
     document.getElementById("add-layer-submit").disabled = true
@@ -1132,14 +1133,14 @@ var addImportedLayer = function (){
     active_nav = document.getElementById("import-layer-tab").querySelector('button.active')
 
     /* gestion différenciée en fonction de l'onglet actif */
-    switch (active_nav.getAttribute('id')){
+    switch (active_nav.getAttribute('id')) {
         case 'upload-layer-tab':
             uploadLayer()
             break
         case 'my-uploaded-layers-tab':
             /* Récupération de l'identifiant de la couche sélectionnée */
             selected_layer = document.getElementById("my_imported_layer_list").querySelector('.active')
-            
+
             addImportedLayerToMap(selected_layer.getAttribute("imported-layer-id"))
             break
     }
@@ -1148,14 +1149,14 @@ var addImportedLayer = function (){
 /**
  * Upload d'une couche 
  */
-var uploadLayer = function(){
+var uploadLayer = function () {
 
     //Contrôle du bon renseignement du formulaire
     if (checkUploadForm()) {
         // envois des données du formulaire à l'API
-        (postUploadFrom()).then(data => {            
+        (postUploadFrom()).then(data => {
             addImportedLayerToMap(data)
-        })  
+        })
     } else {
         document.getElementById("add-layer-submit").disabled = false
         document.getElementById('loading-spinner').style.display = 'none'
@@ -1165,19 +1166,19 @@ var uploadLayer = function(){
 /**
  * Vérification de la conformité du formulaire d'uplaod d'une couche
  */
-var checkUploadForm = function(){
+var checkUploadForm = function () {
     var form = document.getElementById("form-upload-layer")
 
     var formIsValid = true
-    
+
     // Vérification que le format du fichier est renseigné
     form_field = form.querySelector("#form-upload-layer-select-format")
     form_field.parentNode.querySelector("label").style.color = "#000"
-    if (! checkRequired(form_field.value)){
+    if (!checkRequired(form_field.value)) {
         form_field.parentNode.querySelector("label").style.color = "#f00"
         formIsValid = false
     }
-    
+
     /*form_field = form.querySelector("#form-upload-layer-select-proj")
     form_field.parentNode.querySelector("label").style.color = "#000"
     if (! checkRequired(form_field.value)){
@@ -1187,14 +1188,14 @@ var checkUploadForm = function(){
 
     form_field = form.querySelector("#form-upload-layer-data-name")
     form_field.parentNode.querySelector("label").style.color = "#000"
-    if (! checkRequired(form_field.value)){
+    if (!checkRequired(form_field.value)) {
         form_field.parentNode.querySelector("label").style.color = "#f00"
         formIsValid = false
     }
 
     form_field = form.querySelector("#form-upload-layer-files")
     form_field.parentNode.querySelector("label").style.color = "#000"
-    if (! checkRequired(form_field.value)){
+    if (!checkRequired(form_field.value)) {
         form_field.parentNode.querySelector("label").style.color = "#f00"
         formIsValid = false
     }
@@ -1205,39 +1206,39 @@ var checkUploadForm = function(){
 /**
  * upload du fichier
  */
-var postUploadFrom = function(){
+var postUploadFrom = function () {
     var formdata = buildImportLayerFormData()
 
     return fetch(APP_URL + "/api/upload_geodata", {
         method: "POST",
         signal: signal,
         credentials: "same-origin",
-        body: formdata 
+        body: formdata
     })
-    .then(res => {
-        if (res.status == 400){ 
-            res.json().then(err => {
-                console.log(JSON.stringify(err.message[0]))
-                apiCallErrorCatcher("error", JSON.stringify(err.message[0]))
-            })
-        } else if (res.status != 200){
-            // En envoi l"erreur dans le catch
-            throw res;
-        } else {
-            return res.json()
-        }
-    }).catch(error => {
-        console.log("Erreur lors de l'import d'une couche de données !!!")
+        .then(res => {
+            if (res.status == 400) {
+                res.json().then(err => {
+                    console.log(JSON.stringify(err.message[0]))
+                    apiCallErrorCatcher("error", JSON.stringify(err.message[0]))
+                })
+            } else if (res.status != 200) {
+                // En envoi l"erreur dans le catch
+                throw res;
+            } else {
+                return res.json()
+            }
+        }).catch(error => {
+            console.log("Erreur lors de l'import d'une couche de données !!!")
 
-        layer_submit_button.disabled = false
-        document.getElementById('loading-spinner').style.display = 'none'
-    })
+            layer_submit_button.disabled = false
+            document.getElementById('loading-spinner').style.display = 'none'
+        })
 }
 
 /**
  * Sérialisation des données du formulaire
  */
-var buildImportLayerFormData = function(){
+var buildImportLayerFormData = function () {
 
     var formdata = new FormData()
 
@@ -1251,17 +1252,17 @@ var buildImportLayerFormData = function(){
     formdata.append("layername", document.getElementById("form-upload-layer-data-name").value)
 
     // Récupération des fichiers
-    for (var i=0; i < document.getElementById("form-upload-layer-files").files.length; i++){
+    for (var i = 0; i < document.getElementById("form-upload-layer-files").files.length; i++) {
         formdata.append("files[]", document.getElementById("form-upload-layer-files").files[i])
     }
-    
+
     return formdata
 }
 
 /**
  * Ajout sur la carte d'une couche précédement uploadé 
  */
-var addImportedLayerToMap = function(importedLayerId){
+var addImportedLayerToMap = function (importedLayerId) {
 
     controller = new AbortController;
     signal = controller.signal;
@@ -1269,48 +1270,48 @@ var addImportedLayerToMap = function(importedLayerId){
     fetch(APP_URL + "/api/imported_layer/" + importedLayerId, {
         method: "GET",
         signal: signal,
-        headers: { 
-            "Accept": "application/json", 
-            "Content-Type": "application/json" 
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
         },
         credentials: "same-origin"
     })
-    .then(res => {
-        if (res.status != 200){
-            throw res;
-        } else {
-            return res.json()
-        }
-    }).then(data => {
-        addGeojsonLayer(data)
-        addLayerModal.hide()
-        layer_submit_button.disabled = false
-        document.getElementById('loading-spinner').style.display = 'none'
-    })
-    .catch(error => {
-        console.log(error)
-        layer_submit_button.disabled = false
-        document.getElementById('loading-spinner').style.display = 'none'
-        layer_submit_button.disabled = false
-        document.getElementById('loading-spinner').style.display = 'none'
-        
-        if (error.message){
-            default_message = "Demande de données annulée"
-        } else {
-            default_message = "Erreur lors de la récupération de la couche de données"
-        }
-        apiCallErrorCatcher("error", default_message)
-    })
+        .then(res => {
+            if (res.status != 200) {
+                throw res;
+            } else {
+                return res.json()
+            }
+        }).then(data => {
+            addGeojsonLayer(data)
+            addLayerModal.hide()
+            layer_submit_button.disabled = false
+            document.getElementById('loading-spinner').style.display = 'none'
+        })
+        .catch(error => {
+            console.log(error)
+            layer_submit_button.disabled = false
+            document.getElementById('loading-spinner').style.display = 'none'
+            layer_submit_button.disabled = false
+            document.getElementById('loading-spinner').style.display = 'none'
+
+            if (error.message) {
+                default_message = "Demande de données annulée"
+            } else {
+                default_message = "Erreur lors de la récupération de la couche de données"
+            }
+            apiCallErrorCatcher("error", default_message)
+        })
 }
 
 /********************************************
  * GESTION DE L'AJOUT D'UNE COUCHE DE DESSIN
  ********************************************/
-var buildMAddDrawingLayerContent = function(){
+var buildMAddDrawingLayerContent = function () {
     document.getElementById("form-drawing-layer-name").value = ''
 }
 
-var addDrawingLayer = function(){
+var addDrawingLayer = function () {
     let layer_label = document.getElementById("form-drawing-layer-name").value
 
     addDrawingLayerOnMap(layer_label)

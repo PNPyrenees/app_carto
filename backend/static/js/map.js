@@ -2036,6 +2036,8 @@ var enableLayerDrawing = function (layer, geomType) {
                 document.getElementById("feature-form-layer-uid").value = ol.util.getUid(layer)
                 // Attribution du feature_uid au formulaire
                 document.getElementById("feature-form-feature-uid").value = ol.util.getUid(evt.feature)
+                // On déclare le mode du formulaire en INSERT (utile au moment de l'écriture)
+                document.getElementById("feature-form-mode").value = "insert"
 
                 // Récupération de la géométrie
                 var format = new ol.format.WKT()
@@ -2199,6 +2201,9 @@ var openFormFeatureDataEdit = function (event) {
 
                 document.getElementById("feature-form-layer-uid").value = layer_uid
                 document.getElementById("feature-form-feature-uid").value = feature_uid
+                // On déclare le mode du formulaire en INSERT (utile au moment de l'écriture)
+                document.getElementById("feature-form-mode").value = "update"
+
                 populateFormFromFeature(feature)
             })
         }
@@ -2259,6 +2264,8 @@ var numerisationToolbarShowManagement = function (layer_uid) {
                     document.getElementById("chanllenge-calculator-group-edit-btn").classList.add("hide")
                     // On masque par défaut le bouton d'édition des données attributaires
                     document.getElementById("btn-drawing-layer-edit-feature-info").classList.add("hide")
+                    // On masque par défaut le bouton de sauvegarde des modifications
+                    //document.getElementById("btn-drawing-layer-save-features").classList.add("hide")
 
                     // Si l'édition est activé sur la couche
                     if (layer.get("isEditing") == true) {
@@ -2277,6 +2284,7 @@ var numerisationToolbarShowManagement = function (layer_uid) {
                         document.getElementById("btn-drawing-layer-add-polygon").disabled = true
                         document.getElementById("btn-drawing-layer-add-linestring").disabled = true
                         document.getElementById("btn-drawing-layer-add-point").disabled = true
+                        //document.getElementById("btn-drawing-layer-save-features").disabled = true
 
                         // Puis on réactive les bouton en fonction des géométries autorisées
                         if (layer.get("allowed_geometry").includes('Polygon')) {
@@ -2291,6 +2299,8 @@ var numerisationToolbarShowManagement = function (layer_uid) {
 
                         // on active l'affichage du bouton d'édition des données attributaires
                         document.getElementById("btn-drawing-layer-edit-feature-info").classList.remove("hide")
+                        // on active l'affichage du bouton de sauvegarde des modification
+                        //document.getElementById("btn-drawing-layer-save-features").classList.remove("hide")
                     } else {
                         // Ici, on active tous les boutons
                         document.getElementById("btn-drawing-layer-add-polygon").disabled = false

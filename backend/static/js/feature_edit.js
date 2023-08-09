@@ -2,16 +2,16 @@
 // que des objets en cours d'édition n'ont pas été sauvagerdé
 var has_feature_not_save = false
 
-document.getElementById("btn-test_form").addEventListener("click", event => {
+/*document.getElementById("btn-test_form").addEventListener("click", event => {
     getFeatureFrom(127)
-})
+})*/
 
 // Appel du formulaire associé à la couche et ouverture du modal
-var getFeatureFrom = function (layer_uid) {
+var getFeatureFrom = function (layer_id) {
     // On affiche le spinner global
     document.getElementById("global-spinner").classList.remove("hide")
 
-    return fetch(APP_URL + "/api/get_feature_form_for_layer/" + layer_uid, {
+    return fetch(APP_URL + "/api/get_feature_form_for_layer/" + layer_id, {
         method: "GET",
         signal: signal,
         /*headers: {
@@ -33,12 +33,12 @@ var getFeatureFrom = function (layer_uid) {
         .then(html => {
             // On insère le formlulaire
             document.getElementById("feature-edit-modal").querySelector(".modal-content").innerHTML = html
-
             // et on ouvre la fenetre modale
             featureEditModal.show()
         })
         .catch(error => {
             console.warn("Erreur lors de la récupération du formulaire d'édition d'un objet", error)
+            apiCallErrorCatcher(error, "Erreur lors de la récupération du formulaire d'édition d'un objet")
         })
 }
 
@@ -68,7 +68,7 @@ var abortEditFeature = function () {
 
 /**
  * Récupère les données du formulaire
- * Réalise les contrôle de conformité 
+ * Réalise les contrôles de conformité 
  * structure les données en Json et l'associe au feature
  */
 var writeFeatureProperties = function () {
@@ -239,10 +239,33 @@ var writeFeatureProperties = function () {
                         document.getElementById("feature-form-error").appendChild(errorHtmlTable)
                         document.getElementById("feature-form-error").classList.remove("hide")
                     } else {
+                        /*console.log(feature.getProperties(properties))
+
+                        if (feature.getProperties(properties)) {
+                            // ici on est sur une entité ayant déjà des properties -> donc c'est une édition
+                            if (feature.get("feature_status") != 'new') {
+                                // ici on est sur un feature qui ne possède pas la valeur new -> on est donc sur de l'édition d'un feature déjà existant
+                                feature.set("feature_status", "update")
+                            } else {
+                                // Ici on est sur un feature sans properties -> donc une nouvelle entité
+                                feature.set("feature_status", "new")
+                            }
+                        }*/
+
                         feature.setProperties(properties)
 
-                        has_feature_not_save = true
+                        // Ecriture en base de données
+                        var layer_id = layer.get("description_layer").layer_id
+                        var mode = document.getElementById("feature-form-mode").value
+                        writeFeaturesInDatabase(layer_id, feature, mode)
+
+
+                        //has_feature_not_save = true
+                        //document.getElementById("btn-drawing-layer-save-features").disabled = false
+                        //document.getElementById("btn-drawing-layer-save-features").classList.remove("btn-primary")
+                        //document.getElementById("btn-drawing-layer-save-features").classList.add("btn-danger")
                         featureEditModal.hide()
+
                     }
                 }
             })
@@ -273,5 +296,78 @@ var populateFormFromFeature = function (feature) {
             }
         }
     }
+
+    // Récupération de la géométrie
+    var format = new ol.format.WKT()
+    var tmp_elements = document.getElementsByClassName("feature_form_element")
+    for (var i = 0; i < tmp_elements.length; i++) {
+        if (tmp_elements[i].querySelector("input[propertie_type='geometry'")) {
+            tmp_elements[i].querySelector("input[propertie_type='geometry'").value = format.writeFeature(feature)
+        }
+
+    }
+}
+
+/**
+ * Fonction de sauvegarde des données
+ */
+/*document.getElementById("btn-drawing-layer-save-features").addEventListener("click", event => {
+    var layer_uid = document.getElementById("drawing-layer-group-edit-btn").getAttribute("layer_uid")
+    saveFeatureToDB(layer_uid)
+})
+
+var saveFeatureToDB = function (layer_uid) {
+    map.getLayers().forEach(layer => {
+        if (ol.util.getUid(layer) == layer_uid) {
+
+            var layer_id = layer.get("description_layer").layer_id
+
+            var geojson_data = new ol.format.GeoJSON().writeFeatures(layer.getSource().getFeatures())
+
+            writeFeaturesInDatabase(layer_id, geojson_data)
+        }
+    })
+}
+*/
+
+var writeFeaturesInDatabase = function (layer_id, feature, mode) {
+
+    var feature_data = JSON.stringify(feature.getProperties())
+
+    if (mode == "insert") {
+        url = "/api/add_features_for_layer/" + layer_id
+    }
+    if (mode == "update") {
+        url = "/api/update_features_for_layer/" + layer_id
+    }
+
+    return fetch(APP_URL + url, {
+        method: "POST",
+        signal: signal,
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        },
+        credentials: "same-origin",
+        body: feature_data
+    })
+        .then(res => {
+            // on masque le spinner global
+            document.getElementById("global-spinner").classList.add("hide")
+            if (res.status != 200) {
+                throw res
+            } else {
+                return (res.text())
+            }
+        })
+        .then(data => {
+            // On insère le formlulaire
+            console.log("Enregistrmeent réussi !")
+            console.log(data)
+        })
+        .catch(error => {
+            apiCallErrorCatcher(error, "Erreur lors de l'enregistrement de la couche")
+            console.warn("Erreur lors de l'enregistrement de la couche", error)
+        })
 }
 
