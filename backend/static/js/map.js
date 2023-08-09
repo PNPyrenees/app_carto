@@ -733,16 +733,16 @@ var getAutocompleteToponyme = function (search_name) {
         },
         credentials: "same-origin"
     })
-    .then(res => {
-        if (res.status != 200) {
-            throw res
-        } else {
-            return res.json()
-        }
-    })
-    .catch(error => {
-        default_message = "Erreur lors de l'autocompétion du taxon"
-    })
+        .then(res => {
+            if (res.status != 200) {
+                throw res
+            } else {
+                return res.json()
+            }
+        })
+        .catch(error => {
+            default_message = "Erreur lors de l'autocompétion du taxon"
+        })
 }
 
 /*----------------------------------------------------*/
@@ -766,7 +766,7 @@ var addGeojsonLayer = function (data, additional_data = null) {
         var has_polygon = false
         var has_Line = false
         var has_point = false
-        if  (geojson.features){
+        if (geojson.features) {
             geojson.features.forEach(feature => {
                 if (feature.geometry) {
                     if (feature.geometry.type == "Polygon" || feature.geometry.type == "MultiPolygon") {
@@ -780,16 +780,16 @@ var addGeojsonLayer = function (data, additional_data = null) {
                     }
                 }
             })
-        } 
+        }
 
         // Cas ou la couche est vide, il faut récupérer les géométries autorisés
-        if (data.desc_layer.layer_allowed_geometry){
+        if (data.desc_layer.layer_allowed_geometry) {
             if (data.desc_layer.layer_allowed_geometry.includes('Polygon')) {
                 has_polygon = true
             }
             if (data.desc_layer.layer_allowed_geometry.includes('LineString')) {
                 has_Line = true
-            }            
+            }
             if (data.desc_layer.layer_allowed_geometry.includes('Point')) {
                 has_point = true
             }
@@ -844,7 +844,7 @@ var addGeojsonLayer = function (data, additional_data = null) {
     var vectorSource = new ol.source.Vector({
         attributions: data.desc_layer.layer_attribution
     })
-    if  (geojson.features){
+    if (geojson.features) {
         // On surcharge le vectorSource si la couche appelée possède des données
         vectorSource = new ol.source.Vector({
             features: new ol.format.GeoJSON().readFeatures(geojson),
@@ -860,7 +860,7 @@ var addGeojsonLayer = function (data, additional_data = null) {
     console.log(data.desc_layer)
 
     var layerType = "refLayerReadOnly"
-    if (data.desc_layer.layer_is_editable == true){
+    if (data.desc_layer.layer_is_editable == true) {
         layerType = "editableLayer"
     }
 
@@ -1980,7 +1980,7 @@ var enableLayerDrawing = function (layer, geomType) {
 
     // Action au commencement de l'edition
     draw_interaction.on('drawstart', function (evt) {
-        switch (layer.get("layerType")){
+        switch (layer.get("layerType")) {
             case "drawingLayer":
             case "editableLayer":
                 document.getElementById("btn-drawing-layer-previous").classList.remove("disabled")
@@ -2022,7 +2022,7 @@ var enableLayerDrawing = function (layer, geomType) {
             }, 500)
         }
 
-        if (layer.get("layerType") == "editableLayer"){
+        if (layer.get("layerType") == "editableLayer") {
             // Reconstruction de la légende (après un timeout sinon l'objet n'est pas créé à temps)
             setTimeout(() => {
                 buildLegendForLayer(ol.util.getUid(layer), layer.get('json_style'))
@@ -2033,15 +2033,15 @@ var enableLayerDrawing = function (layer, geomType) {
 
             getFeatureFrom(layer.get('description_layer').layer_id).then(res => {
                 // Attribution du layer_uid au formulaire
-                document.getElementById("feature-form-layer-uid").value = ol.util.getUid(layer) 
+                document.getElementById("feature-form-layer-uid").value = ol.util.getUid(layer)
                 // Attribution du feature_uid au formulaire
-                document.getElementById("feature-form-feature-uid").value = ol.util.getUid(evt.feature) 
+                document.getElementById("feature-form-feature-uid").value = ol.util.getUid(evt.feature)
 
                 // Récupération de la géométrie
                 var format = new ol.format.WKT()
                 var tmp_elements = document.getElementsByClassName("feature_form_element")
-                for (var i = 0; i < tmp_elements.length; i++){
-                    if (tmp_elements[i].querySelector("input[propertie_type='geometry'")){
+                for (var i = 0; i < tmp_elements.length; i++) {
+                    if (tmp_elements[i].querySelector("input[propertie_type='geometry'")) {
                         tmp_elements[i].querySelector("input[propertie_type='geometry'").value = format.writeFeature(evt.feature)
                     }
 
@@ -2159,10 +2159,10 @@ var setSelectedLayerInLayerbar = function (layer_uid) {
  * pour éditer ces données attributaires
  */
 document.getElementById("btn-drawing-layer-edit-feature-info").addEventListener("click", event => enableEditAttribute())
-var enableEditAttribute = function(){
+var enableEditAttribute = function () {
     var button = document.getElementById("btn-drawing-layer-edit-feature-info")
 
-    if(button.classList.contains("btn-active")){
+    if (button.classList.contains("btn-active")) {
         map.on('singleclick', singleClickForFeatureInfo)
         map.un('singleclick', openFormFeatureDataEdit)
         button.classList.remove("btn-active")
@@ -2175,12 +2175,12 @@ var enableEditAttribute = function(){
         map.on('singleclick', openFormFeatureDataEdit)
     }
 }
- 
- /**
-  * Gestion du click sur un feature 
-  * Cas d'une couche éditable
-  */
-var openFormFeatureDataEdit = function(event){
+
+/**
+ * Gestion du click sur un feature 
+ * Cas d'une couche éditable
+ */
+var openFormFeatureDataEdit = function (event) {
     // On commence par vider tous les feature dans
     // la couche de sélection
     clearSelectedSource()
@@ -2272,20 +2272,20 @@ var numerisationToolbarShowManagement = function (layer_uid) {
 
                     // Dans le cas d'une couche de données éditable (hors couche de dessin)
                     // on n'active que les boutton associé aux géométries autorisés
-                    if (layer.get("layerType") == 'editableLayer'){
+                    if (layer.get("layerType") == 'editableLayer') {
                         // Par défaut on désactive tous
                         document.getElementById("btn-drawing-layer-add-polygon").disabled = true
                         document.getElementById("btn-drawing-layer-add-linestring").disabled = true
                         document.getElementById("btn-drawing-layer-add-point").disabled = true
 
                         // Puis on réactive les bouton en fonction des géométries autorisées
-                        if (layer.get("allowed_geometry").includes('Polygon')){
+                        if (layer.get("allowed_geometry").includes('Polygon')) {
                             document.getElementById("btn-drawing-layer-add-polygon").disabled = false
                         }
-                        if (layer.get('allowed_geometry').includes('LineString')){
+                        if (layer.get('allowed_geometry').includes('LineString')) {
                             document.getElementById("btn-drawing-layer-add-linestring").disabled = false
                         }
-                        if (layer.get('allowed_geometry').includes('Point')){
+                        if (layer.get('allowed_geometry').includes('Point')) {
                             document.getElementById("btn-drawing-layer-add-point").disabled = false
                         }
 
@@ -2362,6 +2362,8 @@ addfeature_buttons.forEach(addfeature_button => {
  * Gestion du clique sur le bouton de suppression d'un feature d'une couche drawingLayer
  */
 document.getElementById("btn-drawing-layer-remove-feature").addEventListener("click", event => {
+    clearSelectedSource()
+
     button = event.currentTarget
     // Si le bouton est déjà actif, on le désactive
     if (button.classList.contains("btn-active")) {
@@ -2378,6 +2380,7 @@ document.getElementById("btn-drawing-layer-remove-feature").addEventListener("cl
 
         // On change la fonction à éxécuter lors d'un clic sur la carte
         map.un('singleclick', singleClickForFeatureInfo)
+        map.un('singleclick', openFormFeatureDataEdit)
         map.on('singleclick', singleClickForRemovingFeature)
 
         //drawingLayerEditButtonHighlight(button)
