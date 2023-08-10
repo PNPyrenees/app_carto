@@ -4,6 +4,7 @@ from datetime import datetime
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB
+import pytz
 #from geoalchemy2 import Geometry
 
 class Role(db_app.Model):
@@ -15,8 +16,8 @@ class Role(db_app.Model):
     role_login = db_app.Column(db_app.String(250))
     role_token = db_app.Column(db_app.String(500))
     role_token_expiration = db_app.Column(db_app.DateTime())
-    role_date_insert = db_app.Column(db_app.DateTime(), default=datetime.now())
-    role_date_update = db_app.Column(db_app.DateTime(), default=datetime.now())
+    role_date_insert = db_app.Column(db_app.DateTime(), default=datetime.now(pytz.timezone('Europe/Paris')))
+    role_date_update = db_app.Column(db_app.DateTime(), default=datetime.now(pytz.timezone('Europe/Paris')))
 
     importedLayers = relationship("ImportedLayer")
 
@@ -228,8 +229,8 @@ class ImportedLayer(db_app.Model):
     role_id = db_app.Column(db_app.Integer, ForeignKey('app_carto.t_roles.role_id'))
     imported_layer_name = db_app.Column(db_app.String(255))
     imported_layer_geojson = db_app.Column(JSONB)
-    imported_layer_import_date = db_app.Column(db_app.DateTime(), default=datetime.now())
-    imported_layer_last_view = db_app.Column(db_app.DateTime(), default=datetime.now())
+    imported_layer_import_date = db_app.Column(db_app.DateTime(), default=datetime.now(pytz.timezone('Europe/Paris')))
+    imported_layer_last_view = db_app.Column(db_app.DateTime(), default=datetime.now(pytz.timezone('Europe/Paris')))
 
     role = relationship("Role", back_populates="importedLayers")
 
@@ -252,6 +253,28 @@ class ImportedLayer(db_app.Model):
         self.imported_layer_import_date = imported_layer_import_date
         self.imported_layer_last_view = imported_layer_last_view
 
+class Logs(db_app.Model):
+    __tablename__ = 't_logs'
+    __table_args__ = {'schema': 'app_carto'}
+    log_id = db_app.Column(db_app.Integer, primary_key=True)
+    log_date = db_app.Column(db_app.DateTime(), default=datetime.now(pytz.timezone('Europe/Paris')))
+    log_type = db_app.Column(db_app.String(32))
+    log_data = db_app.Column(JSONB)
+
+    def __init__(
+        self,
+        log_id,
+        log_date,
+        log_type,
+        log_data
+        
+    ):
+        self.log_id = log_id
+        self.log_date = log_date
+        self.log_type = log_type
+        self.log_data = log_data
+
+        
 #class BibToponyme(db_app.Model):
 #    __tablename__ = 'bib_toponyme'
 #    __table_args__ = {'schema': 'app_carto'}

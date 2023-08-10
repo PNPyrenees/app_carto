@@ -5,14 +5,14 @@ from readline import insert_text
 from flask import Flask, render_template, send_from_directory, request, make_response, jsonify, Markup
 import requests
 import json
-from datetime import datetime
+from datetime import datetime, date
 from sqlalchemy import create_engine, text, func
 from sqlalchemy.exc import SQLAlchemyError
 #from sqlalchemy.sql.expression import true
 from functools import wraps
 
-from .models import Role, VLayerList, Layer, BibStatusType, VRegneList, VGroupTaxoList, BibCommune, BibMeshScale, BibGroupStatus, ImportedLayer
-from .schema import RoleSchema, VLayerListSchema, LayerSchema, BibGroupStatusSchema, ImportedLayerSchema
+from .models import Role, VLayerList, Layer, BibStatusType, VRegneList, VGroupTaxoList, BibCommune, BibMeshScale, BibGroupStatus, ImportedLayer, Logs
+from .schema import RoleSchema, VLayerListSchema, LayerSchema, BibGroupStatusSchema, ImportedLayerSchema, LogsSchema
 
 import logging 
 """from requests.api import request"""
@@ -1700,6 +1700,8 @@ def add_features_for_layer(layer_id):
 
     layer_definition = get_column_definition(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
 
+    primary_key = get_primary_key_of_layer(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
+
     # Création de la requête d'insertion
     column_names = []
     values = []
@@ -1725,16 +1727,17 @@ def add_features_for_layer(layer_id):
 
     
     insert_statement = """
-        INSERT INTO {}.{} ({}) VALUES ({})
+        INSERT INTO {}.{} ({}) VALUES ({}) RETURNING {}
     """.format(
         layer_schema["layer_schema_name"], 
         layer_schema["layer_table_name"],
         ", ".join(column_names),
-        ", ".join(map(str, values))
+        ", ".join(map(str, values)),
+        primary_key["attname"]
     )
 
     try :
-       insert_exec = db_sig.execute(insert_statement)#._asdict()
+       inserted_data_id = db_sig.execute(insert_statement).fetchone()._asdict()
     except Exception as error:
         return jsonify({
             "status": "error",
@@ -1742,6 +1745,31 @@ def add_features_for_layer(layer_id):
                 Veuillez contacter l'administrateur afin de contrôler la configuration de la couche {}.{} - {}
                 """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"], error)
         }), 404
+
+    inserted_data_statement = """
+        SELECT * FROM {}.{}
+        WHERE {} = {}
+    """.format(
+        layer_schema["layer_schema_name"], 
+        layer_schema["layer_table_name"],
+        primary_key["attname"],
+        inserted_data_id[primary_key["attname"]]
+    )
+    inserted_data = db_sig.execute(inserted_data_statement).fetchone()._asdict()
+
+    logs = Logs(
+        log_id = None,
+        log_date = None,
+        log_type = "Layer edition - INSERT",
+        log_data = {
+            "layer_id" : layer_id,
+            "layer_schema_name" : layer_schema["layer_schema_name"],
+            "layer_table_name" : layer_schema["layer_table_name"],
+            "inserted_data" : json.loads(json.dumps(inserted_data, default=str))
+        }
+    )
+    db_app.session.add(logs)
+    db_app.session.commit()
 
     return jsonify(True)
 
@@ -1769,7 +1797,7 @@ def get_primary_key_of_layer(layer_schema_name, layer_table_name):
     for data in primary_key_column:
         primary_key.append(data._asdict())
 
-    return primary_key[0] # Exemple : 'attname': 'id', 'data_type': 'integer'}
+    return primary_key[0] # Exemple : { 'attname': 'id', 'data_type': 'integer'}
 
 @app.route('/api/update_features_for_layer/<layer_id>', methods=['POST'])
 @valid_token_required
@@ -1790,7 +1818,17 @@ def update_features_for_layer(layer_id):
 
     primary_key = get_primary_key_of_layer(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
     
-    logger.debug(primary_key)
+    # Récupération des valeurs actuelle (pour log)
+    previous_data_statement = """
+        SELECT * FROM {}.{}
+        WHERE {} = {}
+    """.format(
+        layer_schema["layer_schema_name"], 
+        layer_schema["layer_table_name"],
+        primary_key["attname"],
+        feature_data[primary_key["attname"]]
+    )
+    previous_data = db_sig.execute(previous_data_statement).fetchone()._asdict()
 
     update_statement = """
         UPDATE {}.{} 
@@ -1805,8 +1843,6 @@ def update_features_for_layer(layer_id):
             update_statement = update_statement + ""","""
         
         column_name = column["column_name"]
-
-        logger.debug("column_name : " + column_name)
 
         value = feature_data[column_name]
         # On adapte le valeur en fonction de leur type
@@ -1861,10 +1897,24 @@ def update_features_for_layer(layer_id):
                 """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"], error)
         }), 404
 
-    logger.debug(returned_data)
+    logs = Logs(
+        log_id = None,
+        log_date = None,
+        log_type = "Layer edition - UPDATE",
+        log_data = {
+            "layer_id" : layer_id,
+            "layer_schema_name" : layer_schema["layer_schema_name"],
+            "layer_table_name" : layer_schema["layer_table_name"],
+            "previous": json.loads(json.dumps(previous_data, default=str)),
+            "new": json.loads(json.dumps(returned_data, default=str))
+        }
+    )
+    db_app.session.add(logs)
+    db_app.session.commit()
 
     return returned_data
 
+    
 @app.route('/api/delete_features_for_layer/<layer_id>', methods=['POST'])
 @valid_token_required
 def delete_features_for_layer(layer_id):
@@ -1874,6 +1924,19 @@ def delete_features_for_layer(layer_id):
     layer_schema = LayerSchema().dump(layer)
 
     primary_key = get_primary_key_of_layer(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
+
+    # Récupération des valeurs actuelle (pour log)
+    previous_data_statement = """
+        SELECT * FROM {}.{}
+        WHERE {} = {}
+    """.format(
+        layer_schema["layer_schema_name"], 
+        layer_schema["layer_table_name"],
+        primary_key["attname"],
+        feature_data[primary_key["attname"]]
+    )
+    previous_data = db_sig.execute(previous_data_statement).fetchone()._asdict()
+    
 
     delete_statement = """
         DELETE FROM {}.{} WHERE {} = {};
@@ -1894,10 +1957,30 @@ def delete_features_for_layer(layer_id):
                 """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"], error)
         }), 404
 
+    logs = Logs(
+        log_id = None,
+        log_date = None,
+        log_type = "Layer edition - DELETE",
+        log_data = {
+            "layer_id" : layer_id,
+            "layer_schema_name" : layer_schema["layer_schema_name"],
+            "layer_table_name" : layer_schema["layer_table_name"],
+            "deleted_data" : json.loads(json.dumps(previous_data, default=str))
+        }
+    )
+
+    db_app.session.add(logs)
+    db_app.session.commit()
+
     return {"statut": True}
 
-    
-
+# Fonction permettant de sérialisé proprement les date contenu dans un json    
+#def json_serial(obj):
+#    """JSON serializer for objects not serializable by default json code"""
+#
+#    if isinstance(obj, (datetime, date)):
+#        return obj.isoformat()
+#    raise TypeError ("Type %s not serializable" % type(obj))
 
 if __name__ == "__main__":
     app.run()

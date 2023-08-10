@@ -271,6 +271,14 @@ CREATE TABLE IF NOT EXISTS app_carto.t_imported_layer (
         ON DELETE NO ACTION
 );
 
+/* Création de la table de logs */ 
+CREATE TABLE app_carto.t_logs (
+	log_id serial primary key,
+	log_date timestamp without time zone default now(),
+	log_type varchar(32),
+	log_data jsonb
+);
+
 /*
  * Partie 2 : Script à jouer sur la base de données SIG
  */
