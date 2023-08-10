@@ -887,6 +887,49 @@ var addGeojsonLayer = function (data, additional_data = null) {
     addLayerInLayerBar(vectorLayer)
 }
 
+var refreshLayer = function(layer_id){
+    return fetch(APP_URL + "/api/ref_layer/" + layer_id, {
+        method: "GET",
+        signal: signal,
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        },
+        credentials: "same-origin"
+    })
+        .then(res => {
+            if (res.status != 200) {
+                throw res;
+            } else {
+                return res.json()
+            }
+        }).then(data => {
+            // On actualise les données de la couche modifié.
+            // Si elle est ouverte plusieurs fois, chaque instance est actualisé
+            map.getLayers().forEach(layer => {
+                if (layer.get("description_layer")){
+                    if (layer.get("description_layer").layer_id == layer_id){
+                        layer.getSource().clear()
+
+                        
+                        // On s'assure que la couche de retour n'est pas vide
+                        if (data.geojson_layer.features){
+                            layer.getSource().addFeatures(new ol.format.GeoJSON().readFeatures(data.geojson_layer))                    
+                        }
+                    }
+                }
+            })
+        })
+        .catch(error => {
+            default_message = "Erreur lors du rafraichissement de la couche de données"
+            
+            console.error(error)
+            apiCallErrorCatcher("error", default_message)
+        })
+
+        
+}
+
 /**
  * Fonction ajoutant la couche dans le layerBar
  */
@@ -1762,45 +1805,93 @@ document.getElementById("close-bloc-clicked-features-attributes-btn").addEventLi
 var singleClickForRemovingFeature = function (event) {
 
     map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
-        //On récupère l'uid de la couche active en édition
-        document.getElementById("layer_list").querySelectorAll('li').forEach(li => {
-            if (li.classList.contains("layer-is-selected")) {
-                layer_uid = li.getAttribute("layer-uid")
+        
+        // Récupération de l'uid de la couche en cours d'édition
+        active_layer_editing_uid = document.getElementById("drawing-layer-group-edit-btn").getAttribute("layer_uid")
 
+        // On s'assure que l'objet cliqué est bien celui de la couche en cours d'edition
+        if (ol.util.getUid(layer) == active_layer_editing_uid){
+            layer_uid = active_layer_editing_uid
+            feature_uid = ol.util.getUid(feature)
 
-                // On sassure s'être sur la couche active en édition
-                if (ol.util.getUid(layer) == layer_uid) {
-                    // On s'assure d'être sur une couche en édition            
-                    if (layer.get("isEditing") == true) {
-
-                        layer.getSource().removeFeature(feature)
-
-                        // Reconstruction de la légende
-                        buildLegendForLayer(layer_uid, layer.get('json_style'))
-
-                        // On controle s'il reste des feature dans la couche
-                        if (layer.getSource().getFeatures().length == 0) {
-                            if (layer.get("layerType") == "warningCalculatorLayer") {
-                                // Auquel cas, on désactive les bouton de suppression 
-                                document.getElementById("btn-chanllenge-calculator-remove-feature").classList.add("disabled")
-                                // et d'éxécution du calcul
-                                document.getElementById("btn-chanllenge-calculator-execute").classList.add("disabled")
-                            }
-
-                            if (layer.get("layerType") == "drawingLayer") {
-                                // Auquel cas, on désactive les bouton de suppression 
-                                document.getElementById("btn-drawing-layer-remove-feature").classList.add("disabled")
-                            }
-
-                            // On change la fonction à éxécuter lors d'un clic sur la carte
-                            map.un('singleclick', singleClickForRemovingFeature)
-                            map.on('singleclick', singleClickForFeatureInfo)
-                        }
-                    }
-                }
-            }
-        })
+            // On passe les uid dans la fenêtre modal de confirmation
+            document.getElementById("confirm-delete-feature-modal-layer-uid").value = layer_uid
+            document.getElementById("confirm-delete-feature-modal-feature-uid").value = feature_uid
+        
+            // Ouverture du modal de confirmation
+            confirmDeleteFeatureModal.show()
+        }
     })
+}
+
+// Action de cliquer sur la confirmation de la suppression
+document.getElementById("confirm-delete-feature-submit").addEventListener("click", event => {
+    layer_uid = document.getElementById("confirm-delete-feature-modal-layer-uid").value
+    feature_uid = document.getElementById("confirm-delete-feature-modal-feature-uid").value    
+
+    confirmRemoveFeature(layer_uid, feature_uid)
+})
+
+/**
+ * Fonction supprimant un feature sur un layer
+ */
+var confirmRemoveFeature = function(layer_uid, feature_uid){
+
+    var layer
+    map.getLayers().forEach(tmp_layer => {
+        if (ol.util.getUid(tmp_layer) == layer_uid){
+            layer = tmp_layer
+        }
+    })
+
+    var feature
+    layer.getSource().getFeatures().forEach(tmp_feature => {
+        if (ol.util.getUid(tmp_feature) == feature_uid){
+            feature = tmp_feature
+        }
+    })
+
+    layer_id = layer.get("description_layer").layer_id
+
+
+    // On sassure s'être sur la couche active en édition
+    if (ol.util.getUid(layer) == layer_uid) {
+        // On s'assure d'être sur une couche en édition            
+        if (layer.get("isEditing") == true) {
+
+            // Si on est sur une couche éditable il va falloir supprimer en base 
+            if (layer.get("layerType") == "editableLayer"){
+                writeFeaturesInDatabase(layer_id, feature, "delete").then(res => {
+                    layer.getSource().removeFeature(feature)
+                })
+            } else {
+                layer.getSource().removeFeature(feature)
+            }                        
+
+            // Reconstruction de la légende
+            buildLegendForLayer(layer_uid, layer.get('json_style'))
+
+            // On controle s'il reste des feature dans la couche
+            if (layer.getSource().getFeatures().length == 0) {
+                if (layer.get("layerType") == "warningCalculatorLayer") {
+                    // Auquel cas, on désactive les bouton de suppression 
+                    document.getElementById("btn-chanllenge-calculator-remove-feature").classList.add("disabled")
+                    // et d'éxécution du calcul
+                    document.getElementById("btn-chanllenge-calculator-execute").classList.add("disabled")
+                }
+
+                if (["editableLayer", "drawingLayer"].includes(layer.get("layerType"))) {
+                    // Auquel cas, on désactive les bouton de suppression 
+                    document.getElementById("btn-drawing-layer-remove-feature").classList.add("disabled")
+                }
+
+                // On change la fonction à éxécuter lors d'un clic sur la carte
+                map.un('singleclick', singleClickForRemovingFeature)
+                map.on('singleclick', singleClickForFeatureInfo)
+            }
+        }
+        confirmDeleteFeatureModal.hide()
+    }
 }
 
 /**
@@ -2085,6 +2176,26 @@ var enableLayerModify = function (layer) {
         source: source
     })
 
+    modify_interaction.on('modifyend', function(event){
+        if (layer.get("layerType") == "editableLayer"){
+            
+            layer_id = layer.get("description_layer").layer_id
+            
+            geomColumnName = layer.get("description_layer").layer_geom_column
+
+
+            var format = new ol.format.WKT()
+
+            feature = event.features.forEach(feature => {
+                feature.set(geomColumnName, format.writeFeature(feature))
+
+                writeFeaturesInDatabase(layer_id, feature, "update")
+            })
+            // Ajouter la géom au properties de l'objet
+            // Envoyer le feature en mode update
+        }
+    })
+
     map.addInteraction(modify_interaction)
 }
 
@@ -2161,7 +2272,11 @@ var setSelectedLayerInLayerbar = function (layer_uid) {
  * pour éditer ces données attributaires
  */
 document.getElementById("btn-drawing-layer-edit-feature-info").addEventListener("click", event => enableEditAttribute())
+
 var enableEditAttribute = function () {
+    // On déselectionne tous les objets
+    clearSelectedSource()
+
     var button = document.getElementById("btn-drawing-layer-edit-feature-info")
 
     if (button.classList.contains("btn-active")) {
@@ -2341,6 +2456,9 @@ function unHighlightAllToolsBtn() {
 const addfeature_buttons = document.querySelectorAll(".btn-drawing-layer-addfeature")
 addfeature_buttons.forEach(addfeature_button => {
     addfeature_button.addEventListener('click', function (event) {
+        // On déselectionne tous les objets
+        clearSelectedSource()
+
         button = event.currentTarget
 
         if (button.classList.contains("btn-active")) {
@@ -2372,6 +2490,7 @@ addfeature_buttons.forEach(addfeature_button => {
  * Gestion du clique sur le bouton de suppression d'un feature d'une couche drawingLayer
  */
 document.getElementById("btn-drawing-layer-remove-feature").addEventListener("click", event => {
+    // On déselectionne tous les objets
     clearSelectedSource()
 
     button = event.currentTarget
@@ -2403,6 +2522,9 @@ document.getElementById("btn-drawing-layer-remove-feature").addEventListener("cl
  * Clic sur l'outil d'édition de point
  */
 document.getElementById("btn-drawing-layer-modify").addEventListener("click", event => {
+    // On déselectionne tous les objets
+    clearSelectedSource()
+
     button = event.currentTarget
 
     disableLayerDrawing()

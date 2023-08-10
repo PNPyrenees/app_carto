@@ -1865,141 +1865,38 @@ def update_features_for_layer(layer_id):
 
     return returned_data
 
-    # Récupération de la column prmary key
-    #for column in layer_definition:
-    #    if column["constraint_type"] == 'PRIMARY KEY':
-    #        pk_column = column["column_name"]
-    #        pk_column_type = column["data_type"]
-    
-    # On fait une sauvegarde de la couche
-    backup_statement = """
-        CREATE TABLE backup.{} AS SELECT * FROM {}.{}
-    """.format(
-        layer_schema["layer_table_name"],
-        layer_schema["layer_schema_name"],
-        layer_schema["layer_table_name"] 
-    )
+@app.route('/api/delete_features_for_layer/<layer_id>', methods=['POST'])
+@valid_token_required
+def delete_features_for_layer(layer_id):
+    feature_data = request.json
 
-    
+    layer = Layer.query.get(layer_id)
+    layer_schema = LayerSchema().dump(layer)
 
-    # Identification des features supprimés
-    #l_pkid=[]
-    #for feature in geojson_data["features"]:
-    #    value = feature["properties"][pk_column]
-    #    if pk_column_type in ['varchar', 'date']:
-    #        value = "'" + value + "'"
-    #
-    #    l_pkid.append(value)
-    #
-    #delete_statement = """
-    #    DELETE FROM {}.{} WHERE {} NOT IN ({});
-    #""".format(
-    #    layer_schema["layer_schema_name"], 
-    #    layer_schema["layer_table_name"],
-    #    pk_column,
-    #    ", ".join(l_pkid)
-    #)
+    primary_key = get_primary_key_of_layer(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
 
-
-
-
-
-
-
-
-
-
-
-    return jsonify(delete_statement)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    get_primary_key_column_statement = """
-        SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS data_type
-        FROM   pg_index i
-        JOIN   pg_attribute a ON a.attrelid = i.indrelid
-                            AND a.attnum = ANY(i.indkey)
-        WHERE  i.indrelid = '{}.{}'::regclass
-        AND    i.indisprimary;
-    """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
-
-    try :
-        primary_key_column = db_sig.execute(get_primary_key_column_statement).fetchall()#._asdict()
-    except Exception as error:
-        return jsonify({
-            "status": "error",
-            'message': """Erreur lors de la récupération de la clés primaire pour la table {}.{}
-                """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
-        }), 404
-
-    primary_key = []
-    for data in primary_key_column:
-        primary_key.append(data._asdict())
-
-    # On identifie si le feature est un inser, un update ou un delete
-    for feature in geojson_data["features"]:
-        # NE FONCTIONE QUE POUR LES TABLES AYANT 
-        # QU'UNE SUELE COLONNE COMME PRIMARY KEY
-        search_statement = """
-            SELECT count(*) FROM {}.{} WHERE {} = {}
-        """.format(
-                layer_schema["layer_schema_name"], 
-                layer_schema["layer_table_name"],
-                primary_key[0]["attname"],
-                feature["properties"][primary_key[0]["attname"]]
-            )
-
-    #    try :
-    #        is_found = db_sig.execute(search_statement).fetchall()
-    #    except Exception as error:
-    #        return jsonify({
-    #            "status": "error",
-    #            'message': """Erreur lors de la de la recherhce de l'existence du feature
-    #                """
-    #        }), 404
-
-    
-
-    #insert_request = []
-    
-    #    insert_request.append(feature["properties"])
-
-    #print(insert_request)
-    column_names = []
-    values = []
-    for feature in geojson_data["features"]:
-        for key,value in feature["properties"]:
-            #for key,value in jsonify(propertie.iteritems()):
-            column_names.append(key)
-            values.append(value)
-
-    insert_statement = """
-        INSERT INTO {}.{} ({}) VALUES ({})
+    delete_statement = """
+        DELETE FROM {}.{} WHERE {} = {};
     """.format(
         layer_schema["layer_schema_name"], 
         layer_schema["layer_table_name"],
-        column_names.join(", "),
-        values.join(", ")
+        primary_key["attname"],
+        feature_data[primary_key["attname"]]
     )
-    #column_names = ["foo", "bar"].join(",")
-    #placeholders = ["?","?"].join( "," )
-    #statement = "INSERT INTO table_name (" + column_names + ") VALUES ("+placeholders+")" 
 
+    try :
+       db_sig.execute(delete_statement)
+    except Exception as error:
+        return jsonify({
+            "status": "error",
+            'message': """Erreur lors de la supression de la données en base' 
+                Veuillez contacter l'administrateur afin de contrôler la configuration de la couche {}.{} - {}
+                """.format(layer_schema["layer_schema_name"], layer_schema["layer_table_name"], error)
+        }), 404
 
-    return jsonify(insert_statement)
+    return {"statut": True}
+
+    
 
 
 if __name__ == "__main__":

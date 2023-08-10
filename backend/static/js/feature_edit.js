@@ -42,13 +42,17 @@ var getFeatureFrom = function (layer_id) {
         })
 }
 
-/*showConfirmAbortEditFeature = function(){
-    document.getElementById("valid-feature-form-abort").classList.remove("hide")
-}*/
+showConfirmAbortEditFeature = function(){
+    if (document.getElementById("feature-form-mode").value == "insert"){
+        document.getElementById("valid-feature-form-abort").classList.remove("hide")
+    } else {
+        featureEditModal.hide()
+    }
+}
 
-/*hideConfirmAbortEditFeature = function(){
+hideConfirmAbortEditFeature = function(){
     document.getElementById("valid-feature-form-abort").classList.add("hide")
-}*/
+}
 
 var abortEditFeature = function () {
     layer_uid = document.getElementById("feature-form-layer-uid").value
@@ -64,6 +68,8 @@ var abortEditFeature = function () {
             })
         }
     })
+
+    featureEditModal.hide()
 }
 
 /**
@@ -332,6 +338,9 @@ var saveFeatureToDB = function (layer_uid) {
 
 var writeFeaturesInDatabase = function (layer_id, feature, mode) {
 
+    // On affiche le spinner global
+    document.getElementById("global-spinner").classList.remove("hide")
+
     var feature_data = JSON.stringify(feature.getProperties())
 
     if (mode == "insert") {
@@ -339,6 +348,9 @@ var writeFeaturesInDatabase = function (layer_id, feature, mode) {
     }
     if (mode == "update") {
         url = "/api/update_features_for_layer/" + layer_id
+    }
+    if (mode == "delete") {
+        url = "/api/delete_features_for_layer/" + layer_id
     }
 
     return fetch(APP_URL + url, {
@@ -353,7 +365,6 @@ var writeFeaturesInDatabase = function (layer_id, feature, mode) {
     })
         .then(res => {
             // on masque le spinner global
-            document.getElementById("global-spinner").classList.add("hide")
             if (res.status != 200) {
                 throw res
             } else {
@@ -361,12 +372,14 @@ var writeFeaturesInDatabase = function (layer_id, feature, mode) {
             }
         })
         .then(data => {
-            // On insère le formlulaire
-            console.log("Enregistrmeent réussi !")
-            console.log(data)
+            // On rafraichi la couche de  données
+            refreshLayer(layer_id).then(res => {
+                document.getElementById("global-spinner").classList.add("hide")
+            })
         })
         .catch(error => {
-            apiCallErrorCatcher(error, "Erreur lors de l'enregistrement de la couche")
+            document.getElementById("global-spinner").classList.add("hide")
+            apiCallErrorCatcher("error", "Erreur lors de l'enregistrement de la couche")
             console.warn("Erreur lors de l'enregistrement de la couche", error)
         })
 }

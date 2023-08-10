@@ -1,6 +1,6 @@
 <div class="modal-header">
     <h5 class="modal-title" id="feature-form-modal-label">Création / édition d'un objet</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    {#<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>#}
 </div>
 <div class="modal-body">
     <div class="form-group">
@@ -159,10 +159,10 @@
         <div id="feature-form-loading-spinner" class="spinner-grow spinner-grow-sm hide" role="status"></div>
         Enregistrer
     </button>
-    <button id="feature-form-abort" type="button" class="btn btn-warning" {#onclick="showConfirmAbortEditFeature()"#} data-bs-dismiss="modal">Annuler</button>
+    <button id="feature-form-abort" type="button" class="btn btn-warning" onclick="showConfirmAbortEditFeature()">Annuler</button>
 
     <div id="feature-form-error" class="text-danger hide"></div>
-    <!--<div id="valid-feature-form-abort" class="hide row border">
+    <div id="valid-feature-form-abort" class="hide row border">
         <div class="col-lg-12 text-warning">
         <bold>Attention !</bold> cette action va également supprimer l'objet géographique ! 
         Êtes-vous sur de vouloir annuler la création de l'objet ?
@@ -171,5 +171,5 @@
             <button id="valid-feature-form-abort-btn" type="button" class="btn btn-danger" onclick="abortEditFeature()">Oui</button>
             <button id="valid-feature-form-abort-btn" type="button" class="btn btn-primary" onclick="hideConfirmAbortEditFeature()">Non</button>
         </div>
-    </div>-->
+    </div>
 </div>

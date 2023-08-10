@@ -54,6 +54,10 @@ var styleLayerModal = new bootstrap.Modal(document.getElementById("style-layer-m
 var featureEditModal = new bootstrap.Modal(document.getElementById("feature-edit-modal"), {
     keyboard: false
 })
+
+var confirmDeleteFeatureModal = new bootstrap.Modal(document.getElementById("confirm-delete-feature-modal"), {
+    keyboard: false
+})
 // On ré-initialise le modal à la fermeture
 /*var addLayerModalEl = document.getElementById("add-layer-modal")
 addLayerModalEl.addEventListener('hidden.bs.modal', function (event) {
