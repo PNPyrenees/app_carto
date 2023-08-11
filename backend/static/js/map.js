@@ -1875,6 +1875,8 @@ var singleClickForRemovingFeature = function (event) {
             layer_uid = active_layer_editing_uid
             feature_uid = ol.util.getUid(feature)
 
+            highlightFeature(layer_uid, feature_uid, false, true)
+
             // On passe les uid dans la fenêtre modal de confirmation
             document.getElementById("confirm-delete-feature-modal-layer-uid").value = layer_uid
             document.getElementById("confirm-delete-feature-modal-feature-uid").value = feature_uid
@@ -1952,8 +1954,17 @@ var confirmRemoveFeature = function (layer_uid, feature_uid) {
             }
         }
         confirmDeleteFeatureModal.hide()
+        clearSelectedSource()
     }
 }
+
+/**
+ * Annulation de la suppression d'un objet
+ */
+document.getElementById("confirm-delete-feature-abort").addEventListener("click", event => {
+    clearSelectedSource()
+    confirmDeleteFeatureModal.hide()
+})
 
 /**
  * Fonction spécifique aux données d'observation permettant 
