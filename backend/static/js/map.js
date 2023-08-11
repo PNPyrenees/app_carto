@@ -887,7 +887,7 @@ var addGeojsonLayer = function (data, additional_data = null) {
     addLayerInLayerBar(vectorLayer)
 }
 
-var refreshLayer = function(layer_id){
+var refreshLayer = function (layer_id) {
     return fetch(APP_URL + "/api/ref_layer/" + layer_id, {
         method: "GET",
         signal: signal,
@@ -907,14 +907,14 @@ var refreshLayer = function(layer_id){
             // On actualise les données de la couche modifié.
             // Si elle est ouverte plusieurs fois, chaque instance est actualisé
             map.getLayers().forEach(layer => {
-                if (layer.get("description_layer")){
-                    if (layer.get("description_layer").layer_id == layer_id){
+                if (layer.get("description_layer")) {
+                    if (layer.get("description_layer").layer_id == layer_id) {
                         layer.getSource().clear()
 
-                        
+
                         // On s'assure que la couche de retour n'est pas vide
-                        if (data.geojson_layer.features){
-                            layer.getSource().addFeatures(new ol.format.GeoJSON().readFeatures(data.geojson_layer))                    
+                        if (data.geojson_layer.features) {
+                            layer.getSource().addFeatures(new ol.format.GeoJSON().readFeatures(data.geojson_layer))
                         }
                     }
                 }
@@ -922,12 +922,12 @@ var refreshLayer = function(layer_id){
         })
         .catch(error => {
             default_message = "Erreur lors du rafraichissement de la couche de données"
-            
+
             console.error(error)
             apiCallErrorCatcher("error", default_message)
         })
 
-        
+
 }
 
 /**
@@ -1335,7 +1335,8 @@ removeLayer = function (layer_uid) {
         // On supprime les entré de cette couche dans 
         // le fenêtre d'affichage des données attributaire
         // (celle qui s'ouvre quand on clique sur la carte)
-        attr_data = document.getElementById("bloc-clicked-features-attributes").querySelector(".layer-item[layer-uid=\"" + layer_uid + "\"]")
+        deleteDataInInfobulleForlayer(layer_uid)
+        /*attr_data = document.getElementById("bloc-clicked-features-attributes").querySelector(".layer-item[layer-uid=\"" + layer_uid + "\"]")
         if (attr_data) {
             attr_data.remove()
 
@@ -1343,6 +1344,22 @@ removeLayer = function (layer_uid) {
             if (attr_data = document.getElementById("bloc-clicked-features-attributes").querySelector(".layer-item") == null) {
                 hideBlockClickedFeaturesAttributes()
             }
+        }*/
+    }
+}
+
+/**
+ * Fonction effaçant les données affiché dans 
+ * l'infobulle pour une couche spécifié
+ */
+var deleteDataInInfobulleForlayer = function (layer_uid) {
+    attr_data = document.getElementById("bloc-clicked-features-attributes").querySelector(".layer-item[layer-uid=\"" + layer_uid + "\"]")
+    if (attr_data) {
+        attr_data.remove()
+
+        // S'il n'y a plus de données dans le bloc attributaire, on le ferme
+        if (attr_data = document.getElementById("bloc-clicked-features-attributes").querySelector(".layer-item") == null) {
+            hideBlockClickedFeaturesAttributes()
         }
     }
 }
@@ -1383,19 +1400,59 @@ getFullDataTable = function (layer_uid) {
 }
 
 /**
+ * Mise à jour de la table attributaire html si elle est ouverte
+ */
+var refreshDataTable = function (layer_uid) {
+    // Récupération du layer_uid
+    /*var layer_uid
+    map.getLayers().forEach(layer => {
+        if (layer.get("description_layer")) {
+            if (layer.get("description_layer").layer_id == layer_id) {
+                layer_uid = ol.util.getUid(layer)
+            }
+        }
+    })*/
+
+    if (document.getElementById("layer-data-table-" + layer_uid)) {
+        // Récupération du nav-data-table actif
+        var active_nav_data_table
+        var all_nav_data_table = document.getElementsByClassName("nav-layer-item")
+        for (var i = 0; i < all_nav_data_table.length; i++) {
+            if (all_nav_data_table[i].classList.contains("active")) {
+                active_nav_data_table = all_nav_data_table[i]
+            }
+        }
+
+        // On vide l'élément contenant la table attributaire
+        document.getElementById("layer-data-table-" + layer_uid).remove()
+        // on créé la nouvelle table attributaire
+        getFullDataTable(layer_uid)
+
+        // On réactive l'affichage de la table attributaire précédemment affiché
+        inactiveAllAttributeTables()
+        activeAttributeTable(active_nav_data_table)
+    }
+}
+
+/**
  * Créer la table attributaire html
  */
 createAttributeTable = function (layer_name, layer_uid, data) {
 
-    tab_id = "layer-data-table-" + layer_uid //+ '-' + date_id
+    tab_id = "layer-data-table-" + layer_uid
 
-    //On controle si le tableau existe
+    // on masque toutes les tables attributaires
+    inactiveAllAttributeTables()
+
+    // On controle si le tableau existe (cas demande d'affichage d'une table attributaire déjà créé)
     if (document.querySelector(".nav-layer-item[target=" + tab_id + "]")) {
-        // Si c'est le cas, on masque tout
-        inactiveAllAttributeTables()
-        // et on l'affiche que le tableau concerné
-        activeAttributeTable(document.querySelector(".nav-layer-item[target=" + tab_id + "]"))
-        return
+        let target = document.querySelector(".nav-layer-item[target=" + tab_id + "]").getAttribute("target")
+        // Dans le cas d'un refresh, la table a été supprimé donc on s'assure qu'elle existe avant de vouloir l'afficher
+        if (document.getElementById(target)) {
+            // et on l'affiche que le tableau concerné
+            activeAttributeTable(document.querySelector(".nav-layer-item[target=" + tab_id + "]"))
+            return
+        }
     }
 
     // Création d'un élément HTML recevant le tableau
@@ -1473,48 +1530,52 @@ createAttributeTable = function (layer_name, layer_uid, data) {
     })
 
     // On désative l'affichage des autres atableau attributaire
-    inactiveAllAttributeTables()
+    // inactiveAllAttributeTables()
 
     // Ajout d'un onglet associé au tableau
-    nav_element = document.createElement("div")
-    nav_element.setAttribute("target", tab_id)
-    nav_element.classList.add("nav-layer-item")
-    nav_element.classList.add("active")
-    nav_element.innerHTML = layer_name
+    // On controle que le "nav_element" n'existe pas déjà (cas du "refresh" de la table attributaire)
 
-    //Création de la croix pour fermer la table attributaire 
-    btn_close = document.createElement("button")
-    btn_close.classList.add("btn-close")
-    btn_close.classList.add("btn-close-attribute-table")
-    btn_close.setAttribute("type", "button")
-    btn_close.addEventListener("click", event => {
-        event.stopPropagation()
+    if (!document.querySelector(".nav-layer-item[target='" + tab_id + "']")) {
+        nav_element = document.createElement("div")
+        nav_element.setAttribute("target", tab_id)
+        nav_element.classList.add("nav-layer-item")
+        nav_element.classList.add("active")
+        nav_element.innerHTML = layer_name
 
-        let nav_element = event.currentTarget.parentNode
-        let target_table = nav_element.getAttribute("target")
+        //Création de la croix pour fermer la table attributaire 
+        btn_close = document.createElement("button")
+        btn_close.classList.add("btn-close")
+        btn_close.classList.add("btn-close-attribute-table")
+        btn_close.setAttribute("type", "button")
+        btn_close.addEventListener("click", event => {
+            event.stopPropagation()
 
-        let nav_is_active = nav_element.classList.contains("active")
+            let nav_element = event.currentTarget.parentNode
+            let target_table = nav_element.getAttribute("target")
 
-        document.getElementById(target_table).remove()
+            let nav_is_active = nav_element.classList.contains("active")
 
-        let nav_attribute_table = nav_element.parentNode
+            document.getElementById(target_table).remove()
 
-        nav_element.remove()
+            let nav_attribute_table = nav_element.parentNode
 
-        // Si la table attributaire était afficher, il faut en afficher une autre (la première !)
-        if (nav_is_active) {
-            let first_attribute_table = nav_attribute_table.querySelectorAll(".nav-layer-item")[0]
-            if (first_attribute_table) {
-                activeAttributeTable(first_attribute_table)
+            nav_element.remove()
+
+            // Si la table attributaire était afficher, il faut en afficher une autre (la première !)
+            if (nav_is_active) {
+                let first_attribute_table = nav_attribute_table.querySelectorAll(".nav-layer-item")[0]
+                if (first_attribute_table) {
+                    activeAttributeTable(first_attribute_table)
+                }
             }
-        }
-    })
-    nav_element.append(btn_close)
+        })
+        nav_element.append(btn_close)
 
-    document.getElementById("nav-attribute-table").append(nav_element)
+        document.getElementById("nav-attribute-table").append(nav_element)
 
-    // On active l'écouteur si il y a un click 
-    nav_element.addEventListener("click", clickNavAttributeTableEvent)
+        // On active l'écouteur si il y a un click 
+        nav_element.addEventListener("click", clickNavAttributeTableEvent)
+    }
 }
 
 /**
@@ -1566,7 +1627,7 @@ inactiveAllAttributeTables = function () {
 
     //On masque le tableau visible
     tables = document.getElementsByClassName("layer-data-table")
-    for (var i = 0; i < items.length; i++) {
+    for (var i = 0; i < tables.length; i++) {
         tables[i].style.display = "none"
     }
 }
@@ -1805,19 +1866,19 @@ document.getElementById("close-bloc-clicked-features-attributes-btn").addEventLi
 var singleClickForRemovingFeature = function (event) {
 
     map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
-        
+
         // Récupération de l'uid de la couche en cours d'édition
         active_layer_editing_uid = document.getElementById("drawing-layer-group-edit-btn").getAttribute("layer_uid")
 
         // On s'assure que l'objet cliqué est bien celui de la couche en cours d'edition
-        if (ol.util.getUid(layer) == active_layer_editing_uid){
+        if (ol.util.getUid(layer) == active_layer_editing_uid) {
             layer_uid = active_layer_editing_uid
             feature_uid = ol.util.getUid(feature)
 
             // On passe les uid dans la fenêtre modal de confirmation
             document.getElementById("confirm-delete-feature-modal-layer-uid").value = layer_uid
             document.getElementById("confirm-delete-feature-modal-feature-uid").value = feature_uid
-        
+
             // Ouverture du modal de confirmation
             confirmDeleteFeatureModal.show()
         }
@@ -1827,7 +1888,7 @@ var singleClickForRemovingFeature = function (event) {
 // Action de cliquer sur la confirmation de la suppression
 document.getElementById("confirm-delete-feature-submit").addEventListener("click", event => {
     layer_uid = document.getElementById("confirm-delete-feature-modal-layer-uid").value
-    feature_uid = document.getElementById("confirm-delete-feature-modal-feature-uid").value    
+    feature_uid = document.getElementById("confirm-delete-feature-modal-feature-uid").value
 
     confirmRemoveFeature(layer_uid, feature_uid)
 })
@@ -1835,18 +1896,18 @@ document.getElementById("confirm-delete-feature-submit").addEventListener("click
 /**
  * Fonction supprimant un feature sur un layer
  */
-var confirmRemoveFeature = function(layer_uid, feature_uid){
+var confirmRemoveFeature = function (layer_uid, feature_uid) {
 
     var layer
     map.getLayers().forEach(tmp_layer => {
-        if (ol.util.getUid(tmp_layer) == layer_uid){
+        if (ol.util.getUid(tmp_layer) == layer_uid) {
             layer = tmp_layer
         }
     })
 
     var feature
     layer.getSource().getFeatures().forEach(tmp_feature => {
-        if (ol.util.getUid(tmp_feature) == feature_uid){
+        if (ol.util.getUid(tmp_feature) == feature_uid) {
             feature = tmp_feature
         }
     })
@@ -1860,13 +1921,13 @@ var confirmRemoveFeature = function(layer_uid, feature_uid){
         if (layer.get("isEditing") == true) {
 
             // Si on est sur une couche éditable il va falloir supprimer en base 
-            if (layer.get("layerType") == "editableLayer"){
+            if (layer.get("layerType") == "editableLayer") {
                 writeFeaturesInDatabase(layer_id, feature, "delete").then(res => {
                     layer.getSource().removeFeature(feature)
                 })
             } else {
                 layer.getSource().removeFeature(feature)
-            }                        
+            }
 
             // Reconstruction de la légende
             buildLegendForLayer(layer_uid, layer.get('json_style'))
@@ -2176,11 +2237,11 @@ var enableLayerModify = function (layer) {
         source: source
     })
 
-    modify_interaction.on('modifyend', function(event){
-        if (layer.get("layerType") == "editableLayer"){
-            
+    modify_interaction.on('modifyend', function (event) {
+        if (layer.get("layerType") == "editableLayer") {
+
             layer_id = layer.get("description_layer").layer_id
-            
+
             geomColumnName = layer.get("description_layer").layer_geom_column
 
 

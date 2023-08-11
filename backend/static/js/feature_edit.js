@@ -2,9 +2,24 @@
 // que des objets en cours d'édition n'ont pas été sauvagerdé
 var has_feature_not_save = false
 
-/*document.getElementById("btn-test_form").addEventListener("click", event => {
-    getFeatureFrom(127)
-})*/
+document.getElementById("btn-test_form").addEventListener("click", event => {
+    callApiForLayer(127)
+    callApiForLayer(100)
+
+    map.getLayers().forEach(layer => {
+        console.log(layer.get("description_layer"))
+
+        if (layer.get("description_layer")) {
+
+
+            if ([127, 100].includes(layer.get("description_layer").layer_id)) {
+                getFullDataTable(ol.util.getUid(layer))
+            }
+        }
+    })
+
+
+})
 
 // Appel du formulaire associé à la couche et ouverture du modal
 var getFeatureFrom = function (layer_id) {
@@ -42,15 +57,15 @@ var getFeatureFrom = function (layer_id) {
         })
 }
 
-showConfirmAbortEditFeature = function(){
-    if (document.getElementById("feature-form-mode").value == "insert"){
+showConfirmAbortEditFeature = function () {
+    if (document.getElementById("feature-form-mode").value == "insert") {
         document.getElementById("valid-feature-form-abort").classList.remove("hide")
     } else {
         featureEditModal.hide()
     }
 }
 
-hideConfirmAbortEditFeature = function(){
+hideConfirmAbortEditFeature = function () {
     document.getElementById("valid-feature-form-abort").classList.add("hide")
 }
 
@@ -375,6 +390,19 @@ var writeFeaturesInDatabase = function (layer_id, feature, mode) {
             // On rafraichi la couche de  données
             refreshLayer(layer_id).then(res => {
                 document.getElementById("global-spinner").classList.add("hide")
+
+                // Récupération du layer_uid
+                var layer_uid
+                map.getLayers().forEach(layer => {
+                    if (layer.get("description_layer")) {
+                        if (layer.get("description_layer").layer_id == layer_id) {
+                            layer_uid = ol.util.getUid(layer)
+
+                            refreshDataTable(layer_uid)
+                            deleteDataInInfobulleForlayer(layer_uid)
+                        }
+                    }
+                })
             })
         })
         .catch(error => {

@@ -171,6 +171,12 @@ var addRefLayerToMap = function () {
     let active_layer = document.querySelector('.modal-ref-layer-item.active')
     let ref_layer_id = active_layer.getAttribute('layer-id')
 
+    callApiForLayer(ref_layer_id)
+
+
+}
+
+var callApiForLayer = function (ref_layer_id) {
     controller = new AbortController;
     signal = controller.signal;
 
