@@ -2759,41 +2759,6 @@ var addDrawingLayerOnMap = function (layer_name) {
 }*/
 
 /*----------------------------------------------------*/
-/*------------------EXPORT GeoJson--------------------*/
-/*----------------------------------------------------*/
-var exportGeoJson = function (layer_uid) {
-    map.getLayers().forEach(layer => {
-        if (ol.util.getUid(layer) == layer_uid) {
-            var writer = new ol.format.GeoJSON({ featureProjection: 'EPSG:2154' })
-
-            var geojsonStr = new ol.format.GeoJSON().writeFeatures(layer.getSource().getFeatures(), {
-                dataProjection: 'EPSG:4326',
-                featureProjection: 'EPSG:3857'
-            });
-
-            filename = layer.get('layer_name') + '.geojson'
-            download(filename, geojsonStr)
-        }
-    })
-}
-
-var exportKml = function (layer_uid) {
-    map.getLayers().forEach(layer => {
-        if (ol.util.getUid(layer) == layer_uid) {
-            var writer = new ol.format.GeoJSON({ featureProjection: 'EPSG:4326' })
-
-            var kmlStr = new ol.format.KML().writeFeatures(layer.getSource().getFeatures(), {
-                dataProjection: 'EPSG:4326',
-                featureProjection: 'EPSG:3857'
-            });
-
-            filename = layer.get('layer_name') + '.kml'
-            download(filename, kmlStr)
-        }
-    })
-}
-
-/*----------------------------------------------------*/
 /*-----------Mesure de surface et longueur------------*/
 /*----------------------------------------------------*/
 /* inspiré de https://openlayers.org/en/latest/examples/measure.html */

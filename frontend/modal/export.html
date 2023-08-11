@@ -1,0 +1,23 @@
+<div class="modal fade" id="export-modal" tabindex="-1" aria-labelledby="export-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen-lg-down">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="login-modal-label">Export de données</h5>
+            </div>
+            <div class="modal-body">
+                <input id="export-modal-layer-uid" type="hidden">
+                Format : 
+                <select id="export-modal-format-select">
+                    <option></option>
+                    <option value="csv">CSV</option>
+                    <option value="kml">KML</option>
+                    <option value="geoJson">GeoJSON (format SIG)</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button id="export-submit" type="submit" class="btn btn-primary">Exporter</button>
+                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Annuler</button>
+            </div>
+        </div>
+    </div>
+</div>

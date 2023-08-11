@@ -2,7 +2,7 @@
 // que des objets en cours d'édition n'ont pas été sauvagerdé
 var has_feature_not_save = false
 
-document.getElementById("btn-test_form").addEventListener("click", event => {
+/*document.getElementById("btn-test_form").addEventListener("click", event => {
     callApiForLayer(127)
     callApiForLayer(100)
 
@@ -19,7 +19,7 @@ document.getElementById("btn-test_form").addEventListener("click", event => {
     })
 
 
-})
+})*/
 
 // Appel du formulaire associé à la couche et ouverture du modal
 var getFeatureFrom = function (layer_id) {

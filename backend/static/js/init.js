@@ -58,6 +58,10 @@ var featureEditModal = new bootstrap.Modal(document.getElementById("feature-edit
 var confirmDeleteFeatureModal = new bootstrap.Modal(document.getElementById("confirm-delete-feature-modal"), {
     keyboard: false
 })
+
+var exportModal = new bootstrap.Modal(document.getElementById("export-modal"), {
+    keyboard: false
+})
 // On ré-initialise le modal à la fermeture
 /*var addLayerModalEl = document.getElementById("add-layer-modal")
 addLayerModalEl.addEventListener('hidden.bs.modal', function (event) {
@@ -318,18 +322,18 @@ const download = function (filename, text) {
     document.body.removeChild(element);
 }
 
-var simpleJsonToHtmlTable = function(jsonData){
+var simpleJsonToHtmlTable = function (jsonData) {
 
     var $table = document.createElement('table')
 
-    
-    for (let key in jsonData){
+
+    for (let key in jsonData) {
         value = jsonData[key]
 
-        var $td1 = document.createElement('td') 
+        var $td1 = document.createElement('td')
         $td1.innerHTML = key
 
-        var $td2 = document.createElement('td') 
+        var $td2 = document.createElement('td')
         $td2.innerHTML = value
 
         var $tr = document.createElement('tr')
@@ -344,11 +348,10 @@ var simpleJsonToHtmlTable = function(jsonData){
 
 /**
  * Validates that the input string is a valid date formatted as "yyyy-mm-dd"
- */ 
-function isValidDate(dateString)
-{
+ */
+function isValidDate(dateString) {
     // First check for the pattern
-    if(!/^\d{4}\-\d{1,2}\-\d{1,2}$/.test(dateString))
+    if (!/^\d{4}\-\d{1,2}\-\d{1,2}$/.test(dateString))
         return false;
 
     // Parse the date parts to integers
@@ -362,13 +365,13 @@ function isValidDate(dateString)
     console.log("year : " + year)
 
     // Check the ranges of month and year
-    if(month == 0 || month > 12)
+    if (month == 0 || month > 12)
         return false;
 
-    var monthLength = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+    var monthLength = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
     // Adjust for leap years
-    if(year % 400 == 0 || (year % 100 != 0 && year % 4 == 0))
+    if (year % 400 == 0 || (year % 100 != 0 && year % 4 == 0))
         monthLength[1] = 29;
 
     // Check the range of the day
