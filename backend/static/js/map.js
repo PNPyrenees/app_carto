@@ -998,8 +998,10 @@ buildLegendForLayer = function (layer_uid, json_style) {
     map.getLayers().forEach(layer => {
         if (ol.util.getUid(layer) == layer_uid) {
             layer.getSource().getFeatures().forEach(feature => {
-                if (!l_geomType.includes(feature.getGeometry().getType())) {
-                    l_geomType.push(feature.getGeometry().getType())
+                if (feature.getGeometry()) {
+                    if (!l_geomType.includes(feature.getGeometry().getType())) {
+                        l_geomType.push(feature.getGeometry().getType())
+                    }
                 }
             })
         }
