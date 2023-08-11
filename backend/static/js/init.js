@@ -154,10 +154,10 @@ showAlert = function (message) {
     message_element.innerHTML = message
 
     alert_container = document.getElementById("alert-container")
-    alert_container.classList.add("show")
+    alert_container.classList.remove("hide")
 
     window.setTimeout(function () {
-        alert_container.classList.remove("show")
+        alert_container.classList.add("hide")
     }, 3000);
 }
 
