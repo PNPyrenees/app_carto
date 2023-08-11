@@ -1395,6 +1395,10 @@ getFullDataTable = function (layer_uid) {
 
             layer_name = layer.get("layer_name")
             createAttributeTable(layer_name, layer_uid, data)
+
+            document.getElementById("attribute-data-container").classList.remove("hide")
+            document.getElementsByClassName("ol-scale-line")[0].style.bottom = "33%"
+            document.getElementsByClassName("ol-attribution")[0].style.bottom = "33%"
         }
     })
 }
@@ -1567,6 +1571,14 @@ createAttributeTable = function (layer_name, layer_uid, data) {
                 if (first_attribute_table) {
                     activeAttributeTable(first_attribute_table)
                 }
+            }
+
+            // S'il n'y a plus d etable attributaire, on masque le bloc
+            if (document.getElementsByClassName("nav-layer-item").length == 0) {
+                document.getElementById("attribute-data-container").classList.add("hide")
+                document.getElementsByClassName("ol-scale-line")[0].style.bottom = "8px"
+                document.getElementsByClassName("ol-attribution")[0].style.bottom = ".5em"
+
             }
         })
         nav_element.append(btn_close)
