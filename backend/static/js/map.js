@@ -857,8 +857,6 @@ var addGeojsonLayer = function (data, additional_data = null) {
 
     zindex = map.getLayers().getLength() + 1
 
-    console.log(data.desc_layer)
-
     var layerType = "refLayerReadOnly"
     if (data.desc_layer.layer_is_editable == true) {
         layerType = "editableLayer"

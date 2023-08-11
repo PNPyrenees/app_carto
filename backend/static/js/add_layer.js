@@ -1224,7 +1224,7 @@ var postUploadFrom = function () {
         .then(res => {
             if (res.status == 400) {
                 res.json().then(err => {
-                    console.log(JSON.stringify(err.message[0]))
+                    //console.log(JSON.stringify(err.message[0]))
                     apiCallErrorCatcher("error", JSON.stringify(err.message[0]))
                 })
             } else if (res.status != 200) {
@@ -1235,6 +1235,7 @@ var postUploadFrom = function () {
             }
         }).catch(error => {
             console.log("Erreur lors de l'import d'une couche de données !!!")
+            console.log(error)
 
             layer_submit_button.disabled = false
             document.getElementById('loading-spinner').style.display = 'none'
