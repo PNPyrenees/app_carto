@@ -24,6 +24,12 @@ import sys
 app = Flask(__name__, template_folder='../frontend')
 CONFIG_FILE = Path(__file__).absolute().parent.parent / "config/config.toml"
 
+# Ajout du pre_ping permettant de s'assurer que la connexion est active
+# avant de lancer un requête
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_pre_ping': True,
+}
+
 config = read_config(CONFIG_FILE)
 app.config.update(config)
 
@@ -31,7 +37,7 @@ app.config.update(config)
 app.config['JSON_SORT_KEYS'] = False
 
 db_app.init_app(app)
-db_sig = create_engine(app.config['SQLALCHEMY_SIG_DATABASE_URI'])
+db_sig = create_engine(app.config['SQLALCHEMY_SIG_DATABASE_URI'], pool_pre_ping=True)
 
 
 logging.basicConfig(filename="logs/app_carto_errors.log", 
