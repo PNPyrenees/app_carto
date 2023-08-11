@@ -149,6 +149,7 @@ var exportLayer = function (layer_uid, export_format) {
             layerToGeoJSON(layer_uid)
             break
     }
+    exportModal.hide()
 }
 /*----------------------------------------------------*/
 /*--------------------EXPORT CSV----------------------*/
