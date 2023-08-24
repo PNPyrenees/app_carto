@@ -21,6 +21,10 @@ SQLALCHEMY_TRACK_MODIFICATIONS = false
 # Exemple : "https://geonature.pyrenees-parcnational.fr"
 GEONATURE_URL = "" 
 
+# Identifiant de la liste de taxon à utiliser pour l'auto-complete
+# par defaut 100
+TAXHUB_LIST_ID = 100
+
 # Identifiant de l'application dans userhub
 # l'application doit préalablement être déclaré dans usershub
 ID_APPLICATION = 

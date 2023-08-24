@@ -580,9 +580,6 @@ document.getElementById("form-add-obs-layer-date-end").addEventListener("change"
  * Gestion du champ taxon
  * appel à l'API GeoNature pour autocomplétion
  */
-// https://geonature.pyrenees-parcnational.fr/geonature/api/synthese/taxons_autocomplete?search_name=aquil%20ch&limit=20 
-// GEONATURE_URL
-
 // Fonction réalisant l'appel API pour l'auto complétion
 var getAutocompleteTaxon = function (search_name) {
 
@@ -590,7 +587,6 @@ var getAutocompleteTaxon = function (search_name) {
 
     document.cookie = "token=" + getCookie("token")
 
-    //return fetch(GEONATURE_URL + "/geonature/api/synthese/taxons_autocomplete?search_name=" + search_name + "&limit=20", {
     return fetch("api/taxons_autocomplete?search_name=" + search_name + "&limit=20", {
         method: "GET",
         signal: signal,
@@ -599,7 +595,6 @@ var getAutocompleteTaxon = function (search_name) {
             "Content-Type": "application/json"
         },
         credentials: "same-origin"
-        //credentials: "include"
     })
         .then(res => {
             if (res.status != 200) {
