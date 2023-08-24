@@ -83,6 +83,14 @@
     Puis activer la configuration
     $ sudo a2ensite app_carto.conf
 
+    # Accès HTTPS
+    Il est conseillé de sécurisé le site en https en appliquant la procédure de certbot (https://doc.ubuntu-fr.org/tutoriel/securiser_apache2_avec_ssl#mise_en_application_avec_le_serveur_http_apache2)
+    Une modification doit être apporté au fichier app_carto-le-ssl.conf
+
+    Ajouter 'Header add Access-Control-Allow-Origin "*"' dans la directive </VirtualHost>
+
+
+
 # Redémarrer les services
     $ sudo systemctl restart apache2
     $ sudo supervisorctl reload

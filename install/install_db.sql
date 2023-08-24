@@ -272,12 +272,12 @@ CREATE TABLE IF NOT EXISTS app_carto.t_imported_layer (
 );
 
 /* Création de la table de logs */ 
-CREATE TABLE app_carto.t_logs (
-	log_id serial primary key,
-	log_date timestamp without time zone default now(),
-	log_type varchar(32),
-	log_data jsonb
-);
+CREATE TABLE IF NOT EXISTS app_carto.t_logs(
+    log_id serial PRIMARY KEY,
+    log_date timestamp without time zone DEFAULT now(),
+    log_type character varying(32) COLLATE pg_catalog."default",
+    log_data jsonb
+)
 
 /*
  * Partie 2 : Script à jouer sur la base de données SIG

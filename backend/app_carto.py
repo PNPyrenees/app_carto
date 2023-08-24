@@ -185,9 +185,10 @@ def login():
     resp = make_response(role_dump)
 
     username = role.role_prenom + " " + role.role_nom
-    resp.set_cookie("token", role.role_token, expires=role.role_token_expiration, path="/" )
-    resp.set_cookie("username", username, expires=role.role_token_expiration, path="/" )
-    resp.set_cookie("expiration", str(role.role_token_expiration), expires=role.role_token_expiration, path="/" )
+    resp.set_cookie("token", role.role_token, expires=role.role_token_expiration, path="/", samesite='None', secure=True)
+    resp.set_cookie("username", username, expires=role.role_token_expiration, path="/", samesite='None', secure=True)
+    resp.set_cookie("expiration", str(role.role_token_expiration), expires=role.role_token_expiration, path="/", samesite='None', secure=True)
+
 
     return resp
 
