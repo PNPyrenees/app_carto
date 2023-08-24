@@ -147,6 +147,9 @@ def login():
         """return json.loads(content.decode('utf-8')), response.status_code """
         return content, response.status_code 
 
+
+    logger.debug(response.cookies)
+
     token = response.headers['Set-Cookie'].split(";")[0].split("=")[1]
 
     # On contrôle si l'utilisateur est déjà renseigné dans la base de l'application
@@ -366,6 +369,31 @@ def get_scale_list():
         scale_list.append({"label": meshScale.mesh_scale_label, "value": meshScale.mesh_scale_id})
     
     return jsonify(scale_list)
+
+@app.route('/api/taxons_autocomplete', methods=['GET'])
+@valid_token_required
+def taxons_autocomplete():
+    token = request.cookies.get('token')
+
+    #token='eyJhbGciOiJIUzI1NiIsImV4cCI6MTY5MzM4MzQ2NCwidHlwIjoiSldUIn0.eyJfcGFzc3dvcmQiOiI5YmE1ZmRhNDIyM2MyMGIyNWJjMGU5NzBlNTU4ZWIxMSIsImlkX3JvbGUiOjY4NSwibm9tX3JvbGUiOiJURVNUIiwicHJlbm9tX3JvbGUiOiJVc2VyIiwiaWRfYXBwbGljYXRpb24iOjMsImlkX29yZ2FuaXNtZSI6MiwiaWRlbnRpZmlhbnQiOiJ1c2VyQHRlc3QuZnIiLCJpZF9kcm9pdF9tYXgiOjF9.1-6vxHiJYwCUJ-1FIFi8Re-kGC0jO-5GuBVvXMJI_po; session=.eJxNj0sLwjAQhP-K7FnFB3jISakeBLHiC28lpKkspEnYpKKI_91tzMHTtzPLziRvKIvivLqBeEMXNFWKuoeue1mAgDkMYZ25yTxmXjKviZ_PEFRHpG2s-qA-QXofmLzBumJhUMmIzoKYJqsmh7Fq5RPEIhmO7tJiaDWIWTLIGZ6nk15wMjYobeQ-09XugWpstHc2OgxL_-JqrcPIS1I21UgzbogfaF2bg2C3GRzK_bncntj3fPG3-kXyR74mTlim.E1oFlw._zPrW8EtSNTvvnNkT571QLl3z2c'
+
+    args = request.args
+    search_name = args.get("search_name")
+    limit = args.get("limit")
+
+    response = requests.get(
+        app.config['GEONATURE_URL'] + "/geonature/api/synthese/taxons_autocomplete?search_name=" + search_name + "&limit=" + limit,
+        cookies={"token": token}
+    )
+
+    logger.debug(app.config['GEONATURE_URL'] + "/geonature/api/synthese/taxons_autocomplete?search_name=" + search_name + "&limit=" + limit)
+
+    logger.debug(token)
+    #logger.debug(response.content.decode('utf-8'))
+
+    return response.content.decode('utf-8')
+    #return jsonify({'token': token})
+
 
 @app.route('/api/layer/get_group_statut_list', methods=['GET'])
 @valid_token_required

@@ -586,7 +586,12 @@ document.getElementById("form-add-obs-layer-date-end").addEventListener("change"
 // Fonction réalisant l'appel API pour l'auto complétion
 var getAutocompleteTaxon = function (search_name) {
 
-    return fetch(GEONATURE_URL + "/geonature/api/synthese/taxons_autocomplete?search_name=" + search_name + "&limit=20", {
+    console.log(document.cookie)
+
+    document.cookie = "token=" + getCookie("token")
+
+    //return fetch(GEONATURE_URL + "/geonature/api/synthese/taxons_autocomplete?search_name=" + search_name + "&limit=20", {
+    return fetch("api/taxons_autocomplete?search_name=" + search_name + "&limit=20", {
         method: "GET",
         signal: signal,
         headers: {
@@ -594,6 +599,7 @@ var getAutocompleteTaxon = function (search_name) {
             "Content-Type": "application/json"
         },
         credentials: "same-origin"
+        //credentials: "include"
     })
         .then(res => {
             if (res.status != 200) {
