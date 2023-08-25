@@ -279,8 +279,11 @@ var uploadChallengeCalculatorLayer = function () {
                 }
             })
 
+            if (warning_calculator_source.getFeatures().length > 0) {
+                document.getElementById("btn-challenge-calculator-execute").classList.remove("disabled")
+                document.getElementById("btn-challenge-calculator-remove-feature").classList.remove("disabled")
+            }
 
-            document.getElementById("btn-challenge-calculator-execute").classList.remove("disabled")
             document.getElementById("upload-challenge-calculator-layer-loading-spinner").classList.add("hide")
             uploadChallengeCalculatorlayerModal.hide()
         })
