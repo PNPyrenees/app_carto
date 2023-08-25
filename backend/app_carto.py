@@ -1467,29 +1467,7 @@ def get_warning_calculator_layers_list():
 
     return {"layers": layer_list, "status": status_list}
 
-@app.route('/api/upload_geodata', methods=['POST'])
-@valid_token_required
-def upload_geodata():
-    """ Enregistre la données temporairement, la transforme en GeoJson 
-        Et l'enregistre en base de données
-
-    Returns
-    -------
-        Identifiant de la couche ajouté en BDD
-    """
-
-    # Récupération de l'utilisateur courrant
-    token = request.cookies.get('token')
-    try:
-        role = Role.query.filter(Role.role_token == token).one()
-    except Exception as error:
-        return jsonify({
-            'status': 'error',
-            'message': """Erreur lors de la déconnexion : Aucun role associé au token - {}""".format(error)
-        }), 520
-
-    # Récupération des fichiers et stockage temporaire dans le dossier "static/tmp_upload/"
-    files = request.files.getlist("files[]")
+def to_geojson(files):
     for file in files:
         file.save(os.path.join(app.root_path, "static/tmp_upload/", file.filename))
         # On en profite pour récupérer le nom du fichier devant être trasformer (ex .shp pour le shapfile)
@@ -1531,6 +1509,34 @@ def upload_geodata():
     with open(dst_path) as json_file:
         geojson = json.load(json_file)
 
+    return geojson
+
+@app.route('/api/upload_geodata', methods=['POST'])
+@valid_token_required
+def upload_geodata():
+    """ Enregistre la données temporairement, la transforme en GeoJson 
+        Et l'enregistre en base de données
+
+    Returns
+    -------
+        Identifiant de la couche ajouté en BDD
+    """
+
+    # Récupération de l'utilisateur courrant
+    token = request.cookies.get('token')
+    try:
+        role = Role.query.filter(Role.role_token == token).one()
+    except Exception as error:
+        return jsonify({
+            'status': 'error',
+            'message': """[Erreur] Aucun role associé au token - {}""".format(error)
+        }), 520
+
+    # Récupération des fichiers et stockage temporaire dans le dossier "static/tmp_upload/"
+    files = request.files.getlist("files[]")
+
+    geojson = to_geojson(files)
+
     importedLayer =  ImportedLayer(
         None,
         role.role_id,
@@ -1556,6 +1562,32 @@ def upload_geodata():
 #    os.remove(dst_path)
 
     return jsonify(importedLayer.imported_layer_id)
+
+@app.route('/api/translate_to_geojson', methods=['POST'])
+@valid_token_required
+def translate_to_geojson():
+    """ Enregistre la données temporairement, la transforme en GeoJson 
+        Et l'enregistre en base de données
+
+    Returns
+    -------
+        Identifiant de la couche ajouté en BDD
+    """
+
+    # Récupération de l'utilisateur courrant
+    token = request.cookies.get('token')
+    try:
+        role = Role.query.filter(Role.role_token == token).one()
+    except Exception as error:
+        return jsonify({
+            'status': 'error',
+            'message': """[Erreur] Aucun role associé au token - {}""".format(error)
+        }), 520
+
+    # Récupération des fichiers et stockage temporaire dans le dossier "static/tmp_upload/"
+    files = request.files.getlist("files[]")
+
+    return to_geojson(files)
 
 @app.route('/api/imported_layer/<ref_layer_id>', methods=['GET', 'DELETE'])
 @valid_token_required

@@ -216,3 +216,164 @@ var getWarningCalculatorLayers = function () {
             apiCallErrorCatcher(error, default_message)
         })
 }
+
+/**
+ * Clic sur le bouton d'import d'une couche comme périmètre de calcul d'enjeux
+ */
+document.getElementById("btn-challenge-calculator-upload").addEventListener("click", event => warningCalculatorOpenImportLayerModal())
+
+/**
+ * Ouverture de la fenêtre modal pour l'import de périmètre 
+ * pour le calcul des enjeux
+ */
+var warningCalculatorOpenImportLayerModal = function () {
+    document.getElementById("upload-challenge-calculator-layer-loading-spinner").classList.add("hide")
+
+    // Initialisation du formualire d'import
+    document.getElementById("form-upload-challenge-calculator-layer-select-format").value = ""
+    document.getElementById("form-upload-challenge-calculator-layer-files").value = ""
+    document.getElementById("form-upload-challenge-calculator-layer-file-list").innerHTML = ""
+
+    uploadChallengeCalculatorlayerModal.show()
+}
+
+/**
+ * Amélioration apparence input type=files
+ */
+document.getElementById("form-upload-challenge-calculator-layer-files-btn").onclick = function () {
+    document.getElementById("form-upload-challenge-calculator-layer-files").click()
+}
+
+/**
+ * Lister le nom des fichiers sélectionnés
+ */
+document.getElementById("form-upload-challenge-calculator-layer-files").onchange = function (e) {
+    var divfilelist = document.getElementById("form-upload-challenge-calculator-layer-file-list")
+    divfilelist.innerHTML = ''
+    for (var i = 0; i < this.files.length; i++) {
+        var li = document.createElement('li')
+        li.innerHTML = this.files[i].name
+        divfilelist.appendChild(li)
+    }
+}
+
+// EventListener sur le bouton de validation d'import d'un périmètre pour la calculette des enjeux
+document.getElementById("upload-challenge-calculator-layer-submit").addEventListener("click", event => uploadChallengeCalculatorLayer())
+
+/**
+ * Upload d'un périmètre de calcul d'enjeux
+ */
+var uploadChallengeCalculatorLayer = function () {
+    document.getElementById("upload-challenge-calculator-layer-loading-spinner").classList.remove("hide")
+    //Contrôle du bon renseignement du formulaire
+    if (checkChallengeCalculatorLayerForm()) {
+        // envois des données du formulaire à l'API
+        (translateChallengeCalculatorLayerToGeoJson()).then(data => {
+            // Récupération des la données en geojson
+            //console.log(data)
+            var features = new ol.format.GeoJSON().readFeatures(data)
+
+            features.forEach(feature => {
+                if (["Polygon", "MultiPolygon"].includes(feature.getGeometry().getType())) {
+                    warning_calculator_source.addFeature(feature)
+                }
+            })
+
+
+            document.getElementById("btn-challenge-calculator-execute").classList.remove("disabled")
+            document.getElementById("upload-challenge-calculator-layer-loading-spinner").classList.add("hide")
+            uploadChallengeCalculatorlayerModal.hide()
+        })
+    } else {
+        document.getElementById("upload-challenge-calculator-layer-loading-spinner").classList.add("hide")
+        document.getElementById("add-layer-submit").disabled = false
+        document.getElementById('loading-spinner').style.display = 'none'
+    }
+}
+
+var checkChallengeCalculatorLayerForm = function () {
+    var form = document.getElementById("form-upload-challenge-calculator-layer")
+
+    var formIsValid = true
+
+    form_field = form.querySelector("#form-upload-challenge-calculator-layer-select-format")
+    form_field.parentNode.querySelector("label").style.color = "#000"
+    if (!checkRequired(form_field.value)) {
+        form_field.parentNode.querySelector("label").style.color = "#f00"
+        formIsValid = false
+    }
+
+    form_field = form.querySelector("#form-upload-challenge-calculator-layer-files")
+    form_field.parentNode.querySelector("label").style.color = "#000"
+    if (!checkRequired(form_field.value)) {
+        form_field.parentNode.querySelector("label").style.color = "#f00"
+        formIsValid = false
+    }
+
+    return formIsValid
+}
+
+/**
+ * Sérialisation des données du formulaire d'import 
+ * de couche de calcul d'enjeux
+ */
+var buildUploadChallengeCalculatorLayerFormData = function () {
+
+    var formdata = new FormData()
+
+    // Récupration du format
+    formdata.append("format", document.getElementById("form-upload-challenge-calculator-layer-select-format").value)
+
+    // Récupération des fichiers
+    for (var i = 0; i < document.getElementById("form-upload-challenge-calculator-layer-files").files.length; i++) {
+        formdata.append("files[]", document.getElementById("form-upload-challenge-calculator-layer-files").files[i])
+    }
+
+    return formdata
+}
+
+/**
+ * upload des fichiers pour récupérer les données en GeoJson
+ */
+var translateChallengeCalculatorLayerToGeoJson = function () {
+    var formdata = buildUploadChallengeCalculatorLayerFormData()
+
+    return fetch(APP_URL + "/api/translate_to_geojson", {
+        method: "POST",
+        signal: signal,
+        credentials: "same-origin",
+        body: formdata
+    })
+        .then(res => {
+            if (res.status == 400) {
+                res.json().then(err => {
+                    //console.log(JSON.stringify(err.message[0]))
+                    apiCallErrorCatcher("error", JSON.stringify(err.message[0]))
+                })
+            } else if (res.status != 200) {
+                // En envoi l"erreur dans le catch
+                throw res;
+            } else {
+                return res.json()
+            }
+        }).catch(error => {
+            console.log("Erreur lors de l'import du périmètre pour le calcul des enjeux !!!")
+            console.log(error)
+
+            layer_submit_button.disabled = false
+            document.getElementById('loading-spinner').style.display = 'none'
+        })
+}
+
+/**
+ * Gestion de l'alerte en fonction du format de fichier
+ * Et gestion du filtre sur les extension au niveau de  l'input "files"
+ */
+document.getElementById("form-upload-challenge-calculator-layer-select-format").onchange = function (e) {
+    // On récupère la valeur sélectionné
+    selectedFormat = e.currentTarget.value
+    sourceId = "upload-challenge-calculator-layer"
+
+    selectGeoFileFormat(sourceId, selectedFormat)
+
+}

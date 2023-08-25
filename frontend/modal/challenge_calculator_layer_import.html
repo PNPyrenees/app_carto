@@ -1,0 +1,72 @@
+<div class="modal fade" id="upload-challenge-calculator-layer-modal" tabindex="-1" aria-labelledby="upload-challenge-calculator-layer-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen-lg-down">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="upload-challenge-calculator-layer-modal-label">Importer un périmètre de calcul des enjeux</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form id="form-upload-challenge-calculator-layer" class="upload-challenge-calculator-layer-validation" novalidate>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12 text-danger text-center">
+                            <b>Attention</b>, seul les objets de type polygone (ou multiPolygone) seront importés
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+
+                                <label for="form-upload-challenge-calculator-layer-select-format" class="form-label fw-bold mb-0 mt-2">Format du fichier * :</label>
+                                <select id="form-upload-challenge-calculator-layer-select-format" class="form-select" aria-label="Default select example">
+                                    <option selected></option>
+                                    <option value="geojson">GeoJson</option>
+                                    <option value="gpkg">GeoPackage</option>
+                                    <option value="gpx">GPX</option>
+                                    <option value="kmz">KML / KMZ</option>
+                                    <option value="tab">Mapinfo (TAB)</option>
+                                    <option value="shp">Shapefile</option>
+                                </select>
+                               
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="form-upload-challenge-calculator-layer-files" class="form-label fw-bold mb-0 mt-2">Fichier(s) * :</label><br>
+                                <input type="file" id="form-upload-challenge-calculator-layer-files" class="hide" multiple>
+                                <button id="form-upload-challenge-calculator-layer-files-btn" type="button" class="btn btn-primary">Parcourir...</button>
+                                
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12">
+                            <div id="upload-challenge-calculator-layer-format-shp-warning" class="text-warning hide">
+                                L'import d'un shapefile doit inclure à minima les fichiers ayant les extensions suivantes : <b>.shp, .prj, .dbf, .shx</b>
+                            </div>
+                            <div id="upload-challenge-calculator-layer-format-tab-warning" class="text-warning hide">
+                                L'import d'un fichier mapinfo (TAB) doit inclure à minima les fichiers ayant les extensions suivantes : <b>.tab, .dat, .id, .map</b>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <ul id="form-upload-challenge-calculator-layer-file-list" class="form-upload-challenge-calculator-layer-file-list">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </form>
+                <div class="modal-footer">
+                    <button id="upload-challenge-calculator-layer-submit" type="submit" class="btn btn-primary">
+                        <div id="upload-challenge-calculator-layer-loading-spinner" class="spinner-grow spinner-grow-sm hide" role="status"></div>
+                        Importer
+                    </button>
+                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Annuler</button>
+                    <div id="form-login-error" class="invalid-feedback"></div>
+                </div>
+        </div>
+    </div>
+</div>

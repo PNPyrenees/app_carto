@@ -117,6 +117,13 @@
             <div id="tools-btn-group" class="tools-btn-group">
                 <!-- Bouton d'édition pour la calculette des enjeux calculette des enjeux-->
                 <div id="challenge-calculator-group-edit-btn" class="edit-layer-btn-group hide">
+
+                    <button id="btn-challenge-calculator-upload" type="button" class="btn btn-primary check-auth"
+                        {#modal-target="upload-challenge-calculator-layer-modal"#} toggle-tooltip="tooltip" data-bs-placement="bottom" 
+                        data-bs-trigger="hover" title="Importer un périmètre">
+                        <i id="icon-challenge-calculator-upload" class="bi bi-upload"></i>
+                    </button>
+                    
                     <!--<div class="btn-group-vertical" class="text-center">-->
                     <button id="btn-challenge-calculator-edit-feature" type="button" class="btn btn-primary check-auth"
                         toggle-tooltip="tooltip" data-bs-placement="bottom" data-bs-trigger="hover"

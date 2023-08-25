@@ -43,6 +43,10 @@ var challengeCalculatorInfoModal = new bootstrap.Modal(document.getElementById("
     keyboard: false
 })
 
+var uploadChallengeCalculatorlayerModal = new bootstrap.Modal(document.getElementById("upload-challenge-calculator-layer-modal"), {
+    keyboard: false
+})
+
 var obsMoreInfoModal = new bootstrap.Modal(document.getElementById("obs-more-info-modal"), {
     keyboard: false
 })

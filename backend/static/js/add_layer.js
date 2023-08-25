@@ -1079,6 +1079,12 @@ var getImportedLayerList = function () {
  */
 document.getElementById("form-upload-layer-select-format").onchange = function (e) {
     // On récupère la valeur sélectionné
+    selectedFormat = e.currentTarget.value
+    sourceId = "upload-layer"
+
+    selectGeoFileFormat(sourceId, selectedFormat)
+
+    /*// On récupère la valeur sélectionné
     value = e.currentTarget.value
 
     //On masque les alertes
@@ -1108,6 +1114,42 @@ document.getElementById("form-upload-layer-select-format").onchange = function (
     }
     if (value == 'kmz') {
         document.getElementById("form-upload-layer-files").setAttribute("accept", ".kml, .kmz")
+    }*/
+}
+
+/**
+ * Fonction factorisé qui, dans le cas d'un upload de fichier SIG, 
+ * assure l'attribution du filtre par format à l'objet html input type=files 
+ * et l'affichage du warning pour les format shp et tab
+ */
+var selectGeoFileFormat = function (sourceId, selectedFormat) {
+    //On masque les alertes
+    document.getElementById(sourceId + "-format-shp-warning").classList.add("hide")
+    document.getElementById(sourceId + "-format-tab-warning").classList.add("hide")
+
+    // En fonction du format on affiche l'alerte associé
+    if (selectedFormat == '') {
+        document.getElementById("form-" + sourceId + "-files").setAttribute("accept", null)
+    }
+    if (selectedFormat == 'shp') {
+        document.getElementById(sourceId + "-format-shp-warning").classList.remove("hide")
+        document.getElementById("form-" + sourceId + "-files").setAttribute("accept", ".shp, .prj, .dbf, .shx")
+    }
+    if (selectedFormat == 'tab') {
+        document.getElementById(sourceId + "-format-tab-warning").classList.remove("hide")
+        document.getElementById("form-" + sourceId + "-files").setAttribute("accept", ".tab, .dat, .id, .map")
+    }
+    if (selectedFormat == 'geojson') {
+        document.getElementById("form-" + sourceId + "-files").setAttribute("accept", ".geojson, .json")
+    }
+    if (selectedFormat == 'gpkg') {
+        document.getElementById("form-" + sourceId + "-files").setAttribute("accept", ".gpkg")
+    }
+    if (selectedFormat == 'gpx') {
+        document.getElementById("form-" + sourceId + "-files").setAttribute("accept", ".gpx")
+    }
+    if (selectedFormat == 'kmz') {
+        document.getElementById("form-" + sourceId + "-files").setAttribute("accept", ".kml, .kmz")
     }
 }
 
