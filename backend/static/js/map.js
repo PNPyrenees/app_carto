@@ -1297,7 +1297,7 @@ removeLayer = function (layer_uid) {
             layer.getSource().clear()
 
             // On desactive le bouton associé à la calculette des enjeux si ce n'est pas déjà le cas
-            document.getElementById("btn-chanllenge-calculator").classList.remove("btn-active")
+            document.getElementById("btn-challenge-calculator").classList.remove("btn-active")
         } else {
             // Cas classique, on supprime la couche de la carte
             map.removeLayer(layer)
@@ -1309,7 +1309,7 @@ removeLayer = function (layer_uid) {
 
             // On masque les éventuelle boite à outil ouverte
             if (layer.get("layerType") == "warningCalculatorLayer") {
-                document.getElementById("chanllenge-calculator-group-edit-btn").classList.add("hide")
+                document.getElementById("challenge-calculator-group-edit-btn").classList.add("hide")
             } else {
                 document.getElementById("drawing-layer-group-edit-btn").classList.add("hide")
             }
@@ -1950,9 +1950,9 @@ var confirmRemoveFeature = function (layer_uid, feature_uid) {
             if (layer.getSource().getFeatures().length == 0) {
                 if (layer.get("layerType") == "warningCalculatorLayer") {
                     // Auquel cas, on désactive les bouton de suppression 
-                    document.getElementById("btn-chanllenge-calculator-remove-feature").classList.add("disabled")
+                    document.getElementById("btn-challenge-calculator-remove-feature").classList.add("disabled")
                     // et d'éxécution du calcul
-                    document.getElementById("btn-chanllenge-calculator-execute").classList.add("disabled")
+                    document.getElementById("btn-challenge-calculator-execute").classList.add("disabled")
                 }
 
                 if (["editableLayer", "drawingLayer"].includes(layer.get("layerType"))) {
@@ -2175,10 +2175,10 @@ var enableLayerDrawing = function (layer, geomType) {
         if (layer.get("layerType") == "warningCalculatorLayer") {
             // Ici, on est sur la couche de numérisation pour la calculette des enjeux
             // Activation des boutons de suppression d'un feature
-            document.getElementById("btn-chanllenge-calculator-remove-feature").classList.remove("disabled")
+            document.getElementById("btn-challenge-calculator-remove-feature").classList.remove("disabled")
 
             // Activation du bouton de lancement du calcul
-            document.getElementById("btn-chanllenge-calculator-execute").classList.remove("disabled")
+            document.getElementById("btn-challenge-calculator-execute").classList.remove("disabled")
 
             // On s'assure que la couche est visible
             warning_calculator_layer.setVisible(true)
@@ -2448,19 +2448,19 @@ var numerisationToolbarShowManagement = function (layer_uid) {
                     // Si l'édition est active sur la couche
                     if (layer.get("isEditing")) {
                         //On desactive
-                        document.getElementById("chanllenge-calculator-group-edit-btn").classList.remove("hide")
-                        document.getElementById("btn-chanllenge-calculator").classList.add("btn-active")
+                        document.getElementById("challenge-calculator-group-edit-btn").classList.remove("hide")
+                        document.getElementById("btn-challenge-calculator").classList.add("btn-active")
                     } else {
                         // On active
-                        document.getElementById("chanllenge-calculator-group-edit-btn").classList.add("hide")
-                        document.getElementById("btn-chanllenge-calculator").classList.remove("btn-active")
+                        document.getElementById("challenge-calculator-group-edit-btn").classList.add("hide")
+                        document.getElementById("btn-challenge-calculator").classList.remove("btn-active")
                     }
 
                     break
                 case "drawingLayer":
                 case "editableLayer":
                     // Dans tous les cas, on masque les bouton d'édition pour la couche de la calculette des enjeux et de la couche éditable
-                    document.getElementById("chanllenge-calculator-group-edit-btn").classList.add("hide")
+                    document.getElementById("challenge-calculator-group-edit-btn").classList.add("hide")
                     // On masque par défaut le bouton d'édition des données attributaires
                     document.getElementById("btn-drawing-layer-edit-feature-info").classList.add("hide")
                     // On masque par défaut le bouton de sauvegarde des modifications
@@ -2508,7 +2508,7 @@ var numerisationToolbarShowManagement = function (layer_uid) {
                     }
                     break
                 default:
-                    document.getElementById("chanllenge-calculator-group-edit-btn").classList.add("hide")
+                    document.getElementById("challenge-calculator-group-edit-btn").classList.add("hide")
                     document.getElementById("drawing-layer-group-edit-btn").classList.add("hide")
                     document.getElementById("drawing-layer-group-edit-btn").removeAttribute("layer_uid")
             }

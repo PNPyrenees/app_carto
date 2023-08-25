@@ -1,5 +1,5 @@
 // Gestion de l'affichage des boutons d'éditions
-document.getElementById("btn-chanllenge-calculator").addEventListener("click", event => {
+document.getElementById("btn-challenge-calculator").addEventListener("click", event => {
     if (checkToken() === false) {
         // Utilisateur non connecté => on ouvre le modal de connexion
         loginModal.show()
@@ -41,7 +41,7 @@ document.getElementById("btn-chanllenge-calculator").addEventListener("click", e
 /**
  * Activation de l'édition carto sur la couche associée à la calculette des enjeux
  */
-document.getElementById("btn-chanllenge-calculator-edit-feature").addEventListener("click", event => {
+document.getElementById("btn-challenge-calculator-edit-feature").addEventListener("click", event => {
     // Si l'édition drawing est en cours alors on désactive les intéraction
     if (event.currentTarget.classList.contains("btn-active")) {
         // Ici, on veut desactiver l'édition
@@ -61,7 +61,7 @@ document.getElementById("btn-chanllenge-calculator-edit-feature").addEventListen
 /**
  * Gestion du clique sur le bouton de suppression d'un feature
  */
-document.getElementById("btn-chanllenge-calculator-remove-feature").addEventListener("click", event => {
+document.getElementById("btn-challenge-calculator-remove-feature").addEventListener("click", event => {
     // Si le bouton est déjà actif, on le désactive
     if (event.currentTarget.classList.contains("btn-active")) {
         // On désactive le select pour la suppression en 
@@ -87,9 +87,9 @@ document.getElementById("btn-chanllenge-calculator-remove-feature").addEventList
 /**
  * Lancement du calcul d'enjeux
  */
-const chanllenge_calculator_execute_button = document.getElementById("btn-chanllenge-calculator-execute")
+const challenge_calculator_execute_button = document.getElementById("btn-challenge-calculator-execute")
 
-chanllenge_calculator_execute_button.addEventListener("click", event => {
+challenge_calculator_execute_button.addEventListener("click", event => {
     var writer = new ol.format.GeoJSON();
     var geojson_txt = writer.writeFeatures(warning_calculator_source.getFeatures())
 
@@ -102,8 +102,8 @@ chanllenge_calculator_execute_button.addEventListener("click", event => {
 var getWarningCalculatorData = function (geojson_txt) {
     // On désactive l'édition
     disableLayerDrawing()
-    document.getElementById("btn-chanllenge-calculator-edit-feature").classList.remove("btn-active")
-    document.getElementById("btn-chanllenge-calculator-remove-feature").classList.remove("btn-active")
+    document.getElementById("btn-challenge-calculator-edit-feature").classList.remove("btn-active")
+    document.getElementById("btn-challenge-calculator-remove-feature").classList.remove("btn-active")
 
     // On change la fonction à éxécuter lors d'un clic sur la carte
     map.on('singleclick', singleClickForFeatureInfo)
@@ -112,10 +112,10 @@ var getWarningCalculatorData = function (geojson_txt) {
 
     // Affichage du spinner
     document.getElementById("warning-calculator-spinner").classList.remove("hide")
-    document.getElementById("icon-chanllenge-calculator-execute").classList.add("hide")
+    document.getElementById("icon-challenge-calculator-execute").classList.add("hide")
 
     //désactivation du bouton pour na pas lancer deux fois le calcul
-    chanllenge_calculator_execute_button.disabled = true
+    challenge_calculator_execute_button.disabled = true
 
     return fetch(APP_URL + "/api/get_warning_calculator_data", {
         method: "POST",
@@ -129,10 +129,10 @@ var getWarningCalculatorData = function (geojson_txt) {
         .then(res => {
             //Masquage du spinner
             document.getElementById("warning-calculator-spinner").classList.add("hide")
-            document.getElementById("icon-chanllenge-calculator-execute").classList.remove("hide")
+            document.getElementById("icon-challenge-calculator-execute").classList.remove("hide")
 
             //Réactivation du bouton
-            chanllenge_calculator_execute_button.disabled = false
+            challenge_calculator_execute_button.disabled = false
 
             if (res.status != 200) {
                 // En envoi l"erreur dans le catch
@@ -162,25 +162,25 @@ var getWarningCalculatorData = function (geojson_txt) {
 /**
  * Gestion de l'affichage de la fenêtre modal d'information sur la calcuette
  */
-document.getElementById("btn-chanllenge-calculator-info").addEventListener("click", event => {
-    document.getElementById("chanllenge-calculator-layer-list").innerHTML = ''
+document.getElementById("btn-challenge-calculator-info").addEventListener("click", event => {
+    document.getElementById("challenge-calculator-layer-list").innerHTML = ''
     // Récupération de la liste des couches à enjeux et des statuts utilisé
     getWarningCalculatorLayers().then(result => {
         result.layers.forEach(layer => {
             let li = document.createElement("li")
             li.innerHTML = layer.layer_label
-            document.getElementById("chanllenge-calculator-layer-list").appendChild(li)
+            document.getElementById("challenge-calculator-layer-list").appendChild(li)
 
         })
 
         result.status.forEach(status => {
             let li = document.createElement("li")
             li.innerHTML = status.group_status_label + ' (' + status.group_status_description + ')'
-            document.getElementById("chanllenge-calculator-status-list").appendChild(li)
+            document.getElementById("challenge-calculator-status-list").appendChild(li)
         })
 
         //Ouverture de la fenêtre modal
-        chanllengeCalculatorInfoModal.show()
+        challengeCalculatorInfoModal.show()
     })
 
 })
@@ -191,8 +191,8 @@ document.getElementById("btn-chanllenge-calculator-info").addEventListener("clic
  */
 var getWarningCalculatorLayers = function () {
 
-    document.getElementById("chanllenge-calculator-info-spinner").classList.remove("hide")
-    document.getElementById("icon-chanllenge-calculator-info").classList.add("hide")
+    document.getElementById("challenge-calculator-info-spinner").classList.remove("hide")
+    document.getElementById("icon-challenge-calculator-info").classList.add("hide")
 
     return fetch(APP_URL + "/api/warning_calculator/get_layers_list", {
         method: "GET",
@@ -203,8 +203,8 @@ var getWarningCalculatorLayers = function () {
         credentials: "same-origin"
     })
         .then(res => {
-            document.getElementById("chanllenge-calculator-info-spinner").classList.add("hide")
-            document.getElementById("icon-chanllenge-calculator-info").classList.remove("hide")
+            document.getElementById("challenge-calculator-info-spinner").classList.add("hide")
+            document.getElementById("icon-challenge-calculator-info").classList.remove("hide")
             if (res.status != 200) {
                 throw res/*.json();*/
             } else {

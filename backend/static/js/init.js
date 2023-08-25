@@ -39,7 +39,7 @@ var renameLayerModal = new bootstrap.Modal(document.getElementById("rename-layer
     keyboard: false
 })
 
-var chanllengeCalculatorInfoModal = new bootstrap.Modal(document.getElementById("chanllenge-calculator-info-modal"), {
+var challengeCalculatorInfoModal = new bootstrap.Modal(document.getElementById("challenge-calculator-info-modal"), {
     keyboard: false
 })
 
