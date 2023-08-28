@@ -1879,22 +1879,33 @@ var singleClickForRemovingFeature = function (event) {
 
     map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
 
-        // Récupération de l'uid de la couche en cours d'édition
-        active_layer_editing_uid = document.getElementById("drawing-layer-group-edit-btn").getAttribute("layer_uid")
+        // Est-on sur un sur une couche d'édition ou sur la ocuche de la calculette des enjeux ?
+        if (!document.getElementById("drawing-layer-group-edit-btn").classList.contains('hide')) {
 
-        // On s'assure que l'objet cliqué est bien celui de la couche en cours d'edition
-        if (ol.util.getUid(layer) == active_layer_editing_uid) {
-            layer_uid = active_layer_editing_uid
-            feature_uid = ol.util.getUid(feature)
 
-            highlightFeature(layer_uid, feature_uid, false, true)
+            // Récupération de l'uid de la couche en cours d'édition
+            active_layer_editing_uid = document.getElementById("drawing-layer-group-edit-btn").getAttribute("layer_uid")
 
-            // On passe les uid dans la fenêtre modal de confirmation
-            document.getElementById("confirm-delete-feature-modal-layer-uid").value = layer_uid
-            document.getElementById("confirm-delete-feature-modal-feature-uid").value = feature_uid
 
-            // Ouverture du modal de confirmation
-            confirmDeleteFeatureModal.show()
+
+            // On s'assure que l'objet cliqué est bien celui de la couche en cours d'edition
+            if (ol.util.getUid(layer) == active_layer_editing_uid) {
+                layer_uid = active_layer_editing_uid
+                feature_uid = ol.util.getUid(feature)
+
+                highlightFeature(layer_uid, feature_uid, false, true)
+
+                // On passe les uid dans la fenêtre modal de confirmation
+                document.getElementById("confirm-delete-feature-modal-layer-uid").value = layer_uid
+                document.getElementById("confirm-delete-feature-modal-feature-uid").value = feature_uid
+
+                // Ouverture du modal de confirmation
+                confirmDeleteFeatureModal.show()
+            }
+        } else if (!document.getElementById("challenge-calculator-group-edit-btn").classList.contains('hide')) {
+            if (ol.util.getUid(layer) == ol.util.getUid(warning_calculator_layer)) {
+                warning_calculator_layer.getSource().removeFeature(feature)
+            }
         }
     })
 }
