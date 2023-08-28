@@ -46,6 +46,9 @@ logging.basicConfig(filename="logs/app_carto_errors.log",
 logger=logging.getLogger()
 logger.setLevel(logging.DEBUG) 
 
+# exemple utiisation du logger
+#logger.debug("Here it's loggin")
+
 def valid_token_required(f):
     """ Fonction de type décorateur permettant 
     de controler la validité d'un token
@@ -146,9 +149,6 @@ def login():
         }), response.status_code """
         """return json.loads(content.decode('utf-8')), response.status_code """
         return content, response.status_code 
-
-
-    logger.debug(response.cookies)
 
     token = response.headers['Set-Cookie'].split(";")[0].split("=")[1]
 
@@ -374,26 +374,16 @@ def get_scale_list():
 @app.route('/api/taxons_autocomplete', methods=['GET'])
 @valid_token_required
 def taxons_autocomplete():
-    token = request.cookies.get('token')
-
-    #token='eyJhbGciOiJIUzI1NiIsImV4cCI6MTY5MzM4MzQ2NCwidHlwIjoiSldUIn0.eyJfcGFzc3dvcmQiOiI5YmE1ZmRhNDIyM2MyMGIyNWJjMGU5NzBlNTU4ZWIxMSIsImlkX3JvbGUiOjY4NSwibm9tX3JvbGUiOiJURVNUIiwicHJlbm9tX3JvbGUiOiJVc2VyIiwiaWRfYXBwbGljYXRpb24iOjMsImlkX29yZ2FuaXNtZSI6MiwiaWRlbnRpZmlhbnQiOiJ1c2VyQHRlc3QuZnIiLCJpZF9kcm9pdF9tYXgiOjF9.1-6vxHiJYwCUJ-1FIFi8Re-kGC0jO-5GuBVvXMJI_po; session=.eJxNj0sLwjAQhP-K7FnFB3jISakeBLHiC28lpKkspEnYpKKI_91tzMHTtzPLziRvKIvivLqBeEMXNFWKuoeue1mAgDkMYZ25yTxmXjKviZ_PEFRHpG2s-qA-QXofmLzBumJhUMmIzoKYJqsmh7Fq5RPEIhmO7tJiaDWIWTLIGZ6nk15wMjYobeQ-09XugWpstHc2OgxL_-JqrcPIS1I21UgzbogfaF2bg2C3GRzK_bncntj3fPG3-kXyR74mTlim.E1oFlw._zPrW8EtSNTvvnNkT571QLl3z2c'
-
+    
     args = request.args
     search_name = args.get("search_name")
     limit = args.get("limit")
 
     response = requests.get(
-        app.config['GEONATURE_URL'] + "/geonature/api/synthese/taxons_autocomplete?search_name=" + search_name + "&limit=" + limit,
-        cookies={"token": token}
+        app.config['GEONATURE_URL'] + "/taxhub/api/taxref/allnamebylist/" + str(app.config['TAXHUB_LIST_ID']) + "?search_name=" + search_name + "&limit=" + limit
     )
 
-    logger.debug(app.config['GEONATURE_URL'] + "/geonature/api/synthese/taxons_autocomplete?search_name=" + search_name + "&limit=" + limit)
-
-    logger.debug(token)
-    #logger.debug(response.content.decode('utf-8'))
-
     return response.content.decode('utf-8')
-    #return jsonify({'token': token})
 
 
 @app.route('/api/layer/get_group_statut_list', methods=['GET'])

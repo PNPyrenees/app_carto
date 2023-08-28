@@ -34,6 +34,7 @@ class ConfSchema(Schema):
     SQLALCHEMY_SIG_DATABASE_URI = fields.String(required=True)
     SQLALCHEMY_TRACK_MODIFICATIONS = fields.Boolean(missing=False)
     GEONATURE_URL = fields.String(require=True)
+    TAXHUB_LIST_ID = fields.Integer(require=True, missing=100)
     ID_APPLICATION = fields.Integer(require=True)
     LOGO_STRUCTURE = fields.String(required=True)
     DEBUG = fields.Boolean(missing=False)
