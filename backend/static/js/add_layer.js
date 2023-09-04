@@ -583,8 +583,6 @@ document.getElementById("form-add-obs-layer-date-end").addEventListener("change"
 // Fonction réalisant l'appel API pour l'auto complétion
 var getAutocompleteTaxon = function (search_name) {
 
-    console.log(document.cookie)
-
     document.cookie = "token=" + getCookie("token")
 
     return fetch("api/taxons_autocomplete?search_name=" + search_name + "&limit=20", {
