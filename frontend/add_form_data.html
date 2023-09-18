@@ -42,8 +42,13 @@
                         constraint="{% if formObject.constraint is not none %}{{formObject.constraint}}{% endif %}" 
                         placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}"
                         is_nullable="{% if formObject.is_nullable == 'YES' %}true{% else %}false{% endif %}"
+                        {% if formObject.default_value is not none %}
+                            {% if formObject.default_value.startswith('nextval') %}disabled{% endif %}
+                        {% endif %}
                     >
                 {% endif %}
+
+                
 
                 {# FLOAT #}
                 {% if formObject.data_type == 'float' and formObject.l_values == None  %}
