@@ -165,15 +165,15 @@ document.getElementById('btn-add-imported-layer').addEventListener('click', even
  * Ajoute une couche de référence à la carte
  */
 var addRefLayerToMap = function () {
-    layer_submit_button.disabled = true
-    document.getElementById('loading-spinner').style.display = 'inline-block'
-
     let active_layer = document.querySelector('.modal-ref-layer-item.active')
     let ref_layer_id = active_layer.getAttribute('layer-id')
 
-    callApiForLayer(ref_layer_id)
+    if (ref_layer_id) {
+        layer_submit_button.disabled = true
+        document.getElementById('loading-spinner').style.display = 'inline-block'
 
-
+        callApiForLayer(ref_layer_id)
+    }
 }
 
 var callApiForLayer = function (ref_layer_id) {
