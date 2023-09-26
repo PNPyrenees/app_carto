@@ -970,6 +970,13 @@ var addLayerInLayerBar = function (vectorLayer) {
         setSelectedLayerInLayerbar(layer_uid)
     })
 
+    // On masque le menu d'affichage des métadonnées 
+    // si la couche ne possède pas de uuid de métadonnée
+    if (vectorLayer.get('description_layer')){
+        if (! vectorLayer.get('description_layer').layer_metadata_uuid){
+            template.content.querySelector(".layer-metadata").classList.add("hide")
+        }
+    }
 
     document.getElementById("layer_list").prepend(template.content)
 

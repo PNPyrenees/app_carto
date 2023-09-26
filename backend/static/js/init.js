@@ -66,6 +66,10 @@ var confirmDeleteFeatureModal = new bootstrap.Modal(document.getElementById("con
 var exportModal = new bootstrap.Modal(document.getElementById("export-modal"), {
     keyboard: false
 })
+
+var metadonneesModal = new bootstrap.Modal(document.getElementById("metadonnees-modal"), {
+    keyboard: false
+})
 // On ré-initialise le modal à la fermeture
 /*var addLayerModalEl = document.getElementById("add-layer-modal")
 addLayerModalEl.addEventListener('hidden.bs.modal', function (event) {

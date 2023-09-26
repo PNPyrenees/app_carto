@@ -29,6 +29,11 @@ TAXHUB_LIST_ID = 100
 # l'application doit préalablement être déclaré dans usershub
 ID_APPLICATION = 
 
+# Lien vers le catalogue de métadonnée (GeoNetwork)
+GEONETWORK_URL = ""
+GEONETWORK_USER = ""
+GEONETWORK_PASSWORD = ""
+
 # Logo de la structure affiché dans l'entête de l'interface
 # Le logo doit être dans le dossier backend/static/images/
 LOGO_STRUCTURE = "logo_structure.png"

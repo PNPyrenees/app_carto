@@ -120,18 +120,52 @@ var buildAddRefLayerContent = function () {
                 /*li.classList.add("li-ref_layer")*/
                 li.setAttribute('layer-id', layer.layer_id);
 
-                li.appendChild(document.createTextNode(layer.layer_label))
+                var div_row = document.createElement('div')
+                div_row.setAttribute('class', 'row')
+                
+                var div_col_11 = document.createElement('div')
+                div_col_11.setAttribute('class', 'col-11')
+                div_col_11.appendChild(document.createTextNode(layer.layer_label))
+
+
+                var div_col_1 = document.createElement('div')
+                div_col_1.setAttribute('class', 'col-1')
+                
+                // Si un UUID de métadonnée est associé à la couche, 
+                // on ajoute l'icone d'accès à la métadonnée
+                if (layer.layer_metadata_uuid) {
+                    var metadata_access_icon = document.createElement('i')
+                    metadata_access_icon.classList.add("bi")
+                    metadata_access_icon.classList.add("bi-card-list")
+                    metadata_access_icon.setAttribute('title', 'Ouvrir la fiche de métadonnées')
+                    metadata_access_icon.addEventListener('click', (event) => {
+                        layer_id = event.currentTarget.closest(".modal-ref-layer-item").getAttribute("layer-id")
+                        showLayerMetadata(layer_id)
+                    })
+
+                    div_col_1.appendChild(metadata_access_icon)
+                }
+
+                div_row.appendChild(div_col_11)
+                div_row.appendChild(div_col_1)
+
+                //li.appendChild(document.createTextNode(layer.layer_label))
+                li.appendChild(div_row)
+
                 template.content.querySelector(".modal-ref-layer-list").appendChild(li)
 
                 // on active la coloration si on sur le "li"
                 li.addEventListener('click', (event) => {
-                    // On comence par désactiver tous les autres
-                    let all_modal_ref_layer_item = document.getElementsByClassName('modal-ref-layer-item')
-                    for (var i = 0; i < all_modal_ref_layer_item.length; i++) {
-                        all_modal_ref_layer_item[i].classList.remove('active')
+                    if (event.target.classList.contains("col-11")){ 
+                    
+                        // On comence par désactiver tous les autres
+                        let all_modal_ref_layer_item = document.getElementsByClassName('modal-ref-layer-item')
+                        for (var i = 0; i < all_modal_ref_layer_item.length; i++) {
+                            all_modal_ref_layer_item[i].classList.remove('active')
+                        }
+                        // uis on acitve l'élément cliqué
+                        event.currentTarget.classList.add('active')
                     }
-                    // uis on acitve l'élément cliqué
-                    event.currentTarget.classList.add('active')
                 })
             })
 

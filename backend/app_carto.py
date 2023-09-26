@@ -2,7 +2,7 @@ import os
 import re
 from pathlib import Path
 from readline import insert_text
-from flask import Flask, render_template, send_from_directory, request, make_response, jsonify, Markup
+from flask import Flask, render_template, send_from_directory, request, make_response, jsonify, Markup, Response
 import requests
 import json
 from datetime import datetime, date
@@ -1726,7 +1726,7 @@ def get_column_definition(layer_schema_name, layer_table_name):
 # Fonction retournant le formulaire html adapté pour ajouter une données à la table <layer_id>
 @app.route('/api/get_feature_form_for_layer/<layer_id>', methods=['GET'])
 @valid_token_required
-def get_layer_definition(layer_id):
+def get_feature_form_for_layer(layer_id):
 
     layer = Layer.query.get(layer_id)
     layer_schema = LayerSchema().dump(layer)
@@ -2030,6 +2030,150 @@ def delete_features_for_layer(layer_id):
     db_app.session.commit()
 
     return {"statut": True}
+
+@app.route('/api/get_metadata_for_layer/<layer_id>', methods=['GET'])
+@valid_token_required
+def get_metadata_for_layer(layer_id):
+
+    # récupération de l'UUID de la métadonnée
+    layer = Layer.query.get(layer_id)
+    layer_schema = LayerSchema().dump(layer)
+    layer_metadata_uuid = layer_schema["layer_metadata_uuid"]
+
+    geonetwork_url = app.config['GEONETWORK_URL']
+    geonetwork_user = app.config['GEONETWORK_USER']
+    geonetwork_password = app.config['GEONETWORK_PASSWORD']
+
+    # Récupération du X-XSRF-TOKEN
+    response = requests.get(geonetwork_url + "/fre/info?type=me")
+    token = response.cookies.get("XSRF-TOKEN")
+
+    # Authentification
+    response = requests.get(geonetwork_url + "/fre/info?type=me", auth=(geonetwork_user, geonetwork_password), headers = {"X-XSRF-TOKEN" : token})
+    jsessionid = response.cookies.get("JSESSIONID")
+
+    # Construction du cookies à joindre à la demande de métadonnées
+    cookies = {"XSRF-TOKEN" : token, "JSESSIONID": jsessionid}
+
+    # Récupération de la fiche métadonnée
+    #response = requests.get(geonetwork_url + "/api/records/a0adbf16-7d55-4336-8338-b80a60d2987e/formatters/xml?approved=true", cookies = cookies)
+    response = requests.get(geonetwork_url + "/api/records/" + layer_metadata_uuid + "/formatters/json?approved=true", cookies = cookies, headers = {"Accept" : "application/json"})
+
+    json_metadata = response.content
+
+    logger.debug(json_metadata)
+    json_metadata = json.loads(json_metadata)
+
+    # Récupération de la descripton de la couche
+    try:
+        md_abstract = json_metadata["gmd:identificationInfo"]["gmd:MD_DataIdentification"]["gmd:abstract"]["gco:CharacterString"]["#text"]
+    except(KeyError, IndexError):
+        md_abstract = None
+
+    # Récupération de la date
+    try:
+        md_date = json_metadata["gmd:identificationInfo"]["gmd:MD_DataIdentification"]["gmd:citation"]["gmd:CI_Citation"]["gmd:date"]["gmd:CI_Date"]["gmd:date"]["gco:DateTime"]["#text"]
+    except(KeyError, IndexError):
+        md_date = None
+
+    if md_date is None:
+        try:
+            md_date = json_metadata["gmd:identificationInfo"]["gmd:MD_DataIdentification"]["gmd:citation"]["gmd:CI_Citation"]["gmd:date"]["gmd:CI_Date"]["gmd:date"]["gco:Date"]["#text"]
+        except(KeyError, IndexError):
+            md_date = None
+
+    # et du type de date (création / Publication / Révision)
+    try:
+        md_type_date = json_metadata["gmd:identificationInfo"]["gmd:MD_DataIdentification"]["gmd:citation"]["gmd:CI_Citation"]["gmd:date"]["gmd:CI_Date"]["gmd:dateType"]["gmd:CI_DateTypeCode"]["@codeListValue"]
+    except(KeyError, IndexError):
+        md_type_date = None
+
+    # Récupération du contact
+    # Attention, il est sous la forme d'une liste s'il y en a plusieur uniquement
+    if isinstance(json_metadata["gmd:contact"], list):
+        tmp_l_contact = json_metadata["gmd:contact"]
+    else :
+        tmp_l_contact = []
+        tmp_l_contact.append(json_metadata["gmd:contact"])
+
+    l_contacts = []
+    for tmp_contact in tmp_l_contact:
+
+        try:
+            md_contact = tmp_contact["gmd:CI_ResponsibleParty"]["gmd:organisationName"]["gco:CharacterString"]["#text"]
+        except(KeyError, IndexError):
+            md_contact = None     
+
+        # Récupération du role du contact
+        try:
+            md_role_contact = tmp_contact["gmd:CI_ResponsibleParty"]["gmd:role"]["gmd:CI_RoleCode"]["@codeListValue"]
+            if md_role_contact == "originator":
+                md_role_contact = "A l’origine de" 
+            if md_role_contact == "author":
+                md_role_contact = "Distributeur" 
+            if md_role_contact == "publisher":
+                md_role_contact = "Editeur (publication)" 
+            if md_role_contact == "processor":
+                md_role_contact = "Exécutant" 
+            if md_role_contact == "resourceProvider":
+                md_role_contact = "Fournisseur" 
+            if md_role_contact == "custodian":
+                md_role_contact = "Gestionnaire"
+            if md_role_contact == "pointOfContact":
+                md_role_contact = "Point de contact" 
+            if md_role_contact == "principalInvestigator":
+                md_role_contact = "Point de recherche" 
+            if md_role_contact == "owner":
+                md_role_contact = "Propriétaire" 
+            if md_role_contact == "user":
+                md_role_contact = "Utilisateur"    
+        except(KeyError, IndexError):
+            md_role_contact = None 
+
+        l_contacts.append({"md_contact": md_contact, "md_role_contact": md_role_contact})
+
+    # Récupération de la généalogie
+    try:
+        md_genealogie = json_metadata["gmd:dataQualityInfo"]["gmd:DQ_DataQuality"]["gmd:lineage"]["gmd:LI_Lineage"]["gmd:statement"]["gco:CharacterString"]["#text"]
+    except(KeyError, IndexError):
+        md_genealogie = None
+
+    # Récupération de l'état de la couche
+    try:
+        md_etat = json_metadata["gmd:identificationInfo"]["gmd:MD_DataIdentification"]["gmd:status"]["gmd:MD_ProgressCode"]["@codeListValue"]
+        if md_etat == "historicalArchive":
+           md_etat = "Archivé - Ressource archivée hors ligne" 
+        if md_etat == "required":
+           md_etat = "Création ou mise à jour requise - Ressource qui doit être générée ou mise à jour" 
+        if md_etat == "underDevelopment":
+           md_etat = "En cours de création - Ressource en cours de création" 
+        if md_etat == "completed":
+           md_etat = "Finalisé - Production de la ressource finalisée" 
+        if md_etat == "onGoing":
+           md_etat = "Mise à jour continue - Ressource continuellement mise à jour" 
+        if md_etat == "obsolete":
+           md_etat = "Obsolète - Ressource obsolète" 
+        if md_etat == "planned":
+           md_etat = "Planifié - Ressource créée ou mise à jour sur base d'une date fixée" 
+    except(KeyError, IndexError):
+        md_etat = None
+
+    md_link = geonetwork_url + "fre/catalog.search#/metadata/" + layer_metadata_uuid
+
+    result = {
+        "layer_label" : layer_schema["layer_label"],
+        "md_abstract" : md_abstract,
+        "md_date" : md_date,
+        "md_type_date" : md_type_date,
+        "l_contacts" : l_contacts,
+        "md_genealogie" : md_genealogie,
+        "md_etat": md_etat,
+        "md_link": md_link
+    }
+
+    logger.debug(result)
+
+    return Response(json.dumps(result), mimetype='application/json')
 
 # Fonction permettant de sérialisé proprement les date contenu dans un json    
 #def json_serial(obj):

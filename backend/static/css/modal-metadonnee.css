@@ -1,0 +1,14 @@
+#add-layer-modal > .modal-dialog,
+#metadonnees-modal > .modal-dialog {
+    height: 94%;
+}
+
+#add-layer-modal > .modal-dialog > .modal-content,
+#metadonnees-modal > .modal-dialog > .modal-content {
+    height: 100%;
+}
+
+#metadonnees-modal > .modal-dialog > .modal-content > .modal-body {
+    height: 79vh;
+    overflow-y: scroll;
+}

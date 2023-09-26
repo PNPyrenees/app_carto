@@ -31,15 +31,17 @@ CREATE TABLE app_carto.t_layers (
     layer_is_warning boolean,
     layer_attribution varchar(255),
     layer_is_editable boolean,
-    layer_allowed_geometry varchar[]
+    layer_allowed_geometry varchar[],
+    layer_metadata_uuid uuid
 );
 
-CREATE VIEW app_carto.v_layers_list_by_group AS
+CREATE OR REPLACE VIEW app_carto.v_layers_list_by_group AS
 WITH tmp_layers AS (
 	SELECT
 		layer_group,
 		layer_id,
-		layer_label
+		layer_label,
+		COALESCE(layer_metadata_uuid::varchar, '') AS layer_metadata_uuid
 	FROM
 		app_carto.t_layers
 	ORDER BY
@@ -48,7 +50,7 @@ WITH tmp_layers AS (
 )
 SELECT 
 	layer_group,
-	json_agg(('{"layer_id" : '|| layer_id ||', "layer_label": "'|| layer_label ||'"}')::json) AS l_layers
+	json_agg(('{"layer_id" : '|| layer_id ||', "layer_label": "'|| layer_label ||'", "layer_metadata_uuid": "' || layer_metadata_uuid || '" }')::json) AS l_layers
 	/*layer_id,
 	layer_label*/
 FROM tmp_layers
