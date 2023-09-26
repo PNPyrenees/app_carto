@@ -71,7 +71,7 @@ var clearMetadonneesModal = function(){
 var populateMetadataModal = function(metadata){
     document.getElementById("metadonnees-modal-layer-label").innerHTML = metadata.layer_label
     document.getElementById("metadonnees-modal-abstract").innerHTML = metadata.md_abstract.replaceAll("\n", "<br>")
-    document.getElementById("metadonnees-modal-genealogie").innerHTML = metadata.md_genealogie
+    document.getElementById("metadonnees-modal-genealogie").innerHTML = metadata.md_genealogie.replaceAll("\n", "<br>")
     document.getElementById("metadonnees-modal-date-reference").innerHTML = "Date de " + metadata.md_type_date + " : " + metadata.md_date
     document.getElementById("metadonnees-modal-statut").innerHTML = metadata.md_etat
 
