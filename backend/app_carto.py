@@ -1778,8 +1778,6 @@ def add_features_for_layer(layer_id):
         else :
             value = 'NULL'
 
-        #logger.debug(column_name)
-
         values.append(value)
 
     
@@ -2061,7 +2059,6 @@ def get_metadata_for_layer(layer_id):
 
     json_metadata = response.content
 
-    logger.debug(json_metadata)
     json_metadata = json.loads(json_metadata)
 
     # Récupération de la descripton de la couche
@@ -2134,7 +2131,10 @@ def get_metadata_for_layer(layer_id):
 
     # Récupération de la généalogie
     try:
-        md_genealogie = json_metadata["gmd:dataQualityInfo"]["gmd:DQ_DataQuality"]["gmd:lineage"]["gmd:LI_Lineage"]["gmd:statement"]["gco:CharacterString"]["#text"]
+        if json_metadata["gmd:dataQualityInfo"]["gmd:DQ_DataQuality"]["gmd:lineage"]["gmd:LI_Lineage"]["gmd:statement"]["gco:CharacterString"] is not None:
+            md_genealogie = json_metadata["gmd:dataQualityInfo"]["gmd:DQ_DataQuality"]["gmd:lineage"]["gmd:LI_Lineage"]["gmd:statement"]["gco:CharacterString"]["#text"]
+        else :
+            md_genealogie = ""
     except(KeyError, IndexError):
         md_genealogie = None
 
@@ -2170,8 +2170,6 @@ def get_metadata_for_layer(layer_id):
         "md_etat": md_etat,
         "md_link": md_link
     }
-
-    logger.debug(result)
 
     return Response(json.dumps(result), mimetype='application/json')
 
