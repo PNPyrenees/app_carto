@@ -103,7 +103,9 @@ CREATE TABLE app_carto.t_observations (
     date_min timestamp without time zone NOT NULL,
     date_max timestamp without time zone NOT NULL,
     altitude_min integer,
-    altitude_max integer
+    altitude_max integer,
+    meta_last_action_date timestamp, /* optionnel - utilisé pour l'automatisation de la mise à jour des données */
+    last_action character(1) /* optionnel - utilisé pour l'automatisation de la mise à jour des données */
 );
 
 CREATE VIEW app_carto.v_group_taxo_list AS 
