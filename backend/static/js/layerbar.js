@@ -243,3 +243,15 @@ var openStyleLayerModal = function (layer_uid) {
 
     styleLayerModal.show()
 }
+
+/**
+ * Zoom to extent
+ */
+var zoomToLayerExtent = function (layer_uid) {
+    map.getLayers().forEach(layer => {
+        if (ol.util.getUid(layer) == layer_uid) {
+            var extent = layer.getSource().getExtent()
+            map.getView().fit(extent, map.getSize()) 
+        }
+    })
+}
