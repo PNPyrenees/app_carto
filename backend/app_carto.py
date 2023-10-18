@@ -2158,7 +2158,7 @@ def get_metadata_for_layer(layer_id):
     except(KeyError, IndexError):
         md_etat = None
 
-    md_link = geonetwork_url + "fre/catalog.search#/metadata/" + layer_metadata_uuid
+    md_link = geonetwork_url + "/fre/catalog.search#/metadata/" + layer_metadata_uuid
 
     result = {
         "layer_label" : layer_schema["layer_label"],
