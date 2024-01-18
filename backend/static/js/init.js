@@ -318,16 +318,11 @@ floatRound = function (value, decimals) {
  * Fonction permettant de générer un fichier et de lancer le téléchargement
  */
 const download = function (filename, text) {
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', filename);
-
-    element.style.display = 'none';
-    document.body.appendChild(element);
-
-    element.click();
-
-    document.body.removeChild(element);
+    const blob = new Blob([text], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.setAttribute('download', filename);
+    a.setAttribute('href', window.URL.createObjectURL(blob));
+    a.click()
 }
 
 var simpleJsonToHtmlTable = function (jsonData) {
