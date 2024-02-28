@@ -104,16 +104,16 @@
                         is_nullable="{% if formObject.is_nullable == 'YES' %}true{% else %}false{% endif %}"
                     >
                         {% if formObject.default_value == true %}
-                            <input id="feature-form-{{formObject.column_name}}-true" type="radio" name="formObject.column_name" checked>
+                            <input id="feature-form-{{formObject.column_name}}-true" type="radio" name="{{formObject.column_name}}" checked>
                         {% else %}
-                            <input id="feature-form-{{formObject.column_name}}-true" type="radio" name="formObject.column_name">
+                            <input id="feature-form-{{formObject.column_name}}-true" type="radio" name="{{formObject.column_name}}">
                         {% endif %}
                         <label for="feature-form-{{formObject.column_name}}-true">True</label>
 
                         {% if formObject.default_value == false %}
-                            <input id="feature-form-{{formObject.column_name}}-false" type="radio" name="formObject.column_name" checked>
+                            <input id="feature-form-{{formObject.column_name}}-false" type="radio" name="{{formObject.column_name}}" checked>
                         {% else %}
-                            <input id="feature-form-{{formObject.column_name}}-false" type="radio" name="formObject.column_name">
+                            <input id="feature-form-{{formObject.column_name}}-false" type="radio" name="{{formObject.column_name}}">
                         {% endif %}
 
                         <label for="feature-form-{{formObject.column_name}}-false">False</label>
