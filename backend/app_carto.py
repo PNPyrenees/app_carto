@@ -1459,11 +1459,12 @@ def get_warning_calculator_layers_list():
 
 def to_geojson(files):
     for file in files:
-        file.save(os.path.join(app.root_path, "static/tmp_upload/", file.filename))
-        # On en profite pour récupérer le nom du fichier devant être trasformer (ex .shp pour le shapfile)
-        if file.filename.split('.')[1].lower() in ['shp', 'gpkg', 'tab', 'geojson', 'json', 'kmz', 'kml', 'gpx']:
-            filename = file.filename.split('.')[0]
-            extension = file.filename.split('.')[1]
+        normalized_filename = file.filename.replace(" ", "_")
+        file.save(os.path.join(app.root_path, "static/tmp_upload/", normalized_filename))
+        # On en profite pour récupérer le nom du fichier devant être trasformé (ex .shp pour le shapfile)
+        if normalized_filename.split('.')[1].lower() in ['shp', 'gpkg', 'tab', 'geojson', 'json', 'kmz', 'kml', 'gpx']:
+            filename = normalized_filename.split('.')[0]
+            extension = normalized_filename.split('.')[1]
 
     # Création de la commande ogr2ogr en fonction des données d'entrées
     srs_path = os.path.join(app.root_path, "static/tmp_upload/", filename + "." + extension)
@@ -1478,7 +1479,7 @@ def to_geojson(files):
     # Get list of layer name in file
     l_layer_in_file = os.popen("ogrinfo -ro -so -q \"" + srs_path + "\" | cut -d ' ' -f 2", 'r').read().split('\n')[:-1]
 
-    print(l_layer_in_file)
+    #print(l_layer_in_file)
 
     # L'objectif est de regroupper tous les objets de toutes les couches du fichier source 
     # dans un même fichier GeoJSON qui fonctionne avec une seule couche (appelée data) mais 
