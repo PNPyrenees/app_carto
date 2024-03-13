@@ -177,7 +177,6 @@ var layerToCSV = function (layer_uid) {
 var layerToGeoJSON = function (layer_uid) {
     map.getLayers().forEach(layer => {
         if (ol.util.getUid(layer) == layer_uid) {
-            var writer = new ol.format.GeoJSON({ featureProjection: 'EPSG:2154' })
 
             var geojsonStr = new ol.format.GeoJSON().writeFeatures(layer.getSource().getFeatures(), {
                 dataProjection: 'EPSG:4326',
@@ -196,9 +195,16 @@ var layerToGeoJSON = function (layer_uid) {
 var layerToKML = function (layer_uid) {
     map.getLayers().forEach(layer => {
         if (ol.util.getUid(layer) == layer_uid) {
-            var writer = new ol.format.GeoJSON({ featureProjection: 'EPSG:4326' })
+            
+            var tmpFeatures = layer.getSource().getFeatures()
+            var layerStyle
+            tmpFeatures.forEach(function(feature) {
+                layerStyle = layer.getStyleFunction()(feature, map.getView().getResolution());
+                feature.setStyle(layerStyle);
+              });
 
-            var kmlStr = new ol.format.KML().writeFeatures(layer.getSource().getFeatures(), {
+            //var kmlStr = new ol.format.KML().writeFeatures(layer.getSource().getFeatures(), {
+            var kmlStr = new ol.format.KML().writeFeatures(tmpFeatures, {
                 dataProjection: 'EPSG:4326',
                 featureProjection: 'EPSG:3857'
             });
