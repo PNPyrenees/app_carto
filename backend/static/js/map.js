@@ -106,7 +106,7 @@ map = new ol.Map({
         zoom: ZOOM_LEVEL,
         maxZoom: 18,
     }),
-    controls: ol.control.defaults().extend([scale_line]),
+    controls: ol.control.defaults.defaults().extend([scale_line]),
 });
 
 
