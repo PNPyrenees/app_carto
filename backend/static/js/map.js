@@ -222,7 +222,7 @@ clearSelectedSource = function () {
  */
 
 map.on('pointermove', function (evt) {
-    var proj_dst = document.getElementById("current-coordinate-projection").value
+    var proj_dst = document.getElementById("select-coordinate-projection").value
 
     updateCoordinate(evt.coordinate, proj_dst, "EPSG:3857")
 });

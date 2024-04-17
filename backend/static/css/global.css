@@ -220,12 +220,17 @@ input[type="date"] > span.datetime-edit-field {
     display: flex;
 }
 
-#current-coordinate-projection{
+#select-coordinate-projection{
     border-right: 50px;
     width: 0px;
     background-color: rgba(0,60,136,0);
     border: 0px solid rgba(255,255,255,.7);
     height: 30px;
+}
+
+#select-coordinate-projection:focus {
+    border: none;
+    box-shadow: none;
 }
 
 #feature-form-error{
