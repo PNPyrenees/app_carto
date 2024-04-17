@@ -103,10 +103,19 @@ var createPdfContent = function (pdf, map_dim) {
         // Ajout de la légende au PDF
         await addLegendToPDF(pdf)
 
+        // Ajout des source
         addSourceToPDF(pdf)
 
+        // Ajout du commentaire
+        var comment_value = document.getElementById("pdf-generator-comment-input").value
+        if (comment_value) {
+            addComment(pdf, comment_value)
+        }        
+
+        // Ajout de le fleche nord et de l'echelle
         await addScaleAndNorthArrowToPDF(pdf, map_dim)
 
+        // Ajout de bordure
         addBorderToPDF(pdf)
 
         // Création du PDF
@@ -116,7 +125,10 @@ var createPdfContent = function (pdf, map_dim) {
         pdfGeneratorModal.hide()
 
         // Réinitialisation de champ "Titre de la carte"
-        document.getElementById("pdf-generator-title-input").value = ''
+        //document.getElementById("pdf-generator-title-input").value = ''
+
+        // Réinitialisation de champ "commentaire"
+        //document.getElementById("pdf-generator-comment-input").value = ''
 
         // Remise de l'élément html de la carte au format initial
         resizeMap(size, viewResolution, center)
@@ -320,8 +332,13 @@ var addSourceToPDF = function (pdf) {
     let source_font_size = 10
     pdf.setFontSize(source_font_size)
 
-    let source_bloc_width = 162
-    let tab_attributions = pdf.splitTextToSize("Source(s) : " + attributions.sort().join(' ; '), source_bloc_width)
+    let max_source_bloc_width = 162
+    let tab_attributions = pdf.splitTextToSize("Source(s) : " + attributions.sort().join(' ; '), max_source_bloc_width)
+    if (tab_attributions.length > 1) {
+        source_bloc_width = max_source_bloc_width
+    } else {
+        source_bloc_width = pdf.getTextWidth(tab_attributions[0]) + 4
+    }
     let source_bloc_height = tab_attributions.length * (source_font_size / 2)
 
     source_bloc_y = Math.round(297 - source_bloc_height)
@@ -336,6 +353,35 @@ var addSourceToPDF = function (pdf) {
         pdf.text(line, source_bloc_x + 2, source_line_y, { align: "left", baseline: "top" })
 
         source_line_y += source_font_size / 2
+    })
+}
+
+var addComment = function(pdf, comment_value) {
+    let comment_font_size = 10
+    pdf.setFontSize(comment_font_size)
+
+    let max_comment_bloc_width = 163
+    let tab_comment = pdf.splitTextToSize(comment_value, max_comment_bloc_width - 5)
+    if (tab_comment.length > 1) {
+        comment_bloc_width = max_comment_bloc_width
+    } else {
+        comment_bloc_width = pdf.getTextWidth(tab_comment[0]) + 4
+    }
+    let comment_bloc_height = tab_comment.length * (comment_font_size / 2)
+
+    comment_bloc_y = Math.round(297 - comment_bloc_height)
+    let comment_bloc_x = 257 + max_comment_bloc_width - comment_bloc_width
+
+    
+    pdf.setFillColor('#FFFFFF')
+    pdf.setDrawColor(0, 0, 0) // Bordure
+    pdf.rect(comment_bloc_x, comment_bloc_y, comment_bloc_width, comment_bloc_height, 'FD')
+
+    let comment_line_y = comment_bloc_y + 1
+    tab_comment.forEach((line, index) => {
+        pdf.text(line, comment_bloc_x + 2, comment_line_y, { align: "left", baseline: "top" })
+
+        comment_line_y += comment_font_size / 2
     })
 }
 
