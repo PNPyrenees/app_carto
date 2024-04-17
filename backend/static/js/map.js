@@ -1,6 +1,11 @@
 /*----------------------------------------------------*/
 /*------------ Initialisation de la carte ------------*/
 /*----------------------------------------------------*/
+
+/* Déclaration de la projetcion Lambert-93 (EPSG:2154)*/
+proj4.defs("EPSG:2154","+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
+ol.proj.proj4.register(proj4);
+
 /**
  * Style par défaut
  */
@@ -215,11 +220,25 @@ clearSelectedSource = function () {
  * Gestion de l'affichage des coordonnées correspondant 
  * à la position de la souris
  */
-map.on('pointermove', function (evt) {
-    var coords = ol.proj.toLonLat(evt.coordinate);
 
-    document.getElementById('bloc-coords').innerHTML = coords[1].toFixed(8) + " ; " + coords[0].toFixed(8);
+map.on('pointermove', function (evt) {
+    var proj_dst = document.getElementById("current-coordinate-projection").value
+
+    updateCoordinate(evt.coordinate, proj_dst, "EPSG:3857")
 });
+
+updateCoordinate = function (coordinate, proj_dst, proj_srs){
+    var coords 
+
+    if (proj_dst == "EPSG:4326") {
+        coords = ol.proj.toLonLat(coordinate);
+        document.getElementById('current-coordinate').innerHTML = coords[0].toFixed(8) + " ; " + coords[1].toFixed(8);
+    } else {
+        coords = ol.proj.transform(coordinate, proj_srs, proj_dst);
+        document.getElementById('current-coordinate').innerHTML = coords[0].toFixed(2) + " ; " + coords[1].toFixed(2);
+    }
+}
+
 
 /*----------------------------------------------------*/
 /*------ Gestion des styles appliqués aux couches-----*/

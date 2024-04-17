@@ -260,7 +260,14 @@
             </div>
 
             <!-- Bloc Recevant les coordonnées de la position du curseur-->
-            <div id="bloc-coords"></div>
+            <div id="bloc-coords">
+                <div id="current-coordinate"></div>
+                
+                    <select id="current-coordinate-projection" class="form-select">
+                        <option value="EPSG:4326" selected>WGS-84</option>
+                        <option value="EPSG:2154">Lambert-93</option>
+                    </select>
+            </div>
 
             <div id="attribute-data-container" class="hide">
                 <div id="nav-attribute-table"></div>

@@ -217,6 +217,15 @@ input[type="date"] > span.datetime-edit-field {
     right: .5rem;
     top: 9rem;
     border-radius: 4px;
+    display: flex;
+}
+
+#current-coordinate-projection{
+    border-right: 50px;
+    width: 0px;
+    background-color: rgba(0,60,136,0);
+    border: 0px solid rgba(255,255,255,.7);
+    height: 30px;
 }
 
 #feature-form-error{
