@@ -1438,18 +1438,9 @@ getFullDataTable = function (layer_uid) {
  * Mise à jour de la table attributaire html si elle est ouverte
  */
 var refreshDataTable = function (layer_uid) {
-    // Récupération du layer_uid
-    /*var layer_uid
-    map.getLayers().forEach(layer => {
-        if (layer.get("description_layer")) {
-            if (layer.get("description_layer").layer_id == layer_id) {
-                layer_uid = ol.util.getUid(layer)
-            }
-        }
-    })*/
 
     if (document.getElementById("layer-data-table-" + layer_uid)) {
-        // Récupération du nav-data-table actif
+        // Récupération du nav-data-table correspondant au code de la couche passé en paramètre
         var active_nav_data_table
         var all_nav_data_table = document.getElementsByClassName("nav-layer-item")
         for (var i = 0; i < all_nav_data_table.length; i++) {
@@ -1458,14 +1449,73 @@ var refreshDataTable = function (layer_uid) {
             }
         }
 
+        // Récupération des filtres appliqués
+        var filter = {}
+        document.getElementById("layer-data-table-" + layer_uid).querySelectorAll(".tabulator-col").forEach(html_column => {
+            column_name = html_column.getAttribute("tabulator-field")
+            filter_value = html_column.querySelector("input[type='search']").value
+
+            if (filter_value) {
+                filter[column_name] = filter_value
+            }
+        })
+
+
+        // Récupération du trie
+        var sorting_column, sorting_direction
+        document.getElementById("layer-data-table-" + layer_uid).querySelectorAll(".tabulator-col").forEach(html_column => {
+            if (html_column.getAttribute("aria-sort") != 'none') {
+                sorting_column = html_column.getAttribute("tabulator-field")
+                if (html_column.getAttribute("aria-sort") == 'descending') {
+                    sorting_direction = 'desc'
+                } else {
+                    sorting_direction = 'asc'
+                }
+            }
+        })
+
         // On vide l'élément contenant la table attributaire
         document.getElementById("layer-data-table-" + layer_uid).remove()
         // on créé la nouvelle table attributaire
         getFullDataTable(layer_uid)
 
+        // on ré-applique les filtres
+        table.on("tableBuilt", function () {
+            for (column_name in filter) {
+                html_column = document.getElementById("layer-data-table-" + layer_uid).querySelector(".tabulator-col[tabulator-field='" + column_name + "']")
+                html_column_searcher = html_column.querySelector("input[type='search']")
+                html_column_searcher.value = filter[column_name]
+
+
+                html_column_searcher.dispatchEvent(new KeyboardEvent("keyup"))
+            }
+
+            // Ré-application du trie
+            if (sorting_column) {
+                table.setSort([
+                    { column: sorting_column, dir: sorting_direction },
+                ])
+            }
+
+            // Gestion de l'arret du spinner
+            if (Object.keys(filter).length === 0) {
+                // Cas ou la table attributaire est ouverte mais sans filtre
+                document.getElementById("global-spinner").classList.add("hide")
+
+            } else {
+                // Cas ou la table attributaire est ouverte et filtré
+                table.on("dataFiltered", function (filters, rows) {
+                    document.getElementById("global-spinner").classList.add("hide")
+                })
+            }
+        });
+
         // On réactive l'affichage de la table attributaire précédemment affiché
         inactiveAllAttributeTables()
         activeAttributeTable(active_nav_data_table)
+    } else {
+        // Masquage du spinner dans le cas où la table attributaire n'est pas ouverte
+        document.getElementById("global-spinner").classList.add("hide")
     }
 }
 
@@ -1561,6 +1611,7 @@ createAttributeTable = function (layer_name, layer_uid, data) {
             })
 
             filterFeature(layer_uid, l_feature_uid)
+
         }, 500);
     })
 

@@ -316,7 +316,6 @@ var writeFeaturesInDatabase = function (layer_id, feature, mode) {
         .then(data => {
             // On rafraichi la couche de  données
             refreshLayer(layer_id).then(res => {
-                document.getElementById("global-spinner").classList.add("hide")
 
                 // Récupération du layer_uid
                 var layer_uid
@@ -325,8 +324,10 @@ var writeFeaturesInDatabase = function (layer_id, feature, mode) {
                         if (layer.get("description_layer").layer_id == layer_id) {
                             layer_uid = ol.util.getUid(layer)
 
-                            refreshDataTable(layer_uid)
+
                             deleteDataInInfobulleForlayer(layer_uid)
+                            refreshDataTable(layer_uid)
+                            // L'extinction du spinner est géré dans la fonction refreshDataTable !
                         }
                     }
                 })
