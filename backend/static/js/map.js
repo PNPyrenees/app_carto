@@ -3,7 +3,7 @@
 /*----------------------------------------------------*/
 
 /* Déclaration de la projetcion Lambert-93 (EPSG:2154)*/
-proj4.defs("EPSG:2154","+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
+proj4.defs("EPSG:2154", "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
 ol.proj.proj4.register(proj4);
 
 /**
@@ -114,6 +114,11 @@ map = new ol.Map({
     controls: ol.control.defaults.defaults().extend([scale_line]),
 });
 
+/**
+ * Variable globale recevant la couche active
+ * ou couche courante
+ */
+var selectedLayerInLayerBar
 
 /**
  * Déclaration des fonds de cartes 
@@ -227,8 +232,8 @@ map.on('pointermove', function (evt) {
     updateCoordinate(evt.coordinate, proj_dst, "EPSG:3857")
 });
 
-updateCoordinate = function (coordinate, proj_dst, proj_srs){
-    var coords 
+updateCoordinate = function (coordinate, proj_dst, proj_srs) {
+    var coords
 
     if (proj_dst == "EPSG:4326") {
         coords = ol.proj.toLonLat(coordinate);
@@ -991,8 +996,8 @@ var addLayerInLayerBar = function (vectorLayer) {
 
     // On masque le menu d'affichage des métadonnées 
     // si la couche ne possède pas de uuid de métadonnée
-    if (vectorLayer.get('description_layer')){
-        if (! vectorLayer.get('description_layer').layer_metadata_uuid){
+    if (vectorLayer.get('description_layer')) {
+        if (!vectorLayer.get('description_layer').layer_metadata_uuid) {
             template.content.querySelector(".layer-metadata").classList.add("hide")
         }
     }
@@ -1620,17 +1625,53 @@ createAttributeTable = function (layer_name, layer_uid, data) {
  * Filtre les features 
  */
 filterFeature = function (layer_uid, l_feature_uid) {
+
     map.getLayers().forEach(layer => {
         if (ol.util.getUid(layer) == layer_uid) {
             source = layer.getSource()
             if (source instanceof ol.source.Vector) {
+
+                var visibleFeatures = []
+
                 source.getFeatures().forEach(feature => {
                     if (l_feature_uid.includes(ol.util.getUid(feature))) {
                         feature["visible"] = true
+                        visibleFeatures.push(feature)
                     } else {
                         feature["visible"] = false
                     }
                     source.dispatchEvent('change');
+                })
+            }
+
+            // On gère les intéraction dans le cas ou la table  attributaire filtré fait 
+            // référence à la couche active
+            if (ol.util.getUid(layer) == ol.util.getUid(selectedLayerInLayerBar)) {
+                // refresh des interactions (si activé)    
+                // on commence par les "Snap"
+                map.getInteractions().forEach(interaction => {
+                    if (interaction instanceof ol.interaction.Snap) {
+                        disableLayerSnapping()
+                    }
+                })
+
+                //Puis les "Modify"
+                map.getInteractions().forEach(interaction => {
+                    if (interaction instanceof ol.interaction.Modify) {
+                        disableLayerModify()
+                        enableLayerModify(layer)
+                        // On réactive le snapping à ce niveau là 
+                        // car il nécessite d'avoir modify ou draw d'actif
+                        enableLayerSnapping(layer)
+                    }
+                })
+
+                // Si l'intéraction "drawing" est déjà active, on réactive 
+                // le snapping sur les features affichés
+                map.getInteractions().forEach(interaction => {
+                    if (interaction instanceof ol.interaction.Draw) {
+                        enableLayerSnapping(layer)
+                    }
                 })
             }
         }
@@ -2147,7 +2188,7 @@ map.addLayer(warning_calculator_layer)
 /*---------Gestion de l'édition d'une couche----------*/
 /*----------------------------------------------------*/
 /**
- * Fonction permettant de déclarer l'édition sur une couche
+ * Fonction permettant d'activer l'édition sur une couche
  */
 editionLayerManagement = function (layer) {
     let lis = document.getElementById("layer_list").querySelectorAll("li")
@@ -2276,11 +2317,30 @@ var enableLayerSnapping = function (layer) {
     // Récupérationde la source
     source = layer.getSource()
 
+    //Récupération de la liste des feature visible
+    var features = []
+    source.getFeatures().forEach(feature => {
+        if (feature["visible"] != false) {
+            features.push(feature)
+        }
+    })
+
     snap_interaction = new ol.interaction.Snap({
-        source: source,
+        features: new ol.Collection(features)
     })
 
     map.addInteraction(snap_interaction)
+}
+
+/**
+ * Désactivation de l'accrochage des points
+ */
+var disableLayerSnapping = function () {
+    map.getInteractions().forEach(interaction => {
+        if (interaction instanceof ol.interaction.Snap) {
+            map.removeInteraction(interaction)
+        }
+    })
 }
 
 /**
@@ -2293,8 +2353,16 @@ var enableLayerModify = function (layer) {
     // Récupérationde la source
     source = layer.getSource()
 
+    //Récupération de la liste des feature visible
+    var features = []
+    source.getFeatures().forEach(feature => {
+        if (feature["visible"] != false) {
+            features.push(feature)
+        }
+    })
+
     modify_interaction = new ol.interaction.Modify({
-        source: source
+        features: new ol.Collection(features)
     })
 
     modify_interaction.on('modifyend', function (event) {
@@ -2312,12 +2380,21 @@ var enableLayerModify = function (layer) {
 
                 writeFeaturesInDatabase(layer_id, feature, "update")
             })
-            // Ajouter la géom au properties de l'objet
-            // Envoyer le feature en mode update
         }
     })
 
     map.addInteraction(modify_interaction)
+}
+
+/**
+ * Desactivation de la modification des objets
+ */
+var disableLayerModify = function () {
+    map.getInteractions().forEach(interaction => {
+        if (interaction instanceof ol.interaction.Modify) {
+            map.removeInteraction(interaction)
+        }
+    })
 }
 
 /**
@@ -2332,18 +2409,10 @@ var disableLayerDrawing = function () {
     // Pour contourner un bug avec l'interaction snap
 
     // on commence par les "Snap"
-    map.getInteractions().forEach(interaction => {
-        if (interaction instanceof ol.interaction.Snap) {
-            map.removeInteraction(interaction)
-        }
-    })
+    disableLayerSnapping()
 
     //Puis les "Modify"
-    map.getInteractions().forEach(interaction => {
-        if (interaction instanceof ol.interaction.Modify) {
-            map.removeInteraction(interaction)
-        }
-    })
+    disableLayerModify()
 
     // Et enfin les "Draw"
     map.getInteractions().forEach(interaction => {
@@ -2376,6 +2445,13 @@ var enableLayerEdition = function (event, layer_uid) {
  * de la couche selectionnée (changement de la couleur de fond du li)
  */
 var setSelectedLayerInLayerbar = function (layer_uid) {
+
+    map.getLayers().forEach(layer => {
+        if (ol.util.getUid(layer) == layer_uid) {
+            selectedLayerInLayerBar = layer
+        }
+    })
+
     document.getElementById("layer_list").querySelectorAll('li').forEach(li => {
         if (li.getAttribute("layer-uid") == layer_uid) {
             li.classList.add('layer-is-selected')

@@ -1,26 +1,3 @@
-// Variable permettant d'indiquer à l'application 
-// que des objets en cours d'édition n'ont pas été sauvagerdé
-var has_feature_not_save = false
-
-/*document.getElementById("btn-test_form").addEventListener("click", event => {
-    callApiForLayer(127)
-    callApiForLayer(100)
-
-    map.getLayers().forEach(layer => {
-        console.log(layer.get("description_layer"))
-
-        if (layer.get("description_layer")) {
-
-
-            if ([127, 100].includes(layer.get("description_layer").layer_id)) {
-                getFullDataTable(ol.util.getUid(layer))
-            }
-        }
-    })
-
-
-})*/
-
 // Appel du formulaire associé à la couche et ouverture du modal
 var getFeatureFrom = function (layer_id) {
     // On affiche le spinner global
@@ -29,10 +6,6 @@ var getFeatureFrom = function (layer_id) {
     return fetch(APP_URL + "/api/get_feature_form_for_layer/" + layer_id, {
         method: "GET",
         signal: signal,
-        /*headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        },*/
         credentials: "same-origin"
     })
         .then(res => {
@@ -149,12 +122,6 @@ var writeFeatureProperties = function () {
 
                         }
 
-                        /*console.log("propertie_name : " + propertie_name)
-                        console.log("propertie_type : " + propertie_type)
-                        console.log("placeholder : " + placeholder)
-                        console.log("isNullable : " + isNullable)
-                        console.log("propertie_value : " + propertie_value)*/
-
                         //Controle de la contrainte not null
                         if (!isNullable) {
                             if (!propertie_value) {
@@ -260,19 +227,6 @@ var writeFeatureProperties = function () {
                         document.getElementById("feature-form-error").appendChild(errorHtmlTable)
                         document.getElementById("feature-form-error").classList.remove("hide")
                     } else {
-                        /*console.log(feature.getProperties(properties))
-
-                        if (feature.getProperties(properties)) {
-                            // ici on est sur une entité ayant déjà des properties -> donc c'est une édition
-                            if (feature.get("feature_status") != 'new') {
-                                // ici on est sur un feature qui ne possède pas la valeur new -> on est donc sur de l'édition d'un feature déjà existant
-                                feature.set("feature_status", "update")
-                            } else {
-                                // Ici on est sur un feature sans properties -> donc une nouvelle entité
-                                feature.set("feature_status", "new")
-                            }
-                        }*/
-
                         feature.setProperties(properties)
 
                         // Ecriture en base de données
@@ -280,11 +234,6 @@ var writeFeatureProperties = function () {
                         var mode = document.getElementById("feature-form-mode").value
                         writeFeaturesInDatabase(layer_id, feature, mode)
 
-
-                        //has_feature_not_save = true
-                        //document.getElementById("btn-drawing-layer-save-features").disabled = false
-                        //document.getElementById("btn-drawing-layer-save-features").classList.remove("btn-primary")
-                        //document.getElementById("btn-drawing-layer-save-features").classList.add("btn-danger")
                         featureEditModal.hide()
 
                     }
@@ -328,28 +277,6 @@ var populateFormFromFeature = function (feature) {
 
     }
 }
-
-/**
- * Fonction de sauvegarde des données
- */
-/*document.getElementById("btn-drawing-layer-save-features").addEventListener("click", event => {
-    var layer_uid = document.getElementById("drawing-layer-group-edit-btn").getAttribute("layer_uid")
-    saveFeatureToDB(layer_uid)
-})
-
-var saveFeatureToDB = function (layer_uid) {
-    map.getLayers().forEach(layer => {
-        if (ol.util.getUid(layer) == layer_uid) {
-
-            var layer_id = layer.get("description_layer").layer_id
-
-            var geojson_data = new ol.format.GeoJSON().writeFeatures(layer.getSource().getFeatures())
-
-            writeFeaturesInDatabase(layer_id, geojson_data)
-        }
-    })
-}
-*/
 
 var writeFeaturesInDatabase = function (layer_id, feature, mode) {
 
