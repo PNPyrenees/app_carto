@@ -938,6 +938,11 @@ var refreshLayer = function (layer_id) {
                         if (data.geojson_layer.features) {
                             layer.getSource().addFeatures(new ol.format.GeoJSON().readFeatures(data.geojson_layer))
                         }
+
+                        // On rafraichit l'intaraction SNAP (cas ou l'on ajoute un 
+                        // objet à la couche pour qu'il soit connu par l'intéraction)
+                        disableLayerSnapping()
+                        enableLayerSnapping(layer)
                     }
                 }
             })
