@@ -11,8 +11,8 @@ from sqlalchemy.exc import SQLAlchemyError
 #from sqlalchemy.sql.expression import true
 from functools import wraps
 
-from .models import Role, VLayerList, Layer, BibStatusType, VRegneList, VGroupTaxoList, BibCommune, BibMeshScale, BibGroupStatus, ImportedLayer, Logs
-from .schema import RoleSchema, VLayerListSchema, LayerSchema, BibGroupStatusSchema, ImportedLayerSchema, LogsSchema
+from .models import Role, VLayerList, Layer, BibStatusType, VRegneList, VGroupTaxoList, BibCommune, BibMeshScale, BibGroupStatus, ImportedLayer, Logs, Project
+from .schema import RoleSchema, VLayerListSchema, LayerSchema, BibGroupStatusSchema, ImportedLayerSchema, LogsSchema, ProjectSchema
 
 import logging 
 """from requests.api import request"""
@@ -120,8 +120,7 @@ def favicon():
     """
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'images/favicon.ico', mimetype='image/vnd.microsoft.icon')
-
-
+    
 @app.route('/api/auth/login', methods=['POST'])
 def login():
     """ Authentification d'un utilisateur 
@@ -1633,7 +1632,7 @@ def get_imported_layers_list():
     except Exception as error:
         return jsonify({
             'status': 'error',
-            'message': """Erreur lors de la déconnexion : Aucun role associé au token - {}""".format(error)
+            'message': """[Erreur] Aucun role associé au token - {}""".format(error)
         }), 520
 
     myImportedLayer = db_app.session.query(
@@ -2173,6 +2172,131 @@ def get_metadata_for_layer(layer_id):
     }
 
     return Response(json.dumps(result), mimetype='application/json')
+
+# Création d'un projet
+@app.route('/api/project/create', methods=['POST'])
+@valid_token_required
+def create_project():
+    postdata = request.json
+
+    # Récupération de l'utilisateur courrant
+    token = request.cookies.get('token')
+    try:
+        role = Role.query.filter(Role.role_token == token).one()
+    except Exception as error:
+        return jsonify({
+            'status': 'error',
+            'message': """[Erreur] Aucun role associé au token - {}""".format(error)
+        }), 520
+
+    project = Project(
+        project_id = None,
+        role_id = role.role_id,
+        project_name = postdata["project_name"],
+        projet_content = postdata["project content"],
+        project_creation_date = datetime.now(),
+        project_update_date = datetime.now()
+    )
+
+    db_app.session.add(project)
+    db_app.session.commit()
+
+# Enregistrement du contenu d'un projet
+@app.route('/api/project/update_content', methods=['POST'])
+@valid_token_required
+def update_project_content():
+    postdata = request.json
+
+    project = Project.query.get(postdata["role_id"])
+
+    # Récupération de l'utilisateur courrant
+    token = request.cookies.get('token')
+    try:
+        role = Role.query.filter(Role.role_token == token).one()
+    except Exception as error:
+        return jsonify({
+            'status': 'error',
+            'message': """[Erreur] Aucun role associé au token - {}""".format(error)
+        }), 520
+
+    # On s'assure que celui qui demande la mise à jour du 
+    # projet est bien le propriétaire du projet
+    if project.role_id == role.role_id :
+        project.project_content = postdata["project_content"]
+        project.project_update_date = datetime.now()
+
+        db_app.session.commit()
+    else :
+        return jsonify({
+            'status': 'error',
+            'message': """[Erreur] L'utilisateur n'est pas le propriétaire du projet - {}""".format(error)
+        }), 520
+
+# Modification du nom d'un projet
+@app.route('/api/project/update_name', methods=['POST'])
+@valid_token_required
+def update_project_name():
+    postdata = request.json
+
+    project = Project.query.get(postdata["role_id"])
+
+    # Récupération de l'utilisateur courrant
+    token = request.cookies.get('token')
+    try:
+        role = Role.query.filter(Role.role_token == token).one()
+    except Exception as error:
+        return jsonify({
+            'status': 'error',
+            'message': """[Erreur] Aucun role associé au token - {}""".format(error)
+        }), 520
+
+    # On s'assure que celui qui demande la mise à jour du 
+    # projet est bien le propriétaire du projet
+    if project.role_id == role.role_id :
+        project.name = postdata["project_name"]
+        project.project_update_date = datetime.now()
+
+        db_app.session.commit()
+    else :
+        return jsonify({
+            'status': 'error',
+            'message': """[Erreur] L'utilisateur n'est pas le propriétaire du projet - {}""".format(error)
+        }), 520
+
+# retourne la liste des projet d'un utilisateur
+@app.route('/api/projet/my_project', methods=['GET'])
+@valid_token_required
+def get_my_project():
+    """ Fourni la liste des projet créé par l'utilisateur courant
+
+    Returns
+    -------
+        JSON
+    """    
+    # Récupération de l'utilisateur courrant
+    token = request.cookies.get('token')
+    try:
+        role = Role.query.filter(Role.role_token == token).one()
+    except Exception as error:
+        return jsonify({
+            'status': 'error',
+            'message': """[Erreur] Aucun role associé au token - {}""".format(error)
+        }), 520
+
+
+
+    myProject = db_app.session.query(
+        Project.project_id,
+        Project.role_id,
+        Project.project_name,
+        Project.projet_content,
+        Project.project_creation_date,
+        Project.project_update_date
+    ).filter_by(role_id=role.role_id).order_by(Project.project_name, Project.project_update_date)
+
+    return jsonify(Project(many=True).dump(myProject))
+
+
 
 # Fonction permettant de sérialisé proprement les date contenu dans un json    
 #def json_serial(obj):

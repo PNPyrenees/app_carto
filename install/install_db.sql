@@ -283,6 +283,22 @@ CREATE TABLE IF NOT EXISTS app_carto.t_logs(
     log_data jsonb
 )
 
+/* Création de la table projet */
+create table app_carto.t_projects (
+	project_id serial,
+	role_id integer NOT NULL,
+	project_name varchar(255) NOT NULL,
+	projet_content jsonb NOT NULL,
+    project_creation_date timestamp without time zone default now(),
+	project_update_date timestamp without time zone default now(),
+
+	CONSTRAINT t_project_pkey PRIMARY KEY (project_id),
+    CONSTRAINT fk_t_project_role_id FOREIGN KEY (role_id)
+        REFERENCES app_carto.t_roles (role_id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE NO ACTION
+)
+
 /*
  * Partie 2 : Script à jouer sur la base de données SIG
  */
