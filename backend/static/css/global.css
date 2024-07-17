@@ -12,8 +12,8 @@
 }*/
 
 html * {
-    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-    
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
     /*max-width: 100vw;
     max-height: 100vh;*/
     font-size: 2vh;
@@ -31,22 +31,22 @@ html * {
     height: 94vh;
 }
 
-.bg-primary{
+.bg-primary {
     background-color: #01965e !important;
 }
 
-.btn-primary, 
-.btn-primary:active, 
-.btn-primary.active, 
-.btn-primary:focus, 
-.btn-check:checked + .btn-outline-primary,
+.btn-primary,
+.btn-primary:active,
+.btn-primary.active,
+.btn-primary:focus,
+.btn-check:checked+.btn-outline-primary,
 .btn-outline-primary:active,
 .btn-outline-primary:focus {
     color: mintcream;
     background-color: #01965e;
     border-color: #01965e;
-    outline: none!important;
-    box-shadow: none!important;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 /*.btn-primary:focus, 
@@ -55,42 +55,65 @@ html * {
     box-shadow: none!important;
 }*/
 
-.btn-primary:not(.btn-open):hover, 
+.btn-primary:not(.btn-open):hover,
 .open>.dropdown-toggle.btn-primary,
-.btn-outline-primary:hover
- {
+.btn-outline-primary:hover {
     color: mintcream;
     background-color: #006e44;
-    border-color: #006e44; /*set the color you want here*/
+    border-color: #006e44;
+    /*set the color you want here*/
 }
 
-.btn-secondary, 
+.btn-secondary,
 /*.btn-secondary:active, */
 /*.btn-secondary.active, */
-.btn-secondary:focus, 
-.btn-check:checked + .btn-outline-secondary,
+.btn-secondary:focus,
+.btn-check:checked+.btn-outline-secondary,
 /*.btn-outline-secondary:active,*/
 .btn-outline-secondary:focus {
-    color: #6c757d!important;
-    background-color: mintcream!important;
-    border-color: mintcream!important;
-    outline: none!important;
-    box-shadow: none!important;
+    color: #6c757d !important;
+    background-color: mintcream !important;
+    border-color: mintcream !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.btn-light,
+/*.btn-secondary:active, */
+/*.btn-secondary.active, */
+.btn-light:focus,
+.btn-check:checked+.btn-outline-light,
+/*.btn-outline-secondary:active,*/
+.btn-outline-light:focus {
+    color: #3982c2 !important;
+    background-color: mintcream !important;
+    border-color: mintcream !important;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .btn-primary.disabled,
 .btn-primary:disabled {
-    background-color: #6c757d!important;
-    border-color: #6c757d!important;
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
 }
 
-.btn-secondary:hover, 
+.btn-secondary:hover,
 .open>.dropdown-toggle.btn-secondary,
-.btn-outline-secondary:hover
- {
-    color: #e6e6e6!important;
-    background-color: #9facb8!important;
-    border-color: #9facb8!important; /*set the color you want here*/
+.btn-outline-secondary:hover {
+    color: #e6e6e6 !important;
+    background-color: #9facb8 !important;
+    border-color: #9facb8 !important;
+    /*set the color you want here*/
+}
+
+.btn-light:hover,
+.open>.dropdown-toggle.btn-light,
+.btn-outline-light:hover {
+    color: #3982c2 !important;
+    background-color: rgb(211, 232, 255) !important;
+    border-color: rgb(211, 232, 255) !important;
+    /*set the color you want here*/
 }
 
 /*@media(min-width: 1500px){
@@ -110,7 +133,7 @@ html * {
     }
 }
 */
-.responsive-btn-close{
+.responsive-btn-close {
     display: none;
 }
 
@@ -145,7 +168,7 @@ html * {
     background-color: #f1f1f1;
     min-width: 160px;
     overflow: auto;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
     z-index: 999;
 }
 
@@ -158,31 +181,42 @@ html * {
     border-bottom: 1px solid #e6e6e6;
 }
 
-.dropdown-item:hover {background-color: #ddd;}
+.dropdown-item:hover {
+    background-color: #ddd;
+}
 
-.dropdown-item.disabled{
+.dropdown-item.disabled {
     cursor: default !important;
 }
 
-.show {display: block !important;}
-.hide {display: none !important;}
+.show {
+    display: block !important;
+}
 
-.clickable { cursor: pointer; }
+.hide {
+    display: none !important;
+}
 
-.border-end { border-color: #666!important; }
+.clickable {
+    cursor: pointer;
+}
 
-input[type="date"]{
+.border-end {
+    border-color: #666 !important;
+}
+
+input[type="date"] {
     border: 1px solid #ced4da;
     min-height: 48px;
     border-radius: 4px;
     color: #8e8e8e
 }
 
-input[type="date"] > span.datetime-edit-field {
+input[type="date"]>span.datetime-edit-field {
     color: #f00;
 }
 
-.form-control:focus{
+.form-control:focus {
     color: #212529;
     background-color: #fff;
     border-color: #ced4da;
@@ -191,9 +225,9 @@ input[type="date"] > span.datetime-edit-field {
 }
 
 
-::placeholder { 
-    color: #8e8e8e!important; 
-    font-size: 1.25rem!important;
+::placeholder {
+    color: #8e8e8e !important;
+    font-size: 1.25rem !important;
 }
 
 .btn:focus {
@@ -201,7 +235,7 @@ input[type="date"] > span.datetime-edit-field {
     box-shadow: none;
 }
 
-.accordion-button:focus{
+.accordion-button:focus {
     outline: none;
     box-shadow: none;
 }
@@ -210,8 +244,8 @@ input[type="date"] > span.datetime-edit-field {
 #bloc-coords {
     position: absolute;
     z-index: 99;
-    background-color: rgba(0,60,136,.5);
-    border: 2px solid rgba(255,255,255,.7);
+    background-color: rgba(0, 60, 136, .5);
+    border: 2px solid rgba(255, 255, 255, .7);
     color: rgb(255, 255, 255);
     padding: 0 10px;
     right: .5rem;
@@ -220,11 +254,11 @@ input[type="date"] > span.datetime-edit-field {
     display: flex;
 }
 
-#select-coordinate-projection{
+#select-coordinate-projection {
     border-right: 50px;
     width: 0px;
-    background-color: rgba(0,60,136,0);
-    border: 0px solid rgba(255,255,255,.7);
+    background-color: rgba(0, 60, 136, 0);
+    border: 0px solid rgba(255, 255, 255, .7);
     height: 30px;
 }
 
@@ -233,7 +267,7 @@ input[type="date"] > span.datetime-edit-field {
     box-shadow: none;
 }
 
-#feature-form-error{
+#feature-form-error {
     min-width: 100%;
 }
 
@@ -241,13 +275,13 @@ input[type="date"] > span.datetime-edit-field {
     min-width: 100% !important;
 }
 
-.error-table > tr {
+.error-table>tr {
     border: #f5c2c7 2px solid;
 }
 
-.error-table > tr > td {
+.error-table>tr>td {
     color: #842029;
-    background-color : #f8d7da;
+    background-color: #f8d7da;
     border: #f5c2c7 2px solid;
 }
 
@@ -255,11 +289,11 @@ input[type="date"] > span.datetime-edit-field {
     position: absolute;
     min-width: 100%;
     min-height: 100%;
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0, 0, 0, 0.5);
     z-index: 9999;
 }
 
-#global-spinner > #spinner-container {
+#global-spinner>#spinner-container {
     position: absolute;
     height: 100px;
     width: 100px;
@@ -269,7 +303,7 @@ input[type="date"] > span.datetime-edit-field {
     margin-top: -50px;
 }
 
-#global-spinner > #spinner-container > .spinner-border {
+#global-spinner>#spinner-container>.spinner-border {
     height: 100px;
     width: 100px;
 }
