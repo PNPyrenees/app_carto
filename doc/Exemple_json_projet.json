@@ -1,0 +1,65 @@
+{
+    "map_extent": [
+        -138911.61047400613,
+        5251534.989778023,
+        101559.28051115837,
+        5348762.889756767
+    ],
+    "basemap": "",
+    "layers": [
+        {
+            "layer_type": "refLayerReadOnly",
+            "layer_name": "",
+            "layer_json_style": "...",
+            "layer_index": "",
+            "is_visible": ""
+        },
+        {
+            "layer_type": "refLayerEditable",
+            "layer_name": "",
+            "layer_json_style": "...",
+            "layer_index": "",
+            "is_visible": ""
+        },
+        {
+            "layer_type": "warningCalculatorLayer",
+            "layer_name": "",
+            "layer_json_style": "...",
+            "layer_index": "",
+            "is_visible": "",
+            "layer_features": ""
+        },
+        {
+            "layer_type": "drawingLayer ",
+            "layer_name": "",
+            "layer_json_style": "...",
+            "layer_index": "",
+            "is_visible": "",
+            "layer_features": ""
+        },
+        {
+            "layer_type": "obsLayer",
+            "layer_name": "",
+            "layer_json_style": "...",
+            "layer_index": "",
+            "is_visible": "",
+            "formdata": ""
+        }
+    ],
+    "attribute_table": [
+        {
+            "layer": "",
+            "filter": [
+                {
+                    "column_name": "",
+                    "value": ""
+                }
+            ],
+            "sorting": {
+                "column_name": "",
+                "order": "ASC / DESC"
+            },
+            "active": true
+        }
+    ]
+}

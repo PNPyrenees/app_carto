@@ -1,0 +1,26 @@
+<div class="modal fade" id="save-as-new-project-modal" tabindex="-1" aria-labelledby="save-as-new-project-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen-lg-down">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="save-as-new-project-modal-label">Nom du projet</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form id="save-as-new-project-form" class="save-as-new-project-validation" novalidate>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input type="text" class="form-control form-control-lg" id="project-name-input" aria-describedby="save-as-new-project-help" placeholder="Nom du projet" autocomplete="off" required>
+                        <div class="invalid-feedback">
+                            Veuillez saisir le nom du projet.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="save-as-new-project-submit" type="submit" class="btn btn-primary">Enregistrer comme nouveau projet</button>
+                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Annuler</button>
+                    <div id="save-as-new-project-error" class="invalid-feedback"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

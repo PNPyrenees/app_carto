@@ -1599,7 +1599,8 @@ def get_imported_layer(ref_layer_id):
             "desc_layer": {
                 "layer_default_style": None,
                 "layer_label": imported_layer.imported_layer_name,
-                "layer_attribution": imported_layer.role.role_nom + " " + imported_layer.role.role_prenom
+                "layer_attribution": imported_layer.role.role_nom + " " + imported_layer.role.role_prenom,
+                "layer_id": imported_layer.imported_layer_id
             }
         }
 
@@ -1744,7 +1745,7 @@ def get_feature_form_for_layer(layer_id):
 @valid_token_required
 def add_features_for_layer(layer_id):
     """ Ecrit les données dans la table correspondant à layer id
-    puis retourn les données tel qu'elles ont été enregistrées
+    puis retourne les données tel qu'elles ont été enregistrées
     Returns
     -------
         Array<GEOJSON>
@@ -2193,13 +2194,15 @@ def create_project():
         project_id = None,
         role_id = role.role_id,
         project_name = postdata["project_name"],
-        projet_content = postdata["project content"],
+        projet_content = postdata["project_content"],
         project_creation_date = datetime.now(),
         project_update_date = datetime.now()
     )
 
     db_app.session.add(project)
     db_app.session.commit()
+
+    return jsonify(True)
 
 # Enregistrement du contenu d'un projet
 @app.route('/api/project/update_content', methods=['POST'])
@@ -2257,6 +2260,9 @@ def update_project_name():
         project.project_update_date = datetime.now()
 
         db_app.session.commit()
+
+
+        return jsonify(True)
     else :
         return jsonify({
             'status': 'error',

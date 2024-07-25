@@ -57,6 +57,7 @@
         {% include 'modal/confirm_delete_feature.html' %}
         {% include 'modal/export.html' %}
         {% include 'modal/metadonnees.html' %}
+        {% include 'modal/save_as_new_project.html' %}
 
 
         {# Variable à passer au javascript #}
@@ -83,6 +84,7 @@
         <script type="text/javascript" src="{{ url_for('static', filename='js/layerbar.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/feature_edit.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/layer_metadata.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/project.js') }}"></script>
 
         <script type="text/javascript" src="{{ url_for('static', filename='lib/proj4js-2.11.0/proj4.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='lib/openlayers-v9.1.0-dist/ol.js') }}"></script>

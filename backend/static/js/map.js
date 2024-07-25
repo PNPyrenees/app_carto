@@ -91,6 +91,7 @@ let selectedVectorLayer = new ol.layer.Vector({
     source: selectedVectorSource,
     style: selectedStyles,
     zIndex: 999,
+    layerType: "selectLayer"
 })
 
 var scale_line = new ol.control.ScaleLine({
@@ -142,6 +143,7 @@ BASEMAPS.forEach(basemap => {
                 visible: parseInt(basemap.isDefault),
                 isEditing: false,
                 isBasemap: true,
+                basemapName: basemap.name,
                 description_layer: { "layer_attribution": basemap.attributions },
                 source: new ol.source.WMTS({
                     attributions: basemap.attributions,
@@ -168,6 +170,7 @@ BASEMAPS.forEach(basemap => {
                 visible: parseInt(basemap.isDefault),
                 isEditing: false,
                 isBasemap: true,
+                basemapName: basemap.name,
                 description_layer: { "layer_attribution": basemap.attributions },
                 source: new ol.source.XYZ({
                     attributions: basemap.attributions,
@@ -775,7 +778,7 @@ var getAutocompleteToponyme = function (search_name) {
 /**
  * Fonction ajoutant une couche GeoJSON à la carte
  */
-var addGeojsonLayer = function (data, additional_data = null) {
+var addGeojsonLayer = function (data, layerType, additional_data = null) {
 
     geojson = data.geojson_layer
 
@@ -881,14 +884,10 @@ var addGeojsonLayer = function (data, additional_data = null) {
 
     zindex = map.getLayers().getLength() + 1
 
-    var layerType = "refLayerReadOnly"
-    if (data.desc_layer.layer_is_editable == true) {
-        layerType = "editableLayer"
-    }
-
     // Création du layer
     let vectorLayer = new ol.layer.Vector({
         layer_name: data.desc_layer.layer_label,
+        databaseLayerId: data.desc_layer.layer_id,
         source: vectorSource,
         layerType: layerType,
         isEditable: data.desc_layer.layer_is_editable,
@@ -965,7 +964,7 @@ var addLayerInLayerBar = function (vectorLayer) {
     prototype = prototype.replace(/__LAYER_UID__/g, layer_uid)
     prototype = prototype.replace(/__LAYER_NAME__/g, layer_name)
 
-    // On active la fontion dédition si la couche est éditable
+    // On active le menu d'édition si la couche est éditable
     if (vectorLayer.get('isEditable') == true) {
         prototype = prototype.replace(/__EDIT_IS_DISABLED__/g, '')
     } else {
@@ -2064,7 +2063,7 @@ var confirmRemoveFeature = function (layer_uid, feature_uid) {
         if (layer.get("isEditing") == true) {
 
             // Si on est sur une couche éditable il va falloir supprimer en base 
-            if (layer.get("layerType") == "editableLayer") {
+            if (layer.get("layerType") == "refLayerEditable") {
                 writeFeaturesInDatabase(layer_id, feature, "delete").then(res => {
                     layer.getSource().removeFeature(feature)
                 })
@@ -2084,7 +2083,7 @@ var confirmRemoveFeature = function (layer_uid, feature_uid) {
                     document.getElementById("btn-challenge-calculator-execute").classList.add("disabled")
                 }
 
-                if (["editableLayer", "drawingLayer"].includes(layer.get("layerType"))) {
+                if (["refLayerEditable", "drawingLayer"].includes(layer.get("layerType"))) {
                     // Auquel cas, on désactive les bouton de suppression 
                     document.getElementById("btn-drawing-layer-remove-feature").classList.add("disabled")
                 }
@@ -2286,7 +2285,7 @@ var enableLayerDrawing = function (layer, geomType) {
     draw_interaction.on('drawstart', function (evt) {
         switch (layer.get("layerType")) {
             case "drawingLayer":
-            case "editableLayer":
+            case "refLayerEditable":
                 document.getElementById("btn-drawing-layer-previous").classList.remove("disabled")
                 break
         }
@@ -2326,7 +2325,7 @@ var enableLayerDrawing = function (layer, geomType) {
             }, 500)
         }
 
-        if (layer.get("layerType") == "editableLayer") {
+        if (layer.get("layerType") == "refLayerEditable") {
             // Reconstruction de la légende (après un timeout sinon l'objet n'est pas créé à temps)
             setTimeout(() => {
                 buildLegendForLayer(ol.util.getUid(layer), layer.get('json_style'))
@@ -2417,7 +2416,7 @@ var enableLayerModify = function (layer) {
     })
 
     modify_interaction.on('modifyend', function (event) {
-        if (layer.get("layerType") == "editableLayer") {
+        if (layer.get("layerType") == "refLayerEditable") {
 
             layer_id = layer.get("description_layer").layer_id
 
@@ -2622,7 +2621,7 @@ var numerisationToolbarShowManagement = function (layer_uid) {
 
                     break
                 case "drawingLayer":
-                case "editableLayer":
+                case "refLayerEditable":
                     // Dans tous les cas, on masque les bouton d'édition pour la couche de la calculette des enjeux et de la couche éditable
                     document.getElementById("challenge-calculator-group-edit-btn").classList.add("hide")
                     // On masque par défaut le bouton d'édition des données attributaires
@@ -2642,7 +2641,7 @@ var numerisationToolbarShowManagement = function (layer_uid) {
 
                     // Dans le cas d'une couche de données éditable (hors couche de dessin)
                     // on n'active que les boutton associé aux géométries autorisés
-                    if (layer.get("layerType") == 'editableLayer') {
+                    if (layer.get("layerType") == 'refLayerEditable') {
                         // Par défaut on désactive tous
                         document.getElementById("btn-drawing-layer-add-polygon").disabled = true
                         document.getElementById("btn-drawing-layer-add-linestring").disabled = true

@@ -122,7 +122,7 @@ var buildAddRefLayerContent = function () {
 
                 var div_row = document.createElement('div')
                 div_row.setAttribute('class', 'row')
-                
+
                 var div_col_11 = document.createElement('div')
                 div_col_11.setAttribute('class', 'col-11')
                 div_col_11.appendChild(document.createTextNode(layer.layer_label))
@@ -130,7 +130,7 @@ var buildAddRefLayerContent = function () {
 
                 var div_col_1 = document.createElement('div')
                 div_col_1.setAttribute('class', 'col-1')
-                
+
                 // Si un UUID de métadonnée est associé à la couche, 
                 // on ajoute l'icone d'accès à la métadonnée
                 if (layer.layer_metadata_uuid) {
@@ -156,8 +156,8 @@ var buildAddRefLayerContent = function () {
 
                 // on active la coloration si on sur le "li"
                 li.addEventListener('click', (event) => {
-                    if (event.target.classList.contains("col-11")){ 
-                    
+                    if (event.target.classList.contains("col-11")) {
+
                         // On comence par désactiver tous les autres
                         let all_modal_ref_layer_item = document.getElementsByClassName('modal-ref-layer-item')
                         for (var i = 0; i < all_modal_ref_layer_item.length; i++) {
@@ -230,7 +230,13 @@ var callApiForLayer = function (ref_layer_id) {
                 return res.json()
             }
         }).then(data => {
-            addGeojsonLayer(data)
+
+            var layerType = "refLayerReadOnly"
+            if (data.desc_layer.layer_is_editable == true) {
+                layerType = "refLayerEditable"
+            }
+
+            addGeojsonLayer(data, layerType)
             addLayerModal.hide()
             layer_submit_button.disabled = false
             document.getElementById('loading-spinner').style.display = 'none'
@@ -879,7 +885,7 @@ var getObsLayerGeojson = function (formdata) {
         .then(data => {
             if (data.geojson_layer.features) {
                 additional_data = { "formdata": formdata, }
-                addGeojsonLayer(data, additional_data)
+                addGeojsonLayer(data, "obsLayer", additional_data)
                 addLayerModal.hide()
 
                 layer_submit_button.disabled = false
@@ -1076,7 +1082,7 @@ var buildMyImportedLayerContent = function () {
 
 /**
  * Fonctions permettant de récupérer la liste
- * des couches de référence disponible
+ * des couches importées disponible
  */
 var getImportedLayerList = function () {
     return fetch(APP_URL + "/api/imported_layer/get_layers_list", {
@@ -1365,7 +1371,7 @@ var addImportedLayerToMap = function (importedLayerId) {
                 return res.json()
             }
         }).then(data => {
-            addGeojsonLayer(data)
+            addGeojsonLayer(data, "importedLayer")
             addLayerModal.hide()
             layer_submit_button.disabled = false
             document.getElementById('loading-spinner').style.display = 'none'

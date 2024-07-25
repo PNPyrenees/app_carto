@@ -143,18 +143,28 @@ var getWarningCalculatorData = function (geojson_txt) {
         })
         .then(data => {
             data.forEach(layer => {
+                console.log(layer)
                 additional_data = { "formdata": "", }
-                addGeojsonLayer(layer, additional_data)
+                if (layer.desc_layer.layer_id) {
+                    addGeojsonLayer(layer, "warningCalculatorResultLayer", additional_data)
+                } else {
+                    // S'il n'y a pas d'identifiant base de données de la couche alors on est sur 
+                    // le résultat d el'intersection avec les données d'àbservation
+                    addGeojsonLayer(layer, "warningCalculatorObsResultLayer", additional_data)
+                }
             });
         })
         .catch(error => {
             if (typeof error == "string") {
                 apiCallErrorCatcher(error, error)
             } else {
-                error.then(err => {
+                default_message = "Erreur lors de la récupération de la couche de donénes d'observation"
+                apiCallErrorCatcher(error, default_message)
+
+                /*error.then(err => {
                     default_message = "Erreur lors de la récupération de la couche de donénes d'observation"
                     apiCallErrorCatcher(error, default_message)
-                })
+                })*/
             }
         })
 }

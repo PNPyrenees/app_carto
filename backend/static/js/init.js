@@ -70,6 +70,10 @@ var exportModal = new bootstrap.Modal(document.getElementById("export-modal"), {
 var metadonneesModal = new bootstrap.Modal(document.getElementById("metadonnees-modal"), {
     keyboard: false
 })
+
+var saveAsNewProjectModal = new bootstrap.Modal(document.getElementById("save-as-new-project-modal"), {
+    keyboard: false
+})
 // On ré-initialise le modal à la fermeture
 /*var addLayerModalEl = document.getElementById("add-layer-modal")
 addLayerModalEl.addEventListener('hidden.bs.modal', function (event) {
