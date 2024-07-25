@@ -187,6 +187,8 @@ html * {
 
 .dropdown-item.disabled {
     cursor: default !important;
+    color: #adb5bd;
+    background-color: transparent;
 }
 
 .show {
