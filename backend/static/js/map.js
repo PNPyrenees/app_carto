@@ -939,6 +939,11 @@ var refreshLayer = function (layer_id) {
                             layer.getSource().addFeatures(new ol.format.GeoJSON().readFeatures(data.geojson_layer))
                         }
 
+                        // On rafrachi la fonction de modification car après un refresh du layer 
+                        // il y a un bug d'affichage
+                        disableLayerModify()
+                        enableLayerModify(layer)
+
                         // On rafraichit l'intaraction SNAP (cas ou l'on ajoute un 
                         // objet à la couche pour qu'il soit connu par l'intéraction)
                         disableLayerSnapping()
