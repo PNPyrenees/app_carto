@@ -74,6 +74,10 @@ var metadonneesModal = new bootstrap.Modal(document.getElementById("metadonnees-
 var saveAsNewProjectModal = new bootstrap.Modal(document.getElementById("save-as-new-project-modal"), {
     keyboard: false
 })
+
+var selectProjectModal = new bootstrap.Modal(document.getElementById("select-project-modal"), {
+    keyboard: false
+})
 // On ré-initialise le modal à la fermeture
 /*var addLayerModalEl = document.getElementById("add-layer-modal")
 addLayerModalEl.addEventListener('hidden.bs.modal', function (event) {
@@ -99,6 +103,19 @@ apiCallErrorCatcher = function (error, default_message = null) {
         // totallement ouvert pour pouvoir être fermé
         setTimeout(function () {
             addLayerModal.hide()
+            pdfGeneratorModal.hide()
+            renameLayerModal.hide()
+            challengeCalculatorInfoModal.hide()
+            uploadChallengeCalculatorlayerModal.hide()
+            obsMoreInfoModal.hide()
+            styleLayerModal.hide()
+            featureEditModal.hide()
+            confirmDeleteFeatureModal.hide()
+            exportModal.hide()
+            metadonneesModal.hide()
+            saveAsNewProjectModal.hide()
+            selectProjectModal.hide()
+
             forceOpenLoginModal()
         }, 1000)
     }
@@ -107,9 +124,6 @@ apiCallErrorCatcher = function (error, default_message = null) {
     if (typeof error == "string") {
         showAlert(default_message)
     } else {
-        /*if (error.status == 500){
-            showAlert(default_message)
-        } else {*/
         err = error.json()
         err.then(err => {
             if (err.message != undefined) {
@@ -119,7 +133,6 @@ apiCallErrorCatcher = function (error, default_message = null) {
                 showAlert(default_message)
             }
         })
-        //}
     }
 }
 
@@ -384,3 +397,8 @@ function isValidDate(dateString) {
     // Check the range of the day
     return day > 0 && day <= monthLength[month - 1];
 };
+
+// Fonction utile pour trier un array de nombre
+/*function compareNumbers(a, b) {
+    return a - b;
+}*/

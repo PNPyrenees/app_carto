@@ -20,6 +20,7 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/modal-add-layer.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/modal-style.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/modal-metadonnee.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/modal-select-project.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap-icons-1.11.3/font/bootstrap-icons.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='lib/openlayers-v9.1.0-dist/ol.css') }}">
         {# FIN lien CSS #}
@@ -58,6 +59,7 @@
         {% include 'modal/export.html' %}
         {% include 'modal/metadonnees.html' %}
         {% include 'modal/save_as_new_project.html' %}
+        {% include 'modal/select_project.html' %}
 
 
         {# Variable à passer au javascript #}

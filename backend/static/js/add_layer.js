@@ -198,7 +198,7 @@ document.getElementById('btn-add-imported-layer').addEventListener('click', even
 /**
  * Ajoute une couche de référence à la carte
  */
-var addRefLayerToMap = function () {
+var addRefLayerToMap = async function () {
     let active_layer = document.querySelector('.modal-ref-layer-item.active')
     let ref_layer_id = active_layer.getAttribute('layer-id')
 
@@ -206,15 +206,16 @@ var addRefLayerToMap = function () {
         layer_submit_button.disabled = true
         document.getElementById('loading-spinner').style.display = 'inline-block'
 
-        callApiForLayer(ref_layer_id)
+        await callApiForRefLayer(ref_layer_id)
     }
 }
 
-var callApiForLayer = function (ref_layer_id) {
+var callApiForRefLayer = async ref_layer_id => {
+    //async callApiForRefLayer(ref_layer_id){
     controller = new AbortController;
     signal = controller.signal;
 
-    fetch(APP_URL + "/api/ref_layer/" + ref_layer_id, {
+    return fetch(APP_URL + "/api/ref_layer/" + ref_layer_id, {
         method: "GET",
         signal: signal,
         headers: {
@@ -240,6 +241,8 @@ var callApiForLayer = function (ref_layer_id) {
             addLayerModal.hide()
             layer_submit_button.disabled = false
             document.getElementById('loading-spinner').style.display = 'none'
+
+            return true
         })
         .catch(error => {
             layer_submit_button.disabled = false

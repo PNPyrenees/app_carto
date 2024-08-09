@@ -1,0 +1,44 @@
+#my_project_list {
+    padding: 0;
+}
+
+.my-project-date {
+    color: #000;
+    font-size: 0.7em;
+    font-style: italic;
+}
+
+.delete-my-project {
+    color: #f00;
+    font-size: 30px;
+}
+
+.modal-my-project-item {
+    cursor: pointer;
+    color: #01965e;
+    list-style-type: none;
+    margin: none;
+    border: solid 1px #363b3e;
+    padding: 5px;
+}
+
+.modal-my-project-item:hover {
+    cursor: pointer;
+    background-color: moccasin;
+    /*color: mintcream;*/
+}
+
+.modal-my-project-item.active {
+    /*cursor: pointer;*/
+    background-color: #01965e !important;
+    color: mintcream;
+}
+
+#modal-my-projects-list-spinner {
+    text-align: center;
+}
+
+
+#open-project-loading-spinner {
+    display: none;
+}

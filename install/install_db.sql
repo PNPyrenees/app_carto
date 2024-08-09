@@ -288,7 +288,7 @@ create table app_carto.t_projects (
 	project_id serial,
 	role_id integer NOT NULL,
 	project_name varchar(255) NOT NULL,
-	projet_content jsonb NOT NULL,
+	project_content jsonb NOT NULL,
     project_creation_date timestamp without time zone default now(),
 	project_update_date timestamp without time zone default now(),
 

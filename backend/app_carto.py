@@ -2194,7 +2194,7 @@ def create_project():
         project_id = None,
         role_id = role.role_id,
         project_name = postdata["project_name"],
-        projet_content = postdata["project_content"],
+        project_content = postdata["project_content"],
         project_creation_date = datetime.now(),
         project_update_date = datetime.now()
     )
@@ -2210,7 +2210,7 @@ def create_project():
 def update_project_content():
     postdata = request.json
 
-    project = Project.query.get(postdata["role_id"])
+    project = Project.query.get(postdata["project_id"])
 
     # Récupération de l'utilisateur courrant
     token = request.cookies.get('token')
@@ -2241,7 +2241,7 @@ def update_project_content():
 def update_project_name():
     postdata = request.json
 
-    project = Project.query.get(postdata["role_id"])
+    project = Project.query.get(postdata["project_id"])
 
     # Récupération de l'utilisateur courrant
     token = request.cookies.get('token')
@@ -2269,8 +2269,8 @@ def update_project_name():
             'message': """[Erreur] L'utilisateur n'est pas le propriétaire du projet - {}""".format(error)
         }), 520
 
-# retourne la liste des projet d'un utilisateur
-@app.route('/api/projet/my_project', methods=['GET'])
+# retourne la liste des projets d'un utilisateur
+@app.route('/api/project/my_projects', methods=['GET'])
 @valid_token_required
 def get_my_project():
     """ Fourni la liste des projet créé par l'utilisateur courant
@@ -2295,13 +2295,85 @@ def get_my_project():
         Project.project_id,
         Project.role_id,
         Project.project_name,
-        Project.projet_content,
+        #Project.project_content,
         Project.project_creation_date,
         Project.project_update_date
     ).filter_by(role_id=role.role_id).order_by(Project.project_name, Project.project_update_date)
 
-    return jsonify(Project(many=True).dump(myProject))
+    return jsonify(ProjectSchema(many=True).dump(myProject))
 
+@app.route('/api/project/<project_id>', methods=['GET'])
+@valid_token_required
+def get_project(project_id):
+    """ retourne un projet
+
+    Returns
+    -------
+        GeoJson
+    """
+    project = Project.query.get(project_id)
+
+    # Récupération de l'utilisateur courrant
+    token = request.cookies.get('token')
+    try:
+        role = Role.query.filter(Role.role_token == token).one()
+    except Exception as error:
+        return jsonify({
+            'status': 'error',
+            'message': """[Erreur] Aucun role associé au token - {}""".format(error)
+        }), 520
+
+    # On s'assure que celui qui demande l'ouverture de
+    # projet est bien le propriétaire du projet
+    if project.role_id == role.role_id :
+        return jsonify(ProjectSchema().dump(project))
+    else :
+        return jsonify({
+                'status': 'error',
+                'message': """[Erreur] L'utilisateur courant n'a pas le droit de supprimer ce projet - {}""".format(error)
+            }), 403
+
+    
+
+@app.route('/api/project/<project_id>', methods=['DELETE'])
+@valid_token_required
+def delete_project(project_id):
+    """ supprime un projet
+
+    Returns
+    -------
+        GeoJson
+    """
+    project = Project.query.get(project_id)
+
+    # Récupération de l'utilisateur courrant
+    token = request.cookies.get('token')
+    try:
+        role = Role.query.filter(Role.role_token == token).one()
+    except Exception as error:
+        return jsonify({
+            'status': 'error',
+            'message': """[Erreur] Aucun role associé au token - {}""".format(error)
+        }), 520
+
+    # On s'assure que celui qui demande la suppression du 
+    # projet est bien le propriétaire du projet
+    if project.role_id == role.role_id :
+        try:
+            db_app.session.delete(project)
+            db_app.session.commit()
+        except Exception as error:
+            return jsonify({
+                'status': 'error',
+                'message': """[Erreur] Impossible de supprimer le projet - {}""".format(error)
+            }), 520
+    else :
+        return jsonify({
+                'status': 'error',
+                'message': """[Erreur] L'utilisateur courant n'a pas le droit de supprimer ce projet - {}""".format(error)
+            }), 403
+
+    return jsonify(True)
 
 
 # Fonction permettant de sérialisé proprement les date contenu dans un json    

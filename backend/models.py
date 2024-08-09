@@ -284,7 +284,7 @@ class Project(db_app.Model):
     project_id = db_app.Column(db_app.Integer, primary_key = True)
     role_id = db_app.Column(db_app.Integer, ForeignKey('app_carto.t_roles.role_id'))
     project_name = db_app.Column(db_app.String(255))
-    projet_content = db_app.Column(JSONB)
+    project_content = db_app.Column(JSONB)
     project_creation_date = db_app.Column(db_app.DateTime(), default=datetime.now(pytz.timezone('Europe/Paris')))
     project_update_date = db_app.Column(db_app.DateTime(), default=datetime.now(pytz.timezone('Europe/Paris')))
 
@@ -294,14 +294,14 @@ class Project(db_app.Model):
         project_id,
         role_id,
         project_name,
-        projet_content,
+        project_content,
         project_creation_date,
         project_update_date
     ):
         self.project_id = project_id
         self.role_id = role_id
         self.project_name = project_name
-        self.projet_content = projet_content
+        self.project_content = project_content
         self.project_creation_date = project_creation_date
         self.project_update_date = project_update_date
         

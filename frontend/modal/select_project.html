@@ -1,0 +1,43 @@
+<div class="modal fade" id="select-project-modal" tabindex="-1" aria-labelledby="select-project-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen-lg-down modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="select-project-modal-label">Ouvrir un projet</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row modal-content-with-menu">
+                    <div class="col-lg-2 col-menu">
+                        <div id="select-project-menu" class="btn-group-vertical" role="group">
+                            <input type="radio" class="modal-btn-check btn-check" name="btn-projects" id="btn-my-projects" autocomplete="off" target="my-project-view" checked>
+                            <label class="btn btn-outline-primary" for="btn-my-projects">Mes projets</label>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-10 col-content">
+                        <div id="modal-my-projects-list-spinner" class="hide">
+                            <div id="modal-my-projects-spinner-container">
+                                <div class="spinner-border spinner-border-lg" role="status"></div>
+                            </div>
+                        </div>
+                        <div id="my-project-view" class="modal-div-content show">
+                            <!-- content = Mes projets -->
+                            <div class="tab-pane fade show active" id="my-projects-tab" role="tabpanel" aria-labelledby="my-projects-tab">
+                                <ul id="my-projects-list"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <p class="text-warning"> Attention, l'ouverture d'un projet va retirer toutes les données de la carte actuelle !</p>
+                <button id="my-project-submit" type="submit" class="btn btn-primary" onclick="openProject()">
+                    <div id="open-project-loading-spinner" class="spinner-grow spinner-grow-sm" role="status"></div>
+                    Ouvrir ce projet
+                </button>
+                <button id="my-project-cancel" type="button" class="btn btn-warning" data-bs-dismiss="modal">Annuler</button>
+            </div>
+        </div>
+    </div>
+</div>
