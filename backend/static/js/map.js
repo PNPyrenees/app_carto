@@ -937,6 +937,16 @@ var refreshLayer = function (layer_id) {
                         if (data.geojson_layer.features) {
                             layer.getSource().addFeatures(new ol.format.GeoJSON().readFeatures(data.geojson_layer))
                         }
+
+                        // On rafrachi la fonction de modification car après un refresh du layer 
+                        // il y a un bug d'affichage
+                        disableLayerModify()
+                        enableLayerModify(layer)
+
+                        // On rafraichit l'intaraction SNAP (cas ou l'on ajoute un 
+                        // objet à la couche pour qu'il soit connu par l'intéraction)
+                        disableLayerSnapping()
+                        enableLayerSnapping(layer)
                     }
                 }
             })
@@ -2454,6 +2464,7 @@ var disableLayerDrawing = function () {
     // On réactive l'interaction singleclick
     map.on('singleclick', singleClickForFeatureInfo)
     map.un('singleclick', singleClickForRemovingFeature)
+    map.un('singleclick', openFormFeatureDataEdit)
 
     // On désactive les intéraction type par type 
     // Pour contourner un bug avec l'interaction snap
@@ -2587,6 +2598,7 @@ var numerisationToolbarShowManagement = function (layer_uid) {
     // On desactive l'action de suppression sur un clic
     map.on('singleclick', singleClickForFeatureInfo)
     map.un('singleclick', singleClickForRemovingFeature)
+
 
     map.getLayers().forEach(layer => {
         if (ol.util.getUid(layer) == layer_uid) {

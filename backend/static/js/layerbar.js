@@ -158,8 +158,17 @@ var layerToCSV = function (layer_uid) {
     // Recherche de la couche
     map.getLayers().forEach(layer => {
         if (ol.util.getUid(layer) == layer_uid) {
+
+            // On n'exporte que les données affichées (filtré)
+            var tmpFeatures  = []
+            layer.getSource().getFeatures().forEach(function(feature) {
+                if (feature["visible"] != false) {
+                    tmpFeatures.push(feature)
+                }
+            })
+
             features = []
-            layer.getSource().getFeatures().forEach(feature => {
+            tmpFeatures.forEach(feature => {
                 // On retire le champ geometry (...tmp_feature reçoit tous les champ sauf geometry)
                 let { geometry, ...tmp_feature } = feature.getProperties()
                 features.push(tmp_feature)
@@ -178,7 +187,15 @@ var layerToGeoJSON = function (layer_uid) {
     map.getLayers().forEach(layer => {
         if (ol.util.getUid(layer) == layer_uid) {
 
-            var geojsonStr = new ol.format.GeoJSON().writeFeatures(layer.getSource().getFeatures(), {
+            // On n'exporte que les données affichées (filtré)
+            var tmpFeatures  = []
+            layer.getSource().getFeatures().forEach(function(feature) {
+                if (feature["visible"] != false) {
+                    tmpFeatures.push(feature)
+                }
+            })
+
+            var geojsonStr = new ol.format.GeoJSON().writeFeatures(tmpFeatures, {
                 dataProjection: 'EPSG:4326',
                 featureProjection: 'EPSG:3857'
             });
@@ -196,12 +213,19 @@ var layerToKML = function (layer_uid) {
     map.getLayers().forEach(layer => {
         if (ol.util.getUid(layer) == layer_uid) {
             
-            var tmpFeatures = layer.getSource().getFeatures()
+            // On n'exporte que les données affichées (filtré)
+            var tmpFeatures  = []
+            layer.getSource().getFeatures().forEach(function(feature) {
+                if (feature["visible"] != false) {
+                    tmpFeatures.push(feature)
+                }
+            })
+            
             var layerStyle
             tmpFeatures.forEach(function(feature) {
                 layerStyle = layer.getStyleFunction()(feature, map.getView().getResolution());
                 feature.setStyle(layerStyle);
-              });
+            });
 
             //var kmlStr = new ol.format.KML().writeFeatures(layer.getSource().getFeatures(), {
             var kmlStr = new ol.format.KML().writeFeatures(tmpFeatures, {
