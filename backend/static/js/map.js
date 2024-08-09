@@ -143,6 +143,7 @@ BASEMAPS.forEach(basemap => {
                 visible: parseInt(basemap.isDefault),
                 isEditing: false,
                 isBasemap: true,
+                layerType: 'basemap',
                 basemapName: basemap.name,
                 description_layer: { "layer_attribution": basemap.attributions },
                 source: new ol.source.WMTS({
@@ -170,6 +171,7 @@ BASEMAPS.forEach(basemap => {
                 visible: parseInt(basemap.isDefault),
                 isEditing: false,
                 isBasemap: true,
+                layerType: 'basemap',
                 basemapName: basemap.name,
                 description_layer: { "layer_attribution": basemap.attributions },
                 source: new ol.source.XYZ({
@@ -906,6 +908,8 @@ var addGeojsonLayer = function (data, layerType, additional_data = null) {
 
     // Ajout du layer dans le layerBar
     addLayerInLayerBar(vectorLayer)
+
+    return vectorLayer
 }
 
 var refreshLayer = function (layer_id) {
@@ -1325,10 +1329,12 @@ removeLayer = function (layer_uid) {
         }
     })
 
+    var layer_type = layer.get("layerType")
+
     // puis on la supprime
     if (layer) {
         //Cas particulier de la couche warning qui ne doit pas être supprimé
-        if (layer.get("layerType") == "warningCalculatorLayer") {
+        if (layer_type == "warningCalculatorLayer") {
             // On rend invisible la couche
             layer.setVisible(false)
             // on s'assure de désactiver l'édition
@@ -1344,19 +1350,21 @@ removeLayer = function (layer_uid) {
         }
 
         // Si la couche supprimé est la couche active alors on s'assure que l'édition est désactivé
-        if (document.querySelector("#layer_list li[layer-uid='" + layer_uid + "']").classList.contains("layer-is-selected")) {
-            disableLayerDrawing()
+        if (document.querySelector("#layer_list li[layer-uid='" + layer_uid + "']")) {
+            if (document.querySelector("#layer_list li[layer-uid='" + layer_uid + "']").classList.contains("layer-is-selected")) {
+                disableLayerDrawing()
 
-            // On masque les éventuelle boite à outil ouverte
-            if (layer.get("layerType") == "warningCalculatorLayer") {
-                document.getElementById("challenge-calculator-group-edit-btn").classList.add("hide")
-            } else {
-                document.getElementById("drawing-layer-group-edit-btn").classList.add("hide")
+                // On masque les éventuelle boite à outil ouverte
+                if (layer.get("layerType") == "warningCalculatorLayer") {
+                    document.getElementById("challenge-calculator-group-edit-btn").classList.add("hide")
+                } else {
+                    document.getElementById("drawing-layer-group-edit-btn").classList.add("hide")
+                }
             }
-        }
 
-        // On supprime la couche du layer bar
-        document.querySelector("#layer_list li[layer-uid='" + layer_uid + "']").remove()
+            // On supprime la couche du layer bar
+            document.querySelector("#layer_list li[layer-uid='" + layer_uid + "']").remove()
+        }
 
         // On efface la table attributaire si elle est ouverte
         tab_id = "layer-data-table-" + current_layer_uid
@@ -1376,15 +1384,6 @@ removeLayer = function (layer_uid) {
         // le fenêtre d'affichage des données attributaire
         // (celle qui s'ouvre quand on clique sur la carte)
         deleteDataInInfobulleForlayer(layer_uid)
-        /*attr_data = document.getElementById("bloc-clicked-features-attributes").querySelector(".layer-item[layer-uid=\"" + layer_uid + "\"]")
-        if (attr_data) {
-            attr_data.remove()
-
-            // S'il n'y a plus de données dans le bloc attributaire, on le ferme
-            if (attr_data = document.getElementById("bloc-clicked-features-attributes").querySelector(".layer-item") == null) {
-                hideBlockClickedFeaturesAttributes()
-            }
-        }*/
     }
 }
 

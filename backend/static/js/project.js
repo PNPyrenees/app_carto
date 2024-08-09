@@ -61,7 +61,8 @@ var buildJsonProject = function () {
     var layer_features
     map.getLayers().forEach(layer => {
         /* Récupération du nom de la couche utilisé comme fond de carte */
-        if (layer.get("isBasemap") == true && layer.get("visible") == true) {
+        if (layer.get("layerType") == 'basemap' && layer.get("visible") == true) {
+            console.log('HERE I AM !!!')
             basemap = layer.get("basemapName")
         }
 
@@ -344,6 +345,12 @@ var buildMyprojectList = function () {
  */
 var openProject = function () {
 
+    resetMapContent()
+
+    console.log("-----------------------")
+    console.log("récupération des couches")
+    console.log("-----------------------")
+
     document.getElementById('open-project-loading-spinner').style.display = 'inline-block'
     // Récupération de l'dentifiant du projet
     var targetProjectType = document.getElementById("select-project-menu").querySelector('input[name="btn-projects"]:checked').getAttribute("target")
@@ -355,7 +362,11 @@ var openProject = function () {
         var project_id = projectItem.getAttribute("project-id")
 
         // Application de la configuration du projet
-        getProjectList(project_id).then(async function (project) {
+        getProject(project_id).then(async function (project) {
+
+            console.log(project)
+
+
             //Récupération du fond de carte
             applyProjectBasemap(project["project_content"]["basemap"])
 
@@ -363,14 +374,30 @@ var openProject = function () {
             applyProjectExtent(project["project_content"]["map_extent"])
 
             // Récupération des couches de données
-            console.log(project["project_content"]["layers"])
+            //console.log(project["project_content"]["layers"])
             project["project_content"]["layers"].sort((a, b) => a.layer_index - b.layer_index);
-            console.log(project["project_content"]["layers"])
+            //console.log(project["project_content"]["layers"])
 
-            for (const layer of project["project_content"]["layers"]) {
-                switch (layer["layer_type"]) {
+            for (const projectLayer of project["project_content"]["layers"]) {
+                switch (projectLayer["layer_type"]) {
                     case "refLayerReadOnly":
-                        resp = await callApiForRefLayer(layer["layer_database_id"])
+                        console.log("Recupération de la couche : " + projectLayer["layer_name"])
+
+                        // Récupération de la couche
+                        layer = await callApiForRefLayer(projectLayer["layer_database_id"])
+
+                        // Application du style enregistré
+                        layer.setStyle(buildStyle(projectLayer["layer_json_style"]));
+                        layer.set("json_style", projectLayer["layer_json_style"])
+                        layer.getSource().getFeatures().forEach(feature => {
+                            feature.setStyle(buildStyle(projectLayer["layer_json_style"]))
+                        })
+
+                        // Attribution du nom enregistré
+                        layer.set("layer_name", projectLayer["layer_name"])
+                        console.log("Couche : " + layer.get("layer_name") + " récupéré")
+                        document.getElementById("layer_list").querySelector("li[layer-uid='" + ol.util.getUid(layer) + "'").querySelector(".layer-name").innerHTML = projectLayer["layer_name"]
+
                         break
                     case "refLayerEditable":
                         break
@@ -388,12 +415,120 @@ var openProject = function () {
                         break
                 }
             }
+
+            selectProjectModal.hide()
+            document.getElementById('open-project-loading-spinner').style.display = 'none'
         })
     }
-    document.getElementById('open-project-loading-spinner').style.display = 'none'
+
+
 }
 
-var openProjectReflayer = async function (layer) {
+var resetMapContent = function () {
+
+    // On retire les couche de la carte
+    console.log("Seconde liste des couches : ")
+    map.getLayers().forEach(function (layer) {
+        if (layer) {
+
+            var layer_uid = ol.util.getUid(layer)
+
+            var layer_type = layer.get("layerType")
+
+            if (layer_type && ['refLayerReadOnly', 'warningCalculatorLayer', 'warningCalculatorResultLayer', 'warningCalculatorObsResultLayer', 'drawingLayer', 'obsLayer', 'importedLayer'].includes(layer_type)) {
+                // puis on la supprime
+                if (layer) {
+                    //Cas particulier de la couche warning qui ne doit pas être supprimé
+                    if (layer_type == "warningCalculatorLayer") {
+                        // On rend invisible la couche
+                        layer.setVisible(false)
+                        // on s'assure de désactiver l'édition
+                        layer.set("isEditing", false)
+                        // Et on supprime les objets qu'elle contient
+                        layer.getSource().clear()
+
+                        // On desactive le bouton associé à la calculette des enjeux si ce n'est pas déjà le cas
+                        document.getElementById("btn-challenge-calculator").classList.remove("btn-active")
+                    } else {
+                        // Cas classique, on supprime la couche de la carte
+                        setTimeout(() => map.removeLayer(layer), 500);
+                    }
+
+                    // Si la couche supprimé est la couche active alors on s'assure que l'édition est désactivé
+                    if (document.querySelector("#layer_list li[layer-uid='" + layer_uid + "']")) {
+                        if (document.querySelector("#layer_list li[layer-uid='" + layer_uid + "']").classList.contains("layer-is-selected")) {
+                            disableLayerDrawing()
+
+                            // On masque les éventuelle boite à outil ouverte
+                            if (layer.get("layerType") == "warningCalculatorLayer") {
+                                document.getElementById("challenge-calculator-group-edit-btn").classList.add("hide")
+                            } else {
+                                document.getElementById("drawing-layer-group-edit-btn").classList.add("hide")
+                            }
+                        }
+
+                        // On supprime la couche du layer bar
+                        document.querySelector("#layer_list li[layer-uid='" + layer_uid + "']").remove()
+                    }
+
+                    // On efface la table attributaire si elle est ouverte
+                    tab_id = "layer-data-table-" + layer_uid
+                    if (document.querySelector(".nav-layer-item[target=" + tab_id + "]")) {
+                        document.getElementById(tab_id).remove()
+                        document.querySelector(".nav-layer-item[target=" + tab_id + "]").remove()
+                    }
+
+                    // On efface le ou les features de la couche qui sont dans selectedVectorSource
+                    selectedVectorSource.getFeatures().forEach(feature => {
+                        if (feature.orginalLayerUid == layer_uid) {
+                            selectedVectorSource.removeFeature(feature)
+                        }
+                    })
+
+                    // On supprime les entré de cette couche dans 
+                    // le fenêtre d'affichage des données attributaire
+                    // (celle qui s'ouvre quand on clique sur la carte)
+                    deleteDataInInfobulleForlayer(layer_uid)
+                }
+            }
+        }
+    });
+    console.log("Fin seconde liste des couches ! ")
+
+    // On vide la barre de couche
+    document.getElementById("layer_list").innerHTML = ''
+
+    // On ferme toute les boites à outil
+    document.getElementById("challenge-calculator-group-edit-btn").classList.add('hide')
+    document.getElementById("drawing-layer-group-edit-btn").classList.add('hide')
+    document.getElementById("measure-group-btn").classList.add('hide')
+
+    // On ré-initialise les interactions carto
+    map.un('singleclick', singleClickForRemovingFeature)
+    map.un('singleclick', openFormFeatureDataEdit)
+    map.un('singleclick', singleClickForFeatureInfo)
+    map.on('singleclick', singleClickForFeatureInfo)
+
+    // On ferme l'infobulle
+    document.getElementById("bloc-clicked-features-attributes-content").innerHTML = ''
+    document.getElementById("bloc-clicked-features-attributes").classList.remove('show')
+
+
+    // On ferme les tables attributaires
+    document.getElementById("layer-data-table").innerHTML = ''
+    document.getElementById("nav-attribute-table").innerHTML = ''
+    document.getElementById("attribute-data-container").classList.add('hide')
+    if (document.getElementsByClassName("nav-layer-item").length == 0) {
+        document.getElementById("attribute-data-container").classList.add("hide")
+        document.getElementsByClassName("ol-scale-line")[0].style.bottom = "8px"
+        document.getElementsByClassName("ol-attribution")[0].style.bottom = ".5em"
+
+    }
+
+
+}
+
+/*var openProjectReflayer = async function (layer) {
 
     switch (layer["layer_type"]) {
         case "refLayerReadOnly":
@@ -414,13 +549,13 @@ var openProjectReflayer = async function (layer) {
         case "importedLayer":
             break
     }
-}
+}*/
 
 /**
  * Fonctions permettant de récupérer la liste
- * des cprojet de l'utilisateur
+ * des projets de l'utilisateur
  */
-var getProjectList = function (project_id) {
+var getProject = function (project_id) {
     return fetch(APP_URL + "/api/project/" + project_id, {
         method: "GET",
         headers: {
@@ -446,6 +581,8 @@ var getProjectList = function (project_id) {
  * Fonction recherchant et changeant le fond de carte en fonction du nom passé en paramètre
  */
 var applyProjectBasemap = function (basemapName) {
+
+    console.log("basemap : " + basemapName)
     document.getElementById("basemap-dropdown-content").querySelectorAll(".dropdown-item").forEach(basemapItem => {
         if (basemapItem.innerHTML == basemapName) {
             basemapItem.click()

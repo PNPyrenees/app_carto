@@ -237,12 +237,12 @@ var callApiForRefLayer = async ref_layer_id => {
                 layerType = "refLayerEditable"
             }
 
-            addGeojsonLayer(data, layerType)
+            layer = addGeojsonLayer(data, layerType)
             addLayerModal.hide()
             layer_submit_button.disabled = false
             document.getElementById('loading-spinner').style.display = 'none'
 
-            return true
+            return layer
         })
         .catch(error => {
             layer_submit_button.disabled = false
