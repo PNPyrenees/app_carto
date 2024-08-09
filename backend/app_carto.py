@@ -1771,7 +1771,7 @@ def add_features_for_layer(layer_id):
         value = feature_data[column_name]
         # On adapte le valeur en fonction de leur type
         if value is not None :
-            if column["data_type"] in ['varchar', 'date']:
+            if column["data_type"] in ['varchar', 'text', 'date']:
                 value = "'" + value.replace("'", "''") + "'"
             if column["data_type"].startswith("geometry"):
                 srid = column["data_type"].split(",")[1].replace(")","")
@@ -1904,7 +1904,7 @@ def update_features_for_layer(layer_id):
         # On adapte le valeur en fonction de leur type
         if column_name != primary_key["attname"] :
             if value is not None :
-                if column["data_type"] in ['varchar', 'date']:
+                if column["data_type"] in ['varchar', 'text', 'date']:
                     value = "'" + value.replace("'", "''") + "'"
                 if column["data_type"].startswith("geometry"):
                     srid = column["data_type"].split(",")[1].replace(")","")
