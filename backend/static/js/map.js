@@ -2465,6 +2465,7 @@ var disableLayerDrawing = function () {
     // On réactive l'interaction singleclick
     map.on('singleclick', singleClickForFeatureInfo)
     map.un('singleclick', singleClickForRemovingFeature)
+    map.un('singleclick', openFormFeatureDataEdit)
 
     // On désactive les intéraction type par type 
     // Pour contourner un bug avec l'interaction snap
@@ -2598,6 +2599,7 @@ var numerisationToolbarShowManagement = function (layer_uid) {
     // On desactive l'action de suppression sur un clic
     map.on('singleclick', singleClickForFeatureInfo)
     map.un('singleclick', singleClickForRemovingFeature)
+
 
     map.getLayers().forEach(layer => {
         if (ol.util.getUid(layer) == layer_uid) {
