@@ -337,8 +337,8 @@ var buildFormLabel = function (layer) {
         document.getElementById("style_feature_label_weight").value = feature_label.weight
 
         // Renseignement de la couleur du texte
-        
-        if(feature_label.color){
+
+        if (feature_label.color) {
             var { hexColor, opacity } = RGBAToHex(feature_label.color)
         } else {
             var { hexColor, opacity } = RGBAToHex("rgba(0,0,0,1)")
@@ -346,12 +346,12 @@ var buildFormLabel = function (layer) {
         document.getElementById("style_feature_label_color").value = hexColor
 
         // Renseignement de la couleur d'arrière plan
-        if(feature_label.background_color){
+        if (feature_label.background_color) {
             var { hexColor, opacity } = RGBAToHex(feature_label.background_color)
         } else {
             var { hexColor, opacity } = RGBAToHex("rgba(255,255,255,0.7)")
         }
-        
+
         document.getElementById("style_feature_label_background_color").value = hexColor
 
         // Renseignement de l'opacité de l'arrière plan
@@ -1416,7 +1416,7 @@ document.getElementById("expression_editor_list_values_btn").addEventListener("c
     values.forEach(value => {
         // Si on est pas sur des valeur numérique ou booléenne alors il faut ajouter des apostrophes
         if (isNumeric == false && isBoolean == false) {
-            value = "'" + value + "'"
+            value = "'" + value.replace(/'/g, "&#92;&apos;" /* remplace ' par \' */) + "'"
         }
 
         // Ajout de la valeur dans la liste
