@@ -888,11 +888,13 @@ var getObsLayerGeojson = function (formdata) {
         .then(data => {
             if (data.geojson_layer.features) {
                 additional_data = { "formdata": formdata, }
-                addGeojsonLayer(data, "obsLayer", additional_data)
+                layer = addGeojsonLayer(data, "obsLayer", additional_data)
                 addLayerModal.hide()
 
                 layer_submit_button.disabled = false
                 document.getElementById('loading-spinner').style.display = 'none'
+
+                return layer
             } else {
                 throw "Aucune donnée trouvée";
             }
@@ -1353,12 +1355,12 @@ var buildImportLayerFormData = function () {
 /**
  * Ajout sur la carte d'une couche précédement uploadé 
  */
-var addImportedLayerToMap = function (importedLayerId) {
+var addImportedLayerToMap = async importedLayerId => {
 
     controller = new AbortController;
     signal = controller.signal;
 
-    fetch(APP_URL + "/api/imported_layer/" + importedLayerId, {
+    return fetch(APP_URL + "/api/imported_layer/" + importedLayerId, {
         method: "GET",
         signal: signal,
         headers: {
@@ -1374,10 +1376,14 @@ var addImportedLayerToMap = function (importedLayerId) {
                 return res.json()
             }
         }).then(data => {
-            addGeojsonLayer(data, "importedLayer")
+            layer = addGeojsonLayer(data, "importedLayer")
             addLayerModal.hide()
             layer_submit_button.disabled = false
             document.getElementById('loading-spinner').style.display = 'none'
+
+            console.log(layer)
+
+            return layer
         })
         .catch(error => {
             console.log(error)
@@ -1405,7 +1411,7 @@ var buildMAddDrawingLayerContent = function () {
 var addDrawingLayer = function () {
     let layer_label = document.getElementById("form-drawing-layer-name").value
 
-    addDrawingLayerOnMap(layer_label)
+    addDrawingLayerOnMap(layer_label, true)
 
     addLayerModal.hide()
 }

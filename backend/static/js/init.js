@@ -154,15 +154,33 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
 })
 
 /**
- * Dans les modal
+ * Dans le modal d'ajout de couche
  * Gestion de l'affichage des div en fontion du "menu"
  */
-let allCheckBox = document.querySelectorAll('.modal-btn-check')
+let allAddLayerModalCheckBox = document.getElementById("add-layer-modal").querySelectorAll('.modal-btn-check')
 
-allCheckBox.forEach(checkbox => {
+allAddLayerModalCheckBox.forEach(checkbox => {
     checkbox.addEventListener('change', event => {
         if (event.target.checked) {
-            document.querySelectorAll('.modal-div-content').forEach(div => {
+            document.getElementById("add-layer-modal").querySelectorAll('.modal-div-content').forEach(div => {
+                div.classList.remove("show")
+            })
+            let target = event.target.getAttribute("target")
+            document.getElementById(target).classList.add("show")
+        }
+    })
+})
+
+/**
+ * Dans le modal d'ouverture de projet
+ * Gestion de l'affichage des div en fontion du "menu"
+ */
+let allProjectModalCheckBox = document.getElementById("save-as-new-project-modal").querySelectorAll('.modal-btn-check')
+
+allProjectModalCheckBox.forEach(checkbox => {
+    checkbox.addEventListener('change', event => {
+        if (event.target.checked) {
+            document.getElementById("save-as-new-project-modal").querySelectorAll('.modal-div-content').forEach(div => {
                 div.classList.remove("show")
             })
             let target = event.target.getAttribute("target")

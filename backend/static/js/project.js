@@ -62,7 +62,7 @@ var buildJsonProject = function () {
     map.getLayers().forEach(layer => {
         /* Récupération du nom de la couche utilisé comme fond de carte */
         if (layer.get("layerType") == 'basemap' && layer.get("visible") == true) {
-            console.log('HERE I AM !!!')
+            //console.log('HERE I AM !!!')
             basemap = layer.get("basemapName")
         }
 
@@ -76,6 +76,11 @@ var buildJsonProject = function () {
                 layer_json_style = layer.get("json_style")
                 layer_index = layer.getZIndex()
                 is_visible = layer.getVisible()
+
+                // On ré-initialise les variables spécifiques
+                database_layer_id = null
+                layer_features = null
+                formdata = null
 
                 if (["refLayerReadOnly", "refLayerEditable", "importedLayer", "warningCalculatorResultLayer"].includes(layer_type)) {
                     database_layer_id = layer.get("databaseLayerId")
@@ -91,7 +96,7 @@ var buildJsonProject = function () {
                 }
 
                 if (layer_type == "obsLayer") {
-                    formdata = layer.get("formdata")
+                    formdata = layer.get("additional_data")["formdata"]
                 }
 
                 if (!(layer_type == "warningCalculatorLayer" && layer_features == null)) {
@@ -200,11 +205,11 @@ var buildMyprojectList = function () {
     // On affiche le spinner
     document.getElementById("modal-my-projects-list-spinner").classList.remove("hide")
 
-    // et on vide la liste des projets
-    var my_project_list = document.getElementById("my-projects-list")
-    my_project_list.innerHTML = ''
-
     getMyProjectList().then(myProjectListJson => {
+        // On vide la liste des projets
+        var my_project_list = document.getElementById("my-projects-list")
+        my_project_list.innerHTML = ''
+
 
         var my_project_list = document.getElementById("my-projects-list")
 
@@ -347,9 +352,9 @@ var openProject = function () {
 
     resetMapContent()
 
-    console.log("-----------------------")
-    console.log("récupération des couches")
-    console.log("-----------------------")
+    //console.log("-----------------------")
+    //console.log("récupération des couches")
+    //console.log("-----------------------")
 
     document.getElementById('open-project-loading-spinner').style.display = 'inline-block'
     // Récupération de l'dentifiant du projet
@@ -378,46 +383,144 @@ var openProject = function () {
             project["project_content"]["layers"].sort((a, b) => a.layer_index - b.layer_index);
             //console.log(project["project_content"]["layers"])
 
+            var projectOpeningError = []
+
             for (const projectLayer of project["project_content"]["layers"]) {
-                switch (projectLayer["layer_type"]) {
-                    case "refLayerReadOnly":
-                        console.log("Recupération de la couche : " + projectLayer["layer_name"])
 
-                        // Récupération de la couche
-                        layer = await callApiForRefLayer(projectLayer["layer_database_id"])
+                try {
 
-                        // Application du style enregistré
-                        layer.setStyle(buildStyle(projectLayer["layer_json_style"]));
-                        layer.set("json_style", projectLayer["layer_json_style"])
-                        layer.getSource().getFeatures().forEach(feature => {
-                            feature.setStyle(buildStyle(projectLayer["layer_json_style"]))
-                        })
+                    switch (projectLayer["layer_type"]) {
+                        case "refLayerReadOnly":
+                        case "refLayerEditable":
+                            //console.log("Recupération de la couche : " + projectLayer["layer_name"])
 
-                        // Attribution du nom enregistré
-                        layer.set("layer_name", projectLayer["layer_name"])
-                        console.log("Couche : " + layer.get("layer_name") + " récupéré")
-                        document.getElementById("layer_list").querySelector("li[layer-uid='" + ol.util.getUid(layer) + "'").querySelector(".layer-name").innerHTML = projectLayer["layer_name"]
+                            // Récupération de la couche
+                            layer = await callApiForRefLayer(projectLayer["layer_database_id"])
 
-                        break
-                    case "refLayerEditable":
-                        break
-                    case "warningCalculatorLayer":
-                        break
-                    case "warningCalculatorResultLayer":
-                        break
-                    case "warningCalculatorObsResultLayer":
-                        break
-                    case "drawingLayer":
-                        break
-                    case "obsLayer":
-                        break
-                    case "importedLayer":
-                        break
+                            // Application du style enregistré
+                            layer.setStyle(buildStyle(projectLayer["layer_json_style"]))
+                            layer.set("json_style", projectLayer["layer_json_style"])
+                            layer.getSource().getFeatures().forEach(feature => {
+                                feature.setStyle(buildStyle(projectLayer["layer_json_style"]))
+                            })
+
+                            // Attribution du nom enregistré
+                            layer.set("layer_name", projectLayer["layer_name"])
+                            document.getElementById("layer_list").querySelector("li[layer-uid='" + ol.util.getUid(layer) + "'").querySelector(".layer-name").innerHTML = projectLayer["layer_name"]
+
+                            // Affichage ou non de la couche
+                            layer.setVisible(projectLayer["layer_is_visible"])
+
+                            break
+                        case "warningCalculatorLayer":
+                            map.getLayers().forEach(layer => {
+                                if (layer.get("layerType") == "warningCalculatorLayer") {
+                                    // On ajoute les périmètre de la calulette enregistré dans la couche appropriée
+                                    layer.getSource().addFeatures(new ol.format.GeoJSON().readFeatures(projectLayer["layer_features"]))
+
+                                    // Application du style enregistré
+                                    layer.setStyle(buildStyle(projectLayer["layer_json_style"]))
+                                    layer.set("json_style", projectLayer["layer_json_style"])
+                                    layer.getSource().getFeatures().forEach(feature => {
+                                        feature.setStyle(buildStyle(projectLayer["layer_json_style"]))
+                                    })
+
+                                    // On l'ajoute au layerbar
+                                    addLayerInLayerBar(layer)
+
+                                    // Attribution du nom enregistré
+                                    layer.set("layer_name", projectLayer["layer_name"])
+                                    document.getElementById("layer_list").querySelector("li[layer-uid='" + ol.util.getUid(layer) + "'").querySelector(".layer-name").innerHTML = projectLayer["layer_name"]
+
+
+                                    // Affichage ou non de la couche
+                                    layer.setVisible(projectLayer["layer_is_visible"])
+                                }
+                            })
+
+
+
+                            // Rafrichissement du résultat du calcul des enjeux
+                            var writer = new ol.format.GeoJSON();
+                            var geojson_txt = writer.writeFeatures(warning_calculator_source.getFeatures())
+                            await getWarningCalculatorData(geojson_txt)
+
+
+                            break
+                        case "warningCalculatorResultLayer":
+                            // recalculé lors de l'ouverture du périmètre d'enjeux
+                            break
+                        case "warningCalculatorObsResultLayer":
+                            // recalculé lors de l'ouverture du périmètre d'enjeux
+                            break
+                        case "drawingLayer":
+                            // On créé la couche
+                            layer = addDrawingLayerOnMap(projectLayer["layer_name"], false)
+
+                            // On ajoute les données
+                            layer.getSource().addFeatures(new ol.format.GeoJSON().readFeatures(projectLayer["layer_features"]))
+
+                            // On applique le style
+                            layer.setStyle(buildStyle(projectLayer["layer_json_style"]))
+                            layer.set("json_style", projectLayer["layer_json_style"])
+                            layer.getSource().getFeatures().forEach(feature => {
+                                feature.setStyle(buildStyle(projectLayer["layer_json_style"]))
+                            })
+
+                            // Affichage ou non de la couche
+                            layer.setVisible(projectLayer["layer_is_visible"])
+
+                            break
+                        case "obsLayer":
+                            // Récupération des données d'observation
+                            layer = await getObsLayerGeojson(projectLayer["formdata"])
+
+                            layer.setStyle(buildStyle(projectLayer["layer_json_style"]))
+                            layer.set("json_style", projectLayer["layer_json_style"])
+                            layer.getSource().getFeatures().forEach(feature => {
+                                feature.setStyle(buildStyle(projectLayer["layer_json_style"]))
+                            })
+
+                            // Attribution du nom enregistré
+                            layer.set("layer_name", projectLayer["layer_name"])
+                            document.getElementById("layer_list").querySelector("li[layer-uid='" + ol.util.getUid(layer) + "'").querySelector(".layer-name").innerHTML = projectLayer["layer_name"]
+
+                            // Affichage ou non de la couche
+                            layer.setVisible(projectLayer["layer_is_visible"])
+
+                            break
+                        case "importedLayer":
+
+                            layer = await addImportedLayerToMap(projectLayer["layer_database_id"])
+
+                            // Application du style enregistré
+                            layer.setStyle(buildStyle(projectLayer["layer_json_style"]))
+                            layer.set("json_style", projectLayer["layer_json_style"])
+                            layer.getSource().getFeatures().forEach(feature => {
+                                feature.setStyle(buildStyle(projectLayer["layer_json_style"]))
+                            })
+
+                            // Attribution du nom enregistré
+                            layer.set("layer_name", projectLayer["layer_name"])
+                            document.getElementById("layer_list").querySelector("li[layer-uid='" + ol.util.getUid(layer) + "'").querySelector(".layer-name").innerHTML = projectLayer["layer_name"]
+
+                            // Affichage ou non de la couche
+                            layer.setVisible(projectLayer["layer_is_visible"])
+
+                            break
+                    }
+                } catch (error) {
+                    projectOpeningError.push("Problème lors de la récupération de la couche <b>" + projectLayer["layer_name"] + "</b>")
                 }
             }
 
             selectProjectModal.hide()
             document.getElementById('open-project-loading-spinner').style.display = 'none'
+
+            // Gestion de l'affichage des erreurs
+            if (projectOpeningError.length > 0) {
+                showAlert(projectOpeningError.join('<br />'))
+            }
         })
     }
 
@@ -425,107 +528,11 @@ var openProject = function () {
 }
 
 var resetMapContent = function () {
-
     // On retire les couche de la carte
-    console.log("Seconde liste des couches : ")
     map.getLayers().forEach(function (layer) {
-        if (layer) {
-
-            var layer_uid = ol.util.getUid(layer)
-
-            var layer_type = layer.get("layerType")
-
-            if (layer_type && ['refLayerReadOnly', 'warningCalculatorLayer', 'warningCalculatorResultLayer', 'warningCalculatorObsResultLayer', 'drawingLayer', 'obsLayer', 'importedLayer'].includes(layer_type)) {
-                // puis on la supprime
-                if (layer) {
-                    //Cas particulier de la couche warning qui ne doit pas être supprimé
-                    if (layer_type == "warningCalculatorLayer") {
-                        // On rend invisible la couche
-                        layer.setVisible(false)
-                        // on s'assure de désactiver l'édition
-                        layer.set("isEditing", false)
-                        // Et on supprime les objets qu'elle contient
-                        layer.getSource().clear()
-
-                        // On desactive le bouton associé à la calculette des enjeux si ce n'est pas déjà le cas
-                        document.getElementById("btn-challenge-calculator").classList.remove("btn-active")
-                    } else {
-                        // Cas classique, on supprime la couche de la carte
-                        setTimeout(() => map.removeLayer(layer), 500);
-                    }
-
-                    // Si la couche supprimé est la couche active alors on s'assure que l'édition est désactivé
-                    if (document.querySelector("#layer_list li[layer-uid='" + layer_uid + "']")) {
-                        if (document.querySelector("#layer_list li[layer-uid='" + layer_uid + "']").classList.contains("layer-is-selected")) {
-                            disableLayerDrawing()
-
-                            // On masque les éventuelle boite à outil ouverte
-                            if (layer.get("layerType") == "warningCalculatorLayer") {
-                                document.getElementById("challenge-calculator-group-edit-btn").classList.add("hide")
-                            } else {
-                                document.getElementById("drawing-layer-group-edit-btn").classList.add("hide")
-                            }
-                        }
-
-                        // On supprime la couche du layer bar
-                        document.querySelector("#layer_list li[layer-uid='" + layer_uid + "']").remove()
-                    }
-
-                    // On efface la table attributaire si elle est ouverte
-                    tab_id = "layer-data-table-" + layer_uid
-                    if (document.querySelector(".nav-layer-item[target=" + tab_id + "]")) {
-                        document.getElementById(tab_id).remove()
-                        document.querySelector(".nav-layer-item[target=" + tab_id + "]").remove()
-                    }
-
-                    // On efface le ou les features de la couche qui sont dans selectedVectorSource
-                    selectedVectorSource.getFeatures().forEach(feature => {
-                        if (feature.orginalLayerUid == layer_uid) {
-                            selectedVectorSource.removeFeature(feature)
-                        }
-                    })
-
-                    // On supprime les entré de cette couche dans 
-                    // le fenêtre d'affichage des données attributaire
-                    // (celle qui s'ouvre quand on clique sur la carte)
-                    deleteDataInInfobulleForlayer(layer_uid)
-                }
-            }
-        }
+        var layer_uid = ol.util.getUid(layer)
+        removeLayer(layer_uid)
     });
-    console.log("Fin seconde liste des couches ! ")
-
-    // On vide la barre de couche
-    document.getElementById("layer_list").innerHTML = ''
-
-    // On ferme toute les boites à outil
-    document.getElementById("challenge-calculator-group-edit-btn").classList.add('hide')
-    document.getElementById("drawing-layer-group-edit-btn").classList.add('hide')
-    document.getElementById("measure-group-btn").classList.add('hide')
-
-    // On ré-initialise les interactions carto
-    map.un('singleclick', singleClickForRemovingFeature)
-    map.un('singleclick', openFormFeatureDataEdit)
-    map.un('singleclick', singleClickForFeatureInfo)
-    map.on('singleclick', singleClickForFeatureInfo)
-
-    // On ferme l'infobulle
-    document.getElementById("bloc-clicked-features-attributes-content").innerHTML = ''
-    document.getElementById("bloc-clicked-features-attributes").classList.remove('show')
-
-
-    // On ferme les tables attributaires
-    document.getElementById("layer-data-table").innerHTML = ''
-    document.getElementById("nav-attribute-table").innerHTML = ''
-    document.getElementById("attribute-data-container").classList.add('hide')
-    if (document.getElementsByClassName("nav-layer-item").length == 0) {
-        document.getElementById("attribute-data-container").classList.add("hide")
-        document.getElementsByClassName("ol-scale-line")[0].style.bottom = "8px"
-        document.getElementsByClassName("ol-attribution")[0].style.bottom = ".5em"
-
-    }
-
-
 }
 
 /*var openProjectReflayer = async function (layer) {
@@ -582,7 +589,7 @@ var getProject = function (project_id) {
  */
 var applyProjectBasemap = function (basemapName) {
 
-    console.log("basemap : " + basemapName)
+    //console.log("basemap : " + basemapName)
     document.getElementById("basemap-dropdown-content").querySelectorAll(".dropdown-item").forEach(basemapItem => {
         if (basemapItem.innerHTML == basemapName) {
             basemapItem.click()

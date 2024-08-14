@@ -99,7 +99,7 @@ challenge_calculator_execute_button.addEventListener("click", event => {
 /**
  * Appel API pour le calcul des enjeux
  */
-var getWarningCalculatorData = function (geojson_txt) {
+var getWarningCalculatorData = async geojson_txt => {
     // On désactive l'édition
     disableLayerDrawing()
     document.getElementById("btn-challenge-calculator-edit-feature").classList.remove("btn-active")
@@ -149,7 +149,7 @@ var getWarningCalculatorData = function (geojson_txt) {
                     addGeojsonLayer(layer, "warningCalculatorResultLayer", additional_data)
                 } else {
                     // S'il n'y a pas d'identifiant base de données de la couche alors on est sur 
-                    // le résultat d el'intersection avec les données d'àbservation
+                    // le résultat de l'intersection avec les données d'àbservation
                     addGeojsonLayer(layer, "warningCalculatorObsResultLayer", additional_data)
                 }
             });
