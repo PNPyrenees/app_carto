@@ -166,7 +166,7 @@ showAlert = function (message) {
 
     window.setTimeout(function () {
         alert_container.classList.add("hide")
-    }, 3000);
+    }, 5000);
 }
 
 /**
