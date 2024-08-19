@@ -145,6 +145,9 @@ var exportLayer = function (layer_uid, export_format) {
         case "kml":
             layerToKML(layer_uid)
             break
+        case "gpx":
+            layerToGPX(layer_uid)
+            break
         case "geoJson":
             layerToGeoJSON(layer_uid)
             break
@@ -235,6 +238,54 @@ var layerToKML = function (layer_uid) {
 
             filename = layer.get('layer_name') + '.kml'
             download(filename, kmlStr)
+        }
+    })
+}
+
+/*----------------------------------------------------*/
+/*------------------EXPORT GPX--------------------*/
+/*----------------------------------------------------*/
+var layerToGPX = function (layer_uid) {
+    map.getLayers().forEach(layer => {
+        if (ol.util.getUid(layer) == layer_uid) {
+
+            // On n'exporte que les données affichées (filtré)
+            var tmpFeatures  = []
+            var clone, vertexCoordinate,lineGeom
+            layer.getSource().getFeatures().forEach(function(feature) {
+                if (feature["visible"] != false) {
+
+                    // Si c'est du polygone, on change la géométrie
+                    if (['Polygon', 'MultiPolygon'].includes(feature.getGeometry().getType())){
+                        
+                        // On clone le feature pour ne pas modifier la géométrie de l'objet initial
+                        clone = feature.clone()
+
+                        // On extrait les coordonnées des vertex composant le polygone
+                        vertexCoordinate = feature.getGeometry().getCoordinates()
+                        
+                        //Pour en créer une ligne
+                        lineGeom = new ol.geom.LineString(vertexCoordinate)
+
+                        // On l'applique au clone 
+                        clone.setGeometry(lineGeom)
+
+                        // Puis on l'ajout à la liste des feature à exporter
+                        tmpFeatures.push(clone)
+                    } else {
+                        tmpFeatures.push(feature)
+                    }
+                    
+                }
+            })
+
+            var gpxStr = new ol.format.GPX().writeFeatures(tmpFeatures, {
+                dataProjection: 'EPSG:4326',
+                featureProjection: 'EPSG:3857'
+            }, true);
+
+            filename = layer.get('layer_name') + '.gpx'
+            download(filename, gpxStr)
         }
     })
 }
