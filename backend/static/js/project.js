@@ -145,8 +145,10 @@ var buildJsonProject = function () {
 
                 // Est-ce la table attributaire active ?
                 nav_object = document.getElementById("nav-attribute-table").querySelector(".nav-layer-item[target='layer-data-table-" + ol.util.getUid(layer) + "']")
-                if (nav_object.classList.contains("active")) {
-                    active_attribute_data = true
+                if (nav_object) {
+                    if (nav_object.classList.contains("active")) {
+                        active_attribute_data = true
+                    }
                 }
 
 
@@ -250,8 +252,6 @@ var createProjectToDatabase = function (postdata) {
 }
 
 updateProjectInDatabase = function (postdata) {
-
-    console.log(postdata)
     // On affiche le spinner global
     document.getElementById("global-spinner").classList.remove("hide")
     // PASSER L'ID du projet
@@ -487,9 +487,6 @@ var openProject = function () {
         // Application de la configuration du projet
         getProject(project_id).then(async function (project) {
 
-            console.log(project)
-
-
             //Récupération du fond de carte
             applyProjectBasemap(project["project_content"]["basemap"])
 
@@ -528,30 +525,36 @@ var openProject = function () {
 
                             break
                         case "warningCalculatorLayer":
-                            map.getLayers().forEach(layer => {
-                                if (layer.get("layerType") == "warningCalculatorLayer") {
-                                    // On ajoute les périmètre de la calulette enregistré dans la couche appropriée
-                                    layer.getSource().addFeatures(new ol.format.GeoJSON().readFeatures(projectLayer["layer_features"]))
+                            //map.getLayers().forEach(layer => {
 
-                                    // Application du style enregistré
-                                    layer.setStyle(buildStyle(projectLayer["layer_json_style"]))
-                                    layer.set("json_style", projectLayer["layer_json_style"])
-                                    layer.getSource().getFeatures().forEach(feature => {
-                                        feature.setStyle(buildStyle(projectLayer["layer_json_style"]))
-                                    })
+                            var message = "Le projet contient un périmètre de calcul des enjeux. Les couches d'enjeux résultante vont être recalculées."
+                            showWarning(message)
 
-                                    // On l'ajoute au layerbar
-                                    addLayerInLayerBar(layer)
+                            layer = warning_calculator_layer
 
-                                    // Attribution du nom enregistré
-                                    layer.set("layer_name", projectLayer["layer_name"])
-                                    document.getElementById("layer_list").querySelector("li[layer-uid='" + ol.util.getUid(layer) + "'").querySelector(".layer-name").innerHTML = projectLayer["layer_name"]
+                            //if (layer.get("layerType") == "warningCalculatorLayer") {
+                            // On ajoute les périmètre de la calulette enregistré dans la couche appropriée
+                            layer.getSource().addFeatures(new ol.format.GeoJSON().readFeatures(projectLayer["layer_features"]))
 
-
-                                    // Affichage ou non de la couche
-                                    //layer.setVisible(projectLayer["layer_is_visible"])
-                                }
+                            // Application du style enregistré
+                            layer.setStyle(buildStyle(projectLayer["layer_json_style"]))
+                            layer.set("json_style", projectLayer["layer_json_style"])
+                            layer.getSource().getFeatures().forEach(feature => {
+                                feature.setStyle(buildStyle(projectLayer["layer_json_style"]))
                             })
+
+                            // On l'ajoute au layerbar
+                            addLayerInLayerBar(layer)
+
+                            // Attribution du nom enregistré
+                            layer.set("layer_name", projectLayer["layer_name"])
+                            document.getElementById("layer_list").querySelector("li[layer-uid='" + ol.util.getUid(layer) + "'").querySelector(".layer-name").innerHTML = projectLayer["layer_name"]
+
+
+                            // Affichage ou non de la couche
+                            //layer.setVisible(projectLayer["layer_is_visible"])
+                            //}
+                            //})
 
 
 
@@ -626,11 +629,15 @@ var openProject = function () {
                     }
 
                     // Affichage ou non de la couche
-                    console.log(projectLayer["layer_name"])
-                    console.log(projectLayer["layer_is_visible"])
                     if (projectLayer["layer_is_visible"] == false) {
-                        layer_li = document.querySelector(".layer_list_element[layer-uid='" + ol.util.getUid(layer) + "']")
-                        layer_li.querySelector(".checkbox-layer").click()
+                        if (projectLayer["layer_type"] == 'warningCalculatorLayer') {
+                            layer_li = document.querySelector(".layer_list_element[layer-uid='" + ol.util.getUid(warning_calculator_layer) + "']")
+                            layer_li.querySelector(".checkbox-layer").checked = false
+                            warning_calculator_layer.setVisible(false)
+                        } else {
+                            layer_li = document.querySelector(".layer_list_element[layer-uid='" + ol.util.getUid(layer) + "']")
+                            layer_li.querySelector(".checkbox-layer").click()
+                        }
                     }
                 } catch (error) {
                     projectOpeningError.push("Problème lors de la récupération de la couche <b>" + projectLayer["layer_name"] + "</b>")

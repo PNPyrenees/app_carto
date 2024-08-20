@@ -145,7 +145,8 @@ html * {
     text-align: right !important;
 }
 
-#alert-container {
+#alert-container,
+#warning-container {
     position: absolute;
     z-index: 9999;
     top: 4rem;

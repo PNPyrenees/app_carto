@@ -142,6 +142,7 @@ var getWarningCalculatorData = async geojson_txt => {
             }
         })
         .then(data => {
+            //for (const layer in data) {
             data.forEach(layer => {
                 console.log(layer)
                 additional_data = { "formdata": "", }
@@ -153,13 +154,16 @@ var getWarningCalculatorData = async geojson_txt => {
                     addGeojsonLayer(layer, "warningCalculatorObsResultLayer", additional_data)
                 }
             });
+            //}
+
+            return true
         })
         .catch(error => {
             if (typeof error == "string") {
-                apiCallErrorCatcher(error, error)
+                apiCallErrorCatcher("error", error)
             } else {
                 default_message = "Erreur lors de la récupération de la couche de donénes d'observation"
-                apiCallErrorCatcher(error, default_message)
+                apiCallErrorCatcher("error", default_message)
 
                 /*error.then(err => {
                     default_message = "Erreur lors de la récupération de la couche de donénes d'observation"

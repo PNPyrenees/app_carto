@@ -968,7 +968,7 @@ var refreshLayer = function (layer_id) {
 /**
  * Fonction ajoutant la couche dans le layerBar
  */
-var addLayerInLayerBar = function (vectorLayer) {
+var addLayerInLayerBar = async function (vectorLayer) {
     let prototype = document.getElementById("layer_list").getAttribute('data-prototype')
 
     layer_uid = ol.util.getUid(vectorLayer) //- 1 
