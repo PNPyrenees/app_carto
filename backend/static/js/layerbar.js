@@ -131,7 +131,14 @@ var openExportModal = function (layer_uid) {
 document.getElementById("export-submit").addEventListener("click", event => {
     layer_uid = document.getElementById("export-modal-layer-uid").value
     export_format = document.getElementById("export-modal-format-select").value
+
+    // Activation du spinner
+    document.getElementById("export-loading-spinner").style.display = 'inline-block'
+    // Exécution de l'export
     exportLayer(layer_uid, export_format)
+
+    // Desactivation du Spinner
+    document.getElementById("export-loading-spinner").style.display = 'none'
 })
 
 /**
@@ -149,9 +156,10 @@ var exportLayer = function (layer_uid, export_format) {
             try {
                 layerToGPX(layer_uid)
             }
-            catch(error) {
+            catch (error) {
                 default_message = "Erreur lors de la conversion de la couche en GPX. La géométrie et peur-être trop complexe. Veuillez prendre contact avec l'administrateur de l'application"
                 apiCallErrorCatcher('Error', default_message)
+                console.log(error)
             }
             break
         case "geoJson":
@@ -169,8 +177,8 @@ var layerToCSV = function (layer_uid) {
         if (ol.util.getUid(layer) == layer_uid) {
 
             // On n'exporte que les données affichées (filtré)
-            var tmpFeatures  = []
-            layer.getSource().getFeatures().forEach(function(feature) {
+            var tmpFeatures = []
+            layer.getSource().getFeatures().forEach(function (feature) {
                 if (feature["visible"] != false) {
                     tmpFeatures.push(feature)
                 }
@@ -197,8 +205,8 @@ var layerToGeoJSON = function (layer_uid) {
         if (ol.util.getUid(layer) == layer_uid) {
 
             // On n'exporte que les données affichées (filtré)
-            var tmpFeatures  = []
-            layer.getSource().getFeatures().forEach(function(feature) {
+            var tmpFeatures = []
+            layer.getSource().getFeatures().forEach(function (feature) {
                 if (feature["visible"] != false) {
                     tmpFeatures.push(feature)
                 }
@@ -221,17 +229,17 @@ var layerToGeoJSON = function (layer_uid) {
 var layerToKML = function (layer_uid) {
     map.getLayers().forEach(layer => {
         if (ol.util.getUid(layer) == layer_uid) {
-            
+
             // On n'exporte que les données affichées (filtré)
-            var tmpFeatures  = []
-            layer.getSource().getFeatures().forEach(function(feature) {
+            var tmpFeatures = []
+            layer.getSource().getFeatures().forEach(function (feature) {
                 if (feature["visible"] != false) {
                     tmpFeatures.push(feature)
                 }
             })
-            
+
             var layerStyle
-            tmpFeatures.forEach(function(feature) {
+            tmpFeatures.forEach(function (feature) {
                 layerStyle = layer.getStyleFunction()(feature, map.getView().getResolution());
                 feature.setStyle(layerStyle);
             });
@@ -254,11 +262,11 @@ var layerToKML = function (layer_uid) {
 var layerToGPX = function (layer_uid) {
     map.getLayers().forEach(layer => {
         if (ol.util.getUid(layer) == layer_uid) {
-            
+
             // On n'exporte que les données affichées (filtré)
-            var tmpFeatures  = []
-            var vertexCoordinates,lineGeom
-            layer.getSource().getFeatures().forEach(function(feature) {
+            var tmpFeatures = []
+            var vertexCoordinates, lineGeom
+            layer.getSource().getFeatures().forEach(function (feature) {
                 if (feature["visible"] != false) {
 
                     // On clone le feature car on va devoir restructurer les données attributaires
@@ -268,21 +276,21 @@ var layerToGPX = function (layer_uid) {
 
                     var desc = {}
                     var i = 0
-                    for (var key in feature.getProperties()){
+                    for (var key in feature.getProperties()) {
                         if (key != 'geometry') {
                             desc[key] = feature.getProperties()[key]
                         }
                         i++
                     }
                     feature.set('desc', JSON.stringify(desc))
-                    
+
                     // Si c'est du polygone, on change la géométrie
                     if (feature.getGeometry()) {
-                        if (['Polygon', 'MultiPolygon'].includes(feature.getGeometry().getType())){
-                            
+                        if (['Polygon', 'MultiPolygon'].includes(feature.getGeometry().getType())) {
+
                             if (feature.getGeometry().getType() == 'MultiPolygon') {
                                 //Si on est sur un multiPolygone, on le tranforme en multiLineString
-                                
+
                                 var tmp_coordinates = []
                                 var multilineGeom = new ol.geom.MultiLineString([])
 
@@ -301,11 +309,11 @@ var layerToGPX = function (layer_uid) {
 
                                 tmpFeatures.push(feature)
                             }
-                            
+
                         } else {
                             tmpFeatures.push(feature)
                         }
-                    }                    
+                    }
                 }
             })
 
@@ -362,7 +370,7 @@ var zoomToLayerExtent = function (layer_uid) {
     map.getLayers().forEach(layer => {
         if (ol.util.getUid(layer) == layer_uid) {
             var extent = layer.getSource().getExtent()
-            map.getView().fit(extent, map.getSize()) 
+            map.getView().fit(extent, map.getSize())
         }
     })
 }

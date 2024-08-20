@@ -309,3 +309,7 @@ input[type="date"]>span.datetime-edit-field {
     height: 100px;
     width: 100px;
 }
+
+#export-loading-spinner {
+    display: none;
+}
