@@ -2229,6 +2229,8 @@ def update_project_content():
         project.project_update_date = datetime.now()
 
         db_app.session.commit()
+
+        return jsonify(True)
     else :
         return jsonify({
             'status': 'error',

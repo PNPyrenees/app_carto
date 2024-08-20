@@ -21,7 +21,6 @@ document.getElementById("save-as-new-project-modal").addEventListener('show.bs.m
 
 /* Gestion du formulaire de création d'un projet */
 const save_as_new_project_form = document.getElementById("save-as-new-project-form")
-
 save_as_new_project_form.addEventListener("submit", function (event) {
 
     event.preventDefault()
@@ -42,24 +41,43 @@ save_as_new_project_form.addEventListener("submit", function (event) {
     }
 })
 
+const save_project_form = document.getElementById("btn-project-update")
+save_project_form.addEventListener("click", function (event) {
+
+
+    var project_id = document.getElementById("current_projet_id").value
+
+    var projet_content = buildJsonProject()
+    console.log(projet_content)
+
+    var projectdata = {
+        "project_id": project_id,
+        "project_content": projet_content
+    }
+
+    updateProjectInDatabase(projectdata)
+})
+
 var buildJsonProject = function () {
     /* Récupération de l'extent de la carte */
     var map_extent = map.getView().calculateExtent()
 
 
-    var basemap
-    var projectLayers = []
+    var basemap // Fond de carte utilisé
+    var projectLayers = [] // Liste des couche ouverte
     var tmp_layer_info
-    var layer_name
-    var database_layer_id
-    var layer_features
-    var layer_type
-    var layer_json_style
-    var layer_index
-    var is_visible
-    var formdata
-    var attribute_data_sort
-    var attribute_data_filter = []
+    var layer_name // Nom attribué à la couche
+    var database_layer_id // Identifiant de la couche dans la base de données (pour les couche de référence et les couches d'importées)
+    var layer_features // Objet existant dans la couche (si ocuche de dessin ou d'alerte)
+    var layer_type // Type de couche (couche de référence, couoche importée, de dessin, calcullette des enjeux ...)
+    var layer_json_style // Style affecté à la couche de données
+    var layer_index // Index indiquant la posistion de la couiche dans la pile des couches
+    var is_visible // Indique si la couche est affiché ou non
+    var formdata // Filtre appliqué à une couche de données d'observation
+    var attribute_data_sort // Indique la colonne de utilisé pour trier la table attributaire et le sens
+    var attribute_data_filter = [] // Filtre apliqué sur la table attributaire
+    var attribute_data_is_open // Indique si la table attributaire est ouverte
+    var attribute_data_is_active // Indique si la table attributaire est celle qui est affiché
 
 
     map.getLayers().forEach(layer => {
@@ -75,6 +93,8 @@ var buildJsonProject = function () {
         formdata = null
         attribute_data_sort = null
         attribute_data_filter = []
+        attribute_data_is_open = false
+        attribute_data_is_active = false
 
 
 
@@ -118,11 +138,17 @@ var buildJsonProject = function () {
                 }
 
                 // Récupération des informations relatives à l'état de la table attributaire
-                var attribute_data_is_open = false
                 var attribute_table = document.getElementById("layer-data-table-" + ol.util.getUid(layer))
                 if (attribute_table) {
                     attribute_data_is_open = true
                 }
+
+                // Est-ce la table attributaire active ?
+                nav_object = document.getElementById("nav-attribute-table").querySelector(".nav-layer-item[target='layer-data-table-" + ol.util.getUid(layer) + "']")
+                if (nav_object.classList.contains("active")) {
+                    active_attribute_data = true
+                }
+
 
                 // Si la table attributaire est ouverte
                 if (attribute_data_is_open) {
@@ -170,6 +196,7 @@ var buildJsonProject = function () {
                         "layer_features": layer_features,
                         "formdata": formdata,
                         "attribute_data_is_open": attribute_data_is_open,
+                        "attribute_data_is_active": attribute_data_is_active,
                         "attribute_data_sort": attribute_data_sort,
                         "attribute_data_filter": attribute_data_filter
                     }
@@ -215,6 +242,39 @@ var createProjectToDatabase = function (postdata) {
             // On masque le spinner global
             document.getElementById("global-spinner").classList.add("hide")
             saveAsNewProjectModal.hide()
+        })
+        .catch(error => {
+            document.getElementById("global-spinner").classList.add("hide")
+            apiCallErrorCatcher("erreur", "Erreur lors de la sauvegarde du projet")
+        })
+}
+
+updateProjectInDatabase = function (postdata) {
+
+    console.log(postdata)
+    // On affiche le spinner global
+    document.getElementById("global-spinner").classList.remove("hide")
+    // PASSER L'ID du projet
+    fetch(APP_URL + "/api/project/update_content", {
+        method: "POST",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        },
+        credentials: "same-origin",
+        body: JSON.stringify(postdata)
+    })
+        .then(res => {
+            if (res.status != 200) {
+                // En envoi l"erreur dans le catch
+                throw res;
+            } else {
+                return res.json()
+            }
+        })
+        .then(data => {
+            // On masque le spinner global
+            document.getElementById("global-spinner").classList.add("hide")
         })
         .catch(error => {
             document.getElementById("global-spinner").classList.add("hide")
@@ -613,10 +673,12 @@ var openProject = function () {
 
             // On affiche le nom du projet dans la barre d'en-tête
             document.getElementById("project-name-in-title").innerHTML = " - " + project["project_name"]
+            document.getElementById("current_projet_id").value = project["project_id"]
+
+            // On active le bouton de sauvegarde 
+            document.getElementById("btn-project-update").disabled = false
         })
     }
-
-
 }
 
 var resetMapContent = function () {
