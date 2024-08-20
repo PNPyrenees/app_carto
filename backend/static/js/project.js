@@ -9,17 +9,9 @@ document.getElementById("save-as-new-project-modal").addEventListener('show.bs.m
     document.getElementById("save-as-new-project-modal").querySelector("#project-name-input").value = ""
 })
 
-
-/*var openSaveAsNewProjectModal = function () {
-    initSaveAsNewProjectForm()
-}*/
-
-/* Fonction d'initialisation du formulaire de sauvegarde d'un nouveu projet */
-/*var initSaveAsNewProjectForm = function () {
-    document.getElementById("save-as-new-project-modal").querySelector("#project-name-input").value = ""
-}*/
-
-/* Gestion du formulaire de création d'un projet */
+/**
+ * Gestion du formulaire de création d'un projet 
+ */
 const save_as_new_project_form = document.getElementById("save-as-new-project-form")
 save_as_new_project_form.addEventListener("submit", function (event) {
 
@@ -41,6 +33,9 @@ save_as_new_project_form.addEventListener("submit", function (event) {
     }
 })
 
+/**
+ * Gestion de l'actin du clique pour la sauvegarde d'un projet existant
+ */
 const save_project_form = document.getElementById("btn-project-update")
 save_project_form.addEventListener("click", function (event) {
 
@@ -58,6 +53,9 @@ save_project_form.addEventListener("click", function (event) {
     updateProjectInDatabase(projectdata)
 })
 
+/**
+ * Fonction assurant la création du json traduisant l'état d'un projet
+ */
 var buildJsonProject = function () {
     /* Récupération de l'extent de la carte */
     var map_extent = map.getView().calculateExtent()
@@ -217,8 +215,10 @@ var buildJsonProject = function () {
     return json_project
 }
 
+/**
+ * Fonction permetant d'envoyer le projet au serveur pour enregistrement en base de données
+ */
 var createProjectToDatabase = function (postdata) {
-
 
     // On affiche le spinner global
     document.getElementById("global-spinner").classList.remove("hide")
@@ -251,6 +251,10 @@ var createProjectToDatabase = function (postdata) {
         })
 }
 
+/**
+ * Fonction permetant d'envoyer le projet déjà existant 
+ * au serveur pour enregistrement des modifications en base de données
+ */
 updateProjectInDatabase = function (postdata) {
     // On affiche le spinner global
     document.getElementById("global-spinner").classList.remove("hide")
@@ -286,16 +290,16 @@ updateProjectInDatabase = function (postdata) {
  * Ouverture d'un projet existant
  */
 
-/* Gestion de l'ouverturen de la fenêtre modal de sélection d'un projet */
-/* Fonction d'initialisation de la liste des projets */
+/**
+ * Traitement de l'action du clique sur le bouton permettant l'affichage des projets
+ */
 document.getElementById("select-project-modal").addEventListener('show.bs.modal', function () {
-    //document.getElementById("my-projects-list").innerHTML = ""
     buildMyprojectList()
 })
 
 /**
  * Fonctions permettant de récupérer la liste
- * des cprojet de l'utilisateur
+ * des projets de l'utilisateur
  */
 var getMyProjectList = function () {
     return fetch(APP_URL + "/api/project/my_projects", {
@@ -319,7 +323,9 @@ var getMyProjectList = function () {
         })
 }
 
-/* Mise en forme de la liste des projets de l'utilisateur courrant */
+/**
+ * Mise en forme de la liste des projets de l'utilisateur courrant 
+ */
 var buildMyprojectList = function () {
 
     // On affiche le spinner
@@ -520,19 +526,13 @@ var openProject = function () {
                             layer.set("layer_name", projectLayer["layer_name"])
                             document.getElementById("layer_list").querySelector("li[layer-uid='" + ol.util.getUid(layer) + "'").querySelector(".layer-name").innerHTML = projectLayer["layer_name"]
 
-                            // Affichage ou non de la couche
-                            //layer.setVisible(projectLayer["layer_is_visible"])
-
                             break
                         case "warningCalculatorLayer":
-                            //map.getLayers().forEach(layer => {
-
                             var message = "Le projet contient un périmètre de calcul des enjeux. Les couches d'enjeux résultante vont être recalculées."
                             showWarning(message)
 
                             layer = warning_calculator_layer
 
-                            //if (layer.get("layerType") == "warningCalculatorLayer") {
                             // On ajoute les périmètre de la calulette enregistré dans la couche appropriée
                             layer.getSource().addFeatures(new ol.format.GeoJSON().readFeatures(projectLayer["layer_features"]))
 
@@ -549,14 +549,6 @@ var openProject = function () {
                             // Attribution du nom enregistré
                             layer.set("layer_name", projectLayer["layer_name"])
                             document.getElementById("layer_list").querySelector("li[layer-uid='" + ol.util.getUid(layer) + "'").querySelector(".layer-name").innerHTML = projectLayer["layer_name"]
-
-
-                            // Affichage ou non de la couche
-                            //layer.setVisible(projectLayer["layer_is_visible"])
-                            //}
-                            //})
-
-
 
                             // Rafrichissement du résultat du calcul des enjeux
                             var writer = new ol.format.GeoJSON();
@@ -585,9 +577,6 @@ var openProject = function () {
                                 feature.setStyle(buildStyle(projectLayer["layer_json_style"]))
                             })
 
-                            // Affichage ou non de la couche
-                            //layer.setVisible(projectLayer["layer_is_visible"])
-
                             break
                         case "obsLayer":
                             // Récupération des données d'observation
@@ -602,9 +591,6 @@ var openProject = function () {
                             // Attribution du nom enregistré
                             layer.set("layer_name", projectLayer["layer_name"])
                             document.getElementById("layer_list").querySelector("li[layer-uid='" + ol.util.getUid(layer) + "'").querySelector(".layer-name").innerHTML = projectLayer["layer_name"]
-
-                            // Affichage ou non de la couche
-                            //layer.setVisible(projectLayer["layer_is_visible"])
 
                             break
                         case "importedLayer":
@@ -621,9 +607,6 @@ var openProject = function () {
                             // Attribution du nom enregistré
                             layer.set("layer_name", projectLayer["layer_name"])
                             document.getElementById("layer_list").querySelector("li[layer-uid='" + ol.util.getUid(layer) + "'").querySelector(".layer-name").innerHTML = projectLayer["layer_name"]
-
-
-                            //layer.setVisible(projectLayer["layer_is_visible"])
 
                             break
                     }
@@ -697,6 +680,10 @@ var openProject = function () {
     }
 }
 
+/**
+ * Fonction permettant de ré-initialiser la carte
+ * en retirant toutes les couches
+ */
 var resetMapContent = function () {
     // On retire les couche de la carte
     map.getLayers().forEach(function (layer) {
@@ -705,28 +692,6 @@ var resetMapContent = function () {
     });
 }
 
-/*var openProjectReflayer = async function (layer) {
-
-    switch (layer["layer_type"]) {
-        case "refLayerReadOnly":
-            await callApiForRefLayer(layer["layer_database_id"])
-            break
-        case "refLayerEditable":
-            break
-        case "warningCalculatorLayer":
-            break
-        case "warningCalculatorResultLayer":
-            break
-        case "warningCalculatorObsResultLayer":
-            break
-        case "drawingLayer":
-            break
-        case "obsLayer":
-            break
-        case "importedLayer":
-            break
-    }
-}*/
 
 /**
  * Fonctions permettant de récupérer la liste
@@ -766,6 +731,9 @@ var applyProjectBasemap = function (basemapName) {
     })
 }
 
+/**
+ * Fonciton permettant de centrer et zommer la carte en fonction d'une emprise
+ */
 var applyProjectExtent = function (extent) {
     map.getView().fit(extent)
 }

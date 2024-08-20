@@ -1315,7 +1315,7 @@ var changeLayerOrder = function () {
 /*------Gestion de la suppression d'une couches------*/
 /*----------------------------------------------------*/
 /**
- * Suppression d'une couche sur la carte
+ * Suppression d'une couche sur la carte (sauf la couche associé à la calculette des enejeux)
  */
 removeLayer = function (layer_uid) {
 
