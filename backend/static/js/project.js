@@ -72,7 +72,7 @@ var buildJsonProject = function () {
     var layer_type // Type de couche (couche de référence, couoche importée, de dessin, calcullette des enjeux ...)
     var layer_json_style // Style affecté à la couche de données
     var layer_index // Index indiquant la posistion de la couiche dans la pile des couches
-    var is_visible // Indique si la couche est affiché ou non
+    var layer_is_visible // Indique si la couche est affiché ou non
     var formdata // Filtre appliqué à une couche de données d'observation
     var attribute_data_sort // Indique la colonne de utilisé pour trier la table attributaire et le sens
     var attribute_data_filter = [] // Filtre apliqué sur la table attributaire
@@ -89,7 +89,7 @@ var buildJsonProject = function () {
         layer_type = null
         layer_json_style = null
         layer_index = null
-        is_visible = null
+        layer_is_visible = null
         formdata = null
         attribute_data_sort = null
         attribute_data_filter = []
@@ -112,7 +112,7 @@ var buildJsonProject = function () {
                 layer_type = layer.get("layerType")
                 layer_json_style = layer.get("json_style")
                 layer_index = layer.getZIndex()
-                is_visible = layer.getVisible()
+                layer_is_visible = layer.getVisible()
 
 
 
@@ -192,7 +192,7 @@ var buildJsonProject = function () {
                         "layer_database_id": database_layer_id,
                         "layer_json_style": layer_json_style,
                         "layer_index": layer_index,
-                        "layer_is_visible": is_visible,
+                        "layer_is_visible": layer_is_visible,
                         "layer_features": layer_features,
                         "formdata": formdata,
                         "attribute_data_is_open": attribute_data_is_open,
@@ -524,7 +524,7 @@ var openProject = function () {
                             document.getElementById("layer_list").querySelector("li[layer-uid='" + ol.util.getUid(layer) + "'").querySelector(".layer-name").innerHTML = projectLayer["layer_name"]
 
                             // Affichage ou non de la couche
-                            layer.setVisible(projectLayer["layer_is_visible"])
+                            //layer.setVisible(projectLayer["layer_is_visible"])
 
                             break
                         case "warningCalculatorLayer":
@@ -549,7 +549,7 @@ var openProject = function () {
 
 
                                     // Affichage ou non de la couche
-                                    layer.setVisible(projectLayer["layer_is_visible"])
+                                    //layer.setVisible(projectLayer["layer_is_visible"])
                                 }
                             })
 
@@ -583,7 +583,7 @@ var openProject = function () {
                             })
 
                             // Affichage ou non de la couche
-                            layer.setVisible(projectLayer["layer_is_visible"])
+                            //layer.setVisible(projectLayer["layer_is_visible"])
 
                             break
                         case "obsLayer":
@@ -601,7 +601,7 @@ var openProject = function () {
                             document.getElementById("layer_list").querySelector("li[layer-uid='" + ol.util.getUid(layer) + "'").querySelector(".layer-name").innerHTML = projectLayer["layer_name"]
 
                             // Affichage ou non de la couche
-                            layer.setVisible(projectLayer["layer_is_visible"])
+                            //layer.setVisible(projectLayer["layer_is_visible"])
 
                             break
                         case "importedLayer":
@@ -619,13 +619,22 @@ var openProject = function () {
                             layer.set("layer_name", projectLayer["layer_name"])
                             document.getElementById("layer_list").querySelector("li[layer-uid='" + ol.util.getUid(layer) + "'").querySelector(".layer-name").innerHTML = projectLayer["layer_name"]
 
-                            // Affichage ou non de la couche
-                            layer.setVisible(projectLayer["layer_is_visible"])
+
+                            //layer.setVisible(projectLayer["layer_is_visible"])
 
                             break
                     }
+
+                    // Affichage ou non de la couche
+                    console.log(projectLayer["layer_name"])
+                    console.log(projectLayer["layer_is_visible"])
+                    if (projectLayer["layer_is_visible"] == false) {
+                        layer_li = document.querySelector(".layer_list_element[layer-uid='" + ol.util.getUid(layer) + "']")
+                        layer_li.querySelector(".checkbox-layer").click()
+                    }
                 } catch (error) {
                     projectOpeningError.push("Problème lors de la récupération de la couche <b>" + projectLayer["layer_name"] + "</b>")
+                    console.log(error)
                 }
 
                 // Gestion des tables attributaires
