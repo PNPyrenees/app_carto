@@ -145,6 +145,15 @@ var exportLayer = function (layer_uid, export_format) {
         case "kml":
             layerToKML(layer_uid)
             break
+        case "gpx":
+            try {
+                layerToGPX(layer_uid)
+            }
+            catch(error) {
+                default_message = "Erreur lors de la conversion de la couche en GPX. La géométrie et peur-être trop complexe. Veuillez prendre contact avec l'administrateur de l'application"
+                apiCallErrorCatcher('Error', default_message)
+            }
+            break
         case "geoJson":
             layerToGeoJSON(layer_uid)
             break
@@ -235,6 +244,78 @@ var layerToKML = function (layer_uid) {
 
             filename = layer.get('layer_name') + '.kml'
             download(filename, kmlStr)
+        }
+    })
+}
+
+/*----------------------------------------------------*/
+/*------------------EXPORT GPX--------------------*/
+/*----------------------------------------------------*/
+var layerToGPX = function (layer_uid) {
+    map.getLayers().forEach(layer => {
+        if (ol.util.getUid(layer) == layer_uid) {
+            
+            // On n'exporte que les données affichées (filtré)
+            var tmpFeatures  = []
+            var vertexCoordinates,lineGeom
+            layer.getSource().getFeatures().forEach(function(feature) {
+                if (feature["visible"] != false) {
+
+                    // On clone le feature car on va devoir restructurer les données attributaires
+                    // voir modifier la géométrie dans le cas de polygone et on ne veux pas 
+                    // modifier la donnée d'origine
+                    feature = feature.clone()
+
+                    var desc = {}
+                    var i = 0
+                    for (var key in feature.getProperties()){
+                        if (key != 'geometry') {
+                            desc[key] = feature.getProperties()[key]
+                        }
+                        i++
+                    }
+                    feature.set('desc', JSON.stringify(desc))
+                    
+                    // Si c'est du polygone, on change la géométrie
+                    if (feature.getGeometry()) {
+                        if (['Polygon', 'MultiPolygon'].includes(feature.getGeometry().getType())){
+                            
+                            if (feature.getGeometry().getType() == 'MultiPolygon') {
+                                //Si on est sur un multiPolygone, on le tranforme en multiLineString
+                                
+                                var tmp_coordinates = []
+                                var multilineGeom = new ol.geom.MultiLineString([])
+
+                                tmp_coordinates.push(feature.getGeometry().getCoordinates())
+                                multilineGeom.setCoordinates(tmp_coordinates)
+
+                                feature.setGeometry(multilineGeom)
+                                tmpFeatures.push(feature)
+                            } else {
+                                // On extrait les coordonnées des vertex composant le polygone
+                                vertexCoordinates = feature.getGeometry().getCoordinates()
+
+                                //Pour en créer une ligne
+                                lineGeom = new ol.geom.LineString(vertexCoordinates)
+                                feature.setGeometry(lineGeom)
+
+                                tmpFeatures.push(feature)
+                            }
+                            
+                        } else {
+                            tmpFeatures.push(feature)
+                        }
+                    }                    
+                }
+            })
+
+            var gpxStr = new ol.format.GPX().writeFeatures(tmpFeatures, {
+                dataProjection: 'EPSG:4326',
+                featureProjection: 'EPSG:3857'
+            });
+
+            filename = layer.get('layer_name') + '.gpx'
+            download(filename, gpxStr)
         }
     })
 }
