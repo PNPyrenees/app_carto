@@ -1429,12 +1429,12 @@ var deleteDataInInfobulleForlayer = function (layer_uid) {
  * Seul les entités répondant aux filtres doivent être affichées
  */
 var table
-getFullDataTable = function (layer_uid) {
-    map.getLayers().forEach(layer => {
+getFullDataTable = async function (layer_uid) {
+    map.getLayers().forEach(async layer => {
         if (ol.util.getUid(layer) == layer_uid) {
             var first_iteration = true
             data = []
-            layer.getSource().getFeatures().forEach(feature => {
+            layer.getSource().getFeatures().forEach(async feature => {
 
                 //Récupération de l'uid du feature
                 feature_uid = ol.util.getUid(feature)
@@ -1451,13 +1451,15 @@ getFullDataTable = function (layer_uid) {
             })
 
             layer_name = layer.get("layer_name")
-            createAttributeTable(layer_name, layer_uid, data)
+            await createAttributeTable(layer_name, layer_uid, data)
 
             document.getElementById("attribute-data-container").classList.remove("hide")
             document.getElementsByClassName("ol-scale-line")[0].style.bottom = "33%"
             document.getElementsByClassName("ol-attribution")[0].style.bottom = "33%"
         }
     })
+
+    return true
 }
 
 /**

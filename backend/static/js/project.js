@@ -22,7 +22,7 @@ save_as_new_project_form.addEventListener("submit", function (event) {
         var project_name = save_as_new_project_form.querySelector("#project-name-input").value
 
         var projet_content = buildJsonProject()
-        console.log(projet_content)
+        //console.log(projet_content)
 
         var postdata = {
             "project_name": project_name,
@@ -43,7 +43,7 @@ save_project_form.addEventListener("click", function (event) {
     var project_id = document.getElementById("current_projet_id").value
 
     var projet_content = buildJsonProject()
-    console.log(projet_content)
+    //console.log(projet_content)
 
     var projectdata = {
         "project_id": project_id,
@@ -145,10 +145,9 @@ var buildJsonProject = function () {
                 nav_object = document.getElementById("nav-attribute-table").querySelector(".nav-layer-item[target='layer-data-table-" + ol.util.getUid(layer) + "']")
                 if (nav_object) {
                     if (nav_object.classList.contains("active")) {
-                        active_attribute_data = true
+                        attribute_data_is_active = true
                     }
                 }
-
 
                 // Si la table attributaire est ouverte
                 if (attribute_data_is_open) {
@@ -493,6 +492,8 @@ var openProject = function () {
         // Application de la configuration du projet
         getProject(project_id).then(async function (project) {
 
+            //console.log(project)
+
             //Récupération du fond de carte
             applyProjectBasemap(project["project_content"]["basemap"])
 
@@ -503,6 +504,7 @@ var openProject = function () {
             project["project_content"]["layers"].sort((a, b) => a.layer_index - b.layer_index);
 
             var projectOpeningError = []
+            var attribute_data_layer_opened
 
             for (const projectLayer of project["project_content"]["layers"]) {
 
@@ -631,7 +633,7 @@ var openProject = function () {
                 if (projectLayer["attribute_data_is_open"]) {
                     var layer_uid = ol.util.getUid(layer)
                     // Construction de la table attributaire
-                    getFullDataTable(layer_uid)
+                    await getFullDataTable(layer_uid)
 
                     table.on("tableBuilt", function () {
                         // Application des filtres
@@ -654,12 +656,37 @@ var openProject = function () {
                             }
                         }
                     })
+                }
 
-
-
+                // Récupération de l'uid de la couche dont la tab le attributaire est active
+                if (projectLayer["attribute_data_is_active"] == true) {
+                    attribute_data_layer_opened = ol.util.getUid(layer)
                 }
 
             }
+
+            // On active la bonne table attributaire
+            table.on("tableBuilt", function () {
+                if (attribute_data_layer_opened) {
+                    // Gestion de nav
+                    var navs = document.querySelectorAll(".nav-layer-item")
+                    for (i = 0; i < navs.length; i++) {
+                        navs[i].classList.remove("active")
+                        if (navs[i].getAttribute("layer_uid") == attribute_data_layer_opened) {
+                            navs[i].classList.add("active")
+                        }
+                    }
+
+                    // Gestion de la table HTML
+                    var tables = document.querySelectorAll(".layer-data-table")
+                    for (i = 0; i < tables.length; i++) {
+                        tables[i].style.display = "none"
+                        if (tables[i].getAttribute("layer-uid") == attribute_data_layer_opened) {
+                            tables[i].style.display = "block"
+                        }
+                    }
+                }
+            })
 
             selectProjectModal.hide()
             document.getElementById('open-project-loading-spinner').style.display = 'none'
@@ -710,6 +737,7 @@ var getProject = function (project_id) {
             if (res.status != 200) {
                 throw res/*.json();*/
             } else {
+                console.log(res)
                 return res.json()
             }
         })

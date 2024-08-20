@@ -1381,8 +1381,6 @@ var addImportedLayerToMap = async importedLayerId => {
             layer_submit_button.disabled = false
             document.getElementById('loading-spinner').style.display = 'none'
 
-            console.log(layer)
-
             return layer
         })
         .catch(error => {
