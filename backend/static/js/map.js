@@ -1650,6 +1650,7 @@ createAttributeTable = function (layer_name, layer_uid, data) {
     if (!document.querySelector(".nav-layer-item[target='" + tab_id + "']")) {
         nav_element = document.createElement("div")
         nav_element.setAttribute("target", tab_id)
+        nav_element.setAttribute("layer_uid", layer_uid)
         nav_element.classList.add("nav-layer-item")
         nav_element.classList.add("active")
         nav_element.innerHTML = layer_name
@@ -1666,6 +1667,8 @@ createAttributeTable = function (layer_name, layer_uid, data) {
             let target_table = nav_element.getAttribute("target")
 
             let nav_is_active = nav_element.classList.contains("active")
+
+            let layer_uid = nav_element.getAttribute("layer_uid")
 
             document.getElementById(target_table).remove()
 
@@ -1688,6 +1691,9 @@ createAttributeTable = function (layer_name, layer_uid, data) {
                 document.getElementsByClassName("ol-attribution")[0].style.bottom = ".5em"
 
             }
+
+            // On réactive l'affichage de toutes les données
+            resetFilterFeature(layer_uid)
         })
         nav_element.append(btn_close)
 
@@ -1750,6 +1756,23 @@ filterFeature = function (layer_uid, l_feature_uid) {
                         enableLayerSnapping(layer)
                     }
                 })
+            }
+        }
+    })
+}
+
+/**
+ * Réactive l'affichage de tous les objets de la couche layer_uid
+ */
+var resetFilterFeature = function (layer_uid) {
+    map.getLayers().forEach(layer => {
+        if (ol.util.getUid(layer) == layer_uid) {
+            source = layer.getSource()
+            if (source instanceof ol.source.Vector) {
+                source.getFeatures().forEach(feature => {
+                    feature["visible"] = true
+                })
+                source.dispatchEvent('change');
             }
         }
     })

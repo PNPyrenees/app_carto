@@ -52,17 +52,34 @@ var buildJsonProject = function () {
     var tmp_layer_info
     var layer_name
     var database_layer_id
+    var layer_features
     var layer_type
     var layer_json_style
     var layer_index
     var is_visible
     var formdata
+    var attribute_data_sort
+    var attribute_data_filter = []
 
-    var layer_features
+
     map.getLayers().forEach(layer => {
+
+        // On ré-initialise les variables spécifiques
+        database_layer_id = null
+        layer_features = null
+        formdata = null
+        layer_type = null
+        layer_json_style = null
+        layer_index = null
+        is_visible = null
+        formdata = null
+        attribute_data_sort = null
+        attribute_data_filter = []
+
+
+
         /* Récupération du nom de la couche utilisé comme fond de carte */
         if (layer.get("layerType") == 'basemap' && layer.get("visible") == true) {
-            //console.log('HERE I AM !!!')
             basemap = layer.get("basemapName")
         }
 
@@ -77,11 +94,9 @@ var buildJsonProject = function () {
                 layer_index = layer.getZIndex()
                 is_visible = layer.getVisible()
 
-                // On ré-initialise les variables spécifiques
-                database_layer_id = null
-                layer_features = null
-                formdata = null
 
+
+                // Couche issue de la base de données -> récupération de l'identifiant interne
                 if (["refLayerReadOnly", "refLayerEditable", "importedLayer", "warningCalculatorResultLayer"].includes(layer_type)) {
                     database_layer_id = layer.get("databaseLayerId")
                 }
@@ -91,14 +106,58 @@ var buildJsonProject = function () {
                     layer_features = JSON.parse(new ol.format.GeoJSON().writeFeatures(layer.getSource().getFeatures()))
                 }
 
+                // Couche de dessin -> on récupère la géométrie des objets saisies
                 if (layer_type == "drawingLayer") {
                     layer_features = JSON.parse(new ol.format.GeoJSON().writeFeatures(layer.getSource().getFeatures()))
                 }
 
+                // Couche de données résultat de l'intérrogation des données d'observaiton
+                // -> on ajoute les filtres du formulaire utilisé
                 if (layer_type == "obsLayer") {
                     formdata = layer.get("additional_data")["formdata"]
                 }
 
+                // Récupération des informations relatives à l'état de la table attributaire
+                var attribute_data_is_open = false
+                var attribute_table = document.getElementById("layer-data-table-" + ol.util.getUid(layer))
+                if (attribute_table) {
+                    attribute_data_is_open = true
+                }
+
+                // Si la table attributaire est ouverte
+                if (attribute_data_is_open) {
+                    var cols = attribute_table.querySelectorAll(".tabulator-col")
+
+                    for (i = 0; i < cols.length; i++) {
+                        // On regarde si un filtre est appliqué sur une colonne
+                        if (cols[i].querySelector("input[type='search']").value) {
+                            // Et on l'ajoute dans la définition du projet
+                            tmp_filter = {
+                                "column_name": cols[i].getAttribute("tabulator-field"),
+                                "value": cols[i].querySelector("input[type='search']").value
+                            }
+                            attribute_data_filter.push(tmp_filter)
+                        }
+
+                        // Et s'il y a un tri d'appliqué
+                        var sorting_column, sorting_direction
+                        if (cols[i].getAttribute("aria-sort") != 'none') {
+                            sorting_column = cols[i].getAttribute("tabulator-field")
+                            if (cols[i].getAttribute("aria-sort") == 'descending') {
+                                sorting_direction = 'desc'
+                            } else {
+                                sorting_direction = 'asc'
+                            }
+
+                            attribute_data_sort = {
+                                "sorting_column": sorting_column,
+                                "sorting_direction": sorting_direction
+                            }
+                        }
+                    }
+                }
+
+                // On s'assure de ne pas sauvegarder la couche de périmètre d'enjeux si elle est vide
                 if (!(layer_type == "warningCalculatorLayer" && layer_features == null)) {
 
                     tmp_layer_info = {
@@ -109,7 +168,10 @@ var buildJsonProject = function () {
                         "layer_index": layer_index,
                         "layer_is_visible": is_visible,
                         "layer_features": layer_features,
-                        "formdata": formdata
+                        "formdata": formdata,
+                        "attribute_data_is_open": attribute_data_is_open,
+                        "attribute_data_sort": attribute_data_sort,
+                        "attribute_data_filter": attribute_data_filter
                     }
                     projectLayers.push(tmp_layer_info)
                 }
@@ -150,8 +212,6 @@ var createProjectToDatabase = function (postdata) {
             }
         })
         .then(data => {
-
-            //console.log(data)                   
             // On masque le spinner global
             document.getElementById("global-spinner").classList.add("hide")
             saveAsNewProjectModal.hide()
@@ -327,6 +387,7 @@ var buildMyprojectList = function () {
             // On masque le spinner 
             document.getElementById("modal-my-projects-list-spinner").classList.add("hide")
 
+
             // Et on affiche la liste des projets mise en forme
             my_project_list.appendChild(li)
 
@@ -352,11 +413,8 @@ var openProject = function () {
 
     resetMapContent()
 
-    //console.log("-----------------------")
-    //console.log("récupération des couches")
-    //console.log("-----------------------")
-
     document.getElementById('open-project-loading-spinner').style.display = 'inline-block'
+    document.getElementById("my-project-cancel").disabled = true
     // Récupération de l'dentifiant du projet
     var targetProjectType = document.getElementById("select-project-menu").querySelector('input[name="btn-projects"]:checked').getAttribute("target")
 
@@ -379,9 +437,7 @@ var openProject = function () {
             applyProjectExtent(project["project_content"]["map_extent"])
 
             // Récupération des couches de données
-            //console.log(project["project_content"]["layers"])
             project["project_content"]["layers"].sort((a, b) => a.layer_index - b.layer_index);
-            //console.log(project["project_content"]["layers"])
 
             var projectOpeningError = []
 
@@ -392,7 +448,6 @@ var openProject = function () {
                     switch (projectLayer["layer_type"]) {
                         case "refLayerReadOnly":
                         case "refLayerEditable":
-                            //console.log("Recupération de la couche : " + projectLayer["layer_name"])
 
                             // Récupération de la couche
                             layer = await callApiForRefLayer(projectLayer["layer_database_id"])
@@ -512,15 +567,52 @@ var openProject = function () {
                 } catch (error) {
                     projectOpeningError.push("Problème lors de la récupération de la couche <b>" + projectLayer["layer_name"] + "</b>")
                 }
+
+                // Gestion des tables attributaires
+                if (projectLayer["attribute_data_is_open"]) {
+                    var layer_uid = ol.util.getUid(layer)
+                    // Construction de la table attributaire
+                    getFullDataTable(layer_uid)
+
+                    table.on("tableBuilt", function () {
+                        // Application des filtres
+                        for (const filter of projectLayer["attribute_data_filter"]) {
+                            html_column = document.getElementById("layer-data-table-" + layer_uid).querySelector(".tabulator-col[tabulator-field='" + filter["column_name"] + "']")
+                            html_column_searcher = html_column.querySelector("input[type='search']")
+                            html_column_searcher.value = filter["value"]
+
+                            html_column_searcher.dispatchEvent(new KeyboardEvent("keyup"))
+                        }
+
+                        // Application du trie
+                        if (projectLayer["attribute_data_sort"]) {
+                            if (projectLayer["attribute_data_sort"]["sorting_column"]) {
+                                sorting_column = projectLayer["attribute_data_sort"]["sorting_column"]
+                                sorting_direction = projectLayer["attribute_data_sort"]["sorting_direction"]
+                                table.setSort([
+                                    { column: sorting_column, dir: sorting_direction },
+                                ])
+                            }
+                        }
+                    })
+
+
+
+                }
+
             }
 
             selectProjectModal.hide()
             document.getElementById('open-project-loading-spinner').style.display = 'none'
+            document.getElementById("my-project-cancel").disabled = false
 
             // Gestion de l'affichage des erreurs
             if (projectOpeningError.length > 0) {
                 showAlert(projectOpeningError.join('<br />'))
             }
+
+            // On affiche le nom du projet dans la barre d'en-tête
+            document.getElementById("project-name-in-title").innerHTML = " - " + project["project_name"]
         })
     }
 
@@ -589,7 +681,6 @@ var getProject = function (project_id) {
  */
 var applyProjectBasemap = function (basemapName) {
 
-    //console.log("basemap : " + basemapName)
     document.getElementById("basemap-dropdown-content").querySelectorAll(".dropdown-item").forEach(basemapItem => {
         if (basemapItem.innerHTML == basemapName) {
             basemapItem.click()

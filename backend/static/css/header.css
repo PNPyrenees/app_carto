@@ -2,44 +2,50 @@
     height: 6vh;
 }
 
-header{
+header {
     height: 6vh;
     min-height: 30px;
 }
 
-#header-row{
-    margin-right: 0px!important;
+#header-row {
+    margin-right: 0px !important;
 }
 
-.app_name{
+.app_name {
     color: mintcream;
     font-size: 3vh;
     font-weight: bold;
 }
 
-#username-label{
+#project-name-in-title {
+    display: inline;
+    font-size: 3vh;
+    font-weight: bold;
+}
+
+#username-label {
     color: mintcream;
     font-style: italic;
 }
 
 #btn-login,
-#btn-logout{
+#btn-logout {
     height: 100%;
     padding: 0 .375rem;
     display: none;
 }
 
 #btn-login.active,
-#btn-logout.active{
+#btn-logout.active {
     display: block !important;
 }
 
-.btn-login-label{
+.btn-login-label {
     display: block;
 }
 
 #icon-logout,
-#icon-login{
+#icon-login {
     font-size: 3vh;
     display: none;
 }
