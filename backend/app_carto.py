@@ -2202,7 +2202,7 @@ def create_project():
     db_app.session.add(project)
     db_app.session.commit()
 
-    return jsonify(True)
+    return jsonify(ProjectSchema(many=False).dump(project))
 
 # Enregistrement du contenu d'un projet
 @app.route('/api/project/update_content', methods=['POST'])
