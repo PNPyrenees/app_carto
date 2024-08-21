@@ -697,9 +697,16 @@ var openProject = function () {
                 showAlert(projectOpeningError.join('<br />'))
             }
 
+            
             // On affiche le nom du projet dans la barre d'en-tête
             document.getElementById("project-name-in-title").innerHTML = " - " + project["project_name"]
-            document.getElementById("current_projet_id").value = project["project_id"]
+
+            // On inscrtit l'identifiant du projet
+            document.getElementById("current_project_id").value = project["project_id"]
+            document.getElementById("current_project_name").value = project["project_name"]
+
+            // On affiche le boutton d'édition du nom du projet
+            document.getElementById("btn-open-modal-rename-project").classList.remove("hide")
 
             // On active le bouton de sauvegarde 
             document.getElementById("btn-project-update").disabled = false
@@ -764,4 +771,64 @@ var applyProjectBasemap = function (basemapName) {
  */
 var applyProjectExtent = function (extent) {
     map.getView().fit(extent)
+}
+
+/**
+ * Gestion de la fenêtre modal pour renommer un projet
+ */
+ document.getElementById("rename-project-modal").addEventListener('show.bs.modal', event => {
+    var project_name = document.getElementById("current_project_name").value
+    document.getElementById("rename-project-name-input").value = project_name
+})
+
+/**
+ * Gestion de la validation du renommage du projet
+ */
+document.getElementById("rename-project-form").addEventListener("submit", function (event) {
+ 
+    event.preventDefault()
+    new_project_name = document.getElementById("rename-project-name-input").value
+    project_id = document.getElementById("current_project_id").value
+
+    updateProjectName(project_id, new_project_name).then(res => {
+        document.getElementById("current_project_name").value = new_project_name
+        document.getElementById("project-name-in-title").innerHTML = " - " + new_project_name
+
+        renameProjectModal.hide()
+    })
+})
+
+var updateProjectName = function (project_id, project_name){
+
+    // On affiche le spinner global
+    document.getElementById("global-spinner").classList.remove("hide")
+
+    return fetch(APP_URL + "/api/project/update_name", {
+        method: "POST",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        },
+        credentials: "same-origin",
+        body: JSON.stringify({
+            "project_id": project_id,
+            "project_name": project_name
+        })
+    })
+        .then(res => {
+            if (res.status != 200) {
+                // En envoi l"erreur dans le catch
+                throw res;
+            } else {
+                return res.json()
+            }
+        })
+        .then(data => {
+            // On masque le spinner global
+            document.getElementById("global-spinner").classList.add("hide")
+        })
+        .catch(error => {
+            document.getElementById("global-spinner").classList.add("hide")
+            apiCallErrorCatcher("erreur", "Erreur lors du changement du nom du projet du projet")
+        })
 }

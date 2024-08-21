@@ -1,4 +1,9 @@
 window.addEventListener('load', (event) => {
+
+    // A l'ouverture de la page, on s'assure de retirer l'identifiant du projet et 
+    // on désactive le bouton d'enregistrement d'un projet
+    document.getElementById("current_project_id").value = ""
+    document.getElementById("btn-project-update").disabled = true
     /** 
      * On lance l'initialisation de la carte
      */
@@ -78,6 +83,11 @@ var saveAsNewProjectModal = new bootstrap.Modal(document.getElementById("save-as
 var selectProjectModal = new bootstrap.Modal(document.getElementById("select-project-modal"), {
     keyboard: false
 })
+
+var renameProjectModal = new bootstrap.Modal(document.getElementById("rename-project-modal"), {
+    keyboard: false
+})
+
 // On ré-initialise le modal à la fermeture
 /*var addLayerModalEl = document.getElementById("add-layer-modal")
 addLayerModalEl.addEventListener('hidden.bs.modal', function (event) {

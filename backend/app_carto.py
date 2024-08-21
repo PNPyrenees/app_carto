@@ -2258,7 +2258,8 @@ def update_project_name():
     # On s'assure que celui qui demande la mise à jour du 
     # projet est bien le propriétaire du projet
     if project.role_id == role.role_id :
-        project.name = postdata["project_name"]
+
+        project.project_name = postdata["project_name"]
         project.project_update_date = datetime.now()
 
         db_app.session.commit()
