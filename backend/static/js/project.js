@@ -258,6 +258,9 @@ var createProjectToDatabase = function (postdata) {
             document.getElementById("current_project_id").value = data["project_id"]
             document.getElementById("current_project_name").value = data["project_name"]
 
+            // On dévérouille la sauvegarde simple
+            document.getElementById("btn-project-update").disabled = false
+
             // On masque le spinner global
             document.getElementById("global-spinner").classList.add("hide")
 
