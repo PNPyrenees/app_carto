@@ -351,17 +351,16 @@ var buildMyprojectList = function () {
     // On affiche le spinner
     document.getElementById("modal-my-projects-list-spinner").classList.remove("hide")
 
+    // On vide la liste des projets
+    var my_project_list = document.getElementById("my-projects-list")
+    my_project_list.innerHTML = ''
+
+    // Récupération de la liste des projets et mide en forme
     getMyProjectList().then(myProjectListJson => {
 
         if (myProjectListJson.length != 0) {
 
             document.getElementById("my-project-submit").disabled = false
-
-            // On vide la liste des projets
-            var my_project_list = document.getElementById("my-projects-list")
-            my_project_list.innerHTML = ''
-
-            var my_project_list = document.getElementById("my-projects-list")
 
             /* Mise en forme de la liste des couches importées */
             myProjectListJson.forEach(project => {
