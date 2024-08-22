@@ -2646,9 +2646,17 @@ var numerisationToolbarShowManagement = function (layer_uid) {
         if (ol.util.getUid(layer) == layer_uid) {
             //On laisse activable ou non le bouton de suppression
             if (layer.getSource().getFeatures().length == 0) {
-                document.getElementById("btn-drawing-layer-remove-feature").classList.add("disabled")
+                if (layer.get("layerType") == 'warningCalculatorLayer') {
+                    document.getElementById("btn-challenge-calculator-remove-feature").classList.add("disabled")
+                } else {
+                    document.getElementById("btn-drawing-layer-remove-feature").classList.add("disabled")
+                }
             } else {
-                document.getElementById("btn-drawing-layer-remove-feature").classList.remove("disabled")
+                if (layer.get("layerType") == 'warningCalculatorLayer') {
+                    document.getElementById("btn-challenge-calculator-remove-feature").classList.remove("disabled")
+                } else {
+                    document.getElementById("btn-drawing-layer-remove-feature").classList.remove("disabled")
+                }
             }
 
             // si la couche sélectionnée est celle d'édition pour la calculette des enjeux

@@ -144,7 +144,7 @@ var getWarningCalculatorData = async geojson_txt => {
         .then(data => {
             //for (const layer in data) {
             data.forEach(layer => {
-                console.log(layer)
+                //console.log(layer)
                 additional_data = { "formdata": "", }
                 if (layer.desc_layer.layer_id) {
                     addGeojsonLayer(layer, "warningCalculatorResultLayer", additional_data)

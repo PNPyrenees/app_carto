@@ -78,6 +78,8 @@ var buildJsonProject = function () {
     var attribute_data_is_active // Indique si la table attributaire est celle qui est affiché
 
 
+    var currentViewContainWarningLayerResult = false
+    var currentViewContainWarningLayer = false
     map.getLayers().forEach(layer => {
 
         // On ré-initialise les variables spécifiques
@@ -112,8 +114,6 @@ var buildJsonProject = function () {
                 layer_index = layer.getZIndex()
                 layer_is_visible = layer.getVisible()
 
-
-
                 // Couche issue de la base de données -> récupération de l'identifiant interne
                 if (["refLayerReadOnly", "refLayerEditable", "importedLayer", "warningCalculatorResultLayer"].includes(layer_type)) {
                     database_layer_id = layer.get("databaseLayerId")
@@ -122,6 +122,7 @@ var buildJsonProject = function () {
                 /* par défaut la couche warningCalculatorLayer existe, il faut donc contrôler qu'elle contient un objet */
                 if (layer_type == "warningCalculatorLayer" && layer.getSource().getFeatures().length > 0) {
                     layer_features = JSON.parse(new ol.format.GeoJSON().writeFeatures(layer.getSource().getFeatures()))
+                    currentViewContainWarningLayer = true
                 }
 
                 // Couche de dessin -> on récupère la géométrie des objets saisies
@@ -133,6 +134,10 @@ var buildJsonProject = function () {
                 // -> on ajoute les filtres du formulaire utilisé
                 if (layer_type == "obsLayer") {
                     formdata = layer.get("additional_data")["formdata"]
+                }
+
+                if (layer_type == 'warningCalculatorResultLayer' || layer_type == 'warningCalculatorObsResultLayer') {
+                    currentViewContainWarningLayerResult = true
                 }
 
                 // Récupération des informations relatives à l'état de la table attributaire
@@ -205,6 +210,11 @@ var buildJsonProject = function () {
         }
     })
 
+    // On est dans un cas ou il y a des couches résultant dd'un calcul d'enjeux mais le périmètre n'existe plus
+    if (currentViewContainWarningLayerResult == true && currentViewContainWarningLayer == false) {
+        showAlert("Vous affichez des couches résultant d'un calcul d'enjeux alors aque le périmètre utilisé initialement n'existe plus. <b>Ces couches ne pourront pas être sauvegardé !</b> ")
+    }
+
     var json_project = {
         "map_extent": map_extent,
         "basemap": basemap,
@@ -250,7 +260,7 @@ var createProjectToDatabase = function (postdata) {
 
             // On masque le spinner global
             document.getElementById("global-spinner").classList.add("hide")
-            
+
             saveAsNewProjectModal.hide()
 
             return data
@@ -512,7 +522,7 @@ var openProject = function () {
         // Application de la configuration du projet
         getProject(project_id).then(async function (project) {
 
-            //console.log(project)
+            console.log(project)
 
             //Récupération du fond de carte
             applyProjectBasemap(project["project_content"]["basemap"])
@@ -577,6 +587,9 @@ var openProject = function () {
                             var geojson_txt = writer.writeFeatures(warning_calculator_source.getFeatures())
                             await getWarningCalculatorData(geojson_txt)
 
+                            // Par défaut on rend la couche visible, si elle 
+                            // n'ai pas enregistré comme visible, c'est géré après
+                            layer.setVisible(true)
 
                             break
                         case "warningCalculatorResultLayer":
@@ -636,6 +649,7 @@ var openProject = function () {
                     // Affichage ou non de la couche
                     if (projectLayer["layer_is_visible"] == false) {
                         if (projectLayer["layer_type"] == 'warningCalculatorLayer') {
+                            console.log("layer_is_visible : " + projectLayer["layer_is_visible"])
                             layer_li = document.querySelector(".layer_list_element[layer-uid='" + ol.util.getUid(warning_calculator_layer) + "']")
                             layer_li.querySelector(".checkbox-layer").checked = false
                             warning_calculator_layer.setVisible(false)
@@ -686,7 +700,7 @@ var openProject = function () {
             }
 
             // On active la bonne table attributaire
-            if(table){
+            if (table) {
                 table.on("tableBuilt", function () {
                     if (attribute_data_layer_opened) {
                         // Gestion de nav
@@ -719,7 +733,7 @@ var openProject = function () {
                 showAlert(projectOpeningError.join('<br />'))
             }
 
-            
+
             // On affiche le nom du projet dans la barre d'en-tête
             document.getElementById("project-name-in-title").innerHTML = " - " + project["project_name"]
 
@@ -800,7 +814,7 @@ var applyProjectExtent = function (extent) {
 /**
  * Gestion de la fenêtre modal pour renommer un projet
  */
- document.getElementById("rename-project-modal").addEventListener('show.bs.modal', event => {
+document.getElementById("rename-project-modal").addEventListener('show.bs.modal', event => {
     var project_name = document.getElementById("current_project_name").value
     document.getElementById("rename-project-name-input").value = project_name
 })
@@ -809,7 +823,7 @@ var applyProjectExtent = function (extent) {
  * Gestion de la validation du renommage du projet
  */
 document.getElementById("rename-project-form").addEventListener("submit", function (event) {
- 
+
     event.preventDefault()
     new_project_name = document.getElementById("rename-project-name-input").value
     project_id = document.getElementById("current_project_id").value
@@ -822,7 +836,7 @@ document.getElementById("rename-project-form").addEventListener("submit", functi
     })
 })
 
-var updateProjectName = function (project_id, project_name){
+var updateProjectName = function (project_id, project_name) {
 
     // On affiche le spinner global
     document.getElementById("global-spinner").classList.remove("hide")
