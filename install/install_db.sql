@@ -281,7 +281,7 @@ CREATE TABLE IF NOT EXISTS app_carto.t_logs(
     log_date timestamp without time zone DEFAULT now(),
     log_type character varying(32) COLLATE pg_catalog."default",
     log_data jsonb
-)
+);
 
 /* Création de la table projet */
 create table app_carto.t_projects (
@@ -297,7 +297,7 @@ create table app_carto.t_projects (
         REFERENCES app_carto.t_roles (role_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION
-)
+);
 
 /*
  * Partie 2 : Script à jouer sur la base de données SIG
