@@ -20,6 +20,7 @@ class Role(db_app.Model):
     role_date_update = db_app.Column(db_app.DateTime(), default=datetime.now(pytz.timezone('Europe/Paris')))
 
     importedLayers = relationship("ImportedLayer")
+    logs = relationship("Logs")
 
     def __init__(
         self,
@@ -263,19 +264,26 @@ class Logs(db_app.Model):
     log_id = db_app.Column(db_app.Integer, primary_key=True)
     log_date = db_app.Column(db_app.DateTime(), default=datetime.now(pytz.timezone('Europe/Paris')))
     log_type = db_app.Column(db_app.String(32))
+    role_id = db_app.Column(db_app.Integer, ForeignKey('app_carto.t_roles.role_id'))
     log_data = db_app.Column(JSONB)
+
+    role = relationship("Role", back_populates="logs")
 
     def __init__(
         self,
         log_id,
         log_date,
         log_type,
+        role_id,
+        role,
         log_data
         
     ):
         self.log_id = log_id
         self.log_date = log_date
         self.log_type = log_type
+        self.role_id = role_id
+        self.role = role
         self.log_data = log_data
 
 class Project(db_app.Model):

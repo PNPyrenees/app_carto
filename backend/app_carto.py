@@ -1756,6 +1756,16 @@ def add_features_for_layer(layer_id):
     layer = Layer.query.get(layer_id)
     layer_schema = LayerSchema().dump(layer)
 
+    # Récupération de l'utilisateur courrant
+    token = request.cookies.get('token')
+    try:
+        role = Role.query.filter(Role.role_token == token).one()
+    except Exception as error:
+        return jsonify({
+            'status': 'error',
+            'message': """[Erreur] Aucun role associé au token - {}""".format(error)
+        }), 520
+
     layer_definition = get_column_definition(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
 
     primary_key = get_primary_key_of_layer(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
@@ -1817,6 +1827,8 @@ def add_features_for_layer(layer_id):
         log_id = None,
         log_date = None,
         log_type = "Layer edition - INSERT",
+        role_id = role.role_id,
+        role = role,
         log_data = {
             "layer_id" : layer_id,
             "layer_schema_name" : layer_schema["layer_schema_name"],
@@ -1869,6 +1881,16 @@ def update_features_for_layer(layer_id):
 
     layer = Layer.query.get(layer_id)
     layer_schema = LayerSchema().dump(layer)
+
+    # Récupération de l'utilisateur courrant
+    token = request.cookies.get('token')
+    try:
+        role = Role.query.filter(Role.role_token == token).one()
+    except Exception as error:
+        return jsonify({
+            'status': 'error',
+            'message': """[Erreur] Aucun role associé au token - {}""".format(error)
+        }), 520
 
     layer_definition = get_column_definition(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
 
@@ -1957,6 +1979,8 @@ def update_features_for_layer(layer_id):
         log_id = None,
         log_date = None,
         log_type = "Layer edition - UPDATE",
+        role_id = role.role_id,
+        role = role,
         log_data = {
             "layer_id" : layer_id,
             "layer_schema_name" : layer_schema["layer_schema_name"],
@@ -1978,6 +2002,16 @@ def delete_features_for_layer(layer_id):
 
     layer = Layer.query.get(layer_id)
     layer_schema = LayerSchema().dump(layer)
+
+    # Récupération de l'utilisateur courrant
+    token = request.cookies.get('token')
+    try:
+        role = Role.query.filter(Role.role_token == token).one()
+    except Exception as error:
+        return jsonify({
+            'status': 'error',
+            'message': """[Erreur] Aucun role associé au token - {}""".format(error)
+        }), 520
 
     primary_key = get_primary_key_of_layer(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
 
@@ -2017,6 +2051,8 @@ def delete_features_for_layer(layer_id):
         log_id = None,
         log_date = None,
         log_type = "Layer edition - DELETE",
+        role_id = role.role_id,
+        role = role,
         log_data = {
             "layer_id" : layer_id,
             "layer_schema_name" : layer_schema["layer_schema_name"],
