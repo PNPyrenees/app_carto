@@ -280,7 +280,13 @@ CREATE TABLE IF NOT EXISTS app_carto.t_logs(
     log_id serial PRIMARY KEY,
     log_date timestamp without time zone DEFAULT now(),
     log_type character varying(32) COLLATE pg_catalog."default",
-    log_data jsonb
+    role_id integer,
+    log_data jsonb,
+
+    CONSTRAINT fk_t_logs_role_id FOREIGN KEY (role_id)
+        REFERENCES app_carto.t_roles (role_id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE NO ACTION
 );
 
 /* Création de la table projet */
