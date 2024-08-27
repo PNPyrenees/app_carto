@@ -1,4 +1,4 @@
-#map-browser{
+#map-browser {
     /*width: 85%;*/
     width: 85%;
     /*background-color: rgb(108, 79, 238);*/
@@ -6,7 +6,7 @@
     vertical-align: top;
 }
 
-#map-block{
+#map-block {
     width: 100%;
     background-color: rgb(255, 255, 255);
     /*height: 70%;*/
@@ -14,8 +14,8 @@
     vertical-align: top;
 }
 
-#attribute-data-container{
-    position: absolute;    
+#attribute-data-container {
+    position: absolute;
     z-index: 99;
     height: 30%;
     width: 85%;
@@ -35,7 +35,7 @@
     border-radius: 4px;
 }*/
 
-#data-block{
+#data-block {
     /*width: 100%;*/
     /*background-color: #e6e6e6;*/
     /*height: 30%;*/
@@ -47,18 +47,18 @@
     /*overflow: visible;*/
 }
 
-#nav-attribute-table{
+#nav-attribute-table {
     /*position: absolute;*/
     bottom: 28%;
     background-color: rgba(255, 255, 255, 0);
     height: 15%
 }
 
-#nav-attribute-table > .nav-layer-item {
+#nav-attribute-table>.nav-layer-item {
     border: 1px solid #000000;
     border-bottom: none;
     background-color: #e6e6e6;
-    color:#666;
+    color: #666;
     border-top-left-radius: .25rem;
     border-top-right-radius: .25rem;
     padding: .3em;
@@ -67,11 +67,11 @@
     height: 100%;
 }
 
-#nav-attribute-table > .nav-layer-item{
+#nav-attribute-table>.nav-layer-item {
     margin-left: -1px;
 }
 
-#nav-attribute-table > .nav-layer-item.active {
+#nav-attribute-table>.nav-layer-item.active {
     font-weight: bold;
     height: 100%;
     background-color: #fefefe;
@@ -80,9 +80,9 @@
     cursor: default;
 }
 
-#nav-attribute-table > .nav-layer-item  > .btn-close-attribute-table{
-    width: 0.2em!important;
-    height: 0.2em!important;
+#nav-attribute-table>.nav-layer-item>.btn-close-attribute-table {
+    width: 0.2em !important;
+    height: 0.2em !important;
     vertical-align: text-top;
     margin-left: 10px;
 }
@@ -101,24 +101,24 @@
     overflow: visible;
 }*/
 
-.tabulator-col-content{
-    padding: 2px!important;
+.tabulator-col-content {
+    padding: 2px !important;
 }
 
-.tabulator-cell{
+.tabulator-cell {
     font-size: 1.5vh;
-    padding: 2px!important;
+    padding: 2px !important;
 }
 
-.tabulator-col-title{
+.tabulator-col-title {
     font-size: 1.5vh;
 }
 
 .tabulator-header-filter {
-    margin-top: 0!important;
+    margin-top: 0 !important;
 }
 
-.tabulator-header-filter > input{
+.tabulator-header-filter>input {
     height: 2.5vh;
     font-size: 1.5vh;
 }
@@ -127,17 +127,17 @@
     font-size: 1.5vh;
 }
 
-.tabulator-row .tabulator-cell .obs-layer-more-data-link{
+.tabulator-row .tabulator-cell .obs-layer-more-data-link {
     font-size: 1.5vh;
 }
 
-.obs-layer-more-data-link{
+.obs-layer-more-data-link {
     color: #0074cc;
     cursor: pointer;
     text-decoration: underline;
 }
 
-.obs-layer-more-data-link:hover{
+.obs-layer-more-data-link:hover {
     color: #0a95ff;
     text-decoration: underline;
 }
@@ -148,65 +148,65 @@
     }
 }*/
 
-#map{
+#map {
     height: 100%;
 }
 
-.ol-zoom{
-    left: unset!important;
+.ol-zoom {
+    left: unset !important;
     right: .5em;
 }
 
-#basemap-selector{
+#basemap-selector {
     position: absolute;
     right: 3em;
     top: 3.6em;
     z-index: 999;
 }
 
-#basemap-selector > .dropdown > .btn {
+#basemap-selector>.dropdown>.btn {
     width: 60px;
     height: 60px;
     font-size: 30px;
-    color: #FFF!important;
-    background-color: rgba(0,60,136,.5)!important;
-    border: 2px solid rgba(255,255,255,.5);
+    color: #FFF !important;
+    background-color: rgba(0, 60, 136, .5) !important;
+    border: 2px solid rgba(255, 255, 255, .5);
 }
 
-#basemap-selector > .dropdown > .btn:hover {
-    background-color: rgba(0,60,136,.7)!important;
-    border: 2px solid rgba(255,255,255,.7);
+#basemap-selector>.dropdown>.btn:hover {
+    background-color: rgba(0, 60, 136, .7) !important;
+    border: 2px solid rgba(255, 255, 255, .7);
 }
 
-#basemap-selector > .dropdown > .dropdown-content {
-    background-color: rgba(0,60,136,.7)!important;
+#basemap-selector>.dropdown>.dropdown-content {
+    background-color: rgba(0, 60, 136, .7) !important;
     right: 3em;
     margin-top: -2px;
     border-radius: .25rem;
 }
 
-#basemap-selector > .dropdown > .dropdown-content > .dropdown-item {
-    color: #FFF!important;
-    border: 2px solid #FFF!important;
+#basemap-selector>.dropdown>.dropdown-content>.dropdown-item {
+    color: #FFF !important;
+    border: 2px solid #FFF !important;
     /*font-weight: bold;*/
 }
 
-#basemap-selector > .dropdown > .dropdown-content > .dropdown-item:not(:first-child) {
+#basemap-selector>.dropdown>.dropdown-content>.dropdown-item:not(:first-child) {
     margin-top: -2px;
 }
 
-#basemap-selector > .dropdown > .dropdown-content > .dropdown-item:first-child {
+#basemap-selector>.dropdown>.dropdown-content>.dropdown-item:first-child {
     border-top-left-radius: .25rem;
     border-top-right-radius: .25rem;
 }
 
-#basemap-selector > .dropdown > .dropdown-content > .dropdown-item:last-child {
+#basemap-selector>.dropdown>.dropdown-content>.dropdown-item:last-child {
     border-bottom-left-radius: .25rem;
     border-bottom-right-radius: .25rem;
 }
 
-#basemap-selector > .dropdown > .dropdown-content > .dropdown-item:hover {
-    background-color: rgba(0, 39, 90, 0.7)!important;
+#basemap-selector>.dropdown>.dropdown-content>.dropdown-item:hover {
+    background-color: rgba(0, 39, 90, 0.7) !important;
 }
 
 .tabulator-col,
@@ -214,7 +214,7 @@
     overflow: visible;
 }
 
-#bloc-clicked-features-attributes{
+#bloc-clicked-features-attributes {
     position: absolute;
     z-index: 99;
     right: 1%;
@@ -222,13 +222,13 @@
     width: 20%;
     border: 1px solid #000000;
     background-color: #e6e6e6;
-    color:#666;
+    color: #666;
     border-radius: .25rem;
     top: 20%;
 }
 
 /*#bloc-clicked-features-attributes*/
-#bloc-clicked-features-attributes-content{
+#bloc-clicked-features-attributes-content {
     /*position: absolute;
     z-index: 999;
     right: 1%;
@@ -245,7 +245,7 @@
 }
 
 
-#close-bloc-clicked-features-attributes{
+#close-bloc-clicked-features-attributes {
     width: 100%;
     padding-top: 5px;
     padding-bottom: 5px;
@@ -255,30 +255,30 @@
     margin-top : 9%;
 }*/
 
-.layer-list > .layer-item > span{
+.layer-list>.layer-item>span {
     font-weight: bold;
-    max-height: initial; 
-}
-
-.layer-list > .layer-item > .feature-list > .feature-item {
     max-height: initial;
 }
 
-.layer-list > .layer-item > .feature-list > .feature-item > span {
+.layer-list>.layer-item>.feature-list>.feature-item {
+    max-height: initial;
+}
+
+.layer-list>.layer-item>.feature-list>.feature-item>span {
     font-style: italic;
 }
 
-.layer-list > .layer-item > .feature-list > .feature-item > .properties-list {
+.layer-list>.layer-item>.feature-list>.feature-item>.properties-list {
     border-left: 1px solid #666;
     max-height: initial;
 }
 
-.layer-list > .layer-item > .feature-list > .feature-item > .properties-list > .propertie-item {
+.layer-list>.layer-item>.feature-list>.feature-item>.properties-list>.propertie-item {
     white-space: nowrap;
 }
 
-.layer-list > .layer-item > .feature-list > .feature-item > .properties-list > .propertie-item > .propertie-name,
-.layer-list > .layer-item > .feature-list > .feature-item > .properties-list > .propertie-item > .propertie-value{
+.layer-list>.layer-item>.feature-list>.feature-item>.properties-list>.propertie-item>.propertie-name,
+.layer-list>.layer-item>.feature-list>.feature-item>.properties-list>.propertie-item>.propertie-value {
     display: inline-block;
     white-space: nowrap;
 }
@@ -287,45 +287,45 @@
     float: right;
 }*/
 
-.layer-list > .layer-item > .feature-list > .feature-item > .zoom-to-feature{
+.layer-list>.layer-item>.feature-list>.feature-item>.zoom-to-feature {
     margin-left: 10px;
     font-size: 14px;
 }
 
-.zoom-to-feature{
+.zoom-to-feature {
     cursor: pointer;
 }
 
-.tools-btn-group{
+.tools-btn-group {
     position: absolute;
     left: 16%;
     top: 8vh;
     z-index: 99;
 }
 
-.edit-layer-btn-group{
+.edit-layer-btn-group {
     /*position: absolute;
     left: 16%;
     top: 8vh;
     z-index: 99;*/
-    background-color: rgba(0,60,136,.7);
-    border: 2px solid rgba(255,255,255,.7);
+    background-color: rgba(0, 60, 136, .7);
+    border: 2px solid rgba(255, 255, 255, .7);
     padding: 10px;
     display: inline-block;
 }
 
-.edit-layer-btn-group > .btn:not(:last-child){
+.edit-layer-btn-group>.btn:not(:last-child) {
     margin-right: 10px;
-}   
+}
 
-#search-toponyme{
+#search-toponyme {
     position: absolute;
     right: 140px;
     top: 3.8em;
     z-index: 999;
 }
 
-#search-toponyme > .input-group{
+#search-toponyme>.input-group {
     width: 20em;
 }
 
@@ -333,7 +333,7 @@
     min-width: 48px;
 }
 
-#toponyme-autocomplete-spinner{
+#toponyme-autocomplete-spinner {
     display: none;
     vertical-align: bottom;
 }
@@ -356,7 +356,7 @@
     top: 6.4em;*/
 }
 
-#toponyme-autocomplete  > .toponyme-autocomplete-option{
+#toponyme-autocomplete>.toponyme-autocomplete-option {
     background: #fff;
     border-bottom: 1px solid #e4e4e4;
     box-sizing: border-box;
@@ -366,7 +366,7 @@
     cursor: pointer;
 }
 
-#toponyme-autocomplete  > .toponyme-autocomplete-option:hover{
+#toponyme-autocomplete>.toponyme-autocomplete-option:hover {
     background: #e6e6e6;
 }
 
@@ -386,7 +386,7 @@ ul#selected-toponyme > li > i {
     cursor: pointer;
 }*/
 
-#obs-more-info-modal > .modal-dialog > .modal-content{
+#obs-more-info-modal>.modal-dialog>.modal-content {
     min-height: 90vh;
 }
 
@@ -401,18 +401,21 @@ ul#selected-toponyme > li > i {
     font-size: 12px;
     cursor: default;
     user-select: none;
-  }
-  .ol-tooltip-measure {
+}
+
+.ol-tooltip-measure {
     opacity: 1;
     font-weight: bold;
-  }
-  .ol-tooltip-static {
+}
+
+.ol-tooltip-static {
     background-color: #ffcc33;
     color: black;
     border: 1px solid white;
-  }
-  .ol-tooltip-measure:before,
-  .ol-tooltip-static:before {
+}
+
+.ol-tooltip-measure:before,
+.ol-tooltip-static:before {
     border-top: 6px solid rgba(0, 0, 0, 0.5);
     border-right: 6px solid transparent;
     border-left: 6px solid transparent;
@@ -421,7 +424,8 @@ ul#selected-toponyme > li > i {
     bottom: -6px;
     margin-left: -7px;
     left: 50%;
-  }
-  .ol-tooltip-static:before {
+}
+
+.ol-tooltip-static:before {
     border-top-color: #ffcc33;
-  }
+}

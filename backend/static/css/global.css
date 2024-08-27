@@ -141,6 +141,10 @@ html * {
     font-weight: bold;
 }
 
+.modal-xxl {
+    --bs-modal-width: 90%;
+}
+
 .align-right {
     text-align: right !important;
 }

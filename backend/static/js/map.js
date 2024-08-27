@@ -111,6 +111,7 @@ map = new ol.Map({
         center: ol.proj.transform(CENTER, 'EPSG:4326', 'EPSG:3857'),
         zoom: ZOOM_LEVEL,
         maxZoom: 18,
+        resolution: 120
     }),
     controls: ol.control.defaults.defaults().extend([scale_line]),
 });
