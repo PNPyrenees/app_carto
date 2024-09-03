@@ -1,3 +1,84 @@
+/**
+ * Initialisation de la carte à l'ouverture de la fenêtre modal
+ */
+var mapObj
+document.getElementById("pdf-generator-modal").addEventListener('show.bs.modal', function () {
+    // Suppression de la carte si elle existe
+    document.getElementById("previewmap-for-pdf").innerHTML = ""
+
+    var tmpView = new ol.View({
+        projection: 'EPSG:3857',
+        center: map.getView().getCenter(),
+        zoom: map.getView().getZoom(),
+        maxZoom: map.getView().getMaxZoom()
+    })
+
+    tmpView.setZoom(map.getView().getZoom())
+
+    mapObj = new ol.Map({
+        target: 'previewmap-for-pdf',
+        controls: ol.control.defaults.defaults({
+            attribution: false
+        }),
+        view: tmpView
+    });
+
+    // On dulique les layers
+    var layers = []
+    map.getLayers().forEach(layer => {
+
+        var tmpLayer
+        var vectorSource
+        if (layer instanceof ol.layer.Vector) {
+
+            vectorSource = new ol.source.Vector()
+            layer.getSource().getFeatures().forEach(feature => {
+                vectorSource.addFeature(feature.clone())
+            })
+
+            tmpLayer = new ol.layer.Vector({
+                source: vectorSource,
+                style: layer.getStyle(),
+                zIndex: layer.getZIndex(),
+                visible: layer.getVisible(),
+                layerType: layer.get("layerType")
+            })
+
+            mapObj.addLayer(tmpLayer)
+        }
+
+
+        if (layer instanceof ol.layer.Tile) {
+
+            vectorSource = new ol.source.Tile(layer.getSource().getProperties())
+
+            tmpLayer = new ol.layer.Tile({
+                opacity: layer.getOpacity(),
+                visible: layer.getVisible(),
+                isEditing: layer.get("isEditing"),
+                isBasemap: layer.get("isBasemap"),
+                layerType: 'basemap',
+                basemapName: layer.get("basemapName"),
+                description_layer: layer.get("description_layer"),
+                zIndex: layer.getZIndex(),
+                source: layer.getSource()
+            })
+
+            mapObj.addLayer(tmpLayer)
+
+            scalebar = new ol.control.ScaleLine({
+                units: 'metric',
+                bar: true,
+                steps: 2,
+                text: true,
+                minWidth: 140,
+            });
+
+            mapObj.addControl(scalebar);
+        }
+    })
+})
+
 // On est sur du A3 donc 420 x 297
 /*const dims = {
     a0: [1189, 841],
@@ -13,6 +94,7 @@ const map_dims = {
     a1: [841, 594],
     a2: [594, 420],*/
     a3: [325, 267],
+
     /*a4: [297, 210],
     a5: [210, 148],*/
 };
@@ -25,7 +107,7 @@ const logo_img_width = Math.round(logo_img_height * logo_img.width / logo_img.he
 const north_arrow_img = new Image()
 north_arrow_img.src = '/static/images/north_arrow.png'
 
-// source_bloc_y est une variable partégé entre
+// source_bloc_y est une variable partagé entre
 // plusieur fonction donc on la rend globale
 // En effet la position de la flèche nord, et de l'echelle 
 // dépend de la position du bloc source (lui même fonction du nombre de source)
@@ -61,6 +143,7 @@ var map2pdf = function () {
 
 
 var createPdfHeader = function (pdf) {
+
     // Ajout du logo dans l'entête
     pdf.addImage(logo_img, 'JPEG', 0, 0, logo_img_width, logo_img_height)
 
@@ -76,26 +159,40 @@ var createPdfHeader = function (pdf) {
 
 }
 
-var createPdfContent = function (pdf, map_dim) {
+var createPdfContent = async function (pdf, map_dim) {
 
     const resolution = 120
     const width = Math.round((map_dim[0] * resolution) / 25.4)
     const height = Math.round((map_dim[1] * resolution) / 25.4)
-    const size = map.getSize()
-    const viewResolution = map.getView().getResolution()
-    const center = map.getView().getCenter()
+    const size = mapObj.getSize()
+    const viewResolution = mapObj.getView().getResolution()
+    const center = mapObj.getView().getCenter()
 
     // On modfie l'élément html de la carte pour que le format
     // corresponde au format de la carte sur le PDF
     const printSize = [width, height]
     const scaling = Math.min(width / size[0], height / size[1])
-    const print_resolution = viewResolution / scaling
+    const print_resolution = (viewResolution / scaling)
+
+    /*console.log("scaling")
+    console.log(scaling)
+    console.log("print_resolution")
+    console.log(print_resolution)
+    console.log("viewResolution")
+    console.log(viewResolution)
+    console.log("printSize")
+    console.log(printSize)
+    console.log("scaling")
+    console.log(scaling)
+    console.log("print_resolution")
+    console.log(print_resolution)*/
+
     resizeMap(printSize, print_resolution, center)
 
     /**
      * Une fois la carte chargé, on l'ajoute au PDF
      */
-    map.once('rendercomplete', async function () {
+    mapObj.once('rendercomplete', async function () {
 
         // Ajout de la carte au PDF
         addMapToPDF(pdf, width, height, map_dim)
@@ -110,7 +207,7 @@ var createPdfContent = function (pdf, map_dim) {
         var comment_value = document.getElementById("pdf-generator-comment-input").value
         if (comment_value) {
             addComment(pdf, comment_value)
-        }        
+        }
 
         // Ajout de le fleche nord et de l'echelle
         await addScaleAndNorthArrowToPDF(pdf, map_dim)
@@ -122,7 +219,7 @@ var createPdfContent = function (pdf, map_dim) {
         pdf.save('map.pdf');
 
         // Fermeture du modal 
-        pdfGeneratorModal.hide()
+        //pdfGeneratorModal.hide()
 
         // Réinitialisation de champ "Titre de la carte"
         //document.getElementById("pdf-generator-title-input").value = ''
@@ -131,7 +228,7 @@ var createPdfContent = function (pdf, map_dim) {
         //document.getElementById("pdf-generator-comment-input").value = ''
 
         // Remise de l'élément html de la carte au format initial
-        resizeMap(size, viewResolution, center)
+        resizeMap(size, viewResolution, center, resolution)
         exportButton.disabled = false;
         document.getElementById("pdf-generator-loading-spinner").classList.add("hide")
 
@@ -139,19 +236,21 @@ var createPdfContent = function (pdf, map_dim) {
 }
 
 var resizeMap = function (size, resolution, center) {
-    map.setSize(size)
-    map.getView().setResolution(resolution)
-    map.getView().setCenter(center)
+    mapObj.setSize(size)
+    mapObj.getView().setResolution(resolution)
+    mapObj.getView().setCenter(center)
 }
 
 var addMapToPDF = function (pdf, width, height, map_dim) {
 
     const mapCanvas = document.createElement('canvas')
+
     mapCanvas.width = width
     mapCanvas.height = height
+
     const mapContext = mapCanvas.getContext('2d')
     Array.prototype.forEach.call(
-        document.querySelectorAll('.ol-layer canvas'),
+        mapObj.getViewport().querySelectorAll('.ol-layer canvas'),
         function (canvas) {
             if (canvas.width > 0) {
                 const opacity = canvas.parentNode.style.opacity
@@ -172,7 +271,8 @@ var addMapToPDF = function (pdf, width, height, map_dim) {
                     mapContext,
                     matrix
                 )
-                mapContext.drawImage(canvas, 0, 0);
+                //mapContext.drawImage(canvas, 0, 0/*, dLargeur = 1535, dHauteur = 1261*/);
+                mapContext.drawImage(canvas, x = 0, y = 0, sx = width, sy = height/*, dLargeur = 1535, dHauteur = 1261*/);
             }
         }
     );
@@ -182,6 +282,7 @@ var addMapToPDF = function (pdf, width, height, map_dim) {
 }
 
 var addLegendToPDF = async function (pdf) {
+
     /**
      * Création de la légende
      */
@@ -264,7 +365,7 @@ var addLegendToPDF = async function (pdf) {
 
                     //Transformation du symbol de type "polygon" en canvas pour intégration dans le pdf
                     await html2canvas(html_symbol).then(canvas => {
-                        pdf.addImage(canvas.toDataURL('image/jpeg'), 'JPEG', symbol_position_x, symbol_y, 9, 4)
+                        pdf.addImage(canvas.toDataURL('image/jpeg'), 'JPEG', symbol_position_x, symbol_y, 8, 4)
                     })
 
                     line_y += 6
@@ -273,7 +374,7 @@ var addLegendToPDF = async function (pdf) {
                     symbol_y += 1
                     //Transformation du symbol de type "line" en canvas pour intégration dans le pdf
                     await html2canvas(html_symbol).then(canvas => {
-                        pdf.addImage(canvas.toDataURL('image/jpeg'), 'JPEG', symbol_position_x, symbol_y, 9, 1)
+                        pdf.addImage(canvas.toDataURL('image/jpeg'), 'JPEG', symbol_position_x, symbol_y, 8, 1)
                     })
 
                     line_y += 6
@@ -281,14 +382,13 @@ var addLegendToPDF = async function (pdf) {
                     //Transformation du symbol de type "point" en canvas pour intégration dans le pdf
 
                     await html2canvas(html_symbol).then(canvas => {
-                        pdf.addImage(canvas.toDataURL('image/jpeg'), 'JPEG', symbol_position_x, symbol_y, 9, 4)
+                        pdf.addImage(canvas.toDataURL('image/jpeg'), 'JPEG', symbol_position_x, symbol_y, 8, 4)
                     })
 
                     line_y += 6
                 } else {
                     //Transformation des autres type de symbol en canvas pour intégration dans le pdf
                     await html2canvas(html_symbol).then(canvas => {
-                        console.log("symbole size : " + canvas.width + " x " + canvas.height)
                         icon_width = canvas.width * 6 / canvas.height
                         pdf.addImage(canvas.toDataURL('image/jpeg'), 'JPEG', symbol_position_x, symbol_y, icon_width, 6)
                     })
@@ -310,11 +410,12 @@ var addLegendToPDF = async function (pdf) {
 }
 
 var addSourceToPDF = function (pdf) {
+
     /**
     * Construction de la liste des sources
     */
     attributions = []
-    map.getLayers().forEach(layer => {
+    mapObj.getLayers().forEach(layer => {
         if (layer.getVisible() == true) {
             description_layer = layer.get("description_layer")
             if (description_layer) {
@@ -356,7 +457,7 @@ var addSourceToPDF = function (pdf) {
     })
 }
 
-var addComment = function(pdf, comment_value) {
+var addComment = function (pdf, comment_value) {
     let comment_font_size = 10
     pdf.setFontSize(comment_font_size)
 
@@ -372,7 +473,7 @@ var addComment = function(pdf, comment_value) {
     comment_bloc_y = Math.round(297 - comment_bloc_height)
     let comment_bloc_x = 257 + max_comment_bloc_width - comment_bloc_width
 
-    
+
     pdf.setFillColor('#FFFFFF')
     pdf.setDrawColor(0, 0, 0) // Bordure
     pdf.rect(comment_bloc_x, comment_bloc_y, comment_bloc_width, comment_bloc_height, 'FD')
@@ -399,17 +500,19 @@ var addScaleAndNorthArrowToPDF = async function (pdf, map_dim) {
     let pdf_scale_y = source_bloc_y - 9
     let pdf_scale_height = 7
 
-    let html_scale_width = document.getElementsByClassName("ol-scale-line")[0].offsetWidth
+    //let html_scale_width = document.getElementsByClassName("ol-scale-line")[0].offsetWidth
+    let html_scale_width = document.getElementById("previewmap-for-pdf").querySelector(".ol-scale-bar").offsetWidth
+    let html_scale_height = document.getElementById("previewmap-for-pdf").querySelector(".ol-scale-bar").offsetHeight
 
-    let pdf_scale_width = html_scale_width * map_dim[0] / document.querySelectorAll('.ol-layer canvas')[0].offsetWidth
+    let pdf_scale_width = html_scale_width * map_dim[0] / document.getElementById("previewmap-for-pdf").querySelectorAll('.ol-layer canvas')[0].offsetWidth
 
     /**
      * Définition de l'emplacement du bloc "fleche nord" et "scale"
      */
     let north_arrox_and_scale_bloc_x = 95
     let north_arrox_and_scale_bloc_y = source_bloc_y - 12
-    let north_arrox_and_scale_bloc_width = pdf_scale_width + 20
-    let north_arrox_and_scale_bloc_height = 12
+    let north_arrox_and_scale_bloc_width = pdf_scale_width + 20 //20
+    let north_arrox_and_scale_bloc_height = pdf_scale_height + 5
 
     /**
      * Ajout des élément fleche nord et scale au pdf
@@ -424,7 +527,10 @@ var addScaleAndNorthArrowToPDF = async function (pdf, map_dim) {
     pdf.addImage(north_arrow_img, 'PNG', north_arrow_x, north_arrow_y, 5, 8)
 
     // Scale (a partir du html)
-    await html2canvas(document.getElementsByClassName("ol-scale-line")[0]).then(canvas => {
+    //await html2canvas(document.getElementsByClassName("ol-scale-line")[0]).then(canvas => {
+    var windowHeight = html_scale_height + 10
+    var windowWidth = html_scale_width + 13
+    await html2canvas(document.getElementById("previewmap-for-pdf").querySelector(".ol-scale-bar"), { x: -5, height: windowHeight, width: windowWidth }).then(canvas => {
 
         //pdf.setGState(new pdf.GState({opacity: 0.9}));
         pdf.addImage(canvas.toDataURL('image/jpeg'), 'JPEG', pdf_scale_x, pdf_scale_y, pdf_scale_width, pdf_scale_height)
