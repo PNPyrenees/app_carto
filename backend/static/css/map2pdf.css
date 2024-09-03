@@ -1,0 +1,34 @@
+/*#previewmap-Container {
+    border: 5px solid black;
+    height: 640px;
+    width: 901px;
+}
+
+#previewmap-for-pdf {
+    height: 630px;
+    width: 891px;
+}*/
+
+/* Version x2 */
+#previewmap-Container {
+    border: 5px solid black;
+    height: 640px;
+    width: 777px;
+}
+
+#previewmap-for-pdf {
+    height: 630px;
+    width: 767px;
+}
+
+/* Version taille pleine */
+/*#previewmap-Container {
+    border: 5px solid black;
+    height: 1271px;
+    width: 1545px;
+}
+
+#previewmap-for-pdf {
+    height: 1261px;
+    width: 1535px;
+}*/
