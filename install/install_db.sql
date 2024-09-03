@@ -318,3 +318,18 @@ begin
     return  as_txt ;
 end;
 $$ language plpgsql
+
+/* Fonction permettant de retirer une clés d'un json */
+CREATE OR REPLACE FUNCTION public.json_object_delete_keys("json" json, VARIADIC "keys_to_delete" TEXT[])
+  RETURNS json
+  LANGUAGE sql
+  IMMUTABLE
+  STRICT
+AS $function$
+SELECT COALESCE(
+  (SELECT ('{' || string_agg(to_json("key") || ':' || "value", ',') || '}')
+   FROM json_each("json")
+   WHERE "key" <> ALL ("keys_to_delete")),
+  '{}'
+)::json
+$function$;

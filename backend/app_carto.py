@@ -261,12 +261,12 @@ def get_ref_layer_data(ref_layer_id):
     layer_schema = LayerSchema().dump(layer)
 
     statement = text("""
-        SELECT jsonb_build_object('type', 'FeatureCollection', 'features', jsonb_agg(feature)) AS geojson_layer 
+        SELECT json_build_object('type', 'FeatureCollection', 'features', json_agg(feature)) AS geojson_layer 
         FROM (
-            SELECT jsonb_build_object(
+            SELECT json_build_object(
                 'type', 'Feature', 
-                'geometry', ST_AsGeoJSON(st_transform(geom, 3857))::jsonb, 
-                'properties', to_jsonb(row) - 'geom') AS feature  
+                'geometry', ST_AsGeoJSON(st_transform(geom, 3857))::json, 
+                'properties', json_object_delete_keys(to_json(row), 'geom'::text)) AS feature  
             FROM (select {} AS geom, {} from {}.{} t ) row
         ) features
     """.format(layer_schema["layer_geom_column"], ', '.join(layer_schema["layer_columns"]), layer_schema["layer_schema_name"], layer_schema["layer_table_name"]))
@@ -1231,7 +1231,7 @@ def get_warning_calculator_data():
         warning_layer_schema = LayerSchema().dump(warning_layer)
         
         statement = text("""
-            SELECT jsonb_build_object('type', 'FeatureCollection', 'features', jsonb_agg(feature)) AS geojson_layer 
+            SELECT json_build_object('type', 'FeatureCollection', 'features', json_agg(feature)) AS geojson_layer 
             FROM (
                 WITH data AS (
                     SELECT '{}'::json AS fc
@@ -1246,10 +1246,10 @@ def get_warning_calculator_data():
                             data
                     ) a
                 )
-                SELECT jsonb_build_object(
+                SELECT json_build_object(
                     'type', 'Feature', 
-                    'geometry', ST_AsGeoJSON(st_transform(geom, 3857))::jsonb, 
-                    'properties', to_jsonb(row) - 'geom') AS feature  
+                    'geometry', ST_AsGeoJSON(st_transform(geom, 3857))::json, 
+                    'properties', json_object_delete_keys(to_json(row), 'geom')) AS feature  
                 FROM (
                     SELECT t.{} AS geom, {} 
                     FROM {}.{} t 
@@ -1411,12 +1411,12 @@ def toponyme_autocomplete():
     limit = request.args.get("limit", 20)
 
     statement = text("""
-        SELECT jsonb_build_object('type', 'FeatureCollection', 'features', jsonb_agg(feature)) AS geojson_layer 
+        SELECT json_build_object('type', 'FeatureCollection', 'features', json_agg(feature)) AS geojson_layer 
         FROM (
-            SELECT jsonb_build_object(
+            SELECT json_build_object(
                 'type', 'Feature', 
-                'geometry', ST_AsGeoJSON(geom)::jsonb, 
-                'properties', to_jsonb(row) - 'geom') AS feature  
+                'geometry', ST_AsGeoJSON(geom)::json, 
+                'properties', json_object_delete_keys(to_json(row), 'geom')) AS feature  
             FROM (
                 SELECT 
                     toponyme_nom, 
@@ -1685,7 +1685,7 @@ def get_column_definition(layer_schema_name, layer_table_name):
             END AS constraint,
             CASE 
                 WHEN cc.check_clause like '%ANY%' THEN
-                    to_jsonb((eval('select' || left(split_part(cc.check_clause, ' ANY ', 2), -2)))::varchar[])
+                    to_json((eval('select' || left(split_part(cc.check_clause, ' ANY ', 2), -2)))::varchar[])
                 ELSE NULL
             END AS l_values,
             c.column_default AS default_value
