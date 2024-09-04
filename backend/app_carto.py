@@ -1411,12 +1411,12 @@ def toponyme_autocomplete():
     limit = request.args.get("limit", 20)
 
     statement = text("""
-        SELECT json_build_object('type', 'FeatureCollection', 'features', json_agg(feature)) AS geojson_layer 
+        SELECT jsonb_build_object('type', 'FeatureCollection', 'features', jsonb_agg(feature)) AS geojson_layer 
         FROM (
-            SELECT json_build_object(
+            SELECT jsonb_build_object(
                 'type', 'Feature', 
-                'geometry', ST_AsGeoJSON(geom)::json, 
-                'properties', json_object_delete_keys(to_json(row), 'geom')) AS feature  
+                'geometry', ST_AsGeoJSON(geom)::jsonb, 
+                'properties', to_jsonb(row) - 'geom') AS feature  
             FROM (
                 SELECT 
                     toponyme_nom, 
