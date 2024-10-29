@@ -2049,7 +2049,7 @@ def delete_features_for_layer(layer_id):
 
     logs = Logs(
         log_id = None,
-        log_date = None,
+        log_date = datetime.now(),
         log_type = "Layer edition - DELETE",
         role_id = role.role_id,
         role = role,
