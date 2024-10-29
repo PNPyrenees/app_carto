@@ -71,7 +71,7 @@ AppCarto s'appuie donc sur deux bases de données:
 
 #### Représentation de la base de données applicative (*bdd_app*)
 
-![image](https://user-images.githubusercontent.com/85548796/134653814-140cad56-b3ab-403b-9090-d94560bef9bf.png)
+![MLD_V0 2](https://github.com/user-attachments/assets/e6affac4-38eb-45f1-ba35-83005573e7cf)
 
 Les tables grisées sont une projection dans le cadre des développements à venir. Elles seront certainement amenées à évoluer.
 
