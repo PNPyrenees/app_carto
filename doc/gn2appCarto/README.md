@@ -119,6 +119,7 @@ Nom de la vue SQL : v_synthese_for_appcarto
 
 Récupérez l'identifiant et le token associé à l'export en vous rendant dans le module exports et en cliquant sur le bouton "Token" au niveau de l'export créé (la valeur du token est automatiquement copiée).
 
+![illustration_exportGn](https://github.com/user-attachments/assets/963e3ff5-c05b-4403-a0e4-9cd8285f0b50)
 
 # Installation de gn2pg (sql)
 
