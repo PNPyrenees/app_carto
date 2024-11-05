@@ -141,7 +141,7 @@ var writeFeatureProperties = function () {
                                     // On convertie la valeur en nombre
                                     propertie_value = Number(propertie_value)
 
-                                    if (!propertie_value || !Number.isInteger(propertie_value)) {
+                                    if ((propertie_value != 0 && !propertie_value) || !Number.isInteger(propertie_value)) {
                                         if (feature_form_error[propertie_name]) {
                                             feature_form_error[propertie_name] += "La valeur renseignée n'est pas un nombre entier"
                                         } else {
