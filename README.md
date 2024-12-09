@@ -44,14 +44,21 @@ AppCarto est une plateforme web développée principalement en python et en java
 Au stade d'avancement actuel, l'application offre la possibilité à l'utilisateur :
 - d'afficher des couches de données (possibilité de changer l'ordre des couches et le niveau de transparence)
 - d'interroger les données d'observation naturaliste (données [GeoNature](https://github.com/PnX-SI/GeoNature))
-- d'exporter la table attributaire d'une couche en CSV
+- d'exporter les données sous plusieurs format (KML, GeoJson, GPX, CSV)
+- d'importer des données SIG (Tab, SHP, GeoPackage, GPX)
 - de filtrer les entités d'une couche de données à partir de la table attributaire
 - de lancer des calculs d'enjeux sur un périmètre spécifique
 - d'exporter des cartes en PDF
+- de créer des couches temporaire de dessins
+- de modififer le style des couche (style simple ou analyse thématique)
+- d'ajouter, modifier ou supprimer des objets sur des couches de référence déclarée comme éditable
+- créer des projet qui conserve l'emprise carto, la liste des couches, les styles et les filtres appliqués
+- de faire des mesures de longueur et de surface
+- Afficher les métadonnées d'un catalogue GeoNetwork
 
 L'administrateur de l'application a quant à lui la possibilité :
 - de configurer les fonds de carte affichable (flux WMTS)
-- de déclarer une couche (= ajouter une couche) :
+- de déclarer une couche de référence (= ajouter une couche) :
   - définition du style par défaut (optionnel)
   - définir la liste des champs devant être accessible
   - définir si c'est une couche à enjeux
@@ -64,7 +71,7 @@ AppCarto s'appuie donc sur deux bases de données:
 
 #### Représentation de la base de données applicative (*bdd_app*)
 
-![image](https://user-images.githubusercontent.com/85548796/134653814-140cad56-b3ab-403b-9090-d94560bef9bf.png)
+![MLD_V0 2](https://github.com/user-attachments/assets/e6affac4-38eb-45f1-ba35-83005573e7cf)
 
 Les tables grisées sont une projection dans le cadre des développements à venir. Elles seront certainement amenées à évoluer.
 
@@ -90,7 +97,7 @@ Il est nécessaire de peupler quelques tables afin que l'application puisse fonc
 
 #### app_carto.bib_mesh_scale
 Cette table permet d'activer des échelles de restitution des données d'observations.
-Par défaut seules sont activées les mailles de 2km, 1km, 500m, 250m, 100m
+Par défaut seules sont activées les mailles de 2km, 1km, 500m, 250m, 100mw
 
 Il est possible d'ajouter d'autres échelles de restitution en ajoutant des lignes dans cette table.
 
@@ -163,6 +170,11 @@ nom_valide | Nom retenu de l'espèce dans taxref
 nom_vern | Nom vernaculaire de lespèce dans taxref
 regne | Regne auquel le taxon apparatient issue de taxref
 geom | Objet géométrique associé à l'observation
+observateurs | Liste des nom d'observateurs rattachés à l'observation
+meta_last_action_date | Date de dernière modification de l'observation
+last_action | Précise le type de la denière action (I : insertion / U : modification)
+
+Les champs "meta_last_action_date" et "last_action" sont utile pour automatiser une synchronisation des données entre GeoNature et AppCarto
 
 #### app_carto.cor_observation_commune 
 Lien entre une observation et les communes
@@ -219,6 +231,9 @@ layer_is_warning | Booléen indiquant que la couche doit être prise en compte d
 layer_attribution | Identification du producteur de la données (copyright)
 layer_columns | Liste (varchar[]) des champs à intérroger (champs se retrouvant dans le "select"). **Attention** renseigner "\*" ne fonctionne pas, si on veut tous les champs de la couche, il faut tous les renseigner.
 layer_geom_column | Nom du champ stockant la géométrie dans la base de données source (bdd_sig) (ex : geom, the_geom ...)
+layer_is_editable | Booléen permettant d'activer l'édition de la couche
+layer_allowed_geometry | Liste (varchar[]) des géométrie accepté par la couche (permet d'activer le sbouton d'édition en fonction)
+layer_metadata_uuid | UUID de la fiche métadonnées déclaré dans un catalogue du type GeoNetwork
 
 ### Définition du style d'une couche
 Les styles respectent une syntaxe JSON spécifique et fonction de la géométrie des objets.
