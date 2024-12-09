@@ -135,7 +135,7 @@ for (let i = 0; i < 20; i++) {
     resolutions[i] = maxResolution / Math.pow(2, i);
 }
 
-BASEMAPS.forEach(basemap => {
+var addBasemap = function (basemap){
     var basemap_layer
     switch (basemap.type) {
         case "Tile":
@@ -146,6 +146,7 @@ BASEMAPS.forEach(basemap => {
                 isBasemap: true,
                 layerType: 'basemap',
                 basemapName: basemap.name,
+                isStackable: basemap.isStackable,
                 description_layer: { "layer_attribution": basemap.attributions },
                 source: new ol.source.WMTS({
                     attributions: basemap.attributions,
@@ -174,6 +175,7 @@ BASEMAPS.forEach(basemap => {
                 isBasemap: true,
                 layerType: 'basemap',
                 basemapName: basemap.name,
+                isStackable: basemap.isStackable,
                 description_layer: { "layer_attribution": basemap.attributions },
                 source: new ol.source.XYZ({
                     attributions: basemap.attributions,
@@ -201,6 +203,21 @@ BASEMAPS.forEach(basemap => {
     div_item.setAttribute('onclick', 'showBasemap(' + ol.util.getUid(basemap_layer) + ')')
 
     document.getElementById("basemap-dropdown-content").appendChild(div_item)
+}
+
+/* On commence par ajouter les basemap simple */
+BASEMAPS.forEach(basemap => {
+    if (basemap.isStackable == 0) {
+        addBasemap(basemap) 
+    }
+})
+
+/* Puis les basemap "isStackable" pour assurer la superposition */
+/* Les fonds de carte "isStackable" sont des fond de cartes qui doivent s'affcher sur un autre fond de carte */
+BASEMAPS.forEach(basemap => {
+    if (basemap.isStackable == 1) {
+        addBasemap(basemap) 
+    }
 })
 
 //Ajout de la couche de séléction à la carte
@@ -210,14 +227,28 @@ map.addLayer(selectedVectorLayer)
  * Gestion du changement de fond de carte
  */
 showBasemap = function (layer_uid) {
+
     map.getLayers().forEach(layer => {
-        if (layer.get("isBasemap") == true) {
-            layer.setVisible(false)
-            if (ol.util.getUid(layer) == layer_uid) {
+        if (ol.util.getUid(layer) == layer_uid) {
+            /* Les fonds de carte "isStackable" s'affiche sur un 
+            fond de carte déjà affiché (par supperposition) avec transparence */
+            if (layer.get('isStackable') == 1) {
                 layer.setVisible(true)
+                layer.setOpacity(0.7)
+            } else {
+                map.getLayers().forEach(layer => {
+                    if (layer.get("isBasemap") == true) {
+                        layer.setVisible(false)
+                        if (ol.util.getUid(layer) == layer_uid) {
+                            layer.setVisible(true)
+                        }
+                    }
+                });
             }
         }
-    });
+    })
+
+    
 }
 
 /**

@@ -62,19 +62,30 @@ OBS_LAYER_CLASS_COLOR = ["rgba(237, 248, 251, 0.9)", "rgba(179, 205, 227, 0.9)",
 [[BASEMAPS]]
     type = "Tile"
     name = "IGN-Orthophotos"
-    url = "https://wxs.ign.fr/decouverte/geoportail/wmts?SERVICE=WMTS&REQUEST=GetCapabilities"
+    url = "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile"
     layer = "ORTHOIMAGERY.ORTHOPHOTOS"
-    attributions = "©IGN"
+    attributions = "IGN"
     isDefault = 0
     format = "image/jpeg"
+    isStackable = 0
 [[BASEMAPS]]
     type = "Tile"
     name = "IGN-Plan"
-    url = "https://wxs.ign.fr/decouverte/geoportail/wmts?SERVICE=WMTS&REQUEST=GetCapabilities"
+    url = "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile"
     layer = "GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2"
-    attributions = "©IGN"
-    isDefault = 1
+    attributions = "IGN"
+    isDefault = 0
     format = "image/png"
+    isStackable = 0
+[[BASEMAPS]]
+    type = "Tile"
+    name = "IGN-Pente"
+    url = "https://data.geopf.fr/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetTile"
+    layer = "GEOGRAPHICALGRIDSYSTEMS.SLOPES.MOUNTAIN"
+    attributions = "©IGN"
+    isDefault = 0 
+    format = "image/png"
+    isStackable = 1
 [[BASEMAPS]]
     type = "XYZ"
     name = "OSM-OpenTopoMap"
@@ -83,3 +94,4 @@ OBS_LAYER_CLASS_COLOR = ["rgba(237, 248, 251, 0.9)", "rgba(179, 205, 227, 0.9)",
     attributions = "©OSM"
     isDefault = 0
     format = ""
+    isStackable = 0
