@@ -33,7 +33,10 @@ document.getElementById("pdf-generator-modal").addEventListener('show.bs.modal',
 
             vectorSource = new ol.source.Vector()
             layer.getSource().getFeatures().forEach(feature => {
-                vectorSource.addFeature(feature.clone())
+                console.log(feature["visible"])
+                if (typeof feature["visible"] === "undefined" || feature["visible"] == true) {
+                    vectorSource.addFeature(feature.clone())
+                }
             })
 
             tmpLayer = new ol.layer.Vector({
