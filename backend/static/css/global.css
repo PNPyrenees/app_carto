@@ -318,3 +318,7 @@ input[type="date"]>span.datetime-edit-field {
 #export-loading-spinner {
     display: none;
 }
+
+.form-feature-edit-input-select{
+    max-width: 400px;
+}

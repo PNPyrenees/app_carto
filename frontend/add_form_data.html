@@ -185,7 +185,7 @@
                         constraint="{% if formObject.constraint is not none %}{{formObject.constraint}}{% endif %}"
                         is_nullable="{% if formObject.is_nullable == 'YES' %}true{% else %}false{% endif %}"
                     >
-                        <select>
+                        <select class="form-feature-edit-input-select">
                             <option></option>
                             {% for option in formObject.l_values %}
                                 <option value="{{option}}">{{option}}</option>
