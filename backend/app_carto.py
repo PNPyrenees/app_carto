@@ -1781,8 +1781,10 @@ def add_features_for_layer(layer_id):
         value = feature_data[column_name]
         # On adapte le valeur en fonction de leur type
         if value is not None :
-            if column["data_type"] in ['varchar', 'text', 'date']:
+            if column["data_type"] in ['varchar', 'text', 'date', 'timestamp without time zone', 'time without time zone']:
                 value = "'" + value.replace("'", "''") + "'"
+            if column["data_type"] in ['uuid']:
+                value = value + "::uuid"
             if column["data_type"].startswith("geometry"):
                 srid = column["data_type"].split(",")[1].replace(")","")
                 value = "ST_Transform(ST_GeomFromText('" + value + "', 3857), " + srid + ")"
@@ -1926,13 +1928,17 @@ def update_features_for_layer(layer_id):
         # On adapte le valeur en fonction de leur type
         if column_name != primary_key["attname"] :
             if value is not None :
-                if column["data_type"] in ['varchar', 'text', 'date']:
+                if column["data_type"] in ['varchar', 'text', 'date', 'timestamp without time zone', 'time without time zone']:
                     value = "'" + value.replace("'", "''") + "'"
+                if column["data_type"] in ['uuid']:
+                    value = "'" + value + "'" + "::uuid"
                 if column["data_type"].startswith("geometry"):
                     srid = column["data_type"].split(",")[1].replace(")","")
                     value = "ST_Transform(ST_GeomFromText('" + value + "', 3857), " + srid + ")"
             else :
                 value = 'NULL'
+
+            
 
             update_statement = update_statement + """
                 {} = {}
@@ -1945,7 +1951,7 @@ def update_features_for_layer(layer_id):
     """.format(primary_key["attname"], feature_data[primary_key["attname"]])
 
     try :
-       update_exec = db_sig.execute(update_statement)#._asdict()
+        update_exec = db_sig.execute(update_statement)#._asdict()
     except Exception as error:
         return jsonify({
             "status": "error",
@@ -1992,7 +1998,7 @@ def update_features_for_layer(layer_id):
     db_app.session.add(logs)
     db_app.session.commit()
 
-    return returned_data
+    return json.loads(json.dumps(returned_data, default=str))
 
     
 @app.route('/api/delete_features_for_layer/<layer_id>', methods=['POST'])

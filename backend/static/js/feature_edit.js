@@ -188,6 +188,17 @@ var writeFeatureProperties = function () {
                                         }
                                     }
                                     break
+                                
+                                case "uuid":
+                                    var uuid_regexp = new RegExp(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+                                    if (uuid_regexp.test(propertie_value) == false){
+                                        if (feature_form_error[propertie_name]) {
+                                            feature_form_error[propertie_name] += "La valeur renseignée n'est pas un UUID"
+                                        } else {
+                                            feature_form_error[propertie_name] = "La valeur renseignée n'est pas un UUID"
+                                        }
+                                    }
+                                    break
 
                                 case "select":
                                     break

@@ -79,6 +79,20 @@
                     >
                 {% endif %}
 
+                {# VARCHAR #}
+                {% if formObject.data_type == 'uuid' and formObject.l_values == None %}
+                    <input 
+                        id="feature-form-{{formObject.column_name}}" 
+                        column_name="{{formObject.column_name}}" 
+                        propertie_type="uuid" 
+                        class="form-control form-control-lg" 
+                        type="text" 
+                        constraint="{% if formObject.constraint is not none %}{{formObject.constraint}}{% endif %}" 
+                        placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}" 
+                        is_nullable="{% if formObject.is_nullable == 'YES' %}true{% else %}false{% endif %}"
+                    >
+                {% endif %}
+
                 {# TEXT #}
                 {% if formObject.data_type == 'text' %}
                     <input 
@@ -128,6 +142,34 @@
                         propertie_type="date" 
                         class="form-control form-control-lg" 
                         type="date" 
+                        constraint="{% if formObject.constraint is not none %}{{formObject.constraint}}{% endif %}" 
+                        placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}"
+                        is_nullable="{% if formObject.is_nullable == 'YES' %}true{% else %}false{% endif %}"
+                    >
+                {% endif %}
+                
+                {# TIMESTAMP #}
+                {% if formObject.data_type == 'timestamp without time zone' %}
+                    <input 
+                        id="feature-form-{{formObject.column_name}}" 
+                        column_name="{{formObject.column_name}}" 
+                        propertie_type="timestamp without time zone" 
+                        class="form-control form-control-lg" 
+                        type="datetime-local" 
+                        constraint="{% if formObject.constraint is not none %}{{formObject.constraint}}{% endif %}" 
+                        placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}"
+                        is_nullable="{% if formObject.is_nullable == 'YES' %}true{% else %}false{% endif %}"
+                    >
+                {% endif %}
+                
+                {# TIME #}
+                {% if formObject.data_type == 'time without time zone' %}
+                    <input 
+                        id="feature-form-{{formObject.column_name}}" 
+                        column_name="{{formObject.column_name}}" 
+                        propertie_type="time without time zone" 
+                        class="form-control form-control-lg" 
+                        type="time" 
                         constraint="{% if formObject.constraint is not none %}{{formObject.constraint}}{% endif %}" 
                         placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}"
                         is_nullable="{% if formObject.is_nullable == 'YES' %}true{% else %}false{% endif %}"
