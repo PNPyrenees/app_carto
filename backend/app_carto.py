@@ -1766,6 +1766,8 @@ def add_features_for_layer(layer_id):
             'message': """[Erreur] Aucun role associé au token - {}""".format(error)
         }), 520
 
+    logger.debug('here i am')
+
     layer_definition = get_column_definition(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
 
     primary_key = get_primary_key_of_layer(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
@@ -1805,7 +1807,7 @@ def add_features_for_layer(layer_id):
     )
 
     try :
-       inserted_data_id = db_sig.execute(insert_statement).fetchone()._asdict()
+       inserted_data_id = db_sig.execute(text(insert_statement)).fetchone()._asdict()
     except Exception as error:
         return jsonify({
             "status": "error",
@@ -1951,7 +1953,7 @@ def update_features_for_layer(layer_id):
     """.format(primary_key["attname"], feature_data[primary_key["attname"]])
 
     try :
-        update_exec = db_sig.execute(update_statement)#._asdict()
+        update_exec = db_sig.execute(text(update_statement))#._asdict()
     except Exception as error:
         return jsonify({
             "status": "error",
