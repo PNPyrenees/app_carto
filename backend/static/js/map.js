@@ -135,7 +135,7 @@ for (let i = 0; i < 20; i++) {
     resolutions[i] = maxResolution / Math.pow(2, i);
 }
 
-var addBasemap = function (basemap){
+var addBasemap = function (basemap) {
     var basemap_layer
     switch (basemap.type) {
         case "Tile":
@@ -208,7 +208,7 @@ var addBasemap = function (basemap){
 /* On commence par ajouter les basemap simple */
 BASEMAPS.forEach(basemap => {
     if (basemap.isStackable == 0) {
-        addBasemap(basemap) 
+        addBasemap(basemap)
     }
 })
 
@@ -216,7 +216,7 @@ BASEMAPS.forEach(basemap => {
 /* Les fonds de carte "isStackable" sont des fond de cartes qui doivent s'affcher sur un autre fond de carte */
 BASEMAPS.forEach(basemap => {
     if (basemap.isStackable == 1) {
-        addBasemap(basemap) 
+        addBasemap(basemap)
     }
 })
 
@@ -248,7 +248,7 @@ showBasemap = function (layer_uid) {
         }
     })
 
-    
+
 }
 
 /**
@@ -975,7 +975,7 @@ var refreshLayer = function (layer_id) {
                         }
 
                         // Si on est sur une fonction d'ajout ou de modification géométrique alors
-                        if (document.getElementById("btn-drawing-layer-edit-feature-info").classList.contains("btn-active") == false){
+                        if (document.getElementById("btn-drawing-layer-edit-feature-info").classList.contains("btn-active") == false) {
                             // On rafrachi la fonction de modification car après un refresh du layer 
                             // il y a un bug d'affichage
                             disableLayerModify()
