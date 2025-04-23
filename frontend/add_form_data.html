@@ -193,6 +193,44 @@
                         </select>
                     </div>
                 {% endif %}
+
+                {# Fichier #}
+                {% if formObject.data_type == 'media' %}
+                    <div id="feature-form-{{formObject.column_name}}-div" class="hide">
+                        <input 
+                            id="feature-form-{{formObject.column_name}}"
+                            columne_name="{{formObject.column_name}}"
+                            class="form-control form-control-lg feature-form-input-text-for-file"
+                            propertie_type="media" 
+                            type="text"
+                            constraint="{% if formObject.constraint is not none %}{{formObject.constraint}}{% endif %}" 
+                            is_nullable="{% if formObject.is_nullable == 'YES' %}true{% else %}false{% endif %}"
+                            disabled="disabled"                     
+                        >
+                        <button 
+                            id="feature-form-{{formObject.column_name}}-remove-btn" 
+                            target="feature-form-{{formObject.column_name}}" 
+                            onclick="featureEditRemoveFile(this)"
+                            class="btn btn-danger"
+                            title="Supprimer le fichier"
+                        >    
+                            X
+                        </button>
+                    </div>
+                    <input 
+                        id="feature-form-{{formObject.column_name}}-file-input"
+                        columne_name="{{formObject.column_name}}"
+                        propertie_type="media" 
+                        class="form-control form-control-lg" 
+                        type="file"
+                        onchange="sendFileToServer(this)"
+                    >
+                    <div id="feature-form-{{formObject.column_name}}-file-input-spinner" class="spinner-grow spinner-grow-sm feature-form-file-input-spinner"></div>
+                    <!--<div id="feature-form-{{formObject.column_name}}-file-input-div-filename" class="feature-form-file-input-div-filename">
+                        <input type id="feature-form-{{formObject.column_name}}-file-input-div-filename-span"></span>
+                        
+                    </div>-->
+                {% endif %}
             </div>
         {% endfor %}
     </div>  

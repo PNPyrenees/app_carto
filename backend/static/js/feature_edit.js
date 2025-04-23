@@ -188,10 +188,10 @@ var writeFeatureProperties = function () {
                                         }
                                     }
                                     break
-                                
+
                                 case "uuid":
                                     var uuid_regexp = new RegExp(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
-                                    if (uuid_regexp.test(propertie_value) == false){
+                                    if (uuid_regexp.test(propertie_value) == false) {
                                         if (feature_form_error[propertie_name]) {
                                             feature_form_error[propertie_name] += "La valeur renseignée n'est pas un UUID"
                                         } else {
@@ -201,6 +201,9 @@ var writeFeatureProperties = function () {
                                     break
 
                                 case "select":
+                                    break
+
+                                case "media":
                                     break
                             }
                         }
@@ -270,6 +273,24 @@ var populateFormFromFeature = function (feature) {
                 }
             } else if (propertie_type == 'select') {
                 document.getElementById("feature-form-" + propertie_name).querySelector("select").value = properties[propertie_name]
+            } else if (propertie_type == 'media') {
+
+                // Controle de l'existance d'une valeur
+                var tmp_element = document.createElement('html')
+                tmp_element.innerHTML = properties[propertie_name]
+                if (tmp_element.getElementsByTagName('a').length > 0) {
+                    // ici, il y a un nom de fichier renseigné, alors on adapte les champs du formulaire
+                    filename = tmp_element.getElementsByTagName('a')[0].innerHTML
+
+                    document.getElementById("feature-form-" + propertie_name).value = filename
+
+                    // On affiche le div contenant l'input text avec le nom du fichnier
+                    document.getElementById("feature-form-" + propertie_name + "-div").classList.remove("hide")
+
+                    // On masque l'input file associé
+                    document.getElementById("feature-form-" + propertie_name + "-file-input").style.display = "none"
+                }
+
             } else {
                 if (!String(properties[propertie_name]).startsWith('nextval(')) { // Cas particulier pour les champs auto-incrémenté
                     document.getElementById("feature-form-" + propertie_name).value = properties[propertie_name]
@@ -351,3 +372,80 @@ var writeFeaturesInDatabase = function (layer_id, feature, mode) {
         })
 }
 
+// Envois de fichier vers le serveur
+var sendFileToServer = async function (evt) {
+
+    // Désactivation du boutton d'enregistrement
+    document.getElementById("feature-form-submit").disabled = true
+    document.getElementById(evt.id + "-spinner").style.display = "block"
+    document.getElementById(evt.id).style.display = "none"
+
+    // Activation du spinner d'upload
+
+    // Préparation des données pour envoie au serveur
+    const formData = new FormData();
+    formData.append("file", evt.files[0]);
+
+    // Envois du fichier au serveur
+    fetch(APP_URL + "/api/upload_file", {
+        method: "POST",
+        credentials: "same-origin",
+        files: evt.files[0],
+        body: formData
+    }).then(res => {
+        if (res.status != 200) {
+            throw res/*.json();*/
+        } else {
+            return (res.json())
+        }
+    }).then(res => {
+
+        filename = res.filename
+
+        // On renseigne le nom du fichier dans l'input text
+        document.getElementById(evt.id.replace("-file-input", "")).value = filename
+        // On affiche le div contenant l'input text avec le nom du fichnier
+        document.getElementById(evt.id.replace("-file-input", "-div")).classList.remove("hide")
+
+        // On réactive le boutton d'enregistrement
+        document.getElementById("feature-form-submit").disabled = false
+
+        // On masque le spinner d'upload
+        document.getElementById(evt.id + "-spinner").style.display = "none"
+
+        return filename
+    }).catch(error => {
+        default_message = "Erreur lors de l'envois du fichier'"
+        apiCallErrorCatcher("error", default_message)
+        console.log(error)
+
+        // On réactive le boutton d'enregistrement
+        document.getElementById("feature-form-submit").disabled = false
+
+        // On masque le spinner
+        document.getElementById(evt.id + "-spinner").style.display = "none"
+
+        // On masque le div contenant l'input text avec le nom du fichnier
+        document.getElementById(evt.id.replace("-file-input", "-div")).classList.add("hide")
+        // On force le nom du fichier à null dans l'input text
+        document.getElementById(evt.id.replace("-file-input", "")).value = ''
+
+        // On ré-affiche le input de selection de fichier
+        document.getElementById(evt.id).style.display = "block"
+        document.getElementById(evt.id).value = ''
+    })
+}
+
+// Gestion des champs lors de la suppression d'un fichier du formulaire
+var featureEditRemoveFile = function (evt) {
+    target = evt.getAttribute("target")
+
+    // On retire le nom du fichier du input hidden
+    document.getElementById(target).value = ''
+    // On masque le div affichant le nom du fichier (et son boutton de suppression)
+    document.getElementById(target + "-div").classList.add("hide")
+
+    // On ré-affiche le input de selection de fichier
+    document.getElementById(target + "-file-input").style.display = 'block'
+    document.getElementById(target + "-file-input").value = ''
+}

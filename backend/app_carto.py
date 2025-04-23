@@ -10,6 +10,7 @@ from sqlalchemy import create_engine, text, func
 from sqlalchemy.exc import SQLAlchemyError
 #from sqlalchemy.sql.expression import true
 from functools import wraps
+from werkzeug.utils import secure_filename
 
 from .models import Role, VLayerList, Layer, BibStatusType, VRegneList, VGroupTaxoList, BibCommune, BibMeshScale, BibGroupStatus, ImportedLayer, Logs, Project
 from .schema import RoleSchema, VLayerListSchema, LayerSchema, BibGroupStatusSchema, ImportedLayerSchema, LogsSchema, ProjectSchema
@@ -35,6 +36,12 @@ app.config.update(config)
 
 # On force le fait de ne pas trier les json par keyname
 app.config['JSON_SORT_KEYS'] = False
+
+# paramtrage en dur du chemin de stockage des média
+app.config['UPLOAD_FOLDER'] = './backend/static/media/'
+app.config['TMP_UPLOAD_FOLDER'] = './backend/static/tmp_upload/'
+# paramétrage en dur des types de fichier d'upload autorisés lors de l'édition de couche
+app.config['ALLOWED_FEATURE_FILES_EXTENSIONS'] = {'pdf', 'png', 'jpg', 'jpeg'}
 
 db_app.init_app(app)
 db_sig = create_engine(app.config['SQLALCHEMY_SIG_DATABASE_URI'], pool_pre_ping=True)
@@ -1648,7 +1655,15 @@ def get_imported_layers_list():
 
 # Fonction permettant de produire la requête (texte) récupérant la structure 
 # d'une table
-def get_column_definition(layer_schema_name, layer_table_name):
+def get_column_definition(layer_schema):
+
+    layer_schema_name = layer_schema["layer_schema_name"]
+    layer_table_name = layer_schema["layer_table_name"]
+
+    layer_media_fields = '{' + '}'
+    if layer_schema["layer_media_fields"] is not None:
+        layer_media_fields = '{'+','.join(layer_schema["layer_media_fields"])+'}'
+
     statement = text("""
         WITH geom_column_info AS (
             SELECT 
@@ -1669,6 +1684,7 @@ def get_column_definition(layer_schema_name, layer_table_name):
             c.column_name,
             CASE 
                 WHEN c.data_type = 'USER-DEFINED' THEN gci.geom_type
+                WHEN c.column_name = ANY ('{}'::varchar[]) THEN 'media' -- On surcharge le type si le nom du champ est cité comme champ "média"
                 WHEN c.data_type in ('smallint', 'integer', 'bigint') THEN 'integer'
                 WHEN c.data_type in ('decimal', 'numeric', 'real', 'double precision') THEN 'float'
                 WHEN c.data_type in ('character varying', 'varchar') THEN 'varchar'
@@ -1712,10 +1728,12 @@ def get_column_definition(layer_schema_name, layer_table_name):
         WHERE
             c.table_schema = '{}'
             and c.table_name = '{}';
-    """.format(layer_schema_name, layer_table_name))
+    """.format(layer_media_fields, layer_schema_name, layer_table_name))
 
     try :
-       return db_sig.execute(statement).fetchall()
+        columns = db_sig.execute(statement).fetchall()
+               
+        return columns
     except Exception as error:
         return jsonify({
             "status": "error",
@@ -1732,7 +1750,10 @@ def get_feature_form_for_layer(layer_id):
     layer = Layer.query.get(layer_id)
     layer_schema = LayerSchema().dump(layer)
 
-    tmp_layer_defintion = get_column_definition(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
+    tmp_layer_defintion = get_column_definition(layer_schema)
+
+    logger.debug("tmp_layer_defintion")
+    logger.debug(tmp_layer_defintion)
 
     layer_definition = []
     for data in tmp_layer_defintion:
@@ -1766,9 +1787,7 @@ def add_features_for_layer(layer_id):
             'message': """[Erreur] Aucun role associé au token - {}""".format(error)
         }), 520
 
-    logger.debug('here i am')
-
-    layer_definition = get_column_definition(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
+    layer_definition = get_column_definition(layer_schema)
 
     primary_key = get_primary_key_of_layer(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
 
@@ -1790,6 +1809,16 @@ def add_features_for_layer(layer_id):
             if column["data_type"].startswith("geometry"):
                 srid = column["data_type"].split(",")[1].replace(")","")
                 value = "ST_Transform(ST_GeomFromText('" + value + "', 3857), " + srid + ")"
+            if column["data_type"] in ['media']:
+
+                dest_dir = os.path.join(app.config['UPLOAD_FOLDER'],layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
+                if not os.path.exists(dest_dir):
+                    os.makedirs(dest_dir)  
+
+                os.rename(os.path.join(app.config['TMP_UPLOAD_FOLDER'], value), os.path.join(dest_dir, value))
+                filename = value
+                url = app.config['APP_URL'] + "/static/media/" + layer_schema["layer_schema_name"] + "/" + layer_schema["layer_table_name"] + "/" + filename
+                value = "'<a href=\"" + url + "\" target=\"_blank\">" + filename + "</a>'"
         else :
             value = 'NULL'
 
@@ -1896,7 +1925,7 @@ def update_features_for_layer(layer_id):
             'message': """[Erreur] Aucun role associé au token - {}""".format(error)
         }), 520
 
-    layer_definition = get_column_definition(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
+    layer_definition = get_column_definition(layer_schema)
 
     primary_key = get_primary_key_of_layer(layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
     
@@ -1937,10 +1966,58 @@ def update_features_for_layer(layer_id):
                 if column["data_type"].startswith("geometry"):
                     srid = column["data_type"].split(",")[1].replace(")","")
                     value = "ST_Transform(ST_GeomFromText('" + value + "', 3857), " + srid + ")"
+                if column["data_type"] in ['media']:
+
+                    dest_dir = os.path.join(app.config['UPLOAD_FOLDER'],layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
+                    if not os.path.exists(dest_dir):
+                        os.makedirs(dest_dir) 
+                        
+                    # Vérification de la présence du fichier dans le dossier temporaire
+                    # S'il n'existe pas c'est qu'il n'y a pas de changement
+                    filename = value
+                    if os.path.exists(os.path.join(app.config['TMP_UPLOAD_FOLDER'], filename)) == True:
+                        # Ici, il y a bien le fichier dans le dossier temporaire
+                        
+                        # Un fichier était-il déjà renseigné en base ?
+                        if previous_data[column_name] is not None:
+                            # Récupération de l'ancien nom du fichier
+                            tmp_previous_filename = previous_data[column_name].split(">")
+                            logger.debug("tmp_previous_filename : ")
+                            logger.debug(tmp_previous_filename)
+                            if len(tmp_previous_filename) > 0 :
+                                previous_file_name = tmp_previous_filename[1].replace("</a", "")
+                            
+                            # Suppression de l'ancien fichier si il existe sur le serveur
+                            if os.path.exists(os.path.join(dest_dir, previous_file_name)) :
+                                os.remove(os.path.join(dest_dir, previous_file_name)) 
+                            
+                        # puis on copie le fichier qui est dans le dossier temporaire
+                        if os.path.exists(os.path.join(app.config['TMP_UPLOAD_FOLDER'], filename)) :
+                            os.rename(os.path.join(app.config['TMP_UPLOAD_FOLDER'], filename), os.path.join(dest_dir, filename))
+
+                        # Construction de l'url HTML
+                        url = app.config['APP_URL'] + "/static/media/" + layer_schema["layer_schema_name"] + "/" + layer_schema["layer_table_name"] + "/" + filename
+                        value = "'<a href=\"" + url + "\" target=\"_blank\">" + filename + "</a>'"
+                    else :
+                        # ici, le fichier n'a pas changé
+                        value = previous_data[column_name]
             else :
                 value = 'NULL'
 
-            
+                # si on est sur un type média, il faut supprimer l'ancien fichier sur le serveur
+                if column["data_type"] in ['media']:
+                    # Un fichier était-il déjà renseigné en base ?
+                    if previous_data[column_name] is not None:
+                        
+                        # Récupération du nom du fichier
+                        tmp_previous_filename = previous_data[column_name].split(">")
+                        if len(tmp_previous_filename) > 0 :
+                            previous_file_name = tmp_previous_filename[1].replace("</a", "")
+                    
+                        # Suppression du fichier si il existe sur le serveur
+                        dest_dir = os.path.join(app.config['UPLOAD_FOLDER'],layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
+                        if os.path.exists(os.path.join(dest_dir, previous_file_name)) :
+                            os.remove(os.path.join(dest_dir, previous_file_name)) 
 
             update_statement = update_statement + """
                 {} = {}
@@ -2073,6 +2150,27 @@ def delete_features_for_layer(layer_id):
     db_app.session.commit()
 
     return {"statut": True}
+
+# Déclaration d'une fonction de contrôle de l'extension du fichier uploadé
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_FEATURE_FILES_EXTENSIONS']
+
+# Gestion de l'envois d'un fichier depuis un client 
+# et stockage dans un espace temporaire
+@app.route('/api/upload_file', methods=['POST'])
+@valid_token_required
+def upload_file():
+    file = request.files['file']
+
+    # Dépôt du fichier dans le dossier temporaire
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['TMP_UPLOAD_FOLDER'], filename))
+
+    #return {"filename": filename}
+    return Response(json.dumps({"filename": filename}), mimetype='application/json')
+    
 
 @app.route('/api/get_metadata_for_layer/<layer_id>', methods=['GET'])
 @valid_token_required

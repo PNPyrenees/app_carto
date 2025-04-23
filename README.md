@@ -233,6 +233,7 @@ layer_columns | Liste (varchar[]) des champs à intérroger (champs se retrouvan
 layer_geom_column | Nom du champ stockant la géométrie dans la base de données source (bdd_sig) (ex : geom, the_geom ...)
 layer_is_editable | Booléen permettant d'activer l'édition de la couche
 layer_allowed_geometry | Liste (varchar[]) des géométrie accepté par la couche (permet d'activer le sbouton d'édition en fonction)
+layer_media_fields | Liste des champs dédiés à l'attachement de média à une donnée. Ces champs sont traités de façon particulière dans lors de la génration du formulaire d'édition. Il est transformé en <input type="file"> dans le formulaire et contient l'url cliquable (<a href="...">) en base de données.
 layer_metadata_uuid | UUID de la fiche métadonnées déclaré dans un catalogue du type GeoNetwork
 
 ### Définition du style d'une couche

@@ -69,6 +69,7 @@ class Layer(db_app.Model):
     layer_columns = db_app.Column(db_app.ARRAY(db_app.String))
     layer_is_editable = db_app.Column(db_app.Boolean)
     layer_allowed_geometry = db_app.Column(db_app.ARRAY(db_app.String))
+    layer_media_fields = db_app.Column(db_app.ARRAY(db_app.String))
     layer_metadata_uuid = db_app.Column(db_app.String(50))
 
 
@@ -87,6 +88,7 @@ class Layer(db_app.Model):
         layer_columns,
         layer_is_editable,
         layer_allowed_geometry,
+        layer_media_fields,
         layer_metadata_uuid
     ):
         self.layer_id = layer_id
@@ -102,6 +104,7 @@ class Layer(db_app.Model):
         self.layer_columns = layer_columns
         self.layer_is_editable = layer_is_editable
         self.layer_allowed_geometry = layer_allowed_geometry
+        self.layer_media_fields = layer_media_fields
         self.layer_metadata_uuid = layer_metadata_uuid
 
 class VLayerList(db_app.Model):

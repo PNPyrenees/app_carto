@@ -1,0 +1,9 @@
+.feature-form-file-input-spinner {
+    display: none;
+}
+
+.feature-form-input-text-for-file {
+    width: 90% !important;
+    display: inline !important;
+    vertical-align: middle;
+}

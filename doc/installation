@@ -97,3 +97,8 @@
     $ sudo supervisorctl restart app_carto
 
 # Vous devriez accéder à l'application via l'url renseigné dans la configuration de app_carto
+
+# Configuration particulière pour les média
+    Dans la cadre d'une couche éditable, il est possible de déclarer des champs comme étant de type média. Ces champ sont transformé en <input type = file...> sur l'interface graphique. 
+    Les fichier associé à un objet sont stocké dans le dossier ./backend/static/media/
+    Si on souhaite que les fichiers soient stockés ailleurs, il faut alors paramétrer le serveur de sorte à ce que le dossier media soit un lien symbolique vers un autre emplacement du serveur voir configurer un point de montage sur le dossier media dans la cas d'un espace de stockage distant (il faudra alors envisager dec mettre en place un sytème de contrôle s'assurant que le volume distant est bien monté)

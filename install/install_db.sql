@@ -32,6 +32,7 @@ CREATE TABLE app_carto.t_layers (
     layer_attribution varchar(255),
     layer_is_editable boolean,
     layer_allowed_geometry varchar[],
+    layer_media_fields varchar[],
     layer_metadata_uuid uuid
 );
 
