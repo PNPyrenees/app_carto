@@ -2520,6 +2520,9 @@ def delete_project(project_id):
 
     return jsonify(True)
 
+@app.route('/robots.txt')
+def get_robots_file():
+ return send_from_directory(app.static_folder, request.path[1:])
 
 # Fonction permettant de sérialisé proprement les date contenu dans un json    
 #def json_serial(obj):
