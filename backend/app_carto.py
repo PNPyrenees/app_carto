@@ -11,6 +11,7 @@ from sqlalchemy.exc import SQLAlchemyError
 #from sqlalchemy.sql.expression import true
 from functools import wraps
 from werkzeug.utils import secure_filename
+import shutil 
 
 from .models import Role, VLayerList, Layer, BibStatusType, VRegneList, VGroupTaxoList, BibCommune, BibMeshScale, BibGroupStatus, ImportedLayer, Logs, Project
 from .schema import RoleSchema, VLayerListSchema, LayerSchema, BibGroupStatusSchema, ImportedLayerSchema, LogsSchema, ProjectSchema
@@ -1479,7 +1480,7 @@ def to_geojson(files):
     if extension.lower() in ['geojson', 'json'] :
         # Dans le cas d'un geojson, on renome le fichier pour pouvoir le reprojeter
         # en effet, ogr2ogr n'est pas en capacité d'écraser un fichier
-        os.rename(srs_path, os.path.join(app.root_path, "static/tmp_upload/", "tmp_" + filename + "." + extension))
+        shutil.move(srs_path, os.path.join(app.root_path, "static/tmp_upload/", "tmp_" + filename + "." + extension))
         srs_path = os.path.join(app.root_path, "static/tmp_upload/", "tmp_" + filename + "." + extension)
     
     # Get list of layer name in file
@@ -1815,7 +1816,7 @@ def add_features_for_layer(layer_id):
                 if not os.path.exists(dest_dir):
                     os.makedirs(dest_dir)  
 
-                os.rename(os.path.join(app.config['TMP_UPLOAD_FOLDER'], value), os.path.join(dest_dir, value))
+                shutil.move(os.path.join(app.config['TMP_UPLOAD_FOLDER'], value), os.path.join(dest_dir, value))
                 filename = value
                 url = app.config['APP_URL'] + "/static/media/" + layer_schema["layer_schema_name"] + "/" + layer_schema["layer_table_name"] + "/" + filename
                 value = "'<a href=\"" + url + "\" target=\"_blank\">" + filename + "</a>'"
@@ -1993,7 +1994,7 @@ def update_features_for_layer(layer_id):
                             
                         # puis on copie le fichier qui est dans le dossier temporaire
                         if os.path.exists(os.path.join(app.config['TMP_UPLOAD_FOLDER'], filename)) :
-                            os.rename(os.path.join(app.config['TMP_UPLOAD_FOLDER'], filename), os.path.join(dest_dir, filename))
+                            shutil.move(os.path.join(app.config['TMP_UPLOAD_FOLDER'], filename), os.path.join(dest_dir, filename))
 
                         # Construction de l'url HTML
                         url = app.config['APP_URL'] + "/static/media/" + layer_schema["layer_schema_name"] + "/" + layer_schema["layer_table_name"] + "/" + filename
