@@ -1983,8 +1983,6 @@ def update_features_for_layer(layer_id):
                         if previous_data[column_name] is not None:
                             # Récupération de l'ancien nom du fichier
                             tmp_previous_filename = previous_data[column_name].split(">")
-                            logger.debug("tmp_previous_filename : ")
-                            logger.debug(tmp_previous_filename)
                             if len(tmp_previous_filename) > 0 :
                                 previous_file_name = tmp_previous_filename[1].replace("</a", "")
                             
@@ -2124,7 +2122,21 @@ def delete_features_for_layer(layer_id):
     )
 
     try :
-       db_sig.execute(delete_statement)
+        db_sig.execute(delete_statement)
+
+        # Suppression des fichiers potentiellement join
+        dest_dir = os.path.join(app.config['UPLOAD_FOLDER'],layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
+        for layer_media_field in layer_schema["layer_media_fields"]:
+            if previous_data[layer_media_field] is not None:
+                tmp_previous_filename = previous_data[layer_media_field].split(">")
+                if len(tmp_previous_filename) > 0 :
+                    previous_file_name = tmp_previous_filename[1].replace("</a", "")
+
+                    # Suppression de l'ancien fichier si il existe sur le serveur
+                    if os.path.exists(os.path.join(dest_dir, previous_file_name)) :
+                        os.remove(os.path.join(dest_dir, previous_file_name)) 
+
+
     except Exception as error:
         return jsonify({
             "status": "error",
