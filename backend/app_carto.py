@@ -1999,7 +1999,7 @@ def update_features_for_layer(layer_id):
                         value = "'<a href=\"" + url + "\" target=\"_blank\">" + filename + "</a>'"
                     else :
                         # ici, le fichier n'a pas changé
-                        value = previous_data[column_name]
+                        value = "'" + previous_data[column_name] + "'"
             else :
                 value = 'NULL'
 
