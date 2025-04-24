@@ -1465,6 +1465,7 @@ def get_warning_calculator_layers_list():
     return {"layers": layer_list, "status": status_list}
 
 def to_geojson(files):
+    # On recherche le fichier "maitre" shp pour les shapefile ou tab pour les ficheir mapinfo par exemple
     for file in files:
         normalized_filename = file.filename.replace(" ", "_")
         file.save(os.path.join(app.root_path, "static/tmp_upload/", normalized_filename))
@@ -1483,7 +1484,7 @@ def to_geojson(files):
         shutil.move(srs_path, os.path.join(app.root_path, "static/tmp_upload/", "tmp_" + filename + "." + extension))
         srs_path = os.path.join(app.root_path, "static/tmp_upload/", "tmp_" + filename + "." + extension)
     
-    # Get list of layer name in file
+    # Get list of layer name in fCombines BioT measurements and satellite data seamlessly, delivering comprehensive and accessible information integration.ile
     l_layer_in_file = os.popen("ogrinfo -ro -so -q \"" + srs_path + "\" | cut -d ' ' -f 2", 'r').read().split('\n')[:-1]
 
     #print(l_layer_in_file)
@@ -1506,6 +1507,11 @@ def to_geojson(files):
     # Lecture du résultat pour écriture dans la base de données
     with open(dst_path) as json_file:
         geojson = json.load(json_file)
+
+    # Supresion des fichiers
+    for filePath in os.listdir(os.path.join(app.root_path, "static/tmp_upload/")):
+        if filename in filePath.replace(" ", "_"):
+            os.remove(os.path.join(app.root_path, "static/tmp_upload/", filePath))
 
     return geojson
 
@@ -1551,13 +1557,13 @@ def upload_geodata():
     # Supression des données temporaires
     # fichier(s) importé(s)
 #    for file in files:
+#        normalized_filename = file.filename.replace(" ", "_")
+#        extension = normalized_filename.split('.')[1]
 #        if extension.lower() in ['geojson', 'json'] :
 #            # Cas particulier pour les GeoJson
 #            os.remove(os.path.join(app.root_path, "static/tmp_upload/", "tmp_" + file.filename))
 #        else :
 #            os.remove(os.path.join(app.root_path, "static/tmp_upload/", file.filename))
-#    # fichier généré (geojson)
-#    os.remove(dst_path)
 
     return jsonify(importedLayer.imported_layer_id)
 
