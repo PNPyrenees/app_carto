@@ -974,8 +974,30 @@ var refreshLayer = function (layer_id) {
                             layer.getSource().addFeatures(new ol.format.GeoJSON().readFeatures(data.geojson_layer))
                         }
 
-                        // Si on est sur une fonction d'ajout ou de modification géométrique alors
-                        if (document.getElementById("btn-drawing-layer-edit-feature-info").classList.contains("btn-active") == false) {
+                        // réactivation des interactions après enregistrement des modifications
+                        if (document.getElementById("btn-drawing-layer-add-polygon").classList.contains("btn-active") == true) {
+                            enableLayerDrawing(layer, 'Polygon') // Le disableLayerDrawing est dans la fonction EnableLayerDrawing
+                            // On rafraichit l'intaraction SNAP (cas ou l'on ajoute un 
+                            // objet à la couche pour qu'il soit connu par l'intéraction)
+                            disableLayerSnapping()
+                            enableLayerSnapping(layer)
+
+                        } else if (document.getElementById("btn-drawing-layer-add-linestring").classList.contains("btn-active") == true) {
+                            enableLayerDrawing(layer, 'LineString') // Le disableLayerDrawing est dans la fonction EnableLayerDrawing
+                            // On rafraichit l'intaraction SNAP (cas ou l'on ajoute un 
+                            // objet à la couche pour qu'il soit connu par l'intéraction)
+                            disableLayerSnapping()
+                            enableLayerSnapping(layer)
+
+                        } else if (document.getElementById("btn-drawing-layer-add-point").classList.contains("btn-active") == true) {
+                            enableLayerDrawing(layer, 'Point') // Le disableLayerDrawing est dans la fonction EnableLayerDrawing
+                            // On rafraichit l'intaraction SNAP (cas ou l'on ajoute un 
+                            // objet à la couche pour qu'il soit connu par l'intéraction)
+                            disableLayerSnapping()
+                            enableLayerSnapping(layer)
+
+                        } else if (document.getElementById("btn-drawing-layer-modify").classList.contains("btn-active") == true) {
+                            // Si on est sur une fonction de modification géométrique alors
                             // On rafrachi la fonction de modification car après un refresh du layer 
                             // il y a un bug d'affichage
                             disableLayerModify()
@@ -985,6 +1007,16 @@ var refreshLayer = function (layer_id) {
                             // objet à la couche pour qu'il soit connu par l'intéraction)
                             disableLayerSnapping()
                             enableLayerSnapping(layer)
+
+                        } else if (document.getElementById("btn-drawing-layer-remove-feature").classList.contains("btn-active") == true) {
+                            // Cas de la fonction de suppression
+                            // On désactive les intéractions
+                            map.on('singleclick', singleClickForFeatureInfo)
+                            map.un('singleclick', singleClickForRemovingFeature)
+
+                            // Puis on les réactive
+                            map.un('singleclick', singleClickForFeatureInfo)
+                            map.on('singleclick', singleClickForRemovingFeature)
                         }
                     }
                 }
@@ -2406,9 +2438,14 @@ var enableLayerDrawing = function (layer, geomType) {
             document.getElementById("btn-drawing-layer-remove-feature").classList.remove("disabled")
             document.getElementById("btn-drawing-layer-previous").classList.add("disabled")
 
-            // Reconstruction de la légende (après un timeout sinon l'objet n'est pas créé à temps)
             setTimeout(() => {
+                // Reconstruction de la légende (après un timeout sinon l'objet n'est pas créé à temps)
                 buildLegendForLayer(ol.util.getUid(layer), layer.get('json_style'))
+
+                // On rafraichit l'intaraction SNAP (cas ou l'on ajoute un 
+                // objet à la couche pour qu'il soit connu par l'intéraction)
+                disableLayerSnapping()
+                enableLayerSnapping(layer)
             }, 500)
         }
 
