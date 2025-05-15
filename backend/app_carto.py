@@ -1451,10 +1451,8 @@ def toponyme_autocomplete():
         ) features
     """.format(search_name, request.args.get("search_name", ""), limit))
 
-    #try :
     with db_app.engine.connect() as conn:
         toponyme_datas = conn.execute(statement).fetchone()._asdict()
-    
 
     return json.dumps(toponyme_datas)
     #return BibToponymeSchema().dump(data)
