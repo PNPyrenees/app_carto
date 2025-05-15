@@ -1452,9 +1452,14 @@ def toponyme_autocomplete():
     """.format(search_name, request.args.get("search_name", ""), limit))
 
     #try :
+<<<<<<< HEAD
     with db_app.engine.connect() as conn:
         toponyme_datas = conn.execute(statement).fetchone()._asdict()
     
+=======
+    toponyme_datas = db_app.engine.execute(statement).fetchone()._asdict()
+    uploadChallengeCalculatorLayer
+>>>>>>> 5a32509cb7aad0d6390d4b6b6411486095d2adb6
 
     return json.dumps(toponyme_datas)
     #return BibToponymeSchema().dump(data)
@@ -1830,8 +1835,25 @@ def add_features_for_layer(layer_id):
                 if not os.path.exists(dest_dir):
                     os.makedirs(dest_dir)  
 
-                shutil.move(os.path.join(app.config['TMP_UPLOAD_FOLDER'], value), os.path.join(dest_dir, value))
+                # Contrôle qu'il n'y a pas déjà un fichier avec le même nom dans le dossier de destination
                 filename = value
+                i = 0
+                file_exists = os.path.exists(os.path.join(dest_dir, filename))
+                while (file_exists == True ):
+                    # si c'est le cas, on ajoute un '_x' (ex: DSC_0254_1.jpg)
+                    filename_arr = filename.split(".")
+                    file_ext = filename_arr[len(filename_arr) - 1]
+
+                    if (filename.endswith('_' + str(i-1) + '.' + file_ext)) :
+                        filename = filename.replace('_' + str(i-1) + '.' + file_ext, '_' + str(i) + '.' + file_ext)
+                    else :
+                        tmp_filename = ''.join(filename_arr[0:-1])
+                        filename = tmp_filename + '_' + str(i) + '.' + file_ext
+
+                    file_exists = os.path.exists(os.path.join(dest_dir, filename))
+                    i = i + 1
+                
+                shutil.move(os.path.join(app.config['TMP_UPLOAD_FOLDER'], value), os.path.join(dest_dir, filename))
                 url = app.config['APP_URL'] + "/static/media/" + layer_schema["layer_schema_name"] + "/" + layer_schema["layer_table_name"] + "/" + filename
                 value = "'<a href=\"" + url + "\" target=\"_blank\">" + filename + "</a>'"
         else :
@@ -2015,7 +2037,24 @@ def update_features_for_layer(layer_id):
                             
                         # puis on copie le fichier qui est dans le dossier temporaire
                         if os.path.exists(os.path.join(app.config['TMP_UPLOAD_FOLDER'], filename)) :
-                            shutil.move(os.path.join(app.config['TMP_UPLOAD_FOLDER'], filename), os.path.join(dest_dir, filename))
+                            # Contrôle qu'il n'y a pas déjà un fichier avec le même nom
+                            i = 0
+                            file_exists = os.path.exists(os.path.join(dest_dir, filename))
+                            while (file_exists == True ):
+                                # si c'est le cas, on ajoute un '_x' (ex: DSC_0254_1.jpg)
+                                filename_arr = filename.split(".")
+                                file_ext = filename_arr[len(filename_arr) - 1]
+
+                                if (filename.endswith('_' + str(i-1) + '.' + file_ext)) :
+                                    filename = filename.replace('_' + str(i-1) + '.' + file_ext, '_' + str(i) + '.' + file_ext)
+                                else :
+                                    tmp_filename = ''.join(filename_arr[0:-1])
+                                    filename = tmp_filename + '_' + str(i) + '.' + file_ext
+
+                                file_exists = os.path.exists(os.path.join(dest_dir, filename))
+                                i = i + 1
+
+                            shutil.move(os.path.join(app.config['TMP_UPLOAD_FOLDER'], value), os.path.join(dest_dir, filename))
 
                         # Construction de l'url HTML
                         url = app.config['APP_URL'] + "/static/media/" + layer_schema["layer_schema_name"] + "/" + layer_schema["layer_table_name"] + "/" + filename
