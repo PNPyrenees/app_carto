@@ -2,7 +2,7 @@ import os
 import re
 from pathlib import Path
 from readline import insert_text
-from flask import Flask, render_template, send_from_directory, request, make_response, jsonify, Markup, Response
+from flask import Flask, render_template, send_from_directory, request, make_response, jsonify, Response
 import requests
 import json
 from datetime import datetime, date
@@ -16,7 +16,7 @@ import shutil
 from .models import Role, VLayerList, Layer, BibStatusType, VRegneList, VGroupTaxoList, BibCommune, BibMeshScale, BibGroupStatus, ImportedLayer, Logs, Project
 from .schema import RoleSchema, VLayerListSchema, LayerSchema, BibGroupStatusSchema, ImportedLayerSchema, LogsSchema, ProjectSchema
 
-import logging 
+# import logging 
 """from requests.api import request"""
 
 from .utils.env import read_config, db_app, ma
@@ -48,14 +48,15 @@ db_app.init_app(app)
 db_sig = create_engine(app.config['SQLALCHEMY_SIG_DATABASE_URI'], pool_pre_ping=True)
 
 
-logging.basicConfig(filename="logs/app_carto_errors.log", 
-                format='%(asctime)s %(message)s', 
-                filemode='w') 
-logger=logging.getLogger()
-logger.setLevel(logging.DEBUG) 
+#logging.basicConfig(filename="logs/app_carto_errors.log", 
+#                format='%(asctime)s %(message)s', 
+#                filemode='w') 
+#logger=logging.getLogger()
+#logger.setLevel(logging.DEBUG) 
 
 # exemple utiisation du logger
 #logger.debug("Here it's loggin")
+# Préférer app.logger.info() !!
 
 def valid_token_required(f):
     """ Fonction de type décorateur permettant 
@@ -280,7 +281,8 @@ def get_ref_layer_data(ref_layer_id):
     """.format(layer_schema["layer_geom_column"], ', '.join(layer_schema["layer_columns"]), layer_schema["layer_schema_name"], layer_schema["layer_table_name"]))
 
     try :
-        layer_datas = db_sig.execute(statement).fetchone()._asdict()
+        with db_sig.connect() as conn:
+            layer_datas = conn.execute(statement).fetchone()._asdict()
     except Exception as error:
         return jsonify({
             "status": "error",
@@ -902,8 +904,9 @@ def getObsLayerStyle(restituion_type, scale, query):
                 {}
             FROM ({}) a
         """.format(bornes_query, query)
-
-        style_query_datas = db_app.engine.execute(style_query).fetchone()._asdict()
+        
+        with db_app.engine.connect() as conn:
+            style_query_datas = conn.execute(text(style_query)).fetchone()._asdict()
 
         # On évite que les bornes soient identique
         i = 0
@@ -1119,7 +1122,8 @@ def get_obs_layer_data():
         ) features""".format(query))
 
     # Execution de la requête récupérant le GeoJson
-    obs_layer_datas = db_app.engine.execute(geojson_query).fetchone()._asdict()
+    with db_app.engine.connect() as conn:
+        obs_layer_datas = conn.execute(geojson_query).fetchone()._asdict()
 
     # Récupération du style associé
     default_style = getObsLayerStyle(postdata["restitution"], postdata["scale"], query)
@@ -1205,7 +1209,9 @@ def get_obs_object_detail():
 
     query = query_select + query_from + query_where + query_groupby
 
-    datas = db_app.engine.execute(query).all()
+    with db_app.engine.connect() as conn:
+        datas = conn.execute(text(query)).all()
+
     result = []
     for data in datas:
         result.append(data._asdict())
@@ -1266,7 +1272,8 @@ def get_warning_calculator_data():
             ) features
         """.format(json.dumps(geojson), app.config['SRID'], warning_layer_schema["layer_geom_column"], ', '.join(warning_layer_schema["layer_columns"]), warning_layer_schema["layer_schema_name"], warning_layer_schema["layer_table_name"]))
 
-        layer_datas = db_sig.execute(statement).fetchone()._asdict()
+        with db_sig.connect() as conn:
+            layer_datas = conn.execute(statement).fetchone()._asdict()
 
         # On ajoute uniquement les résultats non vide !
         if layer_datas['geojson_layer']['features']:
@@ -1356,7 +1363,8 @@ def get_warning_calculator_data():
 
 
     # Execution de la requête récupérant le GeoJson
-    obs_layer_datas = db_app.engine.execute(obs_query).fetchone()._asdict()
+    with db_app.engine.connect() as conn:
+        obs_layer_datas = conn.execute(obs_query).fetchone()._asdict()
 
     if obs_layer_datas['geojson_layer']['features']:
         # Récupération du style de type "répartition"
@@ -1443,9 +1451,8 @@ def toponyme_autocomplete():
         ) features
     """.format(search_name, request.args.get("search_name", ""), limit))
 
-    #try :
-    toponyme_datas = db_app.engine.execute(statement).fetchone()._asdict()
-    uploadChallengeCalculatorLayer
+    with db_app.engine.connect() as conn:
+        toponyme_datas = conn.execute(statement).fetchone()._asdict()
 
     return json.dumps(toponyme_datas)
     #return BibToponymeSchema().dump(data)
@@ -1738,7 +1745,8 @@ def get_column_definition(layer_schema):
     """.format(layer_media_fields, layer_schema_name, layer_table_name))
 
     try :
-        columns = db_sig.execute(statement).fetchall()
+        with db_sig.connect() as conn:
+            columns = conn.execute(statement).fetchall()
                
         return columns
     except Exception as error:
@@ -1758,9 +1766,6 @@ def get_feature_form_for_layer(layer_id):
     layer_schema = LayerSchema().dump(layer)
 
     tmp_layer_defintion = get_column_definition(layer_schema)
-
-    logger.debug("tmp_layer_defintion")
-    logger.debug(tmp_layer_defintion)
 
     layer_definition = []
     for data in tmp_layer_defintion:
@@ -1803,20 +1808,21 @@ def add_features_for_layer(layer_id):
     values = []
     for column in layer_definition:
 
-        column_name = column["column_name"]
+        #column_name = column["column_name"]
+        column_name = column.column_name
         column_names.append(column_name)
 
         value = feature_data[column_name]
         # On adapte le valeur en fonction de leur type
         if value is not None :
-            if column["data_type"] in ['varchar', 'text', 'date', 'timestamp without time zone', 'time without time zone']:
+            if column.data_type in ['varchar', 'text', 'date', 'timestamp without time zone', 'time without time zone']:
                 value = "'" + value.replace("'", "''") + "'"
-            if column["data_type"] in ['uuid']:
+            if column.data_type in ['uuid']:
                 value = value + "::uuid"
-            if column["data_type"].startswith("geometry"):
-                srid = column["data_type"].split(",")[1].replace(")","")
+            if column.data_type.startswith("geometry"):
+                srid = column.data_type.split(",")[1].replace(")","")
                 value = "ST_Transform(ST_GeomFromText('" + value + "', 3857), " + srid + ")"
-            if column["data_type"] in ['media']:
+            if column.data_type in ['media']:
 
                 dest_dir = os.path.join(app.config['UPLOAD_FOLDER'],layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
                 if not os.path.exists(dest_dir):
@@ -1847,7 +1853,6 @@ def add_features_for_layer(layer_id):
             value = 'NULL'
 
         values.append(value)
-
     
     insert_statement = """
         INSERT INTO {}.{} ({}) VALUES ({}) RETURNING {}
@@ -1860,7 +1865,9 @@ def add_features_for_layer(layer_id):
     )
 
     try :
-       inserted_data_id = db_sig.execute(text(insert_statement)).fetchone()._asdict()
+        with db_sig.connect() as conn:
+            inserted_data_id = conn.execute(text(insert_statement)).fetchone()._asdict()
+            conn.commit()
     except Exception as error:
         return jsonify({
             "status": "error",
@@ -1878,7 +1885,9 @@ def add_features_for_layer(layer_id):
         primary_key["attname"],
         inserted_data_id[primary_key["attname"]]
     )
-    inserted_data = db_sig.execute(inserted_data_statement).fetchone()._asdict()
+
+    with db_sig.connect() as conn:
+        inserted_data = conn.execute(text(inserted_data_statement)).fetchone()._asdict()
 
     logs = Logs(
         log_id = None,
@@ -1909,9 +1918,14 @@ def get_primary_key_of_layer(layer_schema_name, layer_table_name):
         AND    i.indisprimary;
     """.format(layer_schema_name, layer_table_name)
 
+    
+
     try :
-        primary_key_column = db_sig.execute(get_primary_key_column_statement).fetchall()#._asdict()
+        with db_sig.connect() as conn:
+            primary_key_column = conn.execute(text(get_primary_key_column_statement)).fetchall()#._asdict()
     except Exception as error:
+        app.logger.info(error)
+
         return jsonify({
             "status": "error",
             'message': """Erreur lors de la récupération de la clés primaire pour la table {}.{}
@@ -1963,7 +1977,8 @@ def update_features_for_layer(layer_id):
         primary_key["attname"],
         feature_data[primary_key["attname"]]
     )
-    previous_data = db_sig.execute(previous_data_statement).fetchone()._asdict()
+    with db_sig.connect() as conn:
+        previous_data = conn.execute(text(previous_data_statement)).fetchone()._asdict()
 
     update_statement = """
         UPDATE {}.{} 
@@ -1977,20 +1992,20 @@ def update_features_for_layer(layer_id):
         if first != True:
             update_statement = update_statement + ""","""
         
-        column_name = column["column_name"]
+        column_name = column.column_name
 
         value = feature_data[column_name]
         # On adapte le valeur en fonction de leur type
         if column_name != primary_key["attname"] :
             if value is not None :
-                if column["data_type"] in ['varchar', 'text', 'date', 'timestamp without time zone', 'time without time zone']:
+                if column.data_type in ['varchar', 'text', 'date', 'timestamp without time zone', 'time without time zone']:
                     value = "'" + value.replace("'", "''") + "'"
-                if column["data_type"] in ['uuid']:
+                if column.data_type in ['uuid']:
                     value = "'" + value + "'" + "::uuid"
-                if column["data_type"].startswith("geometry"):
-                    srid = column["data_type"].split(",")[1].replace(")","")
+                if column.data_type.startswith("geometry"):
+                    srid = column.data_type.split(",")[1].replace(")","")
                     value = "ST_Transform(ST_GeomFromText('" + value + "', 3857), " + srid + ")"
-                if column["data_type"] in ['media']:
+                if column.data_type in ['media']:
 
                     dest_dir = os.path.join(app.config['UPLOAD_FOLDER'],layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
                     if not os.path.exists(dest_dir):
@@ -2044,7 +2059,7 @@ def update_features_for_layer(layer_id):
                 value = 'NULL'
 
                 # si on est sur un type média, il faut supprimer l'ancien fichier sur le serveur
-                if column["data_type"] in ['media']:
+                if column.data_type in ['media']:
                     # Un fichier était-il déjà renseigné en base ?
                     if previous_data[column_name] is not None:
                         
@@ -2069,7 +2084,9 @@ def update_features_for_layer(layer_id):
     """.format(primary_key["attname"], feature_data[primary_key["attname"]])
 
     try :
-        update_exec = db_sig.execute(text(update_statement))#._asdict()
+        with db_sig.connect() as conn:
+            update_exec = conn.execute(text(update_statement))#._asdict()
+            conn.commit()
     except Exception as error:
         return jsonify({
             "status": "error",
@@ -2090,7 +2107,8 @@ def update_features_for_layer(layer_id):
     )
 
     try :
-       returned_data = db_sig.execute(returned_data_statement).fetchone()._asdict()
+       with db_sig.connect() as conn:
+        returned_data = conn.execute(text(returned_data_statement)).fetchone()._asdict()
     except Exception as error:
         return jsonify({
             "status": "error",
@@ -2149,7 +2167,8 @@ def delete_features_for_layer(layer_id):
         primary_key["attname"],
         feature_data[primary_key["attname"]]
     )
-    previous_data = db_sig.execute(previous_data_statement).fetchone()._asdict()
+    with db_sig.connect() as conn:
+        previous_data = conn.execute(text(previous_data_statement)).fetchone()._asdict()
     
 
     delete_statement = """
@@ -2162,19 +2181,22 @@ def delete_features_for_layer(layer_id):
     )
 
     try :
-        db_sig.execute(delete_statement)
+        with db_sig.connect() as conn:
+            conn.execute(text(delete_statement))
+            conn.commit()
 
         # Suppression des fichiers potentiellement join
         dest_dir = os.path.join(app.config['UPLOAD_FOLDER'],layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
-        for layer_media_field in layer_schema["layer_media_fields"]:
-            if previous_data[layer_media_field] is not None:
-                tmp_previous_filename = previous_data[layer_media_field].split(">")
-                if len(tmp_previous_filename) > 0 :
-                    previous_file_name = tmp_previous_filename[1].replace("</a", "")
+        if layer_schema["layer_media_fields"] is not None :
+            for layer_media_field in layer_schema["layer_media_fields"]:
+                if previous_data[layer_media_field] is not None:
+                    tmp_previous_filename = previous_data[layer_media_field].split(">")
+                    if len(tmp_previous_filename) > 0 :
+                        previous_file_name = tmp_previous_filename[1].replace("</a", "")
 
-                    # Suppression de l'ancien fichier si il existe sur le serveur
-                    if os.path.exists(os.path.join(dest_dir, previous_file_name)) :
-                        os.remove(os.path.join(dest_dir, previous_file_name)) 
+                        # Suppression de l'ancien fichier si il existe sur le serveur
+                        if os.path.exists(os.path.join(dest_dir, previous_file_name)) :
+                            os.remove(os.path.join(dest_dir, previous_file_name)) 
 
 
     except Exception as error:
