@@ -443,6 +443,7 @@ var buildAddObsLayerForm = function () {
             multiple: true,
             icon: "bi bi-x",
             inlineIcon: false,
+            autocomplete: true,
             onChange: values => {
                 document.getElementById("form-add-obs-layer-statut-value").value = JSON.stringify(values)
             }
@@ -457,6 +458,7 @@ var buildAddObsLayerForm = function () {
             multiple: true,
             icon: "bi bi-x",
             inlineIcon: false,
+            autocomplete: true,
             onChange: values => {
                 document.getElementById("form-add-obs-layer-regne-value").value = JSON.stringify(values)
             }
@@ -471,6 +473,7 @@ var buildAddObsLayerForm = function () {
             multiple: true,
             icon: "bi bi-x",
             inlineIcon: false,
+            autocomplete: true,
             onChange: values => {
                 document.getElementById("form-add-obs-layer-grp-tax-value").value = JSON.stringify(values)
             }
@@ -485,6 +488,7 @@ var buildAddObsLayerForm = function () {
             multiple: true,
             icon: "bi bi-x",
             inlineIcon: false,
+            autocomplete: true,
             onChange: values => {
                 document.getElementById("form-add-obs-layer-commune-value").value = JSON.stringify(values)
             }
