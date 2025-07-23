@@ -16,7 +16,7 @@ import shutil
 from .models import Role, VLayerList, Layer, BibStatusType, VRegneList, VGroupTaxoList, BibCommune, BibMeshScale, BibGroupStatus, ImportedLayer, Logs, Project
 from .schema import RoleSchema, VLayerListSchema, LayerSchema, BibGroupStatusSchema, ImportedLayerSchema, LogsSchema, ProjectSchema
 
-# import logging 
+#import logging 
 """from requests.api import request"""
 
 from .utils.env import read_config, db_app, ma
@@ -1424,6 +1424,8 @@ def toponyme_autocomplete():
     """
 
     search_name = request.args.get("search_name", "").replace(" ", "%").replace("'", "''")
+    search_name_for_similarity = request.args.get("search_name", "").replace("'", "''")
+
     limit = request.args.get("limit", 20)
 
     statement = text("""
@@ -1449,7 +1451,7 @@ def toponyme_autocomplete():
                 LIMIT {}
                  ) row
         ) features
-    """.format(search_name, request.args.get("search_name", ""), limit))
+    """.format(search_name, search_name_for_similarity, limit))
 
     with db_app.engine.connect() as conn:
         toponyme_datas = conn.execute(statement).fetchone()._asdict()
