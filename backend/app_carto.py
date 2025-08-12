@@ -6,7 +6,7 @@ from flask import Flask, render_template, send_from_directory, request, make_res
 import requests
 import json
 from datetime import datetime, date
-from sqlalchemy import create_engine, text, func
+from sqlalchemy import create_engine, text, func, bindparam
 from sqlalchemy.exc import SQLAlchemyError
 #from sqlalchemy.sql.expression import true
 from functools import wraps
@@ -16,7 +16,7 @@ import shutil
 from .models import Role, VLayerList, Layer, BibStatusType, VRegneList, VGroupTaxoList, BibCommune, BibMeshScale, BibGroupStatus, ImportedLayer, Logs, Project
 from .schema import RoleSchema, VLayerListSchema, LayerSchema, BibGroupStatusSchema, ImportedLayerSchema, LogsSchema, ProjectSchema
 
-#import logging 
+import logging 
 """from requests.api import request"""
 
 from .utils.env import read_config, db_app, ma
@@ -48,11 +48,11 @@ db_app.init_app(app)
 db_sig = create_engine(app.config['SQLALCHEMY_SIG_DATABASE_URI'], pool_pre_ping=True)
 
 
-#logging.basicConfig(filename="logs/app_carto_errors.log", 
-#                format='%(asctime)s %(message)s', 
-#                filemode='w') 
-#logger=logging.getLogger()
-#logger.setLevel(logging.DEBUG) 
+logging.basicConfig(filename="logs/app_carto_errors.log", 
+                format='%(asctime)s %(message)s', 
+                filemode='w') 
+logger=logging.getLogger()
+logger.setLevel(logging.DEBUG) 
 
 # exemple utiisation du logger
 #logger.debug("Here it's loggin")
@@ -1423,8 +1423,8 @@ def toponyme_autocomplete():
         JSON
     """
 
-    search_name = request.args.get("search_name", "").replace(" ", "%").replace("'", "''")
-    search_name_for_similarity = request.args.get("search_name", "").replace("'", "''")
+    search_name = request.args.get("search_name", "").replace(" ", "%")#.replace("'", "''")
+    search_name_for_similarity = request.args.get("search_name", "")#.replace("'", "''")
 
     limit = request.args.get("limit", 20)
 
@@ -1443,21 +1443,26 @@ def toponyme_autocomplete():
                     ST_Extent(st_transform(ST_Buffer(geom, 1), 3857)) AS geom 
                 FROM app_carto.bib_toponyme t
                 WHERE 
-                    toponyme_nom ilike '%{}%'
+                    toponyme_nom ilike :search_name
                 GROUP BY
                     toponyme_nom, toponyme_type, toponyme_precision_geo, geom
                 ORDER BY
-	                similarity(toponyme_nom, '{}') desc
-                LIMIT {}
+	                similarity(toponyme_nom, :search_name_for_similarity) desc
+                LIMIT :limit
                  ) row
         ) features
-    """.format(search_name, search_name_for_similarity, limit))
+    """)
+                     
+    params = {
+        "search_name": '%' + search_name + '%',
+        "search_name_for_similarity": search_name_for_similarity,
+        "limit": limit
+    }
 
     with db_app.engine.connect() as conn:
-        toponyme_datas = conn.execute(statement).fetchone()._asdict()
+        toponyme_datas = conn.execute(statement, params).fetchone()._asdict()
 
     return json.dumps(toponyme_datas)
-    #return BibToponymeSchema().dump(data)
 
 @app.route('/api/warning_calculator/get_layers_list', methods=['GET'])
 def get_warning_calculator_layers_list():
@@ -1700,7 +1705,7 @@ def get_column_definition(layer_schema):
             c.column_name,
             CASE 
                 WHEN c.data_type = 'USER-DEFINED' THEN gci.geom_type
-                WHEN c.column_name = ANY ('{}'::varchar[]) THEN 'media' -- On surcharge le type si le nom du champ est cité comme champ "média"
+                WHEN c.column_name = ANY (:layer_media_fields) THEN 'media' -- On surcharge le type si le nom du champ est cité comme champ "média"
                 WHEN c.data_type in ('smallint', 'integer', 'bigint') THEN 'integer'
                 WHEN c.data_type in ('decimal', 'numeric', 'real', 'double precision') THEN 'float'
                 WHEN c.data_type in ('character varying', 'varchar') THEN 'varchar'
@@ -1742,13 +1747,19 @@ def get_column_definition(layer_schema):
                 AND c.table_name = gci.table_name
                 AND c.column_name = gci.column_name
         WHERE
-            c.table_schema = '{}'
-            and c.table_name = '{}';
-    """.format(layer_media_fields, layer_schema_name, layer_table_name))
+            c.table_schema = :layer_schema_name
+            and c.table_name = :layer_table_name;
+    """)
+
+    params = {
+        "layer_media_fields": layer_media_fields,
+        "layer_schema_name": layer_schema_name,
+        "layer_table_name": layer_table_name
+    }
 
     try :
         with db_sig.connect() as conn:
-            columns = conn.execute(statement).fetchall()
+            columns = conn.execute(statement, params).fetchall()
                
         return columns
     except Exception as error:
