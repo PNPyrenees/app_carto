@@ -306,6 +306,75 @@ create table app_carto.t_projects (
         ON DELETE NO ACTION
 );
 
+/* Création de la table de référence des droits */
+CREATE TABLE app_carto.bib_authorization (
+	authorization_id serial,
+	authorization_code varchar(32),
+	authorization_label varchar(255),
+	authorization_description text,
+
+	CONSTRAINT bib_authorization_pkey PRIMARY KEY (authorization_id)
+);
+
+INSERT INTO app_carto.bib_authorization (authorization_code, authorization_label, authorization_description)
+VALUES
+	('GET_REF_LAYER', 'Consulter des couches de références', 'Autorise l''utilisateur à consulter des couches de référence. Il est possible de restreindre la liste de couches consultables au niveau de l''attribution du droit à un groupe.'),
+	('GET_OBS_DATA', 'Consulter les données d''observation', 'Autorise l''utilisateur à interroger les données d''observation. Il est possible de restreindre la restitution qu''à certaines echelles de restitution (maille) au niveau de l''attribution du droit à un groupe'),
+	('DRAW', 'Créer des couches de dessin', 'Autorise l''utilisateur à créer des couches de dessin temporaire'),
+	('IMPORT', 'Importer des donner', 'Autorise l''utilisateur à importer des données SIG'),
+	('EXPORT', 'Exporter des données', 'Autorise l''utilisateur à exporter des données. Si cette autorisation n''est pas attribuée à l''utilisateur, ce dernier sera tout de même en mesure d''exporter ses données importées ou les couches de dessins qu''il aura créé.'),
+	('WARNING_CALCULATOR', 'Utiliser la calculette des enjeux', 'Autorise l''utilisateur à exploiter la calulette des enjeux. La calculette des enjeux retournera toutes les couches sur lesquelles elle se base (couche de référence et d''observation) même si l''utilisateur n''est pas autoriser à consulter ce type de données.'),
+	('EXPORT_PDF', 'Exporter des cartes au format PDF', 'Autorise l''utilisateur à faire des exports en PDF.'),
+	('EDIT_REF_LAYER', 'Modifier des couches de données', 'Autorise l''utilisateur à apporter des modifications aux couches de données éditables. Il est possible de restreindre l''édition qu''à certaines couches spécifiques au niveau de l''attribution du droit à un groupe.')
+;
+
+/* Création de la table de définition des groupes */
+CREATE TABLE app_carto.t_group (
+	group_id serial,
+	group_name varchar(255),
+	group_description text,
+
+	CONSTRAINT t_group_pkey PRIMARY KEY (group_id)
+);
+
+INSERT INTO app_carto.t_group (group_name, group_description)
+VALUES
+	('default', 'Groupe par défaut ayant tous les droits')
+;
+
+/* Table de relation entre un groupe d'utilisateur et une authorization */
+CREATE TABLE app_carto.cor_group_authorization (
+	group_id integer,
+	authorization_id integer,
+	group_authorization_constraint int[],
+
+	CONSTRAINT cor_group_authorization_pkey PRIMARY KEY (group_id, authorization_id),
+    CONSTRAINT fk_cor_group_authorization_group_id FOREIGN KEY (group_id)
+        REFERENCES app_carto.t_group (group_id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE NO ACTION,
+    CONSTRAINT fk_cor_group_authorization_authorization_id FOREIGN KEY (authorization_id)
+        REFERENCES app_carto.bib_authorization (authorization_id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE NO ACTION
+);
+
+/* Table de relation entre un utilisateur et un groupe */
+CREATE TABLE app_carto.cor_role_group (
+	role_id integer,
+	group_id integer,
+
+	CONSTRAINT cor_role_group_pkey PRIMARY KEY (role_id, group_id),
+    CONSTRAINT fk_cor_role_group_role_id FOREIGN KEY (role_id)
+        REFERENCES app_carto.t_roles (role_id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE NO ACTION,
+    CONSTRAINT fk_cor_role_group_group_id FOREIGN KEY (group_id)
+        REFERENCES app_carto.t_group (group_id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE NO ACTION
+);
+
 /*
  * Partie 2 : Script à jouer sur la base de données SIG
  */

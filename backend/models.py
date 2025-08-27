@@ -3,9 +3,17 @@ from .utils.env import db_app
 from datetime import datetime
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 import pytz
 #from geoalchemy2 import Geometry
+
+cor_role_group = db_app.Table(
+    'cor_role_group',
+    db_app.metadata,
+    db_app.Column('group_id', db_app.Integer, db_app.ForeignKey('app_carto.t_group.group_id'), primary_key=True),
+    db_app.Column('role_id', db_app.Integer, db_app.ForeignKey('app_carto.t_roles.role_id'), primary_key=True),
+    schema='app_carto'
+)
 
 class Role(db_app.Model):
     __tablename__ = 't_roles'
@@ -21,6 +29,7 @@ class Role(db_app.Model):
 
     importedLayers = relationship("ImportedLayer")
     logs = relationship("Logs")
+    groups = relationship("Group", secondary=cor_role_group, back_populates="roles")
 
     def __init__(
         self,
@@ -31,7 +40,8 @@ class Role(db_app.Model):
         role_token,
         role_token_expiration,
         role_date_insert,
-        role_date_update
+        role_date_update,
+        groups
     ):
         self.role_id = role_id
         self.role_nom = role_nom
@@ -41,6 +51,7 @@ class Role(db_app.Model):
         self.role_token_expiration = role_token_expiration
         self.role_date_insert = role_date_insert
         self.role_date_updat = role_date_update
+        self.groups = groups
 
 """class Role(db_app.Model):
     __tablename__ = 't_roles'
@@ -315,7 +326,74 @@ class Project(db_app.Model):
         self.project_content = project_content
         self.project_creation_date = project_creation_date
         self.project_update_date = project_update_date
+
+class BibAuthorization(db_app.Model):
+    __tablename__ = 'bib_authorization'
+    __table_args__ = {'schema': 'app_carto'}
+    authorization_id = db_app.Column(db_app.Integer, primary_key = True)
+    authorization_code = db_app.Column(db_app.String(32))
+    authorization_label = db_app.Column(db_app.String(255))
+    authorization_description = db_app.Column(db_app.Text)
+
+    groupe_authorizations = relationship("GroupAuthorization", back_populates="authorization")
+
+    def __init__(
+        self,
+        authorization_id,
+        authorization_code,
+        authorization_label,
+        authorization_description
         
+    ):
+        self.authorization_id = authorization_id
+        self.authorization_code = authorization_code
+        self.authorization_label = authorization_label
+        self.authorization_description = authorization_description
+
+class Group(db_app.Model):
+    __tablename__ = 't_group'
+    __table_args__ = {'schema': 'app_carto'}
+    group_id = db_app.Column(db_app.Integer, primary_key = True)
+    group_name = db_app.Column(db_app.String(255))
+    group_description = db_app.Column(db_app.Text)
+
+    roles = relationship("Role", secondary=cor_role_group, back_populates="groups")
+    groupe_authorizations = relationship("GroupAuthorization", back_populates="group")
+
+    def __init__(
+        self,
+        group_id,
+        group_name,
+        group_description
+        
+    ):
+        self.group_id = group_id
+        self.group_name = group_name
+        self.group_description = group_description
+
+class GroupAuthorization(db_app.Model):
+    __tablename__ = 'cor_group_authorization'
+    __table_args__ = {'schema': 'app_carto'}
+
+    group_id = db_app.Column(db_app.Integer, ForeignKey('app_carto.t_group.group_id'), primary_key=True)
+    authorization_id = db_app.Column(db_app.Integer, ForeignKey('app_carto.bib_authorization.authorization_id'), primary_key=True)
+    group_authorization_constraint = db_app.Column(ARRAY(db_app.Integer))
+
+    # Relations vers Group et Authorization
+    group = db_app.relationship("Group", back_populates="groupe_authorizations")
+    authorization = db_app.relationship("BibAuthorization", back_populates="groupe_authorizations")
+
+    def __init__(
+        self, 
+        group_id, 
+        authorization_id, 
+        group_authorization_constraint
+    ):
+        self.group_id = group_id
+        self.authorization_id = authorization_id
+        self.group_authorization_constraint = group_authorization_constraint
+
+
 #class BibToponyme(db_app.Model):
 #    __tablename__ = 'bib_toponyme'
 #    __table_args__ = {'schema': 'app_carto'}

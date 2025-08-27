@@ -13,7 +13,7 @@ from functools import wraps
 from werkzeug.utils import secure_filename
 import shutil 
 
-from .models import Role, VLayerList, Layer, BibStatusType, VRegneList, VGroupTaxoList, BibCommune, BibMeshScale, BibGroupStatus, ImportedLayer, Logs, Project
+from .models import Role, VLayerList, Layer, BibStatusType, VRegneList, VGroupTaxoList, BibCommune, BibMeshScale, BibGroupStatus, ImportedLayer, Logs, Project, BibAuthorization, Group, GroupAuthorization
 from .schema import RoleSchema, VLayerListSchema, LayerSchema, BibGroupStatusSchema, ImportedLayerSchema, LogsSchema, ProjectSchema
 
 import logging 
@@ -164,16 +164,18 @@ def login():
     role_schema = RoleSchema()
     role = Role.query.get(content["user"]["id_role"])
     if role is None:
+        default_group = Group.query.get(app.config["DEFAULT_USER_GROUP"])
         # Création de l'utilisateur
         role =  Role(
-            content["user"]["id_role"],
-            content["user"]["nom_role"],
-            content["user"]["prenom_role"],
-            content["user"]["identifiant"],
-            token,
-            content["expires"],
-            None,
-            None
+            role_id = content["user"]["id_role"],
+            role_nom = content["user"]["nom_role"],
+            role_prenom = content["user"]["prenom_role"],
+            role_login = content["user"]["identifiant"],
+            role_token = token,
+            role_token_expiration = content["expires"],
+            role_date_insert = None,
+            role_date_update = None,
+            groups = [default_group]
         )        
     else:
         # Mise à jour de l'utilisateur

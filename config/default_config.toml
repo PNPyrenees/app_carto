@@ -58,6 +58,9 @@ OBS_LAYER_CLASSIFICATION_BORNE = [0.1, 0.2, 0.4, 0.8]
 # Le nombre de couleur doit correspondre au nombre de borne + 1
 OBS_LAYER_CLASS_COLOR = ["rgba(237, 248, 251, 0.9)", "rgba(179, 205, 227, 0.9)", "rgba(140, 150, 198, 0.9)", "rgba(136, 86, 167, 0.9)", "rgba(129, 15, 124, 0.9)"]
 
+# Identifiant du groupe par défaut attribué aux nouveaux utilisateurs (lors de leur première connexion)
+DEFAULT_USER_GROUP = 1
+
 # Fond de carte
 [[BASEMAPS]]
     type = "Tile"

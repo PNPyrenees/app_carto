@@ -49,6 +49,7 @@ class ConfSchema(Schema):
     OBS_LAYER_CLASSIFICATION_BORNE = fields.List(fields.Float, load_default=[0.1, 0.2, 0.4, 0.8])
     OBS_LAYER_CLASS_COLOR = fields.List(fields.String, load_default=["rgba(237, 248, 251, 0.9)", "rgba(179, 205, 227, 0.9)", "rgba(140, 150, 198, 0.9)", "rgba(136, 86, 167, 0.9)", "rgba(129, 15, 124, 0.9)"])
     SRID = fields.Integer(required=True)
+    DEFAULT_USER_GROUP = fields.Integer(required=True)
     #TEST = fields.String(required=True)
 
     @validates("ENV")
