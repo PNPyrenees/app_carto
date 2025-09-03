@@ -1,3 +1,6 @@
+/* Variable globale contenant la description de l'utilisateur */
+var role = null
+
 /**
  * Retourne la valeur d'un cookie
  */
@@ -47,6 +50,31 @@ function checkToken() {
         console.log("Token expiré")
         return false
     }
+
+    // Récupération des informations de l'utilisateur
+    fetch(APP_URL + "/api/user_from_token/", {
+        method: "GET",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        },
+        credentials: "same-origin"
+    }).then(res => {
+        if (res.status != 200) {
+            // On ré-initialise la variable globale "role"
+            role = null
+            // En envoi l"erreur dans le catch
+            throw res.json();
+        } else {
+            return res.json()
+        }
+    }).then(data => {
+        role = data
+    }).catch(error => {
+        error.then(err => {
+            showAlert(err.message)
+        })
+    })
 
     return true
 }
@@ -129,7 +157,11 @@ var usershubAuth = function (login, password) {
             }
         })
         .then(data => {
-            loginModal.hide() // Fermeture du modal
+            // On renseigne la variable globale
+            role = data
+
+            // Fermeture du modal
+            loginModal.hide()
 
             // On vide les champ d'authentification
             setTimeout(function () {
@@ -173,6 +205,7 @@ btn_logout.addEventListener("click", function (event) {
     })
         .then(res => {
             if (res.status != 200) {
+
                 // En envoi l"erreur dans le catch
                 throw res.json();
             } else {
@@ -183,6 +216,9 @@ btn_logout.addEventListener("click", function (event) {
             deleteCookie("username")
             deleteCookie("token")
             deleteCookie("expiration")
+
+            // On ré-initialise la variable globale "role"
+            role = null
 
             document.getElementById("btn-login").classList.add("active")
             document.getElementById("icon-login").classList.add("active")
@@ -198,23 +234,6 @@ btn_logout.addEventListener("click", function (event) {
 })
 
 /**
- * Si valide, contrôle l'existance d'un cookie à l'ouverture
- */
-window.addEventListener('load', (event) => {
-    //console.log(checkToken())
-    if (checkToken() === true) {
-        var username = getCookie('username')
-        if (username) {
-            document.getElementById('btn-login').classList.remove("active")
-            document.getElementById('icon-login').classList.remove("active")
-            document.getElementById('btn-logout').classList.add("active")
-            document.getElementById('icon-logout').classList.add("active")
-            document.getElementById('username-label').innerHTML = username.replace(/"/g, '')
-        }
-    }
-});
-
-/**
  * Controle de l'authentification avant ouverture du modal
  */
 var check_auth_button = document.getElementsByClassName('check-auth')
@@ -223,7 +242,8 @@ for (var i = 0; i < check_auth_button.length; i++) {
     check_auth_button[i].addEventListener('click', (event) => {
         // On ne se concentre que sur les actions ouvrant des modales
         //if (event.currentTarget.getAttribute('modal-target')) {
-        if (checkToken() === false) {
+        //if (checkToken() === false) {
+        if (role === null) {
             // Utilisateur non connecté => on ouvre le modal de connexion
             loginModal.show()
         } else {

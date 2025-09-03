@@ -6,7 +6,7 @@ from flask import Flask, render_template, send_from_directory, request, make_res
 import requests
 import json
 from datetime import datetime, date
-from sqlalchemy import create_engine, text, func, bindparam
+from sqlalchemy import create_engine, text, func, bindparam, select
 from sqlalchemy.exc import SQLAlchemyError
 #from sqlalchemy.sql.expression import true
 from functools import wraps
@@ -78,7 +78,7 @@ def valid_token_required(f):
         if (not token):
             return jsonify({
                 "status": "error",
-                "message": "[Erreur 403-1] - Aucune clés d'authentification trouvée, veuillez vous identifier"
+                "message": "[Erreur 401-1] - Aucune clés d'authentification trouvée, veuillez vous identifier"
             }), 403
 
         # Controle de la date d'expiration
@@ -87,8 +87,8 @@ def valid_token_required(f):
         if (role.first() is None):
             return jsonify({
                 "status": "error",
-                "message": "[Erreur 403-2] - La clés d'authentification est incorrecte, veuillez vous identifier"
-            }), 403
+                "message": "[Erreur 401-2] - La clés d'authentification est incorrecte, veuillez vous identifier"
+            }), 401
 
         role = role.one()
         # Controle que la date d'expiration n'est pas dépassé
@@ -97,9 +97,38 @@ def valid_token_required(f):
         else :
             return jsonify({
                 "status": "error",
-                "message": "[Erreur 403-3] - La clés d'authentification n'est plus valide, veuillez vous identifier"
-            }), 403
+                "message": "[Erreur 401-3] - La clés d'authentification n'est plus valide, veuillez vous identifier"
+            }), 401
     return decorated_function
+
+def check_authorization(authorization_code):
+    def decorator(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            token = request.cookies.get('token')
+
+            # S'il n'y a pas de token alors invalide
+            if (not token):
+                # de fait, il n'est pas autorisé
+                return jsonify({
+                    "status": "error",
+                    "message": "[Erreur 401-3] - La clés d'authentification est incorrecte, veuillez vous identifier"
+                }), 401
+            else :
+                # Si on a bien un utilisateur authentifié alors on vérifie qu'il a
+                # la permission demandée
+                role = Role.query.filter(Role.role_token == token).one()
+                if (role.has_authorization(authorization_code)):
+                    return f(*args, **kwargs)
+                else:
+                    return jsonify({
+                        "status": "error",
+                        "message": "[Erreur 403-1] - L'utilisateur ne possède pas l'auhorization " + authorization_code
+                    }), 403
+                
+
+        return wrapped
+    return decorator
 
 @app.route('/')
 def index():
@@ -199,7 +228,7 @@ def login():
     resp.set_cookie("username", username, expires=role.role_token_expiration, path="/", samesite='None', secure=True)
     resp.set_cookie("expiration", str(role.role_token_expiration), expires=role.role_token_expiration, path="/", samesite='None', secure=True)
 
-
+    logger.debug(role.authorization_codes)
     return resp
 
 @app.route('/api/auth/logout', methods=['PATCH'])
@@ -242,8 +271,24 @@ def logout():
             'message': 'Token supprimé !'
         })
 
+
+@app.route('/api/user_from_token/')
+@valid_token_required
+def get_user():
+    """ Fourni l'utilisateur associé à un token
+
+    Returns
+    -------
+        JSON
+    """    
+    token = request.cookies.get('token')
+
+    # Controle de la date d'expiration
+    return RoleSchema().dump(Role.query.filter(Role.role_token == token).first())
+
 @app.route('/api/layer/get_layers_list', methods=['GET'])
 @valid_token_required
+@check_authorization('GET_REF_LAYER')
 def get_layers_list():
     """ Fourni la liste des couches de données
     disponible pour chaque groupe
@@ -252,6 +297,18 @@ def get_layers_list():
     -------
         JSON
     """    
+    token  = request.cookies.get('token')
+    
+    # requête de récupération de la liste des layer_id 
+    # auquel l'utilisateur à les droits d'accès
+    role = Role.query.filter(Role.role_token == token).one()
+    authorization_constraints = role.get_authorization_constraints('GET_REF_LAYER')
+
+    logger.debug(authorization_constraints)
+
+    # si la liste des authorization_constraints est vide alors on retourne tout
+
+    # Sinon, on filtre la requete pour n'avoir que les couches autorisées
 
     # Nécessite jsonify car on retourne plusieur ligne
     return jsonify(VLayerListSchema(many=True).dump(VLayerList.query.all()))
@@ -2565,7 +2622,7 @@ def get_project(project_id):
     else :
         return jsonify({
                 'status': 'error',
-                'message': """[Erreur] L'utilisateur courant n'a pas le droit de supprimer ce projet - {}""".format(error)
+                'message': """[Erreur] L'utilisateur courant n'est pas le propriétaire ce projet - {}""".format(error)
             }), 403
 
     

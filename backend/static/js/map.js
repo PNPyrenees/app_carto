@@ -3234,7 +3234,8 @@ function createMeasureTooltip() {
  * Gestion de l'affichage des boutons d'outil de mesure
  */
 document.getElementById("btn-measure").addEventListener("click", event => {
-    if (checkToken() === false) {
+    //if (checkToken() === false) {
+    if (role === null) {
         // Utilisateur non connecté => on ouvre le modal de connexion
         loginModal.show()
     } else {

@@ -175,7 +175,6 @@ var buildAddRefLayerContent = function () {
             i++
         })
     })
-    let accordion_prototype = document.getElementById('accordion-add-ref-layer').getAttribute('data-prototype')
 }
 
 /**

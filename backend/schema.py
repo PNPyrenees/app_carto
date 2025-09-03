@@ -1,10 +1,16 @@
 from .utils.env import ma
 from .models import Role, VLayerList, Layer, BibStatusType, BibGroupStatus, VGroupTaxoList, ImportedLayer, Logs, Project, BibAuthorization, Group, GroupAuthorization
+from marshmallow import fields
 
 class RoleSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Role
         load_instance = True
+
+    authorization_codes = fields.Method("get_authorization_codes")
+
+    def get_authorization_codes(self, obj):
+        return obj.authorization_codes
 
 class VLayerListSchema(ma.SQLAlchemyAutoSchema):
     class Meta:

@@ -1,9 +1,9 @@
 from requests import api
 from .utils.env import db_app
 from datetime import datetime
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import JSONB, ARRAY
+from sqlalchemy import Integer, ForeignKey, select, func, cast
+from sqlalchemy.orm import relationship, Session, object_session
+from sqlalchemy.dialects.postgresql import JSONB, ARRAY, array
 import pytz
 #from geoalchemy2 import Geometry
 
@@ -52,6 +52,72 @@ class Role(db_app.Model):
         self.role_date_insert = role_date_insert
         self.role_date_updat = role_date_update
         self.groups = groups
+
+    @property
+    def authorization_codes(self):
+        session = object_session(self)
+        if session is None:
+            return None  # ou lever une exception
+        
+        stmt = (
+            select(BibAuthorization.authorization_code)
+            .distinct()
+            .join(BibAuthorization.groupe_authorizations)
+            .join(GroupAuthorization.group)
+            .join(Group.roles)
+            .where(Role.role_id == self.role_id)
+        )
+        return db_app.session.execute(stmt).scalars().all()
+
+    def has_authorization(self, authorization_code: str) -> bool:
+        """ Fonction controlant que l'utilisateur a bien l'autorization 'authorization_code' """
+        stmt = (
+            select(BibAuthorization.authorization_id)
+            .join(BibAuthorization.groupe_authorizations)
+            .join(GroupAuthorization.group)
+            .join(Group.roles)
+            .where(Role.role_id == self.role_id, BibAuthorization.authorization_code == authorization_code)
+            .limit(1)
+        )
+        return db_app.session.execute(stmt).first() is not None
+    
+    #def has_authorization_with_constraint(self, authorization_code: str, session: Session) -> bool:
+    #    stmt = (
+    #        select(BibAuthorization.authorization_id)
+    #        .join(BibAuthorization.groupe_authorizations)
+    #        .join(GroupAuthorization.group)
+    #        .join(Group.roles)
+    #        .where(
+    #            Role.role_id == self.role_id, 
+    #            BibAuthorization.authorization_code == authorization_code,
+    #            func.coalesce(
+    #                GroupAuthorization.group_authorization_constraint,
+    #                cast(array([]), ARRAY(Integer))
+    #            ) == cast(array([]), ARRAY(Integer))
+    #        )
+    #        .limit(1)
+    #    )
+    #    return session.execute(stmt).first() is not None
+    
+    def get_authorization_constraints(self, authorization_code: str):
+        unnested_subquery = (
+            select(
+                func.unnest(GroupAuthorization.group_authorization_constraint).label("user_constraint")
+            )
+            .join(BibAuthorization.groupe_authorizations)
+            .join(GroupAuthorization.group)
+            .join(Group.roles)
+            .where(
+                Role.role_id == self.role_id,
+                BibAuthorization.authorization_code == authorization_code,
+            )
+            .distinct()
+            .subquery()
+        )
+
+        # Requête finale avec array_agg
+        stmt = select(func.array_agg(unnested_subquery.c.user_constraint))
+        return db_app.session.execute(stmt).first()
 
 """class Role(db_app.Model):
     __tablename__ = 't_roles'

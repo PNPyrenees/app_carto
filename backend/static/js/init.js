@@ -106,7 +106,7 @@ addLayerModalEl.addEventListener('hidden.bs.modal', function (event) {
  * lors des appel à l'API
  */
 apiCallErrorCatcher = function (error, default_message = null) {
-    if (error.status == 403) {
+    if (error.status == 401) {
         // Ici, le token n'est plus valide côté serveur
         // Donc on ferme le modal courant et on ouvre le modal d'authentification
         // On retarde l'action car le modal doit être  

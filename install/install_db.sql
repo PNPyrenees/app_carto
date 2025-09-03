@@ -359,6 +359,19 @@ CREATE TABLE app_carto.cor_group_authorization (
         ON DELETE NO ACTION
 );
 
+/* Attribution de tous les droits au groupe par défaut */
+INSERT INTO app_carto.cor_group_authorization (group_id, authorization_id)
+VALUES
+	(1, 1),
+	(1, 2),
+	(1, 3),
+	(1, 4),
+	(1, 5),
+	(1, 6),
+	(1, 7),
+	(1, 8)
+;
+
 /* Table de relation entre un utilisateur et un groupe */
 CREATE TABLE app_carto.cor_role_group (
 	role_id integer,

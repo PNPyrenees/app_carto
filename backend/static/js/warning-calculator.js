@@ -1,6 +1,7 @@
 // Gestion de l'affichage des boutons d'éditions
 document.getElementById("btn-challenge-calculator").addEventListener("click", event => {
-    if (checkToken() === false) {
+    //if (checkToken() === false) {
+    if (role === null) {
         // Utilisateur non connecté => on ouvre le modal de connexion
         loginModal.show()
     } else {
