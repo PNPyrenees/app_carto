@@ -6,8 +6,10 @@ from flask import Flask, render_template, send_from_directory, request, make_res
 import requests
 import json
 from datetime import datetime, date
-from sqlalchemy import create_engine, text, func, bindparam, select
+from sqlalchemy import create_engine, text, func, bindparam, select, literal_column, cast
+from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import aliased
 #from sqlalchemy.sql.expression import true
 from functools import wraps
 from werkzeug.utils import secure_filename
@@ -102,6 +104,14 @@ def valid_token_required(f):
     return decorated_function
 
 def check_authorization(authorization_code):
+    """ Fonction de type décorateur permettant 
+    de controler que l'utilisateur possède le droits demandé
+
+    -------
+    403 si token invalide
+    sinon on retourne dans la fonction de la route initialemnt 
+    demandée (-> f(*args, **kwargs))
+    """
     def decorator(f):
         @wraps(f)
         def wrapped(*args, **kwargs):
@@ -304,14 +314,51 @@ def get_layers_list():
     role = Role.query.filter(Role.role_token == token).one()
     authorization_constraints = role.get_authorization_constraints('GET_REF_LAYER')
 
-    logger.debug(authorization_constraints)
+    if authorization_constraints is None:
+        # Il n'y a pas de contrainte d'accès qu'à certain couche
+        # Donc on retourne la liste complète
+        layer_list = VLayerList.query.all()
+        
+    else :
+        # Il y a des contraintes donc il faut structurer la liste 
+        # des couches en fonction
+        tmp_layers = (
+            select(
+                Layer.layer_group,
+                Layer.layer_id,
+                Layer.layer_label,
+                func.coalesce(cast(Layer.layer_metadata_uuid, Layer.layer_label.type), '').label("layer_metadata_uuid")
+            )
+            .where(Layer.layer_id.in_(authorization_constraints))
+            .order_by(Layer.layer_group, Layer.layer_label)
+            .cte("tmp_layers")
+        )
+
+        json_object = cast(
+            func.concat(
+                '{"layer_id": ', tmp_layers.c.layer_id,
+                ', "layer_label": "', tmp_layers.c.layer_label,
+                '", "layer_metadata_uuid": "', tmp_layers.c.layer_metadata_uuid,
+                '"}'
+            ),
+            JSON
+        )
+
+        final_query = (
+            select(
+                tmp_layers.c.layer_group,
+                func.json_agg(json_object).label("l_layers")
+            )
+            .group_by(tmp_layers.c.layer_group)
+        )
+        layer_list = db_app.session.execute(final_query).all()
 
     # si la liste des authorization_constraints est vide alors on retourne tout
 
     # Sinon, on filtre la requete pour n'avoir que les couches autorisées
 
     # Nécessite jsonify car on retourne plusieur ligne
-    return jsonify(VLayerListSchema(many=True).dump(VLayerList.query.all()))
+    return jsonify(VLayerListSchema(many=True).dump(layer_list))
 
 
 @app.route('/api/ref_layer/<ref_layer_id>', methods=['GET'])
@@ -324,6 +371,21 @@ def get_ref_layer_data(ref_layer_id):
     -------
         GEOJSON
     """
+
+    # Controle que l'utilisateur est autorisé à consulter le layer demandé
+    token  = request.cookies.get('token')
+    
+    # requête de récupération de la liste des layer_id 
+    # auquel l'utilisateur à les droits d'accès
+    role = Role.query.filter(Role.role_token == token).one()
+    authorization_constraints = role.get_authorization_constraints('GET_REF_LAYER')
+
+    if authorization_constraints is not None:
+        if int(ref_layer_id) not in authorization_constraints:
+            return jsonify({
+                        "status": "error",
+                        "message": "[Erreur 403-1] - L'utilisateur ne possède pas l'auhorization de consulter la couche layer_id=" + str(ref_layer_id)
+                    }), 403
 
     layer = Layer.query.get(ref_layer_id)
     layer_schema = LayerSchema().dump(layer)

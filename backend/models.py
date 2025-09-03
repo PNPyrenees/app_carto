@@ -70,16 +70,7 @@ class Role(db_app.Model):
         return db_app.session.execute(stmt).scalars().all()
 
     def has_authorization(self, authorization_code: str) -> bool:
-        """ Fonction controlant que l'utilisateur a bien l'autorization 'authorization_code' """
-        stmt = (
-            select(BibAuthorization.authorization_id)
-            .join(BibAuthorization.groupe_authorizations)
-            .join(GroupAuthorization.group)
-            .join(Group.roles)
-            .where(Role.role_id == self.role_id, BibAuthorization.authorization_code == authorization_code)
-            .limit(1)
-        )
-        return db_app.session.execute(stmt).first() is not None
+        return authorization_code in self.authorization_codes
     
     #def has_authorization_with_constraint(self, authorization_code: str, session: Session) -> bool:
     #    stmt = (
@@ -117,7 +108,7 @@ class Role(db_app.Model):
 
         # Requête finale avec array_agg
         stmt = select(func.array_agg(unnested_subquery.c.user_constraint))
-        return db_app.session.execute(stmt).first()
+        return db_app.session.execute(stmt).first()[0]
 
 """class Role(db_app.Model):
     __tablename__ = 't_roles'

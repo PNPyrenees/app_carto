@@ -84,16 +84,17 @@ var getRefLayerList = function () {
  * Construction du contenu du div "add-ref-layer-content"
  */
 var buildAddRefLayerContent = function () {
+
+    var accordion_add_ref_layer_bloc = document.getElementById('accordion-add-ref-layer')
+
+    //On réinitialise l'accordéon
+    accordion_add_ref_layer_bloc.innerHTML = ""
+
     getRefLayerList().then(layer_list => {
         //Si getRefLayerList ne retourne rien alors on ne va pas plus loin
         if (!layer_list) {
             return
         }
-
-        var accordion_add_ref_layer_bloc = document.getElementById('accordion-add-ref-layer')
-
-        //On réinitialise l'accordéon
-        accordion_add_ref_layer_bloc.innerHTML = ""
 
         var i = 0
         layer_list.forEach(layer_group => {
@@ -247,13 +248,24 @@ var callApiForRefLayer = async ref_layer_id => {
             layer_submit_button.disabled = false
             document.getElementById('loading-spinner').style.display = 'none'
 
-            if (error.message) {
+            switch (error.status) {
+                case 403:
+                    error_message = "[Erreur 403-1] - L'utilisateur ne possède pas l'auhorization de consulter la couche demandée"
+                    break
+                case 404:
+                    error_message = "Erreur lors de la récupération de le des couches - Veuillez contacter l'administrateur du site"
+                    break;
+                default:
+                    error_message = "Demande de données annulée"
+            }
+
+            /*if (error.message) {
                 default_message = "Demande de données annulée"
             } else {
                 default_message = "Erreur lors de la récupération de la liste des couches de référence"
-            }
+            }*/
             console.error(error)
-            apiCallErrorCatcher("error", default_message)
+            apiCallErrorCatcher("error", error_message)
         })
 }
 
