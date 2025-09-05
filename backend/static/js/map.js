@@ -1046,15 +1046,36 @@ var addLayerInLayerBar = async function (vectorLayer) {
     prototype = prototype.replace(/__LAYER_NAME__/g, layer_name)
 
     // On active le menu d'édition si la couche est éditable
-    if (vectorLayer.get('isEditable') == true) {
+    /*if (vectorLayer.get('isEditable') == true) {
         prototype = prototype.replace(/__EDIT_IS_DISABLED__/g, '')
     } else {
         prototype = prototype.replace(/__EDIT_IS_DISABLED__/g, 'disabled')
-    }
+    }*/
 
 
     template = document.createElement('template')
     template.innerHTML = prototype
+
+    // Gestion de l'affichage de l'option "Editer" du menu contextuel
+    if (vectorLayer.get('isEditable') == true) {
+        if (vectorLayer.get("layerType") == "refLayerEditable") {
+            // On est sur une couche de référence éditable
+            if (!role.authorization_editable_layer_list.includes(vectorLayer.get('databaseLayerId'))) {
+                // La couche est éditable mais l'utilisateur n'a pas les droits
+                template.content.querySelector(".layer-edition-menu-item").remove()
+            }
+        }
+    } else {
+        // La couche n'est pas éditable alors on retire l'option
+        template.content.querySelector(".layer-edition-menu-item").remove()
+    }
+
+    // Si lutilisateur ne possède pas les droits d'export
+    if (["refLayerReadOnly", "refLayerEditable", "obsLayer", "warningCalculatorLayer", "warningCalculatorResultLayer", "warningCalculatorObsResultLayer",].includes(vectorLayer.get("layerType"))) {
+        if (!role.authorization_codes.includes('EXPORT')) {
+            template.content.querySelector(".layer-export-menu-item").remove()
+        }
+    }
 
     //On active les eventListener
     template.content.querySelector(".checkbox-layer").addEventListener("click", event => {
@@ -1316,17 +1337,17 @@ toggleLegend = function (layer_uid) {
         // on retourne 1==1
         return "compare(1, \"==\", 1)"
     }
-
+ 
     if (logic_operator == "and") {
         str_filter = str_filter + " && "
     }
-
+ 
     if (logic_operator == "or") {
         str_filter = str_filter + " || "
     }
-
+ 
     str_filter = str_filter + " ( "
-
+ 
     switch (typeof filter.right_term){
         case "number":
         case "boolean":
@@ -1338,21 +1359,21 @@ toggleLegend = function (layer_uid) {
         default:
         throw "Erreur lors de la création du style : opération incorrect";
     }
-
+ 
     if (filter.and.length > 0){
         filter.and.forEach(and_filter => {
             str_filter = buildFilter(and_filter, str_filter, "and") 
         })
     }
-
+ 
     if (filter.or.length > 0){
         filter.or.forEach(or_filter => {
             str_filter = buildFilter(or_filter, str_filter, "or") 
         })
     }
-
+ 
     str_filter = str_filter + ")"
-
+ 
     return str_filter
 }*/
 

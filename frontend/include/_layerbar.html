@@ -14,11 +14,11 @@
                             &lt;button class=&quot;btn btn-secondary btn-opt-layer bi bi-three-dots-vertical btn-dropdown&quot; onclick=&quot;openDropdown(this)&quot;&gt;&lt;/button&gt; 
                             &lt;div id=&quot;layer-list-dropdown-content&quot; class=&quot;dropdown-content hide&quot; draggable=&quot;true&quot; ondragstart=&quot;event.preventDefault(); event.stopPropagation();&quot;&gt; 
                                 &lt;div class=&quot;dropdown-item&quot; onclick=&quot;getFullDataTable(__LAYER_UID__)&quot;&gt;Afficher la table attributaire&lt;/div&gt; 
-                                &lt;div class=&quot;dropdown-item&quot; onclick=&quot;openExportModal(__LAYER_UID__)&quot;&gt;Exporter&lt;/div&gt; 
+                                &lt;div class=&quot;dropdown-item layer-export-menu-item&quot; onclick=&quot;openExportModal(__LAYER_UID__)&quot;&gt;Exporter&lt;/div&gt; 
                                 &lt;div class=&quot;dropdown-item&quot; onclick=&quot;toggleLegend(__LAYER_UID__)&quot;&gt;Afficher/Masquer la légende&lt;/div&gt; 
                                 &lt;div class=&quot;dropdown-item&quot; onclick=&quot;zoomToLayerExtent(__LAYER_UID__)&quot;&gt;Zoom sur l'emprise de la couche&lt;/div&gt; 
                                 &lt;div class=&quot;dropdown-item&quot; onclick=&quot;openRenameLayerModal(__LAYER_UID__)&quot;&gt;Renommer la couche&lt;/div&gt; 
-                                &lt;div class=&quot;dropdown-item layer-edition-menu-item __EDIT_IS_DISABLED__&quot; onclick=&quot;enableLayerEdition(event, __LAYER_UID__)&quot;&gt;Editer&lt;/div&gt;
+                                &lt;div class=&quot;dropdown-item layer-edition-menu-item&quot; onclick=&quot;enableLayerEdition(event, __LAYER_UID__)&quot;&gt;Editer&lt;/div&gt;
                                 &lt;div class=&quot;dropdown-item&quot; onclick=&quot;openStyleLayerModal(__LAYER_UID__)&quot;&gt;Modifier le style&lt;/div&gt; 
                                 &lt;div class=&quot;dropdown-item hide&quot; onclick=&quot;alert('Filtrer')&quot;&gt;Filtrer&lt;/div&gt; 
                                 &lt;div class=&quot;dropdown-item&quot; onclick=&quot;removeLayer(__LAYER_UID__)&quot;&gt;Supprimer&lt;/div&gt; 

@@ -5,7 +5,7 @@
 
     <!-- Bouton add-layer -->
     <div class="btn-group-vertical" class="text-center">
-        <button id="btn-add-layer" type="button" class="btn btn-primary check-auth" modal-target="add-layer-modal"
+        <button id="btn-add-layer" type="button" class="btn btn-primary check-auth hide" modal-target="add-layer-modal"
             toggle-tooltip="tooltip" data-bs-placement="right" data-bs-trigger="hover"
             title="Ajouter ou créer une couche de données">
             <i id="icon-add-layer" class="bi bi-stack"></i>
@@ -14,7 +14,7 @@
 
     <!-- Bouton calculette des enjeux-->
     <div class="btn-group-vertical" class="text-center">
-        <button id="btn-challenge-calculator" type="button" class="btn btn-primary check-auth toogle-sub-btn-group"
+        <button id="btn-challenge-calculator" type="button" class="btn btn-primary check-auth toogle-sub-btn-group hide"
             toggle-tooltip="tooltip" data-bs-placement="right" data-bs-trigger="hover" title="Calculette des enjeux"
             sub-btn-group-target="sub-btn-challenge-calculator-group">
             <i id="icon-challenge-calculator" class="bi bi-exclamation-octagon"></i>
@@ -23,7 +23,7 @@
 
     <!-- Bouton export PDF -->
     <div class="btn-group-vertical" class="text-center">
-        <button id="btn-pdf-generator" type="button" class="btn btn-primary check-auth"
+        <button id="btn-pdf-generator" type="button" class="btn btn-primary check-auth hide"
             modal-target="pdf-generator-modal" toggle-tooltip="tooltip" data-bs-placement="right"
             data-bs-trigger="hover" title="Exporter la carte en pdf">
             <i id="icon-pdf-generator" class="bi bi-file-earmark-pdf"></i>
@@ -32,7 +32,7 @@
 
     <!-- Bouton d'activation des outils de mesure -->
     <div class="btn-group-vertical" class="text-center">
-        <button id="btn-measure" type="button" class="btn btn-primary check-auth" toggle-tooltip="tooltip"
+        <button id="btn-measure" type="button" class="btn btn-primary check-auth hide" toggle-tooltip="tooltip"
             data-bs-placement="right" data-bs-trigger="hover" title="Outils de mesure">
             <i id="icon-measure" class="bi bi-rulers"></i>
         </button>
@@ -41,7 +41,7 @@
     <hr> 
     <!-- Bouton de création d'un projet -->
     <div class="btn-group-vertical" class="text-center">
-        <button id="btn-project-create-open-modal" type="button" class="btn btn-light check-auth" toggle-tooltip="tooltip"
+        <button id="btn-project-create-open-modal" type="button" class="btn btn-light check-auth hide" toggle-tooltip="tooltip"
             data-bs-placement="right" data-bs-trigger="hover" title="Enregistrer comme nouveau projet" modal-target="save-as-new-project-modal">
             <i id="icon-measure" class="bi bi-file-earmark-plus"></i>
         </button>
@@ -49,7 +49,7 @@
 
     <!-- Bouton de sauvegarde d'un projet -->
     <div class="btn-group-vertical" class="text-center">
-        <button id="btn-project-update" type="button" class="btn btn-light check-auth" toggle-tooltip="tooltip"
+        <button id="btn-project-update" type="button" class="btn btn-light check-auth hide" toggle-tooltip="tooltip"
             data-bs-placement="right" data-bs-trigger="hover" title="Enregistrer les modifications du projet" disabled>
             <i id="icon-measure" class="bi bi-floppy2"></i>
         </button>
@@ -57,7 +57,7 @@
 
     <!-- Bouton d'ouverture d'un projet existant -->
     <div class="btn-group-vertical" class="text-center">
-        <button id="btn-project-open" type="button" class="btn btn-light check-auth" toggle-tooltip="tooltip"
+        <button id="btn-project-open" type="button" class="btn btn-light check-auth hide" toggle-tooltip="tooltip"
             data-bs-placement="right" data-bs-trigger="hover" title="Ouvrir un projet" modal-target="select-project-modal">
             <i id="icon-measure" class="bi bi-folder2-open"></i>
         </button>

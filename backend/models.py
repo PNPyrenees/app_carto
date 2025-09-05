@@ -68,6 +68,10 @@ class Role(db_app.Model):
             .where(Role.role_id == self.role_id)
         )
         return db_app.session.execute(stmt).scalars().all()
+    
+    @property
+    def authorization_editable_layer_list(self):
+        return self.get_authorization_constraints("EDIT_REF_LAYER")
 
     def has_authorization(self, authorization_code: str) -> bool:
         return authorization_code in self.authorization_codes

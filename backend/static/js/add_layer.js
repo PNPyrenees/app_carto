@@ -535,7 +535,7 @@ var buildAddObsLayerForm = function () {
     // Liste des echelles de restitution
     getScaleList().then(scale_list => {
         //Ajout de l'echelle brut
-        scale_list.unshift({ label: "Données brutes", value: 999 })
+        //scale_list.unshift({ label: "Données brutes", value: 999 })
 
         document.getElementById("form-add-obs-layer-select-scale").innerHTML = "";
         new SelectPure("#form-add-obs-layer-select-scale", {
@@ -1136,38 +1136,6 @@ document.getElementById("form-upload-layer-select-format").onchange = function (
     sourceId = "upload-layer"
 
     selectGeoFileFormat(sourceId, selectedFormat)
-
-    /*// On récupère la valeur sélectionné
-    value = e.currentTarget.value
-
-    //On masque les alertes
-    document.getElementById("upload-layer-format-shp-warning").classList.add("hide")
-    document.getElementById("upload-layer-format-tab-warning").classList.add("hide")
-
-    // En fonction du format on affiche l'alerte associé
-    if (value == '') {
-        document.getElementById("form-upload-layer-files").setAttribute("accept", null)
-    }
-    if (value == 'shp') {
-        document.getElementById("upload-layer-format-shp-warning").classList.remove("hide")
-        document.getElementById("form-upload-layer-files").setAttribute("accept", ".shp, .prj, .dbf, .shx")
-    }
-    if (value == 'tab') {
-        document.getElementById("upload-layer-format-tab-warning").classList.remove("hide")
-        document.getElementById("form-upload-layer-files").setAttribute("accept", ".tab, .dat, .id, .map")
-    }
-    if (value == 'geojson') {
-        document.getElementById("form-upload-layer-files").setAttribute("accept", ".geojson, .json")
-    }
-    if (value == 'gpkg') {
-        document.getElementById("form-upload-layer-files").setAttribute("accept", ".gpkg")
-    }
-    if (value == 'gpx') {
-        document.getElementById("form-upload-layer-files").setAttribute("accept", ".gpx")
-    }
-    if (value == 'kmz') {
-        document.getElementById("form-upload-layer-files").setAttribute("accept", ".kml, .kmz")
-    }*/
 }
 
 /**
@@ -1286,13 +1254,6 @@ var checkUploadForm = function () {
         formIsValid = false
     }
 
-    /*form_field = form.querySelector("#form-upload-layer-select-proj")
-    form_field.parentNode.querySelector("label").style.color = "#000"
-    if (! checkRequired(form_field.value)){
-        form_field.parentNode.querySelector("label").style.color = "#f00"
-        formIsValid = false
-    }*/
-
     form_field = form.querySelector("#form-upload-layer-data-name")
     form_field.parentNode.querySelector("label").style.color = "#000"
     if (!checkRequired(form_field.value)) {
@@ -1325,7 +1286,6 @@ var postUploadFrom = function () {
         .then(res => {
             if (res.status == 400) {
                 res.json().then(err => {
-                    //console.log(JSON.stringify(err.message[0]))
                     apiCallErrorCatcher("error", JSON.stringify(err.message[0]))
                 })
             } else if (res.status != 200) {

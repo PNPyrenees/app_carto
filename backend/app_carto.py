@@ -103,7 +103,7 @@ def valid_token_required(f):
             }), 401
     return decorated_function
 
-def check_authorization(authorization_code):
+def check_authorization(authorization_code_list):
     """ Fonction de type décorateur permettant 
     de controler que l'utilisateur possède le droits demandé
 
@@ -128,12 +128,18 @@ def check_authorization(authorization_code):
                 # Si on a bien un utilisateur authentifié alors on vérifie qu'il a
                 # la permission demandée
                 role = Role.query.filter(Role.role_token == token).one()
-                if (role.has_authorization(authorization_code)):
+                
+                allowed = False
+                for authorization_code in authorization_code_list:
+                    if (role.has_authorization(authorization_code)):
+                        allowed = True
+                
+                if (allowed):
                     return f(*args, **kwargs)
                 else:
                     return jsonify({
                         "status": "error",
-                        "message": "[Erreur 403-1] - L'utilisateur ne possède pas l'auhorization " + authorization_code
+                        "message": "[Erreur 403-1] - L'utilisateur ne possède pas l'autorisation " + authorization_code
                     }), 403
                 
 
@@ -298,7 +304,7 @@ def get_user():
 
 @app.route('/api/layer/get_layers_list', methods=['GET'])
 @valid_token_required
-@check_authorization('GET_REF_LAYER')
+@check_authorization(['GET_REF_LAYER'])
 def get_layers_list():
     """ Fourni la liste des couches de données
     disponible pour chaque groupe
@@ -363,6 +369,7 @@ def get_layers_list():
 
 @app.route('/api/ref_layer/<ref_layer_id>', methods=['GET'])
 @valid_token_required
+@check_authorization(['GET_REF_LAYER'])
 def get_ref_layer_data(ref_layer_id):
     """ Fourni la données correspondant au ref_layer_id
     au format geojson
@@ -375,7 +382,7 @@ def get_ref_layer_data(ref_layer_id):
     # Controle que l'utilisateur est autorisé à consulter le layer demandé
     token  = request.cookies.get('token')
     
-    # requête de récupération de la liste des layer_id 
+    # Récupération et contrôle de la liste des layer_id 
     # auquel l'utilisateur à les droits d'accès
     role = Role.query.filter(Role.role_token == token).one()
     authorization_constraints = role.get_authorization_constraints('GET_REF_LAYER')
@@ -384,7 +391,7 @@ def get_ref_layer_data(ref_layer_id):
         if int(ref_layer_id) not in authorization_constraints:
             return jsonify({
                         "status": "error",
-                        "message": "[Erreur 403-1] - L'utilisateur ne possède pas l'auhorization de consulter la couche layer_id=" + str(ref_layer_id)
+                        "message": "[Erreur 403-2] - L'utilisateur ne possède pas l'autorisation de consulter la couche layer_id=" + str(ref_layer_id)
                     }), 403
 
     layer = Layer.query.get(ref_layer_id)
@@ -417,6 +424,7 @@ def get_ref_layer_data(ref_layer_id):
 
 @app.route('/api/layer/get_statut_list', methods=['GET'])
 @valid_token_required
+@check_authorization(['GET_OBS_DATA'])
 def get_status_list():
     """ Fourni la liste des statuts taxonomiques
 
@@ -435,6 +443,7 @@ def get_status_list():
 
 @app.route('/api/layer/get_regne_list', methods=['GET'])
 @valid_token_required
+@check_authorization(['GET_OBS_DATA'])
 def get_regne_list():
     """ Fourni la liste des groupes taxonomiques
 
@@ -452,6 +461,7 @@ def get_regne_list():
 
 @app.route('/api/layer/get_group_taxo_list', methods=['GET'])
 @valid_token_required
+@check_authorization(['GET_OBS_DATA'])
 def get_group_taxo_list():
     """ Fourni la liste des groupes taxonomiques
 
@@ -469,6 +479,7 @@ def get_group_taxo_list():
 
 @app.route('/api/layer/get_commune_list', methods=['GET'])
 @valid_token_required
+@check_authorization(['GET_OBS_DATA'])
 def get_commune_list():
     """ Fourni la liste des communes
 
@@ -486,14 +497,24 @@ def get_commune_list():
 
 @app.route('/api/layer/get_scale_list', methods=['GET'])
 @valid_token_required
+@check_authorization(['GET_OBS_DATA'])
 def get_scale_list():
-    """ Fourni la liste des echelle de restitution
+    """ Fourni la liste des echelles de restitution
 
     Returns
     -------
         JSON
     """    
-    bibMeshScale = BibMeshScale.query.filter(BibMeshScale.active == True).order_by(BibMeshScale.mesh_scale_id)
+
+    # La liste des echelle de restitution est limité 
+    # aux echelles autorisées pour l'utilisateur
+    token  = request.cookies.get('token')
+    role = Role.query.filter(Role.role_token == token).one()
+    authorization_constraints = role.get_authorization_constraints('GET_OBS_DATA')
+    if authorization_constraints is not None:
+        bibMeshScale = BibMeshScale.query.filter(BibMeshScale.active == True).filter(BibMeshScale.mesh_scale_id.in_(authorization_constraints)).order_by(BibMeshScale.mesh_scale_id)
+    else :
+        bibMeshScale = BibMeshScale.query.filter(BibMeshScale.active == True).order_by(BibMeshScale.mesh_scale_id)
     
     scale_list = []
     for meshScale in bibMeshScale:
@@ -503,6 +524,7 @@ def get_scale_list():
 
 @app.route('/api/taxons_autocomplete', methods=['GET'])
 @valid_token_required
+@check_authorization(['GET_OBS_DATA'])
 def taxons_autocomplete():
     
     args = request.args
@@ -518,6 +540,7 @@ def taxons_autocomplete():
 
 @app.route('/api/layer/get_group_statut_list', methods=['GET'])
 @valid_token_required
+@check_authorization(['GET_OBS_DATA'])
 def get_group_statut_list():
     """ Fourni la liste des grope de statuts
 
@@ -1208,6 +1231,7 @@ def builLayerLabel(postdata):
 
 @app.route('/api/layer/get_obs_layer_data', methods=['POST'])
 @valid_token_required
+@check_authorization(['GET_OBS_DATA'])
 def get_obs_layer_data():
     """ Retourne une couche geojson des données d'observation
     en fonction des filtres paramétrés
@@ -1217,6 +1241,18 @@ def get_obs_layer_data():
         GEOJSON
     """    
     postdata = request.json
+
+    # Récupération et contrôle de la liste des mesh_scale_id 
+    # auquel l'utilisateur à les droits d'accès
+    token  = request.cookies.get('token')
+    role = Role.query.filter(Role.role_token == token).one()
+    authorization_constraints = role.get_authorization_constraints('GET_OBS_DATA')
+    if authorization_constraints is not None:
+        if int(postdata["scale"]) not in authorization_constraints:
+            return jsonify({
+                        "status": "error",
+                        "message": "[Erreur 403-3] - L'utilisateur ne possède pas l'autorisation de consulter les données à l'echelle demandée= " + str(postdata["scale"])
+                    }), 403
 
     # On cotrôle la validité des filtres
     error = check_obs_form_data(postdata)
@@ -1258,8 +1294,10 @@ def get_obs_layer_data():
 
     return obs_layer_datas
 
+
 @app.route('/api/layer/get_obs_object_detail', methods=['POST'])
 @valid_token_required
+@check_authorization(['GET_OBS_DATA', 'WARNING_CALCULATOR'])
 def get_obs_object_detail():
     """ Retourne un json contenant des informations
     complémentaire pour les objets retourné par une 
@@ -1341,6 +1379,7 @@ def get_obs_object_detail():
 
 @app.route('/api/get_warning_calculator_data', methods=['POST'])
 @valid_token_required
+@check_authorization(['WARNING_CALCULATOR'])
 def get_warning_calculator_data():
     """ Retourne les données géographique pour couches 
     déclaré comme étant des couche à enjeux 
@@ -1586,6 +1625,7 @@ def toponyme_autocomplete():
     return json.dumps(toponyme_datas)
 
 @app.route('/api/warning_calculator/get_layers_list', methods=['GET'])
+@check_authorization(['WARNING_CALCULATOR'])
 def get_warning_calculator_layers_list():
     """ Retourne la liste des couche utilisé pour la calcul des enjeux
         Ainsi que la liste des statuts d'espèce retenue
@@ -1652,6 +1692,7 @@ def to_geojson(files):
 
 @app.route('/api/upload_geodata', methods=['POST'])
 @valid_token_required
+@check_authorization(['IMPORT'])
 def upload_geodata():
     """ Enregistre la données temporairement, la transforme en GeoJson 
         Et l'enregistre en base de données
@@ -1704,9 +1745,11 @@ def upload_geodata():
 
 @app.route('/api/translate_to_geojson', methods=['POST'])
 @valid_token_required
+@check_authorization(['WARNING_CALCULATOR'])
 def translate_to_geojson():
-    """ Enregistre la données temporairement, la transforme en GeoJson 
-        Et l'enregistre en base de données
+    """ Convertie des données SIG en GeoJson
+    Utilisé notament dans le cas de l'import d'une couche comme 
+    périmètre pour le calcul des enjeux.
 
     Returns
     -------
@@ -1730,6 +1773,7 @@ def translate_to_geojson():
 
 @app.route('/api/imported_layer/<ref_layer_id>', methods=['GET', 'DELETE'])
 @valid_token_required
+@check_authorization(['IMPORT'])
 def get_imported_layer(ref_layer_id):
     """ Récupère ou supprime la couche de données
 
@@ -1767,6 +1811,7 @@ def get_imported_layer(ref_layer_id):
 
 @app.route('/api/imported_layer/get_layers_list', methods=['GET'])
 @valid_token_required
+@check_authorization(['IMPORT'])
 def get_imported_layers_list():
     """ Fourni la liste des couches de données
     importé par l'utilisateur courant
@@ -1894,7 +1939,20 @@ def get_column_definition(layer_schema):
 # Fonction retournant le formulaire html adapté pour ajouter une données à la table <layer_id>
 @app.route('/api/get_feature_form_for_layer/<layer_id>', methods=['GET'])
 @valid_token_required
+@check_authorization(['EDIT_REF_LAYER'])
 def get_feature_form_for_layer(layer_id):
+
+    # Récupération et contrôle de la liste des layer_id 
+    # auquel l'utilisateur à les droits d'accès
+    token  = request.cookies.get('token')
+    role = Role.query.filter(Role.role_token == token).one()
+    authorization_constraints = role.get_authorization_constraints('EDIT_REF_LAYER')
+    if authorization_constraints is not None:
+        if int(layer_id) not in authorization_constraints:
+            return jsonify({
+                        "status": "error",
+                        "message": "[Erreur 403-4] - L'utilisateur ne possède pas l'autorisation de modification sur la couche layer_id=" + str(layer_id)
+                    }), 403
 
     layer = Layer.query.get(layer_id)
     layer_schema = LayerSchema().dump(layer)
@@ -1910,6 +1968,7 @@ def get_feature_form_for_layer(layer_id):
 
 @app.route('/api/add_features_for_layer/<layer_id>', methods=['POST'])
 @valid_token_required
+@check_authorization(['EDIT_REF_LAYER'])
 def add_features_for_layer(layer_id):
     """ Ecrit les données dans la table correspondant à layer id
     puis retourne les données tel qu'elles ont été enregistrées
@@ -1917,6 +1976,18 @@ def add_features_for_layer(layer_id):
     -------
         Array<GEOJSON>
     """
+
+    # Récupération et contrôle de la liste des layer_id 
+    # auquel l'utilisateur à les droits d'accès
+    token  = request.cookies.get('token')
+    role = Role.query.filter(Role.role_token == token).one()
+    authorization_constraints = role.get_authorization_constraints('EDIT_REF_LAYER')
+    if authorization_constraints is not None:
+        if int(layer_id) not in authorization_constraints:
+            return jsonify({
+                        "status": "error",
+                        "message": "[Erreur 403-4] - L'utilisateur ne possède pas l'autorisation de modification sur la couche layer_id=" + str(layer_id)
+                    }), 403
 
     feature_data = request.json
 
@@ -2074,6 +2145,7 @@ def get_primary_key_of_layer(layer_schema_name, layer_table_name):
 
 @app.route('/api/update_features_for_layer/<layer_id>', methods=['POST'])
 @valid_token_required
+@check_authorization(['EDIT_REF_LAYER'])
 def update_features_for_layer(layer_id):
     """ Ecrit les données dans la table correspondant à layer id
     puis retourn les données tel qu'elles ont été enregistrées
@@ -2081,6 +2153,18 @@ def update_features_for_layer(layer_id):
     -------
         Array<GEOJSON>
     """
+
+    # Récupération et contrôle de la liste des layer_id 
+    # auquel l'utilisateur à les droits d'accès
+    token  = request.cookies.get('token')
+    role = Role.query.filter(Role.role_token == token).one()
+    authorization_constraints = role.get_authorization_constraints('EDIT_REF_LAYER')
+    if authorization_constraints is not None:
+        if int(layer_id) not in authorization_constraints:
+            return jsonify({
+                        "status": "error",
+                        "message": "[Erreur 403-4] - L'utilisateur ne possède pas l'autorisation de modification sur la couche layer_id=" + str(layer_id)
+                    }), 403
 
     feature_data = request.json
 
@@ -2273,7 +2357,26 @@ def update_features_for_layer(layer_id):
     
 @app.route('/api/delete_features_for_layer/<layer_id>', methods=['POST'])
 @valid_token_required
+@check_authorization(['EDIT_REF_LAYER'])
 def delete_features_for_layer(layer_id):
+    """ Supprime un objet dans la table correspondant à layer id
+    puis retourne True si pas de prolbème rencontré
+    -------
+        Boolean
+    """
+
+    # Récupération et contrôle de la liste des layer_id 
+    # auquel l'utilisateur à les droits d'accès
+    token  = request.cookies.get('token')
+    role = Role.query.filter(Role.role_token == token).one()
+    authorization_constraints = role.get_authorization_constraints('EDIT_REF_LAYER')
+    if authorization_constraints is not None:
+        if int(layer_id) not in authorization_constraints:
+            return jsonify({
+                        "status": "error",
+                        "message": "[Erreur 403-4] - L'utilisateur ne possède pas l'autorisation de modification sur la couche layer_id=" + str(layer_id)
+                    }), 403
+        
     feature_data = request.json
 
     layer = Layer.query.get(layer_id)
@@ -2369,6 +2472,7 @@ def allowed_file(filename):
 # et stockage dans un espace temporaire
 @app.route('/api/upload_file', methods=['POST'])
 @valid_token_required
+@check_authorization(['EDIT_REF_LAYER'])
 def upload_file():
     file = request.files['file']
 
@@ -2383,7 +2487,14 @@ def upload_file():
 
 @app.route('/api/get_metadata_for_layer/<layer_id>', methods=['GET'])
 @valid_token_required
+@check_authorization(['GET_REF_LAYER'])
 def get_metadata_for_layer(layer_id):
+
+    ####
+    # Ajouter un contrôle pour s'assurer que les métadonnées 
+    # demandé font bien partie des layer autorisé pour l'utilisateur
+    ###
+
 
     # récupération de l'UUID de la métadonnée
     layer = Layer.query.get(layer_id)
@@ -2528,6 +2639,7 @@ def get_metadata_for_layer(layer_id):
 # Création d'un projet
 @app.route('/api/project/create', methods=['POST'])
 @valid_token_required
+@check_authorization(['PROJECT'])
 def create_project():
     postdata = request.json
 
@@ -2558,6 +2670,7 @@ def create_project():
 # Enregistrement du contenu d'un projet
 @app.route('/api/project/update_content', methods=['POST'])
 @valid_token_required
+@check_authorization(['PROJECT'])
 def update_project_content():
     postdata = request.json
 
@@ -2591,6 +2704,7 @@ def update_project_content():
 # Modification du nom d'un projet
 @app.route('/api/project/update_name', methods=['POST'])
 @valid_token_required
+@check_authorization(['PROJECT'])
 def update_project_name():
     postdata = request.json
 
@@ -2626,6 +2740,7 @@ def update_project_name():
 # retourne la liste des projets d'un utilisateur
 @app.route('/api/project/my_projects', methods=['GET'])
 @valid_token_required
+@check_authorization(['PROJECT'])
 def get_my_project():
     """ Fourni la liste des projet créé par l'utilisateur courant
 
@@ -2658,6 +2773,7 @@ def get_my_project():
 
 @app.route('/api/project/<project_id>', methods=['GET'])
 @valid_token_required
+@check_authorization(['PROJECT'])
 def get_project(project_id):
     """ retourne un projet
 
@@ -2691,6 +2807,7 @@ def get_project(project_id):
 
 @app.route('/api/project/<project_id>', methods=['DELETE'])
 @valid_token_required
+@check_authorization(['PROJECT'])
 def delete_project(project_id):
     """ supprime un projet
 

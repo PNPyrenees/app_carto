@@ -1,6 +1,3 @@
-/* Variable globale contenant la description de l'utilisateur */
-var role = null
-
 /**
  * Retourne la valeur d'un cookie
  */
@@ -70,6 +67,7 @@ function checkToken() {
         }
     }).then(data => {
         role = data
+        refreshGUI()
     }).catch(error => {
         error.then(err => {
             showAlert(err.message)
@@ -177,8 +175,10 @@ var usershubAuth = function (login, password) {
             document.getElementById("username-label").innerHTML = getCookie('username').replace(/"/g, '')
 
             //return data ;
+            refreshGUI()
         })
         .catch(error => {
+            console.log(error)
             error.then(err => {
                 document.getElementById("form-login-error").innerHTML = err.msg;
                 document.getElementById("form-login-error").style.display = "block"
@@ -225,6 +225,8 @@ btn_logout.addEventListener("click", function (event) {
             document.getElementById("btn-logout").classList.remove("active")
             document.getElementById("icon-logout").classList.remove("active")
             document.getElementById("username-label").innerHTML = ""
+
+            refreshGUI()
         })
         .catch(error => {
             error.then(err => {

@@ -9,8 +9,13 @@ class RoleSchema(ma.SQLAlchemyAutoSchema):
 
     authorization_codes = fields.Method("get_authorization_codes")
 
+    authorization_editable_layer_list = fields.Method("get_authorization_editable_layer_list")
+
     def get_authorization_codes(self, obj):
         return obj.authorization_codes
+    
+    def get_authorization_editable_layer_list(self, obj):
+        return obj.authorization_editable_layer_list
 
 class VLayerListSchema(ma.SQLAlchemyAutoSchema):
     class Meta:

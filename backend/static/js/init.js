@@ -1,3 +1,6 @@
+/* Variable globale contenant la description de l'utilisateur */
+var role = null
+
 window.addEventListener('load', (event) => {
 
     // A l'ouverture de la page, on s'assure de retirer l'identifiant du projet et 
@@ -445,3 +448,93 @@ function isValidDate(dateString) {
 /*function compareNumbers(a, b) {
     return a - b;
 }*/
+
+/*
+ * Gestion de l'affichage en fonction des permissions
+ */
+var refreshGUI = function () {
+    // par défaut on désactive tous les bouttons du toolbar
+    document.getElementById('btn-add-layer').classList.add('hide')
+    document.getElementById('btn-challenge-calculator').classList.add('hide')
+    document.getElementById('btn-pdf-generator').classList.add('hide')
+    document.getElementById('btn-measure').classList.add('hide')
+    document.getElementById('btn-project-create-open-modal').classList.add('hide')
+    document.getElementById('btn-project-update').classList.add('hide')
+    document.getElementById('btn-project-open').classList.add('hide')
+
+    // par défaut on désactive tous les bouttons du toolbar
+    document.getElementById('btn-add-ref-layer').classList.add('hide')
+    document.getElementById('add-layer-menu').querySelector('label[for="btn-add-ref-layer"]').classList.add('hide')
+
+    document.getElementById('btn-add-obs-layer').classList.add('hide')
+    document.getElementById('add-layer-menu').querySelector('label[for="btn-add-obs-layer"]').classList.add('hide')
+
+    document.getElementById('btn-add-imported-layer').classList.add('hide')
+    document.getElementById('add-layer-menu').querySelector('label[for="btn-add-imported-layer"]').classList.add('hide')
+
+    document.getElementById('btn-add-drawing-layer').classList.add('hide')
+    document.getElementById('add-layer-menu').querySelector('label[for="btn-add-drawing-layer"]').classList.add('hide')
+
+    // On fonction des droits, on réactive l'accès au fonctionnalité
+    if (role !== null) {
+        if (['GET_REF_LAYER', 'GET_OBS_DATA', 'IMPORT', 'DRAW'].some(val => role.authorization_codes.includes(val))) {
+            document.getElementById('btn-add-layer').classList.remove('hide')
+
+            if (role.authorization_codes.includes('GET_REF_LAYER')) {
+                document.getElementById('btn-add-ref-layer').classList.remove('hide')
+                document.getElementById('add-layer-menu').querySelector('label[for="btn-add-ref-layer"]').classList.remove('hide')
+            }
+
+            if (role.authorization_codes.includes('GET_OBS_DATA')) {
+                document.getElementById('btn-add-obs-layer').classList.remove('hide')
+                document.getElementById('add-layer-menu').querySelector('label[for="btn-add-obs-layer"]').classList.remove('hide')
+            }
+
+            if (role.authorization_codes.includes('IMPORT')) {
+                document.getElementById('btn-add-imported-layer').classList.remove('hide')
+                document.getElementById('add-layer-menu').querySelector('label[for="btn-add-imported-layer"]').classList.remove('hide')
+            }
+
+            if (role.authorization_codes.includes('DRAW')) {
+                document.getElementById('btn-add-drawing-layer').classList.remove('hide')
+                document.getElementById('add-layer-menu').querySelector('label[for="btn-add-drawing-layer"]').classList.remove('hide')
+            }
+
+
+            menu_elements = document.getElementById('add-layer-menu').querySelectorAll('input[type=radio]:not(.hide)')
+
+            first_add_layer_menu_element = menu_elements[0]
+            last_add_layer_menu_element = menu_elements[menu_elements.length - 1]
+            // Dans la fenêtre modal d'ajout de couche, ça active le premier élément du menu affiché (et le contenu associé)
+            document.getElementById('add-layer-menu').querySelector('label[for="' + first_add_layer_menu_element.id + '"]').click()
+
+            // Ajustement du CSS appliqué à la liste des menu du modal add-layer
+            if (first_add_layer_menu_element == last_add_layer_menu_element) {
+                document.getElementById('add-layer-menu').querySelector('label[for="' + first_add_layer_menu_element.id + '"]').style.borderRadius = "0.375rem"
+            } else {
+                document.getElementById('add-layer-menu').querySelector('label[for="' + first_add_layer_menu_element.id + '"]').style.borderRadius = "0.375rem 0.375rem 0 0"
+                document.getElementById('add-layer-menu').querySelector('label[for="' + last_add_layer_menu_element.id + '"]').style.borderRadius = "0 0 0.375rem 0.375rem"
+            }
+
+        }
+
+        if (role.authorization_codes.includes('WARNING_CALCULATOR')) {
+            document.getElementById('btn-challenge-calculator').classList.remove('hide')
+        }
+
+        if (role.authorization_codes.includes('EXPORT_PDF')) {
+            document.getElementById('btn-pdf-generator').classList.remove('hide')
+        }
+
+        if (role.authorization_codes.includes('PROJECT')) {
+            document.getElementById('btn-project-create-open-modal').classList.remove('hide')
+            document.getElementById('btn-project-update').classList.remove('hide')
+            document.getElementById('btn-project-open').classList.remove('hide')
+        }
+
+        document.getElementById('btn-measure').classList.remove('hide')
+    }
+
+}
+
+refreshGUI()
