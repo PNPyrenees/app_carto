@@ -1,9 +1,9 @@
 from requests import api
 from .utils.env import db_app
 from datetime import datetime
-from sqlalchemy import Integer, ForeignKey, select, func, cast
+from sqlalchemy import Integer, ForeignKey, select, func, cast, literal, exists, or_, and_, not_
 from sqlalchemy.orm import relationship, Session, object_session
-from sqlalchemy.dialects.postgresql import JSONB, ARRAY, array
+from sqlalchemy.dialects.postgresql import JSONB, ARRAY, array, dialect
 import pytz
 #from geoalchemy2 import Geometry
 
@@ -62,7 +62,7 @@ class Role(db_app.Model):
         stmt = (
             select(BibAuthorization.authorization_code)
             .distinct()
-            .join(BibAuthorization.groupe_authorizations)
+            .join(BibAuthorization.group_authorizations)
             .join(GroupAuthorization.group)
             .join(Group.roles)
             .where(Role.role_id == self.role_id)
@@ -79,7 +79,7 @@ class Role(db_app.Model):
     #def has_authorization_with_constraint(self, authorization_code: str, session: Session) -> bool:
     #    stmt = (
     #        select(BibAuthorization.authorization_id)
-    #        .join(BibAuthorization.groupe_authorizations)
+    #        .join(BibAuthorization.group_authorizations)
     #        .join(GroupAuthorization.group)
     #        .join(Group.roles)
     #        .where(
@@ -95,16 +95,36 @@ class Role(db_app.Model):
     #    return session.execute(stmt).first() is not None
     
     def get_authorization_constraints(self, authorization_code: str):
+
+        test_role_got_no_constraint = (
+            select(literal(True)).distinct()
+            .select_from(BibAuthorization)
+            .join(BibAuthorization.group_authorizations)
+            .join(GroupAuthorization.group)
+            .join(Group.roles)
+            .where(
+                and_(
+                    Role.role_id == self.role_id,
+                    BibAuthorization.authorization_code == authorization_code,
+                    or_(
+                        GroupAuthorization.group_authorization_constraint == None,
+                        GroupAuthorization.group_authorization_constraint == array([], type_=Integer)
+                    )
+                )
+            )
+        )
+
         unnested_subquery = (
             select(
                 func.unnest(GroupAuthorization.group_authorization_constraint).label("user_constraint")
             )
-            .join(BibAuthorization.groupe_authorizations)
+            .join(BibAuthorization.group_authorizations)
             .join(GroupAuthorization.group)
             .join(Group.roles)
             .where(
                 Role.role_id == self.role_id,
                 BibAuthorization.authorization_code == authorization_code,
+                not_(exists(test_role_got_no_constraint))
             )
             .distinct()
             .subquery()
@@ -396,7 +416,7 @@ class BibAuthorization(db_app.Model):
     authorization_label = db_app.Column(db_app.String(255))
     authorization_description = db_app.Column(db_app.Text)
 
-    groupe_authorizations = relationship("GroupAuthorization", back_populates="authorization")
+    group_authorizations = relationship("GroupAuthorization", back_populates="authorization")
 
     def __init__(
         self,
@@ -419,7 +439,7 @@ class Group(db_app.Model):
     group_description = db_app.Column(db_app.Text)
 
     roles = relationship("Role", secondary=cor_role_group, back_populates="groups")
-    groupe_authorizations = relationship("GroupAuthorization", back_populates="group")
+    group_authorizations = relationship("GroupAuthorization", back_populates="group")
 
     def __init__(
         self,
@@ -441,8 +461,8 @@ class GroupAuthorization(db_app.Model):
     group_authorization_constraint = db_app.Column(ARRAY(db_app.Integer))
 
     # Relations vers Group et Authorization
-    group = db_app.relationship("Group", back_populates="groupe_authorizations")
-    authorization = db_app.relationship("BibAuthorization", back_populates="groupe_authorizations")
+    group = db_app.relationship("Group", back_populates="group_authorizations")
+    authorization = db_app.relationship("BibAuthorization", back_populates="group_authorizations")
 
     def __init__(
         self, 

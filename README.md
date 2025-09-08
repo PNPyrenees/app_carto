@@ -522,6 +522,30 @@ En cas d'apostrophe dans la valeur, il y a deux possibilité :
 }]
 ```
 
+## Gestion des permissions utilisateurs
+
+### Liste des permissions
+Permission  | Définition
+------------- | -------------
+Consulter des couches de références | Autorise l'utilisateur à consulter des couches de référence. Il est possible de restreindre la liste de couches consultables au niveau de l'attribution du droit à un groupe.
+Consulter les données d'observation | Autorise l'utilisateur à interroger les données d'observation. Il est possible de restreindre la restitution qu'à certaines echelles de restitution (maille) au niveau de l'attribution du droit à un groupe
+Créer des couches de dessin | Autorise l'utilisateur à créer des couches de dessin temporaire
+Importer des donner | Autorise l'utilisateur à importer des données SIG
+Exporter des données | Autorise l'utilisateur à exporter des données. Si cette autorisation n'est pas attribuée à l'utilisateur, ce dernier sera tout de même en mesure d'exporter ses données importées ou les couches de dessins qu'il aura créé.
+Utiliser la calculette des enjeux | Autorise l'utilisateur à exploiter la calulette des enjeux. La calculette des enjeux retournera toutes les couches sur lesquelles elle se base (couche de référence et d'observation) même si l'utilisateur n'est pas autoriser à consulter ce type de données.
+Exporter des cartes au format PDF | Autorise l'utilisateur à faire des exports en PDF.
+Modifier des couches de données | Autorise l'utilisateur à apporter des modifications aux couches de données éditables. Il est possible de restreindre l'édition qu'à certaines couches spécifiques au niveau de l'attribution du droit à un groupe.
+Création et modification de rojet | Autorise l'utilisateur à créer des projets, à les consulter et à les modifier
+
+### Attribution des permissions
+
+Les autorisations sont attribuées à un groupe via la table **app_carto.cor_group_authorization**. Les utilisateurs doivent donc être associés à un ou plusieurs groupes.
+
+Les droits avec contrainte sont cumulatifs. C'est à dire, par exemple, un utilisateur associé à un groupe n'ayant que l'autorisation d'afficher la couche de référence "A" et associé à un second groupe autorisé uniquement à afficher la référence "B" pourra tout de même afficher les couches "A" et "B". L'utilisateur possède les autorisations des deux groupes.
+Si le deuxième groupe n'impose aucune contrainte spécifique, alors l'utilisateur peut consulter toutes les couches malgré la contrainte appliquée au premier groupe.
+C'est la même logique pour le droit d'édition des couches et pour l'échelle de consultation des données d'observation.
+
+
 # Mise à jour
 
 *Cette partie reste à consolider en fonction des avancements du projet. En effet, en l'état aucune mise à jour n'a été réalisée.*

@@ -46,6 +46,9 @@ app.config['TMP_UPLOAD_FOLDER'] = './backend/static/tmp_upload/'
 # paramétrage en dur des types de fichier d'upload autorisés lors de l'édition de couche
 app.config['ALLOWED_FEATURE_FILES_EXTENSIONS'] = {'pdf', 'png', 'jpg', 'jpeg'}
 
+# Pour débuggage : A retirer pour passage en PROD
+#app.config['SQLALCHEMY_ECHO'] = True
+
 db_app.init_app(app)
 db_sig = create_engine(app.config['SQLALCHEMY_SIG_DATABASE_URI'], pool_pre_ping=True)
 

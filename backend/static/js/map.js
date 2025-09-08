@@ -1060,9 +1060,11 @@ var addLayerInLayerBar = async function (vectorLayer) {
     if (vectorLayer.get('isEditable') == true) {
         if (vectorLayer.get("layerType") == "refLayerEditable") {
             // On est sur une couche de référence éditable
-            if (!role.authorization_editable_layer_list.includes(vectorLayer.get('databaseLayerId'))) {
-                // La couche est éditable mais l'utilisateur n'a pas les droits
-                template.content.querySelector(".layer-edition-menu-item").remove()
+            if (role.authorization_editable_layer_list) {
+                if (!role.authorization_editable_layer_list.includes(vectorLayer.get('databaseLayerId'))) {
+                    // La couche est éditable mais l'utilisateur n'a pas les droits
+                    template.content.querySelector(".layer-edition-menu-item").remove()
+                }
             }
         }
     } else {
