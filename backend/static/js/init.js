@@ -506,7 +506,10 @@ var refreshGUI = function () {
             first_add_layer_menu_element = menu_elements[0]
             last_add_layer_menu_element = menu_elements[menu_elements.length - 1]
             // Dans la fenêtre modal d'ajout de couche, ça active le premier élément du menu affiché (et le contenu associé)
-            document.getElementById('add-layer-menu').querySelector('label[for="' + first_add_layer_menu_element.id + '"]').click()
+            // Seulement si le premier n'est pas celuio par défaut (à savoir add_ref_layer)
+            if (first_add_layer_menu_element.id != 'btn-add-ref-layer') {
+                document.getElementById('add-layer-menu').querySelector('label[for="' + first_add_layer_menu_element.id + '"]').click()
+            }
 
             // Ajustement du CSS appliqué à la liste des menu du modal add-layer
             if (first_add_layer_menu_element == last_add_layer_menu_element) {

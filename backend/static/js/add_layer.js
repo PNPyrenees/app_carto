@@ -87,14 +87,14 @@ var buildAddRefLayerContent = function () {
 
     var accordion_add_ref_layer_bloc = document.getElementById('accordion-add-ref-layer')
 
-    //On réinitialise l'accordéon
-    accordion_add_ref_layer_bloc.innerHTML = ""
-
     getRefLayerList().then(layer_list => {
         //Si getRefLayerList ne retourne rien alors on ne va pas plus loin
         if (!layer_list) {
             return
         }
+
+        //On réinitialise l'accordéon
+        accordion_add_ref_layer_bloc.innerHTML = ""
 
         var i = 0
         layer_list.forEach(layer_group => {
