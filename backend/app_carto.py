@@ -1942,7 +1942,7 @@ def get_column_definition(layer_schema):
 # Fonction retournant le formulaire html adapté pour ajouter une données à la table <layer_id>
 @app.route('/api/get_feature_form_for_layer/<layer_id>', methods=['GET'])
 @valid_token_required
-@check_authorization(['EDIT_REF_LAYER'])
+@check_authorization(['GET_REF_LAYER', 'EDIT_REF_LAYER'])
 def get_feature_form_for_layer(layer_id):
 
     # Récupération et contrôle de la liste des layer_id 
@@ -1971,7 +1971,7 @@ def get_feature_form_for_layer(layer_id):
 
 @app.route('/api/add_features_for_layer/<layer_id>', methods=['POST'])
 @valid_token_required
-@check_authorization(['EDIT_REF_LAYER'])
+@check_authorization(['GET_REF_LAYER', 'EDIT_REF_LAYER'])
 def add_features_for_layer(layer_id):
     """ Ecrit les données dans la table correspondant à layer id
     puis retourne les données tel qu'elles ont été enregistrées
@@ -2148,7 +2148,7 @@ def get_primary_key_of_layer(layer_schema_name, layer_table_name):
 
 @app.route('/api/update_features_for_layer/<layer_id>', methods=['POST'])
 @valid_token_required
-@check_authorization(['EDIT_REF_LAYER'])
+@check_authorization(['GET_REF_LAYER', 'EDIT_REF_LAYER'])
 def update_features_for_layer(layer_id):
     """ Ecrit les données dans la table correspondant à layer id
     puis retourn les données tel qu'elles ont été enregistrées
@@ -2360,7 +2360,7 @@ def update_features_for_layer(layer_id):
     
 @app.route('/api/delete_features_for_layer/<layer_id>', methods=['POST'])
 @valid_token_required
-@check_authorization(['EDIT_REF_LAYER'])
+@check_authorization(['GET_REF_LAYER', 'EDIT_REF_LAYER'])
 def delete_features_for_layer(layer_id):
     """ Supprime un objet dans la table correspondant à layer id
     puis retourne True si pas de prolbème rencontré
