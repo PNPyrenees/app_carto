@@ -102,13 +102,20 @@ const map_dims = {
     a5: [210, 148],*/
 };
 
-const logo_img = new Image()
-logo_img.src = '/static/images/logo_structure.png'
-const logo_img_height = 30 // A adpter si on autorise plusieurs formats
-const logo_img_width = Math.round(logo_img_height * logo_img.width / logo_img.height)
+function loadImage(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image()
+        img.onload = () => resolve(img)
+        img.onerror = reject
+        img.src = src
+    })
+}
 
-const north_arrow_img = new Image()
-north_arrow_img.src = '/static/images/north_arrow.png'
+
+var logo_img_width
+
+//const north_arrow_img = new Image()
+//north_arrow_img.src = '/static/images/north_arrow.png'
 
 // source_bloc_y est une variable partagé entre
 // plusieur fonction donc on la rend globale
@@ -145,9 +152,17 @@ var map2pdf = function () {
 }
 
 
-var createPdfHeader = function (pdf) {
+var createPdfHeader = async function (pdf) {
 
     // Ajout du logo dans l'entête
+    //console.log(logo_img)
+    //console.log(logo_img_width)
+    //console.log(logo_img_height)
+
+    const logo_img = await loadImage('/static/images/logo_structure.png')
+    var logo_img_height = 30 // A adpter si on autorise plusieurs formats
+    logo_img_width = Math.round(logo_img_height * logo_img.width / logo_img.height)
+
     pdf.addImage(logo_img, 'JPEG', 0, 0, logo_img_width, logo_img_height)
 
     // Ajout du titre
@@ -527,6 +542,7 @@ var addScaleAndNorthArrowToPDF = async function (pdf, map_dim) {
     pdf.setGState(new pdf.GState({ opacity: 1 }));
 
     // Fleche nord
+    north_arrow_img = await loadImage('/static/images/north_arrow.png')
     pdf.addImage(north_arrow_img, 'PNG', north_arrow_x, north_arrow_y, 5, 8)
 
     // Scale (a partir du html)
