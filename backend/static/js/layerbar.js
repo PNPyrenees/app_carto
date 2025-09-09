@@ -374,3 +374,35 @@ var zoomToLayerExtent = function (layer_uid) {
         }
     })
 }
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    const toggleBtn = document.getElementById('toggle-layerbar');
+    const layerbar = document.getElementById('layerbar');
+    const mapBrowser = document.getElementById('map-browser');
+    const icon = toggleBtn.querySelector('i');
+    const toolsBtnGroup = document.getElementById('tools-btn-group');
+    const attributeDataContainer = document.getElementById('attribute-data-container')
+
+    toggleBtn.addEventListener('click', function () {
+        const isCollapsed = layerbar.classList.toggle('collapsed');
+        toggleBtn.classList.toggle('collapsed');
+        toolsBtnGroup.classList.toggle('shifted')
+        attributeDataContainer.classList.toggle('layer-bar-shifted')
+
+        // Change l’icône
+        icon.className = isCollapsed ? 'bi bi-chevron-right' : 'bi bi-chevron-left';
+
+        if (isCollapsed) {
+            mapBrowser.style.width = "calc(100% - 3%)"; // Ajuste à la taille sans layerbar
+        } else {
+            mapBrowser.style.width = "calc(100% - 15%)"; // Ajuste avec layerbar
+        }
+
+        // Forcer un "updateSize" de la carte pour qu'elle s'adapte
+        setTimeout(() => {
+            map.updateSize()
+        }, 350); // correspond au délai CSS de transition
+    });
+});
+

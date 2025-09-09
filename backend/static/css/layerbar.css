@@ -4,10 +4,13 @@
     max-height: 100%;
     vertical-align: middle;
     border-right: 2px solid;
-    /*box-sizing: border-box;*/
-    /*overflow-x: scroll;*/
     overflow-y: auto;
-    /*opacity: 0.5;*/
+    width: 12%;
+    position: relative;
+    display: inline-block !important;
+    overflow-x: hidden;
+
+    transition: width 0.3s ease;
 }
 
 #layerbar>ul {
@@ -18,10 +21,6 @@
 #layer_list>li * {
     pointer-events: none;
 }
-
-/*#layer_list > li > .row {
-    border-bottom: 1px dotted #000;
-}*/
 
 #layer_list>li>.row>.col-lg-7 {
     font-size: 1.5vh;
@@ -56,14 +55,6 @@
     height: 50px;
 }
 
-#layerbar {
-    width: 12%;
-    /*min-width: 200px;*/
-    position: relative;
-    display: inline-block !important;
-    overflow-x: hidden;
-}
-
 /*@media(min-width: 1500px) {
     #layerbar{
         width: 12%;
@@ -89,10 +80,6 @@
     }
 }*/
 
-/*.layer-legend > .row {
-    min-height: 25px;
-}*/
-
 .layer-legend {
     padding-bottom: 5px;
     border-top: 1px dotted #000;
@@ -108,7 +95,6 @@
 }
 
 .legend-row>.legend-col-symbol {
-    /*width: 15%;*/
     width: 30px;
     height: 15px;
 }
@@ -120,38 +106,22 @@
 }
 
 .legend-poly {
-    /*background: #c8c82c;*/
     height: 20px;
     width: 100%;
     border-style: solid;
-    /*border-width: 1px;*/
-    /*border-color: #000;*/
 }
 
 .legend-line {
     border-top: 1px solid black;
-    /*background: black;*/
     width: 100%;
 }
 
 .legend-point {
-    /*background: #c8c82c;*/
     height: 15px;
     width: 15px;
     border-radius: 50%;
     border-style: solid;
-    /*border-width: 1px;*/
-    /*border-color: #000;*/
 }
-
-/*.legend-icon{*/
-/*mask-image: url(../images/svg/accommodation/accommodation_house2.svg);*/
-/*background-color: #000;*/
-/*-webkit-mask-image: url(../images/svg/accommodation/accommodation_house2.svg);*/
-/*background: url("image-de-secours.png");*/
-/*background-image: url(../images/svg/accommodation/accommodation_house2.svg);*/
-/*background-size: contain;*/
-/*}*/
 
 .layer-is-selected {
     background-color: rgba(18, 131, 220, 1) !important;
@@ -159,4 +129,41 @@
 
 .slider {
     max-width: 100%;
+}
+
+/* Positionnement du bouton de replis du layer-bar */
+#toggle-layerbar {
+    position: absolute;
+    left: 15%;
+    z-index: 1000;
+    width: 30px;
+    height: 30px;
+    border: 1px solid #000000 !important;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background-color: #e6e6e6 !important;
+    cursor: pointer;
+    transition: left 0.3s ease;
+}
+
+#toggle-layerbar.collapsed {
+    left: 3%;
+}
+
+/* Barre rétractée */
+#layerbar.collapsed {
+    width: 0 !important;
+    min-width: 0 !important;
+    overflow: hidden;
+    border: none;
+    padding: 0;
+}
+
+/* Ajustement de la carte (si nécessaire) */
+#map-browser {
+    width: 97%;
+    transition: all 0.3s ease;
 }

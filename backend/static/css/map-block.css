@@ -1,7 +1,5 @@
 #map-browser {
-    /*width: 85%;*/
     width: 85%;
-    /*background-color: rgb(108, 79, 238);*/
     height: 100%;
     vertical-align: top;
 }
@@ -9,7 +7,6 @@
 #map-block {
     width: 100%;
     background-color: rgb(255, 255, 255);
-    /*height: 70%;*/
     height: 100%;
     vertical-align: top;
 }
@@ -21,34 +18,20 @@
     width: 85%;
     bottom: 0px;
     right: 0px;
+    transition: width 0.3s ease;
 }
 
-/*#bloc-coords {
-    position: absolute;
-    z-index: 99;
-    background-color: rgba(0,60,136,.5);
-    border: 2px solid rgba(255,255,255,.7);
-    color: rgb(255, 255, 255);
-    padding: 0 10px;
-    right: .5rem;
-    top: 9rem;
-    border-radius: 4px;
-}*/
+#attribute-data-container.layer-bar-shifted {
+    width: 97%
+}
 
 #data-block {
-    /*width: 100%;*/
-    /*background-color: #e6e6e6;*/
-    /*height: 30%;*/
     height: 85%;
     border-top: 1px solid #000000;
     background-color: #888;
-    /*overflow-x: auto;*/
-    /*overflow-y: scroll;*/
-    /*overflow: visible;*/
 }
 
 #nav-attribute-table {
-    /*position: absolute;*/
     bottom: 28%;
     background-color: rgba(255, 255, 255, 0);
     height: 15%
@@ -75,8 +58,6 @@
     font-weight: bold;
     height: 100%;
     background-color: #fefefe;
-    /*background-color: #e6e6e6;*/
-    /*color:#666;*/
     cursor: default;
 }
 
@@ -86,20 +67,6 @@
     vertical-align: text-top;
     margin-left: 10px;
 }
-
-/*.tabulator{
-    width: 100%;
-    overflow-x: initial;
-    overflow-y: auto;
-}*/
-
-/*.tabulator-header{
-    overflow: initial!important;
-}*/
-
-/*.tabulator-headers{
-    overflow: visible;
-}*/
 
 .tabulator-col-content {
     padding: 2px !important;
@@ -142,12 +109,6 @@
     text-decoration: underline;
 }
 
-/*@media(max-width: 1500px){
-    #map-browser{
-        width: 100%;
-    }
-}*/
-
 #map {
     height: 100%;
 }
@@ -188,7 +149,6 @@
 #basemap-selector>.dropdown>.dropdown-content>.dropdown-item {
     color: #FFF !important;
     border: 2px solid #FFF !important;
-    /*font-weight: bold;*/
 }
 
 #basemap-selector>.dropdown>.dropdown-content>.dropdown-item:not(:first-child) {
@@ -218,7 +178,6 @@
     position: absolute;
     z-index: 99;
     right: 1%;
-    /*max-height: 45%;*/
     width: 20%;
     border: 1px solid #000000;
     background-color: #e6e6e6;
@@ -229,16 +188,6 @@
 
 /*#bloc-clicked-features-attributes*/
 #bloc-clicked-features-attributes-content {
-    /*position: absolute;
-    z-index: 999;
-    right: 1%;
-    max-height: 45%;
-    width: 20%;
-    border: 1px solid #000000;
-    background-color: #e6e6e6;
-    color:#666;
-    border-radius: .25rem;
-    top: 20%;*/
     max-height: 350px;
     padding: .5%;
     overflow: auto;
@@ -250,10 +199,6 @@
     padding-top: 5px;
     padding-bottom: 5px;
 }
-
-/*#bloc-clicked-features-attributes-content{
-    margin-top : 9%;
-}*/
 
 .layer-list>.layer-item>span {
     font-weight: bold;
@@ -283,10 +228,6 @@
     white-space: nowrap;
 }
 
-/*.layer-list > .layer-item > .feature-list > .feature-item > .properties-list > .propertier-item > .propertie-value{
-    float: right;
-}*/
-
 .layer-list>.layer-item>.feature-list>.feature-item>.zoom-to-feature {
     margin-left: 10px;
     font-size: 14px;
@@ -298,16 +239,17 @@
 
 .tools-btn-group {
     position: absolute;
-    left: 16%;
+    left: 17.5%;
     top: 8vh;
     z-index: 99;
+    transition: left 0.3s ease;
+}
+
+.tools-btn-group.shifted {
+    left: 5.5%;
 }
 
 .edit-layer-btn-group {
-    /*position: absolute;
-    left: 16%;
-    top: 8vh;
-    z-index: 99;*/
     background-color: rgba(0, 60, 136, .7);
     border: 2px solid rgba(255, 255, 255, .7);
     padding: 10px;
@@ -344,16 +286,12 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
     box-sizing: border-box;
     color: #363b3e;
-    /*display: block;*/
     max-height: 220px;
     overflow-y: scroll;
     position: absolute;
     width: 100%;
-    /*width: 20em;*/
     z-index: 999;
     margin-top: -1px;
-    /*right: 7em;
-    top: 6.4em;*/
 }
 
 #toponyme-autocomplete>.toponyme-autocomplete-option {
@@ -369,22 +307,6 @@
 #toponyme-autocomplete>.toponyme-autocomplete-option:hover {
     background: #e6e6e6;
 }
-
-/*ul#selected-toponyme{
-    list-style: none;
-    padding: 0;
-    margin-top: 10px;
-}
-
-ul#selected-toponyme > li {
-    border: 1px solid #000;
-    margin-top: -1px;
-
-}
-
-ul#selected-toponyme > li > i {
-    cursor: pointer;
-}*/
 
 #obs-more-info-modal>.modal-dialog>.modal-content {
     min-height: 90vh;

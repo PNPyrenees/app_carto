@@ -13,15 +13,10 @@
 
 html * {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-
-    /*max-width: 100vw;
-    max-height: 100vh;*/
     font-size: 2vh;
 }
 
 #container {
-    /*min-height: 100vh;
-    max-height: 100vw;*/
     padding: 0;
     margin: 0;
 }
@@ -29,6 +24,7 @@ html * {
 .app-content {
     width: 100%;
     height: 94vh;
+    display: flex;
 }
 
 .bg-primary {
@@ -49,27 +45,17 @@ html * {
     box-shadow: none !important;
 }
 
-/*.btn-primary:focus, 
-.btn-outline-primary:focus {
-    outline: none!important;
-    box-shadow: none!important;
-}*/
-
 .btn-primary:not(.btn-open):hover,
 .open>.dropdown-toggle.btn-primary,
 .btn-outline-primary:hover {
     color: mintcream;
     background-color: #006e44;
     border-color: #006e44;
-    /*set the color you want here*/
 }
 
 .btn-secondary,
-/*.btn-secondary:active, */
-/*.btn-secondary.active, */
 .btn-secondary:focus,
 .btn-check:checked+.btn-outline-secondary,
-/*.btn-outline-secondary:active,*/
 .btn-outline-secondary:focus {
     color: #6c757d !important;
     background-color: mintcream !important;
@@ -79,11 +65,8 @@ html * {
 }
 
 .btn-light,
-/*.btn-secondary:active, */
-/*.btn-secondary.active, */
 .btn-light:focus,
 .btn-check:checked+.btn-outline-light,
-/*.btn-outline-secondary:active,*/
 .btn-outline-light:focus {
     color: #3982c2 !important;
     background-color: mintcream !important;
@@ -104,7 +87,6 @@ html * {
     color: #e6e6e6 !important;
     background-color: #9facb8 !important;
     border-color: #9facb8 !important;
-    /*set the color you want here*/
 }
 
 .btn-light:hover,
@@ -113,7 +95,6 @@ html * {
     color: #3982c2 !important;
     background-color: rgb(211, 232, 255) !important;
     border-color: rgb(211, 232, 255) !important;
-    /*set the color you want here*/
 }
 
 /*@media(min-width: 1500px){
@@ -319,6 +300,6 @@ input[type="date"]>span.datetime-edit-field {
     display: none;
 }
 
-.form-feature-edit-input-select{
+.form-feature-edit-input-select {
     max-width: 400px;
 }

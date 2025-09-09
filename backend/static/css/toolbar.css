@@ -1,16 +1,14 @@
-#toolbar{
+#toolbar {
     background-color: moccasin;
     height: 100%;
-    /*vertical-align: middle;*/
     vertical-align: top;
 
     width: 3%;
-    /*min-width: 50px;*/
     position: relative;
     display: inline-block !important;
 }
 
-#toolbar > .btn-group-vertical{
+#toolbar>.btn-group-vertical {
     margin-top: 10px;
 }
 
@@ -38,25 +36,12 @@
     }
 }*/
 
-.btn-active{
-    background-color: #ffca2c!important;
-    border-color: #ffca2c!important;
+.btn-active {
+    background-color: #ffca2c !important;
+    border-color: #ffca2c !important;
 }
 
-.btn-active:hover{
-    background-color: #c79f28!important;
-    border-color: #c79f28!important;
+.btn-active:hover {
+    background-color: #c79f28 !important;
+    border-color: #c79f28 !important;
 }
-
-/*#toolbar > .sub-btn-group{
-    width: 58px;
-    position: absolute;
-    left: 58px;
-    z-index: 999;
-    background-color: moccasin;
-    padding: 10px 5px;
-}
-
-#toolbar > .sub-btn-group > .btn-group-vertical:not(:first-child){
-    margin-top: 10px;
-}*/

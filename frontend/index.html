@@ -14,7 +14,7 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/toolbar.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/layerbar.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/map-block.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive_button.css') }}">
+        <!--<link rel="stylesheet" href="{{ url_for('static', filename='css/responsive_button.css') }}">-->
         <link rel="stylesheet" href="{{ url_for('static', filename='css/modal-login.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/modal-with-menu.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/modal-add-layer.css') }}">
@@ -45,10 +45,10 @@
             {% include 'include/_header.html' %}
 
             <div id="app-content" class="app-content">
-                {% include 'include/_responsive_button.html' %}
-                {% include 'include/_toolbar.html' %}<!--Contournement white-space entre deux inline-block
-                -->{% include 'include/_layerbar.html' %}<!--Contournement white-space entre deux inline-block
-                -->{% include 'include/_map.html' %}
+                <!--{% include 'include/_responsive_button.html' %}-->
+                {% include 'include/_toolbar.html' %}
+                {% include 'include/_layerbar.html' %}
+                {% include 'include/_map.html' %}
             </div>            
         </div>
 
@@ -86,7 +86,7 @@
         <script src="{{ url_for('static', filename='lib/select-pure-0.6.3/dist/bundle.min.js') }}"></script>
         <!--<script type="text/javascript" src="{{ url_for('static', filename='lib/resizable/resizable.js') }}"></script>-->
         <script type="text/javascript" src="{{ url_for('static', filename='js/init.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/responsive.js') }}"></script>
+        <!--<script type="text/javascript" src="{{ url_for('static', filename='js/responsive.js') }}"></script>-->
         <script type="text/javascript" src="{{ url_for('static', filename='js/auth.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/add_layer.js') }}"></script>
         <!--<script type="module" src="{{ url_for('static', filename='js/add_layer.js') }}"></script>-->
