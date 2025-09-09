@@ -454,15 +454,15 @@ function isValidDate(dateString) {
  */
 var refreshGUI = function () {
     // par défaut on désactive tous les bouttons du toolbar
-    document.getElementById('btn-add-layer').classList.add('hide')
-    document.getElementById('btn-challenge-calculator').classList.add('hide')
-    document.getElementById('btn-pdf-generator').classList.add('hide')
-    document.getElementById('btn-measure').classList.add('hide')
-    document.getElementById('btn-project-create-open-modal').classList.add('hide')
-    document.getElementById('btn-project-update').classList.add('hide')
-    document.getElementById('btn-project-open').classList.add('hide')
+    document.getElementById('div-btn-add-layer').classList.add('hide')
+    document.getElementById('div-btn-challenge-calculator').classList.add('hide')
+    document.getElementById('div-btn-pdf-generator').classList.add('hide')
+    document.getElementById('div-btn-measure').classList.add('hide')
+    document.getElementById('div-btn-project-create-open-modal').classList.add('hide')
+    document.getElementById('div-btn-project-update').classList.add('hide')
+    document.getElementById('div-btn-project-open').classList.add('hide')
 
-    // par défaut on désactive tous les bouttons du toolbar
+    // par défaut on désactive tous les menu par type de couche
     document.getElementById('btn-add-ref-layer').classList.add('hide')
     document.getElementById('add-layer-menu').querySelector('label[for="btn-add-ref-layer"]').classList.add('hide')
 
@@ -478,7 +478,7 @@ var refreshGUI = function () {
     // On fonction des droits, on réactive l'accès au fonctionnalité
     if (role !== null) {
         if (['GET_REF_LAYER', 'GET_OBS_DATA', 'IMPORT', 'DRAW'].some(val => role.authorization_codes.includes(val))) {
-            document.getElementById('btn-add-layer').classList.remove('hide')
+            document.getElementById('div-btn-add-layer').classList.remove('hide')
 
             if (role.authorization_codes.includes('GET_REF_LAYER')) {
                 document.getElementById('btn-add-ref-layer').classList.remove('hide')
@@ -522,17 +522,17 @@ var refreshGUI = function () {
         }
 
         if (role.authorization_codes.includes('WARNING_CALCULATOR')) {
-            document.getElementById('btn-challenge-calculator').classList.remove('hide')
+            document.getElementById('div-btn-challenge-calculator').classList.remove('hide')
         }
 
         if (role.authorization_codes.includes('EXPORT_PDF')) {
-            document.getElementById('btn-pdf-generator').classList.remove('hide')
+            document.getElementById('div-btn-pdf-generator').classList.remove('hide')
         }
 
         if (role.authorization_codes.includes('PROJECT')) {
-            document.getElementById('btn-project-create-open-modal').classList.remove('hide')
-            document.getElementById('btn-project-update').classList.remove('hide')
-            document.getElementById('btn-project-open').classList.remove('hide')
+            document.getElementById('div-btn-project-create-open-modal').classList.remove('hide')
+            document.getElementById('div-btn-project-update').classList.remove('hide')
+            document.getElementById('div-btn-project-open').classList.remove('hide')
         }
 
         document.getElementById('btn-measure').classList.remove('hide')
