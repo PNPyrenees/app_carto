@@ -535,7 +535,7 @@ var refreshGUI = function () {
             document.getElementById('div-btn-project-open').classList.remove('hide')
         }
 
-        document.getElementById('btn-measure').classList.remove('hide')
+        document.getElementById('div-btn-measure').classList.remove('hide')
     }
 
 }
