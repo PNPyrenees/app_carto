@@ -280,17 +280,35 @@ var addMapToPDF = function (pdf, width, height, map_dim) {
                 }
                 const transform = canvas.style.transform
                 // Get the transform parameters from the style's transform matrix
-                const matrix = transform
+                /*const matrix = transform
                     .match(/^matrix\(([^\(]*)\)$/)[1]
                     .split(',')
-                    .map(Number);
+                    .map(Number);*/
+                const matrixMatch = transform.match(/^matrix\((.+)\)$/);
+                var matrix
+                if (matrixMatch) {
+                    matrix = matrixMatch[1].split(',').map(Number);
+                    if (matrix.length === 6 && matrix.every(n => !isNaN(n))) {
+                        mapContext.setTransform(...matrix);
+                    } else {
+                        console.warn('Transform matrix invalide :', matrix);
+                        mapContext.setTransform(1, 0, 0, 1, 0, 0); // identitaire
+                    }
+                } else {
+                    console.warn('Transform non reconnu :', transform);
+                    mapContext.setTransform(1, 0, 0, 1, 0, 0); // identitaire
+                }
                 // Apply the transform to the export map context
                 CanvasRenderingContext2D.prototype.setTransform.apply(
                     mapContext,
                     matrix
                 )
                 //mapContext.drawImage(canvas, 0, 0/*, dLargeur = 1535, dHauteur = 1261*/);
-                mapContext.drawImage(canvas, x = 0, y = 0, sx = width, sy = height/*, dLargeur = 1535, dHauteur = 1261*/);
+                //mapContext.drawImage(canvas, x = 0, y = 0, sx = width, sy = height/*, dLargeur = 1535, dHauteur = 1261*/);
+                //mapContext.drawImage(canvas, x = 0, y = 0)
+
+                //mapContext.setTransform(1, 0, 0, 1, 0, 0); // identitaire
+                mapContext.drawImage(canvas, 0, 0, canvas.width, canvas.height);
             }
         }
     );
