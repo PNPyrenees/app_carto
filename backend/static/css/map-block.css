@@ -19,6 +19,9 @@
     bottom: 0px;
     right: 0px;
     transition: width 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    transition: height 0.2s ease;
 }
 
 #attribute-data-container.layer-bar-shifted {
@@ -29,12 +32,23 @@
     height: 85%;
     border-top: 1px solid #000000;
     background-color: #888;
+    flex: 1;
+    overflow: auto;
 }
 
 #nav-attribute-table {
     bottom: 28%;
     background-color: rgba(255, 255, 255, 0);
-    height: 15%
+    height: 40px;
+    flex-shrink: 0;
+}
+
+#attribute-table-resizer {
+    height: 5px;
+    background: #999;
+    cursor: row-resize;
+    user-select: none;
+    flex-shrink: 0;
 }
 
 #nav-attribute-table>.nav-layer-item {

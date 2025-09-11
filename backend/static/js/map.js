@@ -3348,3 +3348,41 @@ document.getElementById("btn-measure-length").addEventListener("click", event =>
 })
 
 
+/**
+ * Gestion de resizer de la table attributaire
+ */
+const resizer = document.getElementById("attribute-table-resizer");
+const container = document.getElementById("attribute-data-container");
+
+let isResizing = false;
+let startY = 0;
+let startHeight = 0;
+
+resizer.addEventListener("mousedown", function (e) {
+    isResizing = true;
+    startY = e.clientY;
+    startHeight = container.offsetHeight;
+    document.body.style.cursor = "row-resize";
+    document.body.style.userSelect = "none";
+});
+
+document.addEventListener("mousemove", function (e) {
+    if (!isResizing) return;
+
+    const dy = startY - e.clientY;
+    let newHeight = startHeight + dy;
+
+    const minHeight = 100; // px minimum
+    const maxHeight = window.innerHeight * 0.9; // ou autre limite
+
+    if (newHeight < minHeight) newHeight = minHeight;
+    if (newHeight > maxHeight) newHeight = maxHeight;
+
+    container.style.height = `${newHeight}px`;
+});
+
+document.addEventListener("mouseup", function () {
+    isResizing = false;
+    document.body.style.cursor = "";
+    document.body.style.userSelect = "";
+});
