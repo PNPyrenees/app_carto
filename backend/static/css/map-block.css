@@ -11,10 +11,18 @@
     vertical-align: top;
 }
 
+.ol-scale-line {
+    transition: bottom 0.2s ease;
+}
+
+.ol-attribution {
+    transition: bottom 0.2s ease;
+}
+
 #attribute-data-container {
     position: absolute;
     z-index: 99;
-    height: 30%;
+    height: 280px;
     width: 85%;
     bottom: 0px;
     right: 0px;

@@ -1544,8 +1544,10 @@ getFullDataTable = async function (layer_uid) {
             await createAttributeTable(layer_name, layer_uid, data)
 
             document.getElementById("attribute-data-container").classList.remove("hide")
-            document.getElementsByClassName("ol-scale-line")[0].style.bottom = "33%"
-            document.getElementsByClassName("ol-attribution")[0].style.bottom = "33%"
+            //document.getElementsByClassName("ol-scale-line")[0].style.bottom = "33%"
+            //document.getElementsByClassName("ol-attribution")[0].style.bottom = "33%"
+            document.getElementsByClassName("ol-scale-line")[0].style.bottom = "288px"
+            document.getElementsByClassName("ol-attribution")[0].style.bottom = "288px"
         }
     })
 
@@ -3354,12 +3356,12 @@ document.getElementById("btn-measure-length").addEventListener("click", event =>
 const resizer = document.getElementById("attribute-table-resizer");
 const container = document.getElementById("attribute-data-container");
 
-let isResizing = false;
+let isDataTableResizing = false;
 let startY = 0;
 let startHeight = 0;
 
 resizer.addEventListener("mousedown", function (e) {
-    isResizing = true;
+    isDataTableResizing = true;
     startY = e.clientY;
     startHeight = container.offsetHeight;
     document.body.style.cursor = "row-resize";
@@ -3367,22 +3369,46 @@ resizer.addEventListener("mousedown", function (e) {
 });
 
 document.addEventListener("mousemove", function (e) {
-    if (!isResizing) return;
+    if (!isDataTableResizing) return;
 
     const dy = startY - e.clientY;
     let newHeight = startHeight + dy;
 
     const minHeight = 100; // px minimum
-    const maxHeight = window.innerHeight * 0.9; // ou autre limite
+    const maxHeight = window.innerHeight * 0.75; // ou autre limite
 
     if (newHeight < minHeight) newHeight = minHeight;
     if (newHeight > maxHeight) newHeight = maxHeight;
 
     container.style.height = `${newHeight}px`;
+    updateScaleLinePosition()
+
+    const olScaleLine = document.getElementsByClassName("ol-scale-line")[0]
+    const olAttribution = document.getElementsByClassName("ol-attribution")[0]
+    scaleLineAndAttributionBottom = newHeight + 8
+    olScaleLine.style.bottom = `${scaleLineAndAttributionBottom}px`
+    olAttribution.style.bottom = `${scaleLineAndAttributionBottom}px`
 });
 
 document.addEventListener("mouseup", function () {
-    isResizing = false;
+    isDataTableResizing = false;
     document.body.style.cursor = "";
     document.body.style.userSelect = "";
 });
+
+function updateScaleLinePosition() {
+    const scaleLineEl = document.querySelector('.custom-scale-line');
+
+    if (scaleLineEl && resizer) {
+        // Récupère les coordonnées du resizer
+        const resizerRect = resizer.getBoundingClientRect();
+        const mapRect = map.getTargetElement().getBoundingClientRect();
+
+        // Calcule la position relative à la carte
+        const bottomOffset = mapRect.bottom - resizerRect.top + 8; // 8px au-dessus du resizer
+
+        // Applique la position
+        scaleLineEl.style.bottom = `${bottomOffset}px`;
+        scaleLineEl.style.right = `10px`; // à droite, tu peux ajuster
+    }
+}
