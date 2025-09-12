@@ -1667,6 +1667,9 @@ createAttributeTable = function (layer_name, layer_uid, data) {
     tab_element.setAttribute("layer-uid", layer_uid)
     document.getElementById("data-block").append(tab_element)
 
+    // On s'assure que l'infobulle ne soit pas devant
+    blocClickedFeaturesAttributes.style.zIndex = 98
+
 
     //Création du tableau
     table = new Tabulator("#" + tab_id, {
@@ -3353,23 +3356,26 @@ document.getElementById("btn-measure-length").addEventListener("click", event =>
 /**
  * Gestion de resizer de la table attributaire
  */
-const resizer = document.getElementById("attribute-table-resizer");
-const container = document.getElementById("attribute-data-container");
+const attributeTableResizer = document.getElementById("attribute-table-resizer");
+const attributeDataContainer = document.getElementById("attribute-data-container");
 
-let isDataTableResizing = false;
+let isAttributeTableResizing = false;
 let startY = 0;
 let startHeight = 0;
 
-resizer.addEventListener("mousedown", function (e) {
-    isDataTableResizing = true;
+attributeTableResizer.addEventListener("mousedown", function (e) {
+    isAttributeTableResizing = true;
     startY = e.clientY;
-    startHeight = container.offsetHeight;
+    startHeight = attributeDataContainer.offsetHeight;
     document.body.style.cursor = "row-resize";
     document.body.style.userSelect = "none";
+
+    // On s'assure de basculer l'infobulle derrière la table attributaire
+    blocClickedFeaturesAttributes.style.zIndex = 98
 });
 
 document.addEventListener("mousemove", function (e) {
-    if (!isDataTableResizing) return;
+    if (!isAttributeTableResizing) return;
 
     const dy = startY - e.clientY;
     let newHeight = startHeight + dy;
@@ -3380,7 +3386,7 @@ document.addEventListener("mousemove", function (e) {
     if (newHeight < minHeight) newHeight = minHeight;
     if (newHeight > maxHeight) newHeight = maxHeight;
 
-    container.style.height = `${newHeight}px`;
+    attributeDataContainer.style.height = `${newHeight}px`;
     updateScaleLinePosition()
 
     const olScaleLine = document.getElementsByClassName("ol-scale-line")[0]
@@ -3391,7 +3397,7 @@ document.addEventListener("mousemove", function (e) {
 });
 
 document.addEventListener("mouseup", function () {
-    isDataTableResizing = false;
+    isAttributeTableResizing = false;
     document.body.style.cursor = "";
     document.body.style.userSelect = "";
 });
@@ -3399,9 +3405,9 @@ document.addEventListener("mouseup", function () {
 function updateScaleLinePosition() {
     const scaleLineEl = document.querySelector('.custom-scale-line');
 
-    if (scaleLineEl && resizer) {
+    if (scaleLineEl && attributeTableResizer) {
         // Récupère les coordonnées du resizer
-        const resizerRect = resizer.getBoundingClientRect();
+        const resizerRect = attributeTableResizer.getBoundingClientRect();
         const mapRect = map.getTargetElement().getBoundingClientRect();
 
         // Calcule la position relative à la carte
@@ -3412,3 +3418,78 @@ function updateScaleLinePosition() {
         scaleLineEl.style.right = `10px`; // à droite, tu peux ajuster
     }
 }
+
+// On passe le "bloc-clicked-features-attributes" en dessous de la table attributaire si on clic sur cette table
+attributeDataContainer.addEventListener('click', function () {
+    blocClickedFeaturesAttributes.style.zIndex = 98
+})
+
+/**
+ * Gestion du redimmensionement de l'infobulle s'affichant après avoir cliqué sur
+ * un élément de la carte
+ */
+const blocClickedFeaturesAttributes = document.getElementById('bloc-clicked-features-attributes')
+const blocClickedFeaturesAttributesContent = document.getElementById('bloc-clicked-features-attributes-content')
+const closeBlocClickedFeaturesAttributes = document.getElementById('close-bloc-clicked-features-attributes')
+const blocClickedFeaturesAttributesResizer = document.getElementById('bloc-clicked-features-attributes-resizer')
+
+
+var blocClickedFeaturesAttributesMaxWidth = 83
+var blocClickedFeaturesAttributesMaxHeight = 75
+var blocClickedFeaturesAttributesMinWidth = 20
+var blocClickedFeaturesAttributesMinHeight = 21
+
+let isBlocClickedFeaturesAttributesResizing = false;
+
+blocClickedFeaturesAttributesResizer.addEventListener('mousedown', function (e) {
+    e.preventDefault();
+    isBlocClickedFeaturesAttributesResizing = true;
+    document.body.style.cursor = 'nesw-resize';
+    document.addEventListener('mousemove', blocClickedFeaturesAttributesResize);
+    document.addEventListener('mouseup', blocClickedFeaturesAttributesStopResize);
+
+    blocClickedFeaturesAttributes.style.zIndex = 100
+});
+
+function blocClickedFeaturesAttributesResize(e) {
+    if (!isBlocClickedFeaturesAttributesResizing) return;
+
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    var tmp_newWidth = blocClickedFeaturesAttributes.offsetLeft + blocClickedFeaturesAttributes.offsetWidth - e.clientX;
+    newWidth = (tmp_newWidth / viewportWidth) * 100
+    var tmp_newHeight = e.clientY - blocClickedFeaturesAttributes.getBoundingClientRect().top;
+    newHeight = (tmp_newHeight / viewportHeight) * 100
+
+    //Calcul dynamique de la hauteur du bloc de donnée atteibutaire compplet (bloc-clicked-features-attributes)
+    if (newHeight < blocClickedFeaturesAttributesMinHeight) newHeight = blocClickedFeaturesAttributesMinHeight;
+    if (newHeight > blocClickedFeaturesAttributesMaxHeight) newHeight = blocClickedFeaturesAttributesMaxHeight;
+    if (newWidth < blocClickedFeaturesAttributesMinWidth) newWidth = blocClickedFeaturesAttributesMinWidth;
+    if (newWidth > blocClickedFeaturesAttributesMaxWidth) newWidth = blocClickedFeaturesAttributesMaxWidth;
+
+    // Calcul dynamique de la hauteur du bloc contenant les données attributaires (bloc-clicked-features-attributes-content)
+    minHeigthInPixel = blocClickedFeaturesAttributesMinHeight / 100 * viewportHeight
+    minHeightForContentBloc = ((minHeigthInPixel - closeBlocClickedFeaturesAttributes.offsetHeight - blocClickedFeaturesAttributesResizer.offsetHeight) / minHeigthInPixel) * 100
+
+    blocClickedFeaturesAttributesCurrentSizeInPixel = newHeight / 100 * viewportHeight
+    var newHeightForContentBloc = ((blocClickedFeaturesAttributesCurrentSizeInPixel - closeBlocClickedFeaturesAttributes.offsetHeight - blocClickedFeaturesAttributesResizer.offsetHeight) / blocClickedFeaturesAttributesCurrentSizeInPixel) * 100
+    if (newHeightForContentBloc < minHeightForContentBloc) newHeightForContentBloc = minHeightForContentBloc
+
+    // Application des dimenssions
+    blocClickedFeaturesAttributes.style.width = `${newWidth}%`;
+    blocClickedFeaturesAttributes.style.height = `${newHeight}%`;
+    blocClickedFeaturesAttributesContent.style.height = `${newHeightForContentBloc}%`;
+}
+
+function blocClickedFeaturesAttributesStopResize() {
+    isBlocClickedFeaturesAttributesResizing = false;
+    document.body.style.cursor = '';
+    document.removeEventListener('mousemove', blocClickedFeaturesAttributesResize);
+    document.removeEventListener('mouseup', blocClickedFeaturesAttributesStopResize);
+}
+
+// On passe le "bloc-clicked-features-attributes" au dessus de tout le reste si on clique dessus
+blocClickedFeaturesAttributes.addEventListener('click', function () {
+    blocClickedFeaturesAttributes.style.zIndex = 100
+})

@@ -375,7 +375,9 @@ var zoomToLayerExtent = function (layer_uid) {
     })
 }
 
-
+/**
+ * Gestion de l'affichage ou non du layerbar
+ */
 document.addEventListener('DOMContentLoaded', function () {
     const toggleBtn = document.getElementById('toggle-layerbar');
     const layerbar = document.getElementById('layerbar');
@@ -395,8 +397,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (isCollapsed) {
             mapBrowser.style.width = "calc(100% - 3%)"; // Ajuste à la taille sans layerbar
+            blocClickedFeaturesAttributesMaxWidth = 95 // Ajustement de la largeur max du bloc affichant les données d'un objet cliqué
         } else {
             mapBrowser.style.width = "calc(100% - 15%)"; // Ajuste avec layerbar
+            blocClickedFeaturesAttributesMaxWidth = 83 // Ajustement de la largeur max du bloc affichant les données d'un objet cliqué
+            // On force le redimensionnement si la largeur du bloc est supérieur à 83%
+            if (blocClickedFeaturesAttributes.offsetWidth / window.innerWidth * 100 > 83) {
+                blocClickedFeaturesAttributes.style.width = '83%'
+            }
         }
 
         // Forcer un "updateSize" de la carte pour qu'elle s'adapte
