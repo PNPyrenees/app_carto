@@ -82,7 +82,7 @@ VALUES
 -- "données brutes" avec l'id 999 en espérant que l'admin n'ajoute psa
 -- 993 type de restitution... 
 INSERT INTO app_carto.bib_mesh_scale (
-    mash_scale_id,
+    mesh_scale_id,
     mesh_scale_label,
     active
 )
@@ -338,7 +338,7 @@ VALUES
 	('WARNING_CALCULATOR', 'Utiliser la calculette des enjeux', 'Autorise l''utilisateur à exploiter la calulette des enjeux. La calculette des enjeux retournera toutes les couches sur lesquelles elle se base (couche de référence et d''observation) même si l''utilisateur n''est pas autoriser à consulter ce type de données.'),
 	('EXPORT_PDF', 'Exporter des cartes au format PDF', 'Autorise l''utilisateur à faire des exports en PDF.'),
 	('EDIT_REF_LAYER', 'Modifier des couches de données', 'Autorise l''utilisateur à apporter des modifications aux couches de données éditables. Il est possible de restreindre l''édition qu''à certaines couches spécifiques au niveau de l''attribution du droit à un groupe.'),
-	('PROJECT', 'Autorise l''utilisateur à créer des projets, à les consulter et à les modifier'
+	('PROJECT', 'Création et modification de projet ', 'Autorise l''utilisateur à créer des projets, à les consulter et à les modifier')
 ;
 
 /* Création de la table de définition des groupes */
