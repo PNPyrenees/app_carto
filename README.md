@@ -63,6 +63,7 @@ L'administrateur de l'application a quant à lui la possibilité :
   - définir la liste des champs devant être accessible
   - définir si c'est une couche à enjeux
 - de définir les classes (seuil et couleur) associées aux données d'observations
+- Créer des groupe utilisateur et y associer des autorisations d'accès aux fonctionnalités ou aux données
 
 ### Base de données
 AppCarto s'appuie donc sur deux bases de données:
@@ -71,7 +72,7 @@ AppCarto s'appuie donc sur deux bases de données:
 
 #### Représentation de la base de données applicative (*bdd_app*)
 
-![MLD_V0 2](https://github.com/user-attachments/assets/e6affac4-38eb-45f1-ba35-83005573e7cf)
+![MLD_V0 2](https://github.com/user-attachments/assets/74839e43-183b-49c3-9125-6c53c826a0bb)
 
 Les tables grisées sont une projection dans le cadre des développements à venir. Elles seront certainement amenées à évoluer.
 
