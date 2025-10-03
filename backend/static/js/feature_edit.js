@@ -113,6 +113,17 @@ var writeFeatureProperties = function () {
                             }
                         } else if (propertie_type == "select") {
                             propertie_value = document.getElementById("feature-form-" + propertie_name).querySelector("select").value
+                        } else if (propertie_type == "select-multiple") {
+
+                            selectElement = document.getElementById("feature-form-" + propertie_name).querySelector("select")
+
+                            selectedValues = Array.from(selectElement.selectedOptions).map(option => option.value)
+
+                            propertie_value = null
+                            if (selectedValues.length > 0) {
+                                //propertie_value = JSON.stringify(selectedValues)
+                                propertie_value = selectedValues
+                            }
                         } else {
                             propertie_value = document.getElementById("feature-form-" + propertie_name).value
 
@@ -273,6 +284,12 @@ var populateFormFromFeature = function (feature) {
                 }
             } else if (propertie_type == 'select') {
                 document.getElementById("feature-form-" + propertie_name).querySelector("select").value = properties[propertie_name]
+            } else if (propertie_type == 'select-multiple') {
+                select = document.getElementById("feature-form-" + propertie_name).querySelector("select")
+
+                for (const option of select.options) {
+                    option.selected = properties[propertie_name].includes(option.value)
+                }
             } else if (propertie_type == 'media') {
 
                 // Controle de l'existance d'une valeur

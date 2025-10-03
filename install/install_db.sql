@@ -430,3 +430,38 @@ SELECT COALESCE(
   '{}'
 )::json
 $function$;
+
+/* Fonction permettant de controler que les toutes les valeurs d'un arrray de varchar son valide par rapport à une liste fermé de valeur */
+CREATE OR REPLACE FUNCTION varchar_array_value_validator(input_values varchar[], allowed_values varchar[], can_be_null boolean)
+RETURNS boolean AS $$
+DECLARE
+    input_value varchar;
+BEGIN
+    /* Fonction permettant de controler que les toutes les valeurs d'un arrray de varchar son valide par rapport à une liste fermé de valeur */
+    /* input_value      -   correspond à la liste de valeur voulant entrer dans la table */
+    /* allowed_value    -   est le tableau des valeurs autorisés */
+    /* can_be_null      -   indique si l'input_value est autorisé à être null ou vide (la valeur '{}' n'étant pas vu comme NULL la condition NOT NULL sur le champ n'est pas suffisante) */
+    /* Pour l'ajouter comme contrainte sur une table :
+        ALTER TABLE <schemaName>.<tableName> ADD CONSTRAINT
+        <nomChamp>_check CHECK (
+            varchar_array_value_validator(<nomChamp>, '{valeur, valeur2, null}'::varchar[], TRUE) -- Adapter la liste des valeurs autorisées et l'autorisation de valeur null
+        );
+    */
+	IF (input_values IS NULL OR input_values = '{}') AND can_be_null = TRUE THEN
+        RETURN TRUE;
+    END IF;
+
+	IF (input_values IS NULL OR input_values = '{}') AND can_be_null = FALSE THEN
+        RETURN FALSE;
+    END IF;
+
+    FOREACH input_value IN ARRAY input_values
+    LOOP
+        IF NOT input_value = ANY (allowed_values) THEN
+            RETURN FALSE;
+        END IF;
+    END LOOP;
+
+    RETURN TRUE;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;

@@ -247,7 +247,7 @@ def login():
     resp.set_cookie("username", username, expires=role.role_token_expiration, path="/", samesite='None', secure=True)
     resp.set_cookie("expiration", str(role.role_token_expiration), expires=role.role_token_expiration, path="/", samesite='None', secure=True)
 
-    logger.debug(role.authorization_codes)
+    #logger.debug(role.authorization_codes)
     return resp
 
 @app.route('/api/auth/logout', methods=['PATCH'])
@@ -1878,6 +1878,7 @@ def get_column_definition(layer_schema):
                 WHEN c.data_type in ('smallint', 'integer', 'bigint') THEN 'integer'
                 WHEN c.data_type in ('decimal', 'numeric', 'real', 'double precision') THEN 'float'
                 WHEN c.data_type in ('character varying', 'varchar') THEN 'varchar'
+				WHEN c.data_type = 'ARRAY' AND c.udt_name = '_varchar' THEN 'varchar[]'
                 ELSE c.data_type
             END AS data_type,
             c.character_maximum_length,
@@ -1885,13 +1886,35 @@ def get_column_definition(layer_schema):
             ccu.constraint_name,
             tc.constraint_type,
 			CASE 
-                WHEN cc.check_clause not like '%ANY%' THEN
+                WHEN cc.check_clause not like '%ANY%' and c.data_type != 'ARRAY' THEN
                     cc.check_clause
                 ELSE NULL
-            END AS constraint,
+            END AS constraint,            
             CASE 
+				/* cas d'une clause CHECK avec une liste de valeur */
                 WHEN cc.check_clause like '%ANY%' THEN
                     to_json((eval('select' || left(split_part(cc.check_clause, ' ANY ', 2), -2)))::varchar[])
+				/* Cas des varchar[] avec contrôle des valeurs */
+				WHEN c.data_type = 'ARRAY' AND c.udt_name = '_varchar' THEN
+					to_json(
+                        string_to_array(
+                            regexp_replace(
+                                regexp_replace(
+                                    substring(
+                                        cc.check_clause
+                                        FROM '\(ARRAY\[(.*?)\]\)::'
+                                    ),
+                                    '''::[a-z ]+',
+                                    '',
+                                    'g'
+                                ),
+                                '''',
+                                '',
+                                'g'
+                            ),
+                            ', '
+                        )
+                    )
                 ELSE NULL
             END AS l_values,
             c.column_default AS default_value
@@ -1928,8 +1951,7 @@ def get_column_definition(layer_schema):
 
     try :
         with db_sig.connect() as conn:
-            columns = conn.execute(statement, params).fetchall()
-               
+            columns = conn.execute(statement, params).fetchall()               
         return columns
     except Exception as error:
         return jsonify({
@@ -2030,6 +2052,8 @@ def add_features_for_layer(layer_id):
             if column.data_type.startswith("geometry"):
                 srid = column.data_type.split(",")[1].replace(")","")
                 value = "ST_Transform(ST_GeomFromText('" + value + "', 3857), " + srid + ")"
+            if column.data_type in ['varchar[]']:
+                value = '\'{' + ','.join(value) + '}\''
             if column.data_type in ['media']:
 
                 dest_dir = os.path.join(app.config['UPLOAD_FOLDER'],layer_schema["layer_schema_name"], layer_schema["layer_table_name"])
@@ -2226,6 +2250,8 @@ def update_features_for_layer(layer_id):
                 if column.data_type.startswith("geometry"):
                     srid = column.data_type.split(",")[1].replace(")","")
                     value = "ST_Transform(ST_GeomFromText('" + value + "', 3857), " + srid + ")"
+                if column.data_type in ['varchar[]']:
+                    value = '\'{' + ','.join(value) + '}\''
                 if column.data_type in ['media']:
 
                     dest_dir = os.path.join(app.config['UPLOAD_FOLDER'],layer_schema["layer_schema_name"], layer_schema["layer_table_name"])

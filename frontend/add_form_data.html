@@ -178,20 +178,39 @@
 
                 {# SELECT #}
                 {% if formObject.l_values != None %}
+                    {% if formObject.data_type == 'varchar[]' %}
                     <div id="feature-form-{{formObject.column_name}}" 
                         column_name="{{formObject.column_name}}" 
                         class="form-control form-control-lg" 
-                        propertie_type="select" 
+                        propertie_type="select-multiple" 
                         constraint="{% if formObject.constraint is not none %}{{formObject.constraint}}{% endif %}"
                         is_nullable="{% if formObject.is_nullable == 'YES' %}true{% else %}false{% endif %}"
                     >
-                        <select class="form-feature-edit-input-select">
-                            <option></option>
+                        <select class="form-feature-edit-input-select" multiple>
+                            {% if formObject.is_nullable == 'YES' %}<option></option>{% endif %}
                             {% for option in formObject.l_values %}
                                 <option value="{{option}}">{{option}}</option>
                             {% endfor %}
                         </select>
+
+                        <p class="text-warning h6">Pour sélectionner plusieurs éléments dans la liste, maintenez la touche Ctrl enfoncée tout en cliquant sur les options souhaitées.</p>
                     </div>
+                    {% else %}                    
+                        <div id="feature-form-{{formObject.column_name}}" 
+                            column_name="{{formObject.column_name}}" 
+                            class="form-control form-control-lg" 
+                            propertie_type="select" 
+                            constraint="{% if formObject.constraint is not none %}{{formObject.constraint}}{% endif %}"
+                            is_nullable="{% if formObject.is_nullable == 'YES' %}true{% else %}false{% endif %}"
+                        >
+                            <select class="form-feature-edit-input-select">
+                                <option></option>
+                                {% for option in formObject.l_values %}
+                                    <option value="{{option}}">{{option}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endif %}
                 {% endif %}
 
                 {# Fichier #}

@@ -302,4 +302,5 @@ input[type="date"]>span.datetime-edit-field {
 
 .form-feature-edit-input-select {
     max-width: 400px;
+    min-width: 200px;
 }
