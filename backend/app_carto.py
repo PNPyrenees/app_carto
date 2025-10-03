@@ -1902,7 +1902,7 @@ def get_column_definition(layer_schema):
                                 regexp_replace(
                                     substring(
                                         cc.check_clause
-                                        FROM '\(ARRAY\[(.*?)\]\)::'
+                                        FROM 'ARRAY\[(.*?)\]'
                                     ),
                                     '''::[a-z ]+',
                                     '',
