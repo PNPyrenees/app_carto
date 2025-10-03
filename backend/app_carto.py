@@ -1887,7 +1887,7 @@ def get_column_definition(layer_schema):
             tc.constraint_type,
 			CASE 
                 WHEN cc.check_clause not like '%ANY%' and c.data_type != 'ARRAY' THEN
-                    cc.check_clause
+                    replace(cc.check_clause, '::' || c.data_type, '')
                 ELSE NULL
             END AS constraint,            
             CASE 
@@ -1917,7 +1917,11 @@ def get_column_definition(layer_schema):
                     )
                 ELSE NULL
             END AS l_values,
-            c.column_default AS default_value
+            CASE 
+                WHEN c.data_type in ('character varying', 'varchar') 
+					THEN substr(replace(c.column_default, '::' || c.data_type, ''), 2, length(replace(c.column_default, '::' || c.data_type, '')) - 2)
+                ELSE replace(c.column_default, '::' || c.data_type, '') 
+            END AS default_value
         FROM
             information_schema.columns c 	
             LEFT JOIN information_schema.constraint_column_usage ccu ON 
