@@ -154,7 +154,7 @@ var writeFeatureProperties = function () {
 
                                     if ((propertie_value != 0 && !propertie_value) || !Number.isInteger(propertie_value)) {
                                         if (feature_form_error[propertie_name]) {
-                                            feature_form_error[propertie_name] += "La valeur renseignée n'est pas un nombre entier"
+                                            feature_form_error[propertie_name] += "<br>La valeur renseignée n'est pas un nombre entier"
                                         } else {
                                             feature_form_error[propertie_name] = "La valeur renseignée n'est pas un nombre entier"
                                         }
@@ -167,7 +167,7 @@ var writeFeatureProperties = function () {
 
                                     if (!propertie_value) {
                                         if (feature_form_error[propertie_name]) {
-                                            feature_form_error[propertie_name] += "La valeur renseignée n'est pas un nombre"
+                                            feature_form_error[propertie_name] += "<br>La valeur renseignée n'est pas un nombre"
                                         } else {
                                             feature_form_error[propertie_name] = "La valeur renseignée n'est pas un nombre"
                                         }
@@ -183,7 +183,7 @@ var writeFeatureProperties = function () {
                                 case "boolean":
                                     if (propertie_value != true && propertie_value != false) {
                                         if (feature_form_error[propertie_name]) {
-                                            feature_form_error[propertie_name] += "La valeur renseignée n'est pas un booléen"
+                                            feature_form_error[propertie_name] += "<br>La valeur renseignée n'est pas un booléen"
                                         } else {
                                             feature_form_error[propertie_name] = "La valeur renseignée n'est pas un booléen"
                                         }
@@ -193,7 +193,7 @@ var writeFeatureProperties = function () {
                                 case "date":
                                     if (!isValidDate(propertie_value)) {
                                         if (feature_form_error[propertie_name]) {
-                                            feature_form_error[propertie_name] += "La valeur renseignée n'est pas une date"
+                                            feature_form_error[propertie_name] += "<br>La valeur renseignée n'est pas une date"
                                         } else {
                                             feature_form_error[propertie_name] = "La valeur renseignée n'est pas une date"
                                         }
@@ -204,7 +204,7 @@ var writeFeatureProperties = function () {
                                     var uuid_regexp = new RegExp(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
                                     if (uuid_regexp.test(propertie_value) == false) {
                                         if (feature_form_error[propertie_name]) {
-                                            feature_form_error[propertie_name] += "La valeur renseignée n'est pas un UUID"
+                                            feature_form_error[propertie_name] += "<br>La valeur renseignée n'est pas un UUID"
                                         } else {
                                             feature_form_error[propertie_name] = "La valeur renseignée n'est pas un UUID"
                                         }
@@ -227,7 +227,7 @@ var writeFeatureProperties = function () {
 
                             if (!eval(tmp_constraint)) {
                                 if (feature_form_error[propertie_name]) {
-                                    feature_form_error[propertie_name] += "contrainte non respecté : " + constraint
+                                    feature_form_error[propertie_name] += "<br>contrainte non respecté : " + constraint
                                 } else {
                                     feature_form_error[propertie_name] = "contrainte non respecté : " + constraint
                                 }
