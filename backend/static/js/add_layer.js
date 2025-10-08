@@ -1026,7 +1026,7 @@ importedLayerFilterInput.addEventListener('keyup', event => {
     var searchValue = normalizeText(importedLayerFilterInput.value)
 
     if (searchValue == '') {
-        buildLayerListAccordion(imported_layer_list)
+        buildImportedLayerList(imported_layer_list)
     } else {
         const filtered_imported_layer = imported_layer_list.filter(item =>
             normalizeText(item.imported_layer_name).includes(searchValue)

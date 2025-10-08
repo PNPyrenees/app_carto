@@ -317,7 +317,7 @@ updateProjectInDatabase = function (postdata) {
  * Traitement de l'action du clique sur le bouton permettant l'affichage des projets
  */
 document.getElementById("select-project-modal").addEventListener('show.bs.modal', function () {
-    buildMyprojectList()
+    openMyprojectList()
 })
 
 /**
@@ -349,8 +349,37 @@ var getMyProjectList = function () {
 /**
  * Mise en forme de la liste des projets de l'utilisateur courrant 
  */
-var buildMyprojectList = function () {
+var myProjectList = ''
+var openMyprojectList = function () {
 
+    projectListFilterInput.value = ''
+    // Récupération de la liste des projets et mide en forme
+    getMyProjectList().then(myProjectListJson => {
+
+        myProjectList = myProjectListJson
+        buildMyProjectList(myProjectList)
+    })
+}
+
+/**
+ * Filtre sur la liste des projets
+ */
+var projectListFilterInput = document.getElementById("project-list-filter-input")
+projectListFilterInput.addEventListener('keyup', event => {
+    var searchValue = normalizeText(projectListFilterInput.value)
+
+    if (searchValue == '') {
+        buildMyProjectList(myProjectList)
+    } else {
+        const filtered_projet = myProjectList.filter(item =>
+            normalizeText(item.project_name).includes(searchValue)
+        )
+
+        buildMyProjectList(filtered_projet)
+    }
+})
+
+var buildMyProjectList = function (projectList) {
     // On affiche le spinner
     document.getElementById("modal-my-projects-list-spinner").classList.remove("hide")
 
@@ -358,148 +387,144 @@ var buildMyprojectList = function () {
     var my_project_list = document.getElementById("my-projects-list")
     my_project_list.innerHTML = ''
 
-    // Récupération de la liste des projets et mide en forme
-    getMyProjectList().then(myProjectListJson => {
+    if (projectList.length != 0) {
 
-        if (myProjectListJson.length != 0) {
+        document.getElementById("my-project-submit").disabled = false
 
-            document.getElementById("my-project-submit").disabled = false
+        /* Mise en forme de la liste des couches importées */
+        projectList.forEach(project => {
 
-            /* Mise en forme de la liste des couches importées */
-            myProjectListJson.forEach(project => {
+            var li = document.createElement('li');
+            li.setAttribute('class', 'modal-my-project-item');
+            li.setAttribute('project-id', project.project_id);
 
-                var li = document.createElement('li');
-                li.setAttribute('class', 'modal-my-project-item');
-                li.setAttribute('project-id', project.project_id);
+            var row = document.createElement('div');
+            row.classList.add("row")
 
-                var row = document.createElement('div');
-                row.classList.add("row")
+            var col1 = document.createElement('div');
+            col1.classList.add("col-9")
 
-                var col1 = document.createElement('div');
-                col1.classList.add("col-9")
+            // Gestion du nom de la couche
+            var div_my_project_name = document.createElement('div');
+            div_my_project_name.innerHTML = project.project_name
+            col1.appendChild(div_my_project_name)
 
-                // Gestion du nom de la couche
-                var div_my_project_name = document.createElement('div');
-                div_my_project_name.innerHTML = project.project_name
-                col1.appendChild(div_my_project_name)
+            // Gestion des date (import / dernier accès)
+            var div_my_project_date = document.createElement('div');
+            div_my_project_date.classList.add("my-project-date")
 
-                // Gestion des date (import / dernier accès)
-                var div_my_project_date = document.createElement('div');
-                div_my_project_date.classList.add("my-project-date")
+            var creation_date = new Date(project.project_creation_date)
+            var last_modif = new Date(project.project_update_date)
 
-                var creation_date = new Date(project.project_creation_date)
-                var last_modif = new Date(project.project_update_date)
+            div_my_project_date.innerHTML = "Date de création : " + creation_date.toLocaleString('fr-FR') + " | " + "Dernière modification : " + last_modif.toLocaleString('fr-FR')
+            col1.appendChild(div_my_project_date)
 
-                div_my_project_date.innerHTML = "Date de création : " + creation_date.toLocaleString('fr-FR') + " | " + "Dernière modification : " + last_modif.toLocaleString('fr-FR')
-                col1.appendChild(div_my_project_date)
+            // Création de l'élément de suppression d'une couche importée
+            col2 = document.createElement('div');
+            col2.classList.add("text-end")
 
-                // Création de l'élément de suppression d'une couche importée
-                col2 = document.createElement('div');
-                col2.classList.add("text-end")
+            var i = document.createElement('i');
+            i.classList.add("bi")
+            i.classList.add("bi-trash-fill")
+            i.classList.add("delete-my-project")
+            i.setAttribute("title", "Supprimer le projet")
 
-                var i = document.createElement('i');
-                i.classList.add("bi")
-                i.classList.add("bi-trash-fill")
-                i.classList.add("delete-my-project")
-                i.setAttribute("title", "Supprimer le projet")
+            i.addEventListener('click', (event) => {
+                event.currentTarget.closest("li").querySelector(".confirm-delete-my-project-div").classList.remove("hide")
+                event.currentTarget.classList.add("hide")
+            })
 
-                i.addEventListener('click', (event) => {
-                    event.currentTarget.closest("li").querySelector(".confirm-delete-my-project-div").classList.remove("hide")
-                    event.currentTarget.classList.add("hide")
-                })
+            // Gestion de la confirmation de suppression
+            var div_confirm_delete = document.createElement('div');
+            div_confirm_delete.classList.add("hide", "div-confirm-delete-my-project", "confirm-delete-my-project-div")
+            div_confirm_delete.innerHTML = "Etes-vous sûr ?"
 
-                // Gestion de la confirmation de suppression
-                var div_confirm_delete = document.createElement('div');
-                div_confirm_delete.classList.add("hide", "div-confirm-delete-my-project", "confirm-delete-my-project-div")
-                div_confirm_delete.innerHTML = "Etes-vous sûr ?"
+            var div_btn = document.createElement('div');
+            // Boutton de confirmation de suppression
+            var btn_confirm_delete = document.createElement('button');
+            btn_confirm_delete.innerHTML = 'Oui'
+            btn_confirm_delete.classList.add("btn", "btn-danger", "me-1", "btn-confirm-delete-my-project")
 
-                var div_btn = document.createElement('div');
-                // Boutton de confirmation de suppression
-                var btn_confirm_delete = document.createElement('button');
-                btn_confirm_delete.innerHTML = 'Oui'
-                btn_confirm_delete.classList.add("btn", "btn-danger", "me-1", "btn-confirm-delete-my-project")
+            // Spinner indiquant la suppression en cours
+            var div_spinner = document.createElement('div')
+            div_spinner.classList.add("spinner-grow", "spinner-grow-sm", "hide", "delete-my-project-spinner")
+            btn_confirm_delete.prepend(div_spinner)
 
-                // Spinner indiquant la suppression en cours
-                var div_spinner = document.createElement('div')
-                div_spinner.classList.add("spinner-grow", "spinner-grow-sm", "hide", "delete-my-project-spinner")
-                btn_confirm_delete.prepend(div_spinner)
+            div_btn.append(btn_confirm_delete)
 
-                div_btn.append(btn_confirm_delete)
+            btn_confirm_delete.addEventListener('click', (event) => {
+                var li = event.currentTarget.closest("li")
+                let my_project_id = li.getAttribute("project-id")
 
-                btn_confirm_delete.addEventListener('click', (event) => {
-                    var li = event.currentTarget.closest("li")
-                    let my_project_id = li.getAttribute("project-id")
+                // On désactive le boutton
+                var btn_confirm_delete = li.querySelector(".btn-confirm-delete-my-project")
+                btn_confirm_delete.disabled = true
 
-                    // On désactive le boutton
-                    var btn_confirm_delete = li.querySelector(".btn-confirm-delete-my-project")
-                    btn_confirm_delete.disabled = true
+                // On active le spinner 
+                btn_confirm_delete.querySelector(".delete-my-project-spinner").classList.remove("hide")
 
-                    // On active le spinner 
-                    btn_confirm_delete.querySelector(".delete-my-project-spinner").classList.remove("hide")
-
-                    // Appel API pour suppression de la données
-                    fetch(APP_URL + "/api/project/" + my_project_id, {
-                        method: 'DELETE',
-                    }).then(res => {
-                        if (res.status != 200) {
-                            // En envoi l"erreur dans le catch
-                            throw res;
-                        } else {
-                            li.remove()
-                        }
-                    }).catch(error => {
-                        default_message = "Erreur lors de la supression du projet"
-                        apiCallErrorCatcher(default_message, default_message)
-                    })
-                })
-
-                // Boutton d'annulation de suppression
-                var btn_cancel_delete = document.createElement('button');
-                btn_cancel_delete.innerHTML = 'Annuler'
-                btn_cancel_delete.classList.add("btn", "btn-warning", "btn-cancel-delete-my-project")
-                div_btn.append(btn_cancel_delete)
-
-                btn_cancel_delete.addEventListener('click', (event) => {
-                    event.currentTarget.closest("div.div-confirm-delete-my-project").classList.add("hide")
-                    event.currentTarget.closest("li").querySelector(".delete-my-project").classList.remove("hide")
-                })
-
-                div_confirm_delete.append(div_btn)
-
-                col2.appendChild(i)
-                col2.appendChild(div_confirm_delete)
-
-                col2.classList.add("col-3")
-
-                // Ajout du bloc
-                row.appendChild(col1)
-                row.appendChild(col2)
-                li.appendChild(row)
-
-                // On masque le spinner 
-                document.getElementById("modal-my-projects-list-spinner").classList.add("hide")
-
-
-                // Et on affiche la liste des projets mise en forme
-                my_project_list.appendChild(li)
-
-                // on active la coloration si on sur le "li"
-                li.addEventListener('click', (event) => {
-                    // On comence par désactiver tous les autres
-                    let all_modal_my_project_item = document.getElementsByClassName('modal-my-project-item')
-                    for (var i = 0; i < all_modal_my_project_item.length; i++) {
-                        all_modal_my_project_item[i].classList.remove('active')
+                // Appel API pour suppression de la données
+                fetch(APP_URL + "/api/project/" + my_project_id, {
+                    method: 'DELETE',
+                }).then(res => {
+                    if (res.status != 200) {
+                        // En envoi l"erreur dans le catch
+                        throw res;
+                    } else {
+                        li.remove()
                     }
-                    // puis on active l'élément cliqué
-                    event.currentTarget.classList.add('active')
+                }).catch(error => {
+                    default_message = "Erreur lors de la supression du projet"
+                    apiCallErrorCatcher(default_message, default_message)
                 })
             })
-        } else {
-            // Pas de projet trouvé ou arrète le spinner
+
+            // Boutton d'annulation de suppression
+            var btn_cancel_delete = document.createElement('button');
+            btn_cancel_delete.innerHTML = 'Annuler'
+            btn_cancel_delete.classList.add("btn", "btn-warning", "btn-cancel-delete-my-project")
+            div_btn.append(btn_cancel_delete)
+
+            btn_cancel_delete.addEventListener('click', (event) => {
+                event.currentTarget.closest("div.div-confirm-delete-my-project").classList.add("hide")
+                event.currentTarget.closest("li").querySelector(".delete-my-project").classList.remove("hide")
+            })
+
+            div_confirm_delete.append(div_btn)
+
+            col2.appendChild(i)
+            col2.appendChild(div_confirm_delete)
+
+            col2.classList.add("col-3")
+
+            // Ajout du bloc
+            row.appendChild(col1)
+            row.appendChild(col2)
+            li.appendChild(row)
+
+            // On masque le spinner 
             document.getElementById("modal-my-projects-list-spinner").classList.add("hide")
-            document.getElementById("my-project-submit").disabled = true
-        }
-    })
+
+
+            // Et on affiche la liste des projets mise en forme
+            my_project_list.appendChild(li)
+
+            // on active la coloration si on sur le "li"
+            li.addEventListener('click', (event) => {
+                // On comence par désactiver tous les autres
+                let all_modal_my_project_item = document.getElementsByClassName('modal-my-project-item')
+                for (var i = 0; i < all_modal_my_project_item.length; i++) {
+                    all_modal_my_project_item[i].classList.remove('active')
+                }
+                // puis on active l'élément cliqué
+                event.currentTarget.classList.add('active')
+            })
+        })
+    } else {
+        // Pas de projet trouvé ou arrète le spinner
+        document.getElementById("modal-my-projects-list-spinner").classList.add("hide")
+        document.getElementById("my-project-submit").disabled = true
+    }
 }
 
 
