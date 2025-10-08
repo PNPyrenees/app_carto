@@ -198,7 +198,7 @@ accordionAddRefLayerFilterInput.addEventListener('keyup', event => {
     if (searchValue == '') {
         buildLayerListAccordion(ref_layer_list)
     } else {
-        const filtered_later_list = ref_layer_list.map(group => {
+        const filtered_layer_list = ref_layer_list.map(group => {
             const filteredLayers = group.l_layers.filter(layer =>
                 normalizeText(layer.layer_label).includes(searchValue)
             )
@@ -214,7 +214,7 @@ accordionAddRefLayerFilterInput.addEventListener('keyup', event => {
         }).filter(group => group !== null)
 
 
-        buildLayerListAccordion(filtered_later_list)
+        buildLayerListAccordion(filtered_layer_list)
     }
 
 })
@@ -997,6 +997,7 @@ document.getElementById("add-layer-cancel").addEventListener("click", event => {
 /**
  * Gestion de l'ouverture de la page d'import de données
  */
+var imported_layer_list = ''
 var buildMyImportedLayerContent = function () {
 
     /* On vide le forumlaire d'import */
@@ -1007,137 +1008,161 @@ var buildMyImportedLayerContent = function () {
     document.getElementById("upload-layer-format-shp-warning").classList.add("hide")
     document.getElementById("upload-layer-format-tab-warning").classList.add("hide")
 
+    // On ré-initialise le filtre sur les données déjà importées
+    importedLayerFilterInput.value = ''
+
     /* Récupération de la liste des couches déjà importées par l'utilisateur */
-    getImportedLayerList().then(imported_layer_list => {
+    getImportedLayerList().then(data => {
+        imported_layer_list = data
+        buildImportedLayerList(imported_layer_list)
+    })
+}
 
-        /* Mise en forme de la liste des couches importées */
-        var my_imported_layer_list = document.getElementById("my_imported_layer_list")
+/**
+ * Filtre sur la liste des couches importé
+ */
+var importedLayerFilterInput = document.getElementById("imported-layer-filter-input")
+importedLayerFilterInput.addEventListener('keyup', event => {
+    var searchValue = normalizeText(importedLayerFilterInput.value)
 
-        my_imported_layer_list.innerHTML = ''
+    if (searchValue == '') {
+        buildLayerListAccordion(imported_layer_list)
+    } else {
+        const filtered_imported_layer = imported_layer_list.filter(item =>
+            normalizeText(item.imported_layer_name).includes(searchValue)
+        )
 
-        imported_layer_list.forEach(layer => {
-            var li = document.createElement('li');
-            li.setAttribute('class', 'modal-imported-layer-item');
-            li.setAttribute('imported-layer-id', layer.imported_layer_id);
+        buildImportedLayerList(filtered_imported_layer)
+    }
+})
 
-            var row = document.createElement('div');
-            row.classList.add("row")
+var buildImportedLayerList = function (layer_list) {
+    /* Mise en forme de la liste des couches importées */
+    var my_imported_layer_list = document.getElementById("my_imported_layer_list")
 
-            var col1 = document.createElement('div');
-            col1.classList.add("col-9")
+    my_imported_layer_list.innerHTML = ''
 
-            // Gestion du nom de la couche
-            var div_imported_layer_name = document.createElement('div');
-            div_imported_layer_name.innerHTML = layer.imported_layer_name
-            col1.appendChild(div_imported_layer_name)
+    layer_list.forEach(layer => {
+        var li = document.createElement('li');
+        li.setAttribute('class', 'modal-imported-layer-item');
+        li.setAttribute('imported-layer-id', layer.imported_layer_id);
 
-            // Gestion des date (import / dernier accès)
-            var div_imported_layer_date = document.createElement('div');
-            div_imported_layer_date.classList.add("imported_layer_date")
+        var row = document.createElement('div');
+        row.classList.add("row")
 
-            var import_date = new Date(layer.imported_layer_import_date)
-            var last_view = new Date(layer.imported_layer_last_view)
+        var col1 = document.createElement('div');
+        col1.classList.add("col-9")
 
-            div_imported_layer_date.innerHTML = "Date d'import : " + import_date.toLocaleString('fr-FR') + " | " + "Dernier accès : " + last_view.toLocaleString('fr-FR')
-            col1.appendChild(div_imported_layer_date)
+        // Gestion du nom de la couche
+        var div_imported_layer_name = document.createElement('div');
+        div_imported_layer_name.innerHTML = layer.imported_layer_name
+        col1.appendChild(div_imported_layer_name)
 
-            // Création de l'élément de suppression d'une couche importée
-            col2 = document.createElement('div');
-            col2.classList.add("text-end")
+        // Gestion des date (import / dernier accès)
+        var div_imported_layer_date = document.createElement('div');
+        div_imported_layer_date.classList.add("imported_layer_date")
 
-            var i = document.createElement('i');
-            i.classList.add("bi")
-            i.classList.add("bi-trash-fill")
-            i.classList.add("delete-imported-layer")
-            i.setAttribute("title", "Supprimer la couche")
+        var import_date = new Date(layer.imported_layer_import_date)
+        var last_view = new Date(layer.imported_layer_last_view)
 
-            i.addEventListener('click', (event) => {
-                event.currentTarget.closest("li").querySelector(".confirm-delete-imported-layer-div").classList.remove("hide")
-                event.currentTarget.classList.add("hide")
-            })
+        div_imported_layer_date.innerHTML = "Date d'import : " + import_date.toLocaleString('fr-FR') + " | " + "Dernier accès : " + last_view.toLocaleString('fr-FR')
+        col1.appendChild(div_imported_layer_date)
 
-            // Gestion de la confirmation de suppression
-            var div_confirm_delete = document.createElement('div');
-            div_confirm_delete.classList.add("hide", "div-confirm-delete", "confirm-delete-imported-layer-div")
-            div_confirm_delete.innerHTML = "Etes-vous sûr ?"
+        // Création de l'élément de suppression d'une couche importée
+        col2 = document.createElement('div');
+        col2.classList.add("text-end")
 
-            var div_btn = document.createElement('div');
-            // Boutton de confirmation de suppression
-            var btn_confirm_delete = document.createElement('button');
-            btn_confirm_delete.innerHTML = 'Oui'
-            btn_confirm_delete.classList.add("btn", "btn-danger", "me-1", "btn-confirm-delete-imported-layer")
+        var i = document.createElement('i');
+        i.classList.add("bi")
+        i.classList.add("bi-trash-fill")
+        i.classList.add("delete-imported-layer")
+        i.setAttribute("title", "Supprimer la couche")
 
-            // Spinner indiquant la suppression en cours
-            var div_spinner = document.createElement('div')
-            div_spinner.classList.add("spinner-grow", "spinner-grow-sm", "hide", "delete-imported-layer-spinner")
-            btn_confirm_delete.prepend(div_spinner)
+        i.addEventListener('click', (event) => {
+            event.currentTarget.closest("li").querySelector(".confirm-delete-imported-layer-div").classList.remove("hide")
+            event.currentTarget.classList.add("hide")
+        })
 
-            div_btn.append(btn_confirm_delete)
+        // Gestion de la confirmation de suppression
+        var div_confirm_delete = document.createElement('div');
+        div_confirm_delete.classList.add("hide", "div-confirm-delete", "confirm-delete-imported-layer-div")
+        div_confirm_delete.innerHTML = "Etes-vous sûr ?"
 
-            btn_confirm_delete.addEventListener('click', (event) => {
-                var li = event.currentTarget.closest("li")
-                let layer_id = li.getAttribute("imported-layer-id")
+        var div_btn = document.createElement('div');
+        // Boutton de confirmation de suppression
+        var btn_confirm_delete = document.createElement('button');
+        btn_confirm_delete.innerHTML = 'Oui'
+        btn_confirm_delete.classList.add("btn", "btn-danger", "me-1", "btn-confirm-delete-imported-layer")
 
-                // On désactive le boutton
-                var btn_confirm_delete = li.querySelector(".btn-confirm-delete-imported-layer")
-                btn_confirm_delete.disabled = true
+        // Spinner indiquant la suppression en cours
+        var div_spinner = document.createElement('div')
+        div_spinner.classList.add("spinner-grow", "spinner-grow-sm", "hide", "delete-imported-layer-spinner")
+        btn_confirm_delete.prepend(div_spinner)
 
-                // On active le spinner 
-                btn_confirm_delete.querySelector(".delete-imported-layer-spinner").classList.remove("hide")
+        div_btn.append(btn_confirm_delete)
 
-                // Appel API pour suppression de la données
-                fetch(APP_URL + "/api/imported_layer/" + layer_id, {
-                    method: 'DELETE',
-                }).then(res => {
-                    if (res.status != 200) {
-                        // En envoi l"erreur dans le catch
-                        throw res;
-                    } else {
-                        li.remove()
-                    }
-                }).catch(error => {
-                    default_message = "Erreur lors de la supression de la couche importé"
-                    apiCallErrorCatcher(default_message, default_message)
-                })
-            })
+        btn_confirm_delete.addEventListener('click', (event) => {
+            var li = event.currentTarget.closest("li")
+            let layer_id = li.getAttribute("imported-layer-id")
 
-            // Boutton d'annulation de suppression
-            var btn_cancel_delete = document.createElement('button');
-            btn_cancel_delete.innerHTML = 'Annuler'
-            btn_cancel_delete.classList.add("btn", "btn-warning", "btn-cancel-delete-imported-layer")
-            div_btn.append(btn_cancel_delete)
+            // On désactive le boutton
+            var btn_confirm_delete = li.querySelector(".btn-confirm-delete-imported-layer")
+            btn_confirm_delete.disabled = true
 
-            btn_cancel_delete.addEventListener('click', (event) => {
-                event.currentTarget.closest("div.div-confirm-delete").classList.add("hide")
-                event.currentTarget.closest("li").querySelector(".delete-imported-layer").classList.remove("hide")
-            })
+            // On active le spinner 
+            btn_confirm_delete.querySelector(".delete-imported-layer-spinner").classList.remove("hide")
 
-            div_confirm_delete.append(div_btn)
-
-            col2.appendChild(i)
-            col2.appendChild(div_confirm_delete)
-
-            col2.classList.add("col-3")
-
-            // Ajout du bloc
-            row.appendChild(col1)
-            row.appendChild(col2)
-            li.appendChild(row)
-
-            my_imported_layer_list.appendChild(li)
-
-            // on active la coloration si on sur le "li"
-            li.addEventListener('click', (event) => {
-                // On comence par désactiver tous les autres
-                let all_modal_imported_layer_item = document.getElementsByClassName('modal-imported-layer-item')
-                for (var i = 0; i < all_modal_imported_layer_item.length; i++) {
-                    all_modal_imported_layer_item[i].classList.remove('active')
+            // Appel API pour suppression de la données
+            fetch(APP_URL + "/api/imported_layer/" + layer_id, {
+                method: 'DELETE',
+            }).then(res => {
+                if (res.status != 200) {
+                    // En envoi l"erreur dans le catch
+                    throw res;
+                } else {
+                    li.remove()
                 }
-                // puis on acitve l'élément cliqué
-                event.currentTarget.classList.add('active')
+            }).catch(error => {
+                default_message = "Erreur lors de la supression de la couche importé"
+                apiCallErrorCatcher(default_message, default_message)
             })
         })
 
+        // Boutton d'annulation de suppression
+        var btn_cancel_delete = document.createElement('button');
+        btn_cancel_delete.innerHTML = 'Annuler'
+        btn_cancel_delete.classList.add("btn", "btn-warning", "btn-cancel-delete-imported-layer")
+        div_btn.append(btn_cancel_delete)
+
+        btn_cancel_delete.addEventListener('click', (event) => {
+            event.currentTarget.closest("div.div-confirm-delete").classList.add("hide")
+            event.currentTarget.closest("li").querySelector(".delete-imported-layer").classList.remove("hide")
+        })
+
+        div_confirm_delete.append(div_btn)
+
+        col2.appendChild(i)
+        col2.appendChild(div_confirm_delete)
+
+        col2.classList.add("col-3")
+
+        // Ajout du bloc
+        row.appendChild(col1)
+        row.appendChild(col2)
+        li.appendChild(row)
+
+        my_imported_layer_list.appendChild(li)
+
+        // on active la coloration si on sur le "li"
+        li.addEventListener('click', (event) => {
+            // On comence par désactiver tous les autres
+            let all_modal_imported_layer_item = document.getElementsByClassName('modal-imported-layer-item')
+            for (var i = 0; i < all_modal_imported_layer_item.length; i++) {
+                all_modal_imported_layer_item[i].classList.remove('active')
+            }
+            // puis on acitve l'élément cliqué
+            event.currentTarget.classList.add('active')
+        })
     })
 }
 
