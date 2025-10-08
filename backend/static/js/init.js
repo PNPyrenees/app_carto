@@ -541,3 +541,14 @@ var refreshGUI = function () {
 }
 
 refreshGUI()
+
+/**
+ * Fonction globale permettant de normaliser les texte 
+ * (pratique pour faire des recherche de correspondance)
+ */
+var normalizeText = function (text) {
+    return text
+        .toLowerCase()                                 // insensible à la casse
+        .normalize("NFD")                              // décompose les accents
+        .replace(/[\u0300-\u036f]/g, "");              // supprime les diacritiques
+}

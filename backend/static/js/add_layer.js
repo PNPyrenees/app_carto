@@ -83,9 +83,9 @@ var getRefLayerList = function () {
 /**
  * Construction du contenu du div "add-ref-layer-content"
  */
+var ref_layer_list = null
 var buildAddRefLayerContent = function () {
-
-    var accordion_add_ref_layer_bloc = document.getElementById('accordion-add-ref-layer')
+    accordionAddRefLayerFilterInput.value = ''
 
     getRefLayerList().then(layer_list => {
         //Si getRefLayerList ne retourne rien alors on ne va pas plus loin
@@ -93,90 +93,131 @@ var buildAddRefLayerContent = function () {
             return
         }
 
-        //On réinitialise l'accordéon
-        accordion_add_ref_layer_bloc.innerHTML = ""
+        ref_layer_list = layer_list
 
-        var i = 0
-        layer_list.forEach(layer_group => {
-            // Récupération du prototype
-            let accordion_prototype = accordion_add_ref_layer_bloc.getAttribute('data-prototype')
+        buildLayerListAccordion(ref_layer_list)
 
-            // Création des identifiants d'objet
-            let accordion_add_ref_layer_heading_id = "accordion-add-ref-layer-heading-" + i
-            let accordion_add_ref_layer_collapse_id = "accordion-add-ref-collapse-heading-" + i
-
-            // On remplace les valeurs par défaut
-            accordion_prototype = accordion_prototype.replace(/__GROUP_NAME__/g, layer_group.layer_group)
-            accordion_prototype = accordion_prototype.replace(/__ACCORDION_HEADER_ID__/g, accordion_add_ref_layer_heading_id)
-            accordion_prototype = accordion_prototype.replace(/__COLLAPSE_ID__/g, accordion_add_ref_layer_collapse_id)
-
-            // Passage du prototype string vers element html
-            template = document.createElement('template')
-            template.innerHTML = accordion_prototype
-
-            // On ajoute chaque couche du groupe
-            layer_group.l_layers.forEach(layer => {
-                var li = document.createElement('li');
-                li.setAttribute('class', 'modal-ref-layer-item');
-                /*li.classList.add("li-ref_layer")*/
-                li.setAttribute('layer-id', layer.layer_id);
-
-                var div_row = document.createElement('div')
-                div_row.setAttribute('class', 'row')
-
-                var div_col_11 = document.createElement('div')
-                div_col_11.setAttribute('class', 'col-11')
-                div_col_11.appendChild(document.createTextNode(layer.layer_label))
-
-
-                var div_col_1 = document.createElement('div')
-                div_col_1.setAttribute('class', 'col-1')
-
-                // Si un UUID de métadonnée est associé à la couche, 
-                // on ajoute l'icone d'accès à la métadonnée
-                if (layer.layer_metadata_uuid) {
-                    var metadata_access_icon = document.createElement('i')
-                    metadata_access_icon.classList.add("bi")
-                    metadata_access_icon.classList.add("bi-card-list")
-                    metadata_access_icon.setAttribute('title', 'Ouvrir la fiche de métadonnées')
-                    metadata_access_icon.addEventListener('click', (event) => {
-                        layer_id = event.currentTarget.closest(".modal-ref-layer-item").getAttribute("layer-id")
-                        showLayerMetadata(layer_id)
-                    })
-
-                    div_col_1.appendChild(metadata_access_icon)
-                }
-
-                div_row.appendChild(div_col_11)
-                div_row.appendChild(div_col_1)
-
-                //li.appendChild(document.createTextNode(layer.layer_label))
-                li.appendChild(div_row)
-
-                template.content.querySelector(".modal-ref-layer-list").appendChild(li)
-
-                // on active la coloration si on sur le "li"
-                li.addEventListener('click', (event) => {
-                    if (event.target.classList.contains("col-11")) {
-
-                        // On comence par désactiver tous les autres
-                        let all_modal_ref_layer_item = document.getElementsByClassName('modal-ref-layer-item')
-                        for (var i = 0; i < all_modal_ref_layer_item.length; i++) {
-                            all_modal_ref_layer_item[i].classList.remove('active')
-                        }
-                        // uis on acitve l'élément cliqué
-                        event.currentTarget.classList.add('active')
-                    }
-                })
-            })
-
-            accordion_add_ref_layer_bloc.appendChild(template.content)
-
-            // On passe au groupe suivant
-            i++
-        })
     })
 }
+
+var buildLayerListAccordion = function (layer_list) {
+
+    var accordion_add_ref_layer_bloc = document.getElementById('accordion-add-ref-layer')
+
+    //On réinitialise l'accordéon
+    accordion_add_ref_layer_bloc.innerHTML = ""
+
+    var i = 0
+    layer_list.forEach(layer_group => {
+        // Récupération du prototype
+        let accordion_prototype = accordion_add_ref_layer_bloc.getAttribute('data-prototype')
+
+        // Création des identifiants d'objet
+        let accordion_add_ref_layer_heading_id = "accordion-add-ref-layer-heading-" + i
+        let accordion_add_ref_layer_collapse_id = "accordion-add-ref-collapse-heading-" + i
+
+        // On remplace les valeurs par défaut
+        accordion_prototype = accordion_prototype.replace(/__GROUP_NAME__/g, layer_group.layer_group)
+        accordion_prototype = accordion_prototype.replace(/__ACCORDION_HEADER_ID__/g, accordion_add_ref_layer_heading_id)
+        accordion_prototype = accordion_prototype.replace(/__COLLAPSE_ID__/g, accordion_add_ref_layer_collapse_id)
+
+        // Passage du prototype string vers element html
+        template = document.createElement('template')
+        template.innerHTML = accordion_prototype
+
+        // On ajoute chaque couche du groupe
+        layer_group.l_layers.forEach(layer => {
+            var li = document.createElement('li');
+            li.setAttribute('class', 'modal-ref-layer-item');
+            /*li.classList.add("li-ref_layer")*/
+            li.setAttribute('layer-id', layer.layer_id);
+
+            var div_row = document.createElement('div')
+            div_row.setAttribute('class', 'row')
+
+            var div_col_11 = document.createElement('div')
+            div_col_11.setAttribute('class', 'col-11')
+            div_col_11.appendChild(document.createTextNode(layer.layer_label))
+
+
+            var div_col_1 = document.createElement('div')
+            div_col_1.setAttribute('class', 'col-1')
+
+            // Si un UUID de métadonnée est associé à la couche, 
+            // on ajoute l'icone d'accès à la métadonnée
+            if (layer.layer_metadata_uuid) {
+                var metadata_access_icon = document.createElement('i')
+                metadata_access_icon.classList.add("bi")
+                metadata_access_icon.classList.add("bi-card-list")
+                metadata_access_icon.setAttribute('title', 'Ouvrir la fiche de métadonnées')
+                metadata_access_icon.addEventListener('click', (event) => {
+                    layer_id = event.currentTarget.closest(".modal-ref-layer-item").getAttribute("layer-id")
+                    showLayerMetadata(layer_id)
+                })
+
+                div_col_1.appendChild(metadata_access_icon)
+            }
+
+            div_row.appendChild(div_col_11)
+            div_row.appendChild(div_col_1)
+
+            //li.appendChild(document.createTextNode(layer.layer_label))
+            li.appendChild(div_row)
+
+            template.content.querySelector(".modal-ref-layer-list").appendChild(li)
+
+            // on active la coloration si on sur le "li"
+            li.addEventListener('click', (event) => {
+                if (event.target.classList.contains("col-11")) {
+
+                    // On comence par désactiver tous les autres
+                    let all_modal_ref_layer_item = document.getElementsByClassName('modal-ref-layer-item')
+                    for (var i = 0; i < all_modal_ref_layer_item.length; i++) {
+                        all_modal_ref_layer_item[i].classList.remove('active')
+                    }
+                    // uis on acitve l'élément cliqué
+                    event.currentTarget.classList.add('active')
+                }
+            })
+        })
+
+        accordion_add_ref_layer_bloc.appendChild(template.content)
+
+        // On passe au groupe suivant
+        i++
+    })
+}
+
+/**
+ * Gestion du champ de recherche permettant de filtre l'acordion de ref_layer
+ */
+var accordionAddRefLayerFilterInput = document.getElementById("accordion-add-ref-layer-filter-input")
+accordionAddRefLayerFilterInput.addEventListener('keyup', event => {
+    var searchValue = normalizeText(accordionAddRefLayerFilterInput.value)
+
+    if (searchValue == '') {
+        buildLayerListAccordion(ref_layer_list)
+    } else {
+        const filtered_later_list = ref_layer_list.map(group => {
+            const filteredLayers = group.l_layers.filter(layer =>
+                normalizeText(layer.layer_label).includes(searchValue)
+            )
+
+            if (filteredLayers.length > 0) {
+                return {
+                    ...group,
+                    l_layers: filteredLayers
+                }
+            }
+
+            return null;
+        }).filter(group => group !== null)
+
+
+        buildLayerListAccordion(filtered_later_list)
+    }
+
+})
 
 /**
  * Action de cliquer sur les boutons de selection 

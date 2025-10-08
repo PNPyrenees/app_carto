@@ -122,7 +122,7 @@
                         {% else %}
                             <input id="feature-form-{{formObject.column_name}}-true" type="radio" name="{{formObject.column_name}}">
                         {% endif %}
-                        <label for="feature-form-{{formObject.column_name}}-true">True</label>
+                        <label for="feature-form-{{formObject.column_name}}-true">Vrai</label>
 
                         {% if formObject.default_value == false %}
                             <input id="feature-form-{{formObject.column_name}}-false" type="radio" name="{{formObject.column_name}}" checked>
@@ -130,7 +130,7 @@
                             <input id="feature-form-{{formObject.column_name}}-false" type="radio" name="{{formObject.column_name}}">
                         {% endif %}
 
-                        <label for="feature-form-{{formObject.column_name}}-false">False</label>
+                        <label for="feature-form-{{formObject.column_name}}-false">Faux</label>
                     </div>
                 {% endif %}
 
