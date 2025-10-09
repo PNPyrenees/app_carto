@@ -150,7 +150,7 @@
     position: absolute;
     right: 3em;
     top: 3.6em;
-    z-index: 999;
+    z-index: 95;
 }
 
 #basemap-selector>.dropdown>.btn {
@@ -317,7 +317,7 @@
     position: absolute;
     right: 140px;
     top: 3.8em;
-    z-index: 999;
+    z-index: 95;
 }
 
 #search-toponyme>.input-group {
@@ -403,4 +403,12 @@
 
 .ol-tooltip-static:before {
     border-top-color: #ffcc33;
+}
+
+#bloc-clicked-features-attributes-header-btn {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    /*padding: 10px;*/
+    border: 1px solid #ccc;
 }

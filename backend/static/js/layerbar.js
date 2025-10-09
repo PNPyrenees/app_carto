@@ -398,12 +398,19 @@ document.addEventListener('DOMContentLoaded', function () {
         if (isCollapsed) {
             mapBrowser.style.width = "calc(100% - 3%)"; // Ajuste à la taille sans layerbar
             blocClickedFeaturesAttributesMaxWidth = 95 // Ajustement de la largeur max du bloc affichant les données d'un objet cliqué
+            blocClickedFeaturesAttributesMinLeft = 70 // Ajustement de la position par rapport au bord gauche de la page
         } else {
             mapBrowser.style.width = "calc(100% - 15%)"; // Ajuste avec layerbar
             blocClickedFeaturesAttributesMaxWidth = 83 // Ajustement de la largeur max du bloc affichant les données d'un objet cliqué
+            blocClickedFeaturesAttributesMinLeft = 287 // Ajustement de la position par rapport au bord gauche de la page
             // On force le redimensionnement si la largeur du bloc est supérieur à 83%
             if (blocClickedFeaturesAttributes.offsetWidth / window.innerWidth * 100 > 83) {
                 blocClickedFeaturesAttributes.style.width = '83%'
+            }
+
+            // On force le déplacement de l'infobulle au cas ou elle devrit être positionné sur la zone de recouvrement avec le layer bar
+            if (blocClickedFeaturesAttributes.offsetLeft < blocClickedFeaturesAttributesMinLeft) {
+                blocClickedFeaturesAttributes.style.left = `${blocClickedFeaturesAttributesMinLeft}px`
             }
         }
 

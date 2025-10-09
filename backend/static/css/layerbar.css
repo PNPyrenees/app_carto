@@ -135,7 +135,7 @@
 #toggle-layerbar {
     position: absolute;
     left: 15%;
-    z-index: 1000;
+    z-index: 95;
     width: 30px;
     height: 30px;
     border: 1px solid #000000 !important;

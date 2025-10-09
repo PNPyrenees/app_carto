@@ -3425,21 +3425,27 @@ attributeDataContainer.addEventListener('click', function () {
 })
 
 /**
- * Gestion du redimmensionement de l'infobulle s'affichant après avoir cliqué sur
+ * Gestion du redimmensionement et du déplacement de l'infobulle s'affichant après avoir cliqué sur
  * un élément de la carte
  */
 const blocClickedFeaturesAttributes = document.getElementById('bloc-clicked-features-attributes')
 const blocClickedFeaturesAttributesContent = document.getElementById('bloc-clicked-features-attributes-content')
-const closeBlocClickedFeaturesAttributes = document.getElementById('close-bloc-clicked-features-attributes')
+//const closeBlocClickedFeaturesAttributes = document.getElementById('close-bloc-clicked-features-attributes')
+const blocClickedFeaturesAttributesHeader = document.getElementById("bloc-clicked-features-attributes-header-btn")
 const blocClickedFeaturesAttributesResizer = document.getElementById('bloc-clicked-features-attributes-resizer')
 
 
 var blocClickedFeaturesAttributesMaxWidth = 83
-var blocClickedFeaturesAttributesMaxHeight = 75
 var blocClickedFeaturesAttributesMinWidth = 20
 var blocClickedFeaturesAttributesMinHeight = 21
 
+var blocClickedFeaturesAttributesMinLeft = 287
+var blocClickedFeaturesAttributesMinTop = 30
+
 let isBlocClickedFeaturesAttributesResizing = false;
+
+var currentX
+var currentY
 
 blocClickedFeaturesAttributesResizer.addEventListener('mousedown', function (e) {
     e.preventDefault();
@@ -3447,6 +3453,9 @@ blocClickedFeaturesAttributesResizer.addEventListener('mousedown', function (e) 
     document.body.style.cursor = 'nesw-resize';
     document.addEventListener('mousemove', blocClickedFeaturesAttributesResize);
     document.addEventListener('mouseup', blocClickedFeaturesAttributesStopResize);
+
+    currentX = e.clientX
+    currentY = e.clientY
 
     blocClickedFeaturesAttributes.style.zIndex = 100
 });
@@ -3457,29 +3466,41 @@ function blocClickedFeaturesAttributesResize(e) {
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
 
+    deltaX = currentX - e.clientX
+    delatY = currentY - e.clientY
+
     var tmp_newWidth = blocClickedFeaturesAttributes.offsetLeft + blocClickedFeaturesAttributes.offsetWidth - e.clientX;
+
     newWidth = (tmp_newWidth / viewportWidth) * 100
     var tmp_newHeight = e.clientY - blocClickedFeaturesAttributes.getBoundingClientRect().top;
     newHeight = (tmp_newHeight / viewportHeight) * 100
 
-    //Calcul dynamique de la hauteur du bloc de donnée atteibutaire compplet (bloc-clicked-features-attributes)
+    //Calcul dynamique de la hauteur du bloc de donnée attributaire compplet (bloc-clicked-features-attributes)
     if (newHeight < blocClickedFeaturesAttributesMinHeight) newHeight = blocClickedFeaturesAttributesMinHeight;
-    if (newHeight > blocClickedFeaturesAttributesMaxHeight) newHeight = blocClickedFeaturesAttributesMaxHeight;
     if (newWidth < blocClickedFeaturesAttributesMinWidth) newWidth = blocClickedFeaturesAttributesMinWidth;
     if (newWidth > blocClickedFeaturesAttributesMaxWidth) newWidth = blocClickedFeaturesAttributesMaxWidth;
 
-    // Calcul dynamique de la hauteur du bloc contenant les données attributaires (bloc-clicked-features-attributes-content)
-    minHeigthInPixel = blocClickedFeaturesAttributesMinHeight / 100 * viewportHeight
-    minHeightForContentBloc = ((minHeigthInPixel - closeBlocClickedFeaturesAttributes.offsetHeight - blocClickedFeaturesAttributesResizer.offsetHeight) / minHeigthInPixel) * 100
+    // Recalcul de la position gauche (en pixel -> donc conversion du newWidth de % en px)
+    newLeft = blocClickedFeaturesAttributes.offsetLeft - ((newWidth / 100 * viewportWidth) - blocClickedFeaturesAttributes.offsetWidth)
 
-    blocClickedFeaturesAttributesCurrentSizeInPixel = newHeight / 100 * viewportHeight
-    var newHeightForContentBloc = ((blocClickedFeaturesAttributesCurrentSizeInPixel - closeBlocClickedFeaturesAttributes.offsetHeight - blocClickedFeaturesAttributesResizer.offsetHeight) / blocClickedFeaturesAttributesCurrentSizeInPixel) * 100
-    if (newHeightForContentBloc < minHeightForContentBloc) newHeightForContentBloc = minHeightForContentBloc
+    var blocClickedFeaturesAttributes_bottomPosition = blocClickedFeaturesAttributes.offsetTop + (newHeight / 100 * viewportHeight)
+    // Si on est trop prés du bord gauche ou bas alors on ne redimmessionne pas
+    if (newLeft > blocClickedFeaturesAttributesMinLeft && blocClickedFeaturesAttributes_bottomPosition < viewportHeight) {
 
-    // Application des dimenssions
-    blocClickedFeaturesAttributes.style.width = `${newWidth}%`;
-    blocClickedFeaturesAttributes.style.height = `${newHeight}%`;
-    blocClickedFeaturesAttributesContent.style.height = `${newHeightForContentBloc}%`;
+        // Calcul dynamique de la hauteur du bloc contenant les données attributaires (bloc-clicked-features-attributes-content)
+        minHeigthInPixel = blocClickedFeaturesAttributesMinHeight / 100 * viewportHeight
+        minHeightForContentBloc = ((minHeigthInPixel - blocClickedFeaturesAttributesHeader.offsetHeight - blocClickedFeaturesAttributesResizer.offsetHeight) / minHeigthInPixel) * 100
+
+        blocClickedFeaturesAttributesCurrentSizeInPixel = newHeight / 100 * viewportHeight
+        var newHeightForContentBloc = ((blocClickedFeaturesAttributesCurrentSizeInPixel - blocClickedFeaturesAttributesHeader.offsetHeight - blocClickedFeaturesAttributesResizer.offsetHeight) / blocClickedFeaturesAttributesCurrentSizeInPixel) * 100
+        if (newHeightForContentBloc < minHeightForContentBloc) newHeightForContentBloc = minHeightForContentBloc
+
+        // Application des dimenssions
+        blocClickedFeaturesAttributes.style.width = `${newWidth}%`;
+        blocClickedFeaturesAttributes.style.left = `${newLeft}px`;
+        blocClickedFeaturesAttributes.style.height = `${newHeight}%`;
+        blocClickedFeaturesAttributesContent.style.height = `${newHeightForContentBloc}%`;
+    }
 }
 
 function blocClickedFeaturesAttributesStopResize() {
@@ -3493,3 +3514,54 @@ function blocClickedFeaturesAttributesStopResize() {
 blocClickedFeaturesAttributes.addEventListener('click', function () {
     blocClickedFeaturesAttributes.style.zIndex = 100
 })
+
+// Déplacement de l'infobulle
+var moveBlocClickedFeaturesAttributesBtn = document.getElementById('move-bloc-clicked-features-attributes-btn')
+let blocClickedFeaturesAttributesIsMoving = false
+let blocClickedFeaturesAttributesOffsetX = 0, blocClickedFeaturesAttributesOffsetY = 0
+
+moveBlocClickedFeaturesAttributesBtn.addEventListener('mousedown', (e) => {
+    blocClickedFeaturesAttributesIsMoving = true;
+    const rect = blocClickedFeaturesAttributes.getBoundingClientRect();
+    blocClickedFeaturesAttributesOffsetX = e.clientX - rect.left;
+    blocClickedFeaturesAttributesOffsetY = e.clientY - rect.top;
+    moveBlocClickedFeaturesAttributesBtn.style.cursor = 'grabbing';
+});
+
+document.addEventListener('mouseup', () => {
+    blocClickedFeaturesAttributesIsMoving = false;
+    moveBlocClickedFeaturesAttributesBtn.style.cursor = 'grab';
+});
+
+document.addEventListener('mousemove', (e) => {
+
+    if (blocClickedFeaturesAttributesIsMoving) {
+
+        blocClickedFeaturesAttributes.style.zIndex = 100
+
+        // Taille de la fenêtre
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+
+        // Taille du div
+        const divWidth = blocClickedFeaturesAttributes.offsetWidth;
+        const divHeight = blocClickedFeaturesAttributes.offsetHeight;
+
+        // Nouvelle position calculée
+        let newLeft = e.clientX - blocClickedFeaturesAttributesOffsetX;
+        let newTop = e.clientY - blocClickedFeaturesAttributesOffsetY;
+
+        // Appliquer les bornes
+        newLeft = Math.max(0, Math.min(newLeft, windowWidth - divWidth));
+        if (newLeft < blocClickedFeaturesAttributesMinLeft) {
+            newLeft = blocClickedFeaturesAttributesMinLeft
+        }
+        newTop = Math.max(0, Math.min(newTop, windowHeight - divHeight));
+        if (newTop < blocClickedFeaturesAttributesMinTop) {
+            newTop = blocClickedFeaturesAttributesMinTop
+        }
+
+        blocClickedFeaturesAttributes.style.left = newLeft + 'px';
+        blocClickedFeaturesAttributes.style.top = newTop + 'px';
+    }
+});
