@@ -95,17 +95,30 @@
 
                 {# TEXT #}
                 {% if formObject.data_type == 'text' %}
-                    <input 
-                        id="feature-form-{{formObject.column_name}}" 
-                        column_name="{{formObject.column_name}}" 
-                        propertie_type="text" 
-                        class="form-control form-control-lg" 
-                        type="textarea" 
-                        constraint="{% if formObject.constraint is not none %}{{formObject.constraint}}{% endif %}" 
-                        placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}" 
-                        {% if formObject.character_maximum_length is not none %}maxlength="{{formObject.character_maximum_length}}"{% endif %}
-                        is_nullable="{% if formObject.is_nullable == 'YES' %}true{% else %}false{% endif %}"
-                    >
+                    {% if formObject.character_maximum_length is not none %}
+                        <input 
+                            id="feature-form-{{formObject.column_name}}" 
+                            column_name="{{formObject.column_name}}" 
+                            propertie_type="text" 
+                            class="form-control form-control-lg" 
+                            type="textarea" 
+                            constraint="{% if formObject.constraint is not none %}{{formObject.constraint}}{% endif %}" 
+                            placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}" 
+                            maxlength="{{formObject.character_maximum_length}}"
+                            is_nullable="{% if formObject.is_nullable == 'YES' %}true{% else %}false{% endif %}"
+                        >
+                    {% else %}
+                        <textarea 
+                            id="feature-form-{{formObject.column_name}}" 
+                            column_name="{{formObject.column_name}}" 
+                            propertie_type="text" 
+                            class="form-control form-control-lg" 
+                            type="textarea" 
+                            constraint="{% if formObject.constraint is not none %}{{formObject.constraint}}{% endif %}" 
+                            placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}" 
+                            is_nullable="{% if formObject.is_nullable == 'YES' %}true{% else %}false{% endif %}"
+                        ></textarea>
+                    {% endif %}
                 {% endif %}
 
                 {# BOOLEAN #}
