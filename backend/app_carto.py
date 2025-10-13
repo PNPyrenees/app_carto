@@ -535,7 +535,7 @@ def taxons_autocomplete():
     limit = args.get("limit")
 
     response = requests.get(
-        app.config['GEONATURE_URL'] + "/taxhub/api/taxref/allnamebylist/" + str(app.config['TAXHUB_LIST_ID']) + "?search_name=" + search_name + "&limit=" + limit
+        app.config['GEONATURE_URL'] + "/geonature/api/taxhub/api/taxref/allnamebylist/" + str(app.config['TAXHUB_LIST_ID']) + "?search_name=" + search_name + "&limit=" + limit
     )
 
     return response.content.decode('utf-8')
