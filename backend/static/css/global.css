@@ -231,7 +231,7 @@ input[type="date"]>span.datetime-edit-field {
 
 #bloc-coords {
     position: absolute;
-    z-index: 99;
+    z-index: 94;
     background-color: rgba(0, 60, 136, .5);
     border: 2px solid rgba(255, 255, 255, .7);
     color: rgb(255, 255, 255);
