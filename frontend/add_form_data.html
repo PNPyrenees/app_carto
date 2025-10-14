@@ -61,6 +61,7 @@
                         constraint="{% if formObject.constraint is not none %}{{formObject.constraint}}{% endif %}" 
                         placeholder="{% if formObject.default_value is not none %}{{formObject.default_value}}{% endif %}"
                         is_nullable="{% if formObject.is_nullable == 'YES' %}true{% else %}false{% endif %}"
+                        onkeyup="featureEditFloatInputCommaToPoint(event)"
                     >
                 {% endif %}
 

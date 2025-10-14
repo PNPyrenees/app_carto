@@ -466,3 +466,12 @@ var featureEditRemoveFile = function (evt) {
     document.getElementById(target + "-file-input").style.display = 'block'
     document.getElementById(target + "-file-input").value = ''
 }
+
+
+// Fonction remplaçant dynamiquement la virgule par un point 
+// dans un champ de type float
+var featureEditFloatInputCommaToPoint = function (event) {
+    if (event.key = ',') {
+        event.target.value = event.target.value.replace(',', '.')
+    }
+}
