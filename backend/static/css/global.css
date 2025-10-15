@@ -131,7 +131,8 @@ html * {
 }
 
 #alert-container,
-#warning-container {
+#warning-container,
+#information-container {
     position: absolute;
     z-index: 9999;
     top: 4rem;

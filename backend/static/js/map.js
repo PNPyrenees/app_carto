@@ -2415,6 +2415,9 @@ var enableLayerDrawing = function (layer, geomType) {
     // On désactive les intéraction en cours
     disableLayerDrawing()
 
+    // On désactive la copie des coordonnées en cas de clic droit
+    copyToClipboardIsActive = false
+
     // On désactive l'interaction singleclick
     map.un('singleclick', singleClickForFeatureInfo)
     map.un('singleclick', openFormFeatureDataEdit)
@@ -2426,10 +2429,13 @@ var enableLayerDrawing = function (layer, geomType) {
     var draw_interaction = new ol.interaction.Draw({
         source: source,
         type: geomType,
+        stopClick: true,
+        condition: (e) => ol.events.condition.noModifierKeys(e) && ol.events.condition.primaryAction(e),
     })
 
     // Action au commencement de l'edition
     draw_interaction.on('drawstart', function (evt) {
+
         switch (layer.get("layerType")) {
             case "drawingLayer":
             case "refLayerEditable":
@@ -2505,6 +2511,9 @@ var enableLayerDrawing = function (layer, geomType) {
                 }
             })
         }
+
+        // On active la copie des coordonnées en cas de clic droit
+        copyToClipboardIsActive = true
     })
 
     // Ajout des intéractions à la carte
@@ -2550,12 +2559,16 @@ var disableLayerSnapping = function () {
  */
 var enableLayerModify = function (layer) {
 
+    // On désactive la copie des coordonnées en cas de clic droit
+    copyToClipboardIsActive = false
+
+    // On desactive l'interrogation type infobulle
     map.un('singleclick', singleClickForFeatureInfo)
 
     // Récupérationde la source
     source = layer.getSource()
 
-    //Récupération de la liste des feature visible
+    //Récupération de la liste des features visibles
     var features = []
     source.getFeatures().forEach(feature => {
         if (feature["visible"] != false) {
@@ -2583,6 +2596,9 @@ var enableLayerModify = function (layer) {
                 writeFeaturesInDatabase(layer_id, feature, "update")
             })
         }
+
+        // On active la copie des coordonnées en cas de clic droit
+        copyToClipboardIsActive = true
     })
 
     map.addInteraction(modify_interaction)
@@ -2597,6 +2613,9 @@ var disableLayerModify = function () {
             map.removeInteraction(interaction)
         }
     })
+
+    // On désactive la copie des coordonnées en cas de clic droit
+    copyToClipboardIsActive = true
 }
 
 /**
@@ -2623,6 +2642,9 @@ var disableLayerDrawing = function () {
             map.removeInteraction(interaction)
         }
     })
+
+    // On active la copie des coordonnées lrs d'un clic droit sur la carte
+    copyToClipboardIsActive = true
 }
 
 /**
@@ -2902,6 +2924,7 @@ document.getElementById("btn-drawing-layer-remove-feature").addEventListener("cl
     // On déselectionne tous les objets
     clearSelectedSource()
 
+
     button = event.currentTarget
     // Si le bouton est déjà actif, on le désactive
     if (button.classList.contains("btn-active")) {
@@ -2912,9 +2935,15 @@ document.getElementById("btn-drawing-layer-remove-feature").addEventListener("cl
 
         unHighlightAllToolsBtn()
 
+        // On active la copie des coordonnées en cas de clic droit
+        copyToClipboardIsActive = true
+
     } else {
         // On désactive l'édition
         disableLayerDrawing()
+
+        // On désactive la copie des coordonnées en cas de clic droit
+        copyToClipboardIsActive = false
 
         // On change la fonction à éxécuter lors d'un clic sur la carte
         map.un('singleclick', singleClickForFeatureInfo)
@@ -3565,3 +3594,33 @@ document.addEventListener('mousemove', (e) => {
         blocClickedFeaturesAttributes.style.top = newTop + 'px';
     }
 });
+
+// Gestion du clic droit sur la carte
+var copyToClipboardIsActive = true
+
+// On passe par un timeout d'une seconde pour que l'initialisation de l'ecoute du clic droits 
+// sur la carte ne s'execute qu'une fois la carte openLayer ai été créé
+setTimeout(() => {
+    document.getElementById("map").querySelector(".ol-layer").addEventListener("contextmenu", (event) => {
+
+        event.preventDefault()
+
+        if (copyToClipboardIsActive) {
+
+            var proj_srs = "EPSG:3857"
+            var proj_dst = document.getElementById("select-coordinate-projection").value
+
+            var coords = map.getEventCoordinate(event)
+
+            if (proj_dst == "EPSG:4326") {
+                coords = ol.proj.toLonLat(coords)
+            } else {
+                coords = ol.proj.transform(coords, proj_srs, proj_dst)
+            }
+
+            navigator.clipboard.writeText(coords)
+            showInformation("Coordonnées copiées dans le presse-papiers")
+        }
+    })
+}, 1000
+)

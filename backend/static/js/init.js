@@ -233,6 +233,21 @@ showWarning = function (message) {
 }
 
 /**
+ * Gestion de l'affichage du bandeau d'information de type info
+ */
+showInformation = function (message) {
+    message_element = document.getElementById("information-message")
+    message_element.innerHTML = message
+
+    information_container = document.getElementById("information-container")
+    information_container.classList.remove("hide")
+
+    window.setTimeout(function () {
+        information_container.classList.add("hide")
+    }, 5000);
+}
+
+/**
  * Gestion de l'affichage des dropdown
  */
 // on affiche le dropdown en cliquant sur le bouton asscocié
