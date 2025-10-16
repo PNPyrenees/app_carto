@@ -269,15 +269,18 @@ map.on('pointermove', function (evt) {
     updateCoordinate(evt.coordinate, proj_dst, "EPSG:3857")
 });
 
+
 updateCoordinate = function (coordinate, proj_dst, proj_srs) {
     var coords
 
     if (proj_dst == "EPSG:4326") {
         coords = ol.proj.toLonLat(coordinate);
-        document.getElementById('current-coordinate').innerHTML = coords[0].toFixed(8) + " ; " + coords[1].toFixed(8);
+        //document.getElementById('current-coordinate').innerHTML = coords[0].toFixed(8) + " ; " + coords[1].toFixed(8);
+        document.getElementById('current-coordinate').value = coords[0].toFixed(8) + " ; " + coords[1].toFixed(8);
     } else {
         coords = ol.proj.transform(coordinate, proj_srs, proj_dst);
-        document.getElementById('current-coordinate').innerHTML = coords[0].toFixed(2) + " ; " + coords[1].toFixed(2);
+        //document.getElementById('current-coordinate').innerHTML = coords[0].toFixed(2) + " ; " + coords[1].toFixed(2);
+        document.getElementById('current-coordinate').value = coords[0].toFixed(2) + " ; " + coords[1].toFixed(2);
     }
 }
 
@@ -3618,9 +3621,94 @@ setTimeout(() => {
                 coords = ol.proj.transform(coords, proj_srs, proj_dst)
             }
 
-            navigator.clipboard.writeText(coords)
+            navigator.clipboard.writeText(coords[0] + ";" + coords[1])
             showInformation("Coordonnées copiées dans le presse-papiers")
         }
     })
-}, 1000
-)
+}, 1000)
+
+// Saisie de coordonnées et recentrage de la carte
+document.getElementById("current-coordinate").addEventListener("keyup", (event) => {
+    if (event.key == ',') {
+        event.target.value = event.target.value.replace(',', '.')
+    }
+
+    if (event.key === 'Enter' || event.code === 13) {
+        // récupération des doordonnées
+        coordinates = event.target.value.replace(' ', '').split(';')
+        coordinates[0] = parseFloat(coordinates[0])
+        coordinates[1] = parseFloat(coordinates[1])
+
+        // récupération de la projection
+        var proj_dst = document.getElementById("select-coordinate-projection").value
+
+        // Reprojection dans la projection de la carte
+        coordinates = ol.proj.transform(coordinates, proj_dst, "EPSG:3857")
+
+        // recentrage de la carte
+        map.getView().setCenter(coordinates)
+
+        // Effet pulse pour localiser le lieux correspondant au coordonées
+        createPulseEffect(coordinates)
+
+        // On désactive
+        event.target.blur()
+    }
+})
+
+
+const pulseLayer = new ol.layer.Vector({
+    source: new ol.source.Vector(),
+    style: null, // le style est défini dans l'animation
+    layerType: "pulseLayer",
+    renderMode: 'vector'
+});
+map.addLayer(pulseLayer);
+
+function createPulseEffect(coord) {
+    setTimeout(() => {
+        const duration = 1000; // ms
+        const start = Date.now();
+
+        // 1. Créer une feature vide (le style est géré dans le postrender)
+        const feature = new ol.Feature(new ol.geom.Point(coord));
+        pulseLayer.getSource().addFeature(feature);
+
+        // 2. Ecouter le rendu pour animer
+        //const listenerKey = map.on('postrender', function (event) {
+        const listenerKey = pulseLayer.on('postrender', function (event) {
+            const vectorContext = ol.render.getVectorContext(event);
+            const frameState = event.frameState;
+            const elapsed = frameState.time - start;
+            const elapsedRatio = elapsed / duration;
+
+            // Rayon du cercle (de 5 à 40 px)
+            const radius = ol.easing.easeOut(elapsedRatio) * 40;
+            // Opacité inversement proportionnelle au temps
+            const opacity = ol.easing.easeOut(1 - elapsedRatio);
+
+            // Style dynamique
+            const style = new ol.style.Style({
+                image: new ol.style.Circle({
+                    radius: radius,
+                    stroke: new ol.style.Stroke({
+                        color: `rgba(255,0,0,${opacity})`,
+                        width: 2
+                    })
+                })
+            });
+
+            vectorContext.setStyle(style);
+            vectorContext.drawGeometry(feature.getGeometry());
+
+            // Redessiner
+            map.render();
+
+            // Supprimer après la durée
+            if (elapsed > duration) {
+                ol.Observable.unByKey(listenerKey);
+                pulseLayer.getSource().removeFeature(feature);
+            }
+        });
+    }, 700)
+}

@@ -471,7 +471,7 @@ var featureEditRemoveFile = function (evt) {
 // Fonction remplaçant dynamiquement la virgule par un point 
 // dans un champ de type float
 var featureEditFloatInputCommaToPoint = function (event) {
-    if (event.key = ',') {
+    if (event.key == ',') {
         event.target.value = event.target.value.replace(',', '.')
     }
 }
