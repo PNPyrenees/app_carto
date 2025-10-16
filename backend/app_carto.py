@@ -1665,7 +1665,7 @@ def to_geojson(files):
     # Get list of layer name in fCombines BioT measurements and satellite data seamlessly, delivering comprehensive and accessible information integration.ile
     l_layer_in_file = os.popen("ogrinfo -ro -so -q \"" + srs_path + "\" | cut -d ' ' -f 2", 'r').read().split('\n')[:-1]
 
-    #print(l_layer_in_file)
+    #logger.debug(l_layer_in_file)
 
     # L'objectif est de regroupper tous les objets de toutes les couches du fichier source 
     # dans un même fichier GeoJSON qui fonctionne avec une seule couche (appelée data) mais 
@@ -1675,21 +1675,34 @@ def to_geojson(files):
         if loop_idx == 0:
             # Premier layer, il faut créer le fichier destination
             command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 -nln data \"" + dst_path + "\" \"" + srs_path + "\" \"" + layername + "\""
+
+            os.system(command, )
+
+            # On récupère le contenu du fichier GeoJson généré dans une variable
+            with open(dst_path) as json_file:
+                geojson = json.load(json_file)
+
+            # Suppression ud fichier geoJson temporaire
+            os.remove(os.path.join(dst_path))
         else :
             # Autre layer, il faut ajouter les données au fichier existant
-            command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 -nln data -update -append -addfields \"" + dst_path + "\" \"" + srs_path + "\" \"" + layername + "\""
-        
-        os.system(command, )
+            dst_path_other_layer = os.path.join(app.root_path, "static/tmp_upload/", filename + "-" + layername + ".geojson")
+            command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 -nln data \"" + dst_path_other_layer + "\" \"" + srs_path + "\" \"" + layername + "\""
+
+            os.system(command, )
+
+            # On ajout les features du nouveau fichier geojson généré dans les features de la variable Geojson
+            with open(dst_path_other_layer) as json_file:
+                geojson_other_layer = json.load(json_file)
+                geojson["features"].extend(geojson_other_layer["features"])
+
+            # Suppression ud fichier geoJson temporaire
+            os.remove(os.path.join(dst_path_other_layer))
+
         loop_idx += 1
 
-    # Lecture du résultat pour écriture dans la base de données
-    with open(dst_path) as json_file:
-        geojson = json.load(json_file)
-
-    # Supresion des fichiers
-    for filePath in os.listdir(os.path.join(app.root_path, "static/tmp_upload/")):
-        if filename in filePath.replace(" ", "_"):
-            os.remove(os.path.join(app.root_path, "static/tmp_upload/", filePath))
+    # Supresion du fichier source
+    os.remove(os.path.join(srs_path))
 
     return geojson
 
