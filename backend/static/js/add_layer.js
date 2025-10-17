@@ -1430,7 +1430,7 @@ var getLayerListFromGPXFile = function (file) {
                         routes: xmlDoc.getElementsByTagName("rte").length,
                         route_points: xmlDoc.getElementsByTagName("rtept").length,
                         tracks: xmlDoc.getElementsByTagName("trk").length,
-                        track_segments: xmlDoc.getElementsByTagName("trkseg").length,
+                        //track_segments: xmlDoc.getElementsByTagName("trkseg").length,
                         track_points: xmlDoc.getElementsByTagName("trkpt").length
                     };
 
