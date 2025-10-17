@@ -1642,7 +1642,7 @@ def get_warning_calculator_layers_list():
 
     return {"layers": layer_list, "status": status_list}
 
-def to_geojson(files):
+def to_geojson(files, layer_in_file = None):
     # On recherche le fichier "maitre" shp pour les shapefile ou tab pour les ficheir mapinfo par exemple
     for file in files:
         normalized_filename = file.filename.replace(" ", "_")
@@ -1662,46 +1662,20 @@ def to_geojson(files):
         shutil.move(srs_path, os.path.join(app.root_path, "static/tmp_upload/", "tmp_" + filename + "." + extension))
         srs_path = os.path.join(app.root_path, "static/tmp_upload/", "tmp_" + filename + "." + extension)
     
-    # Get list of layer name in fCombines BioT measurements and satellite data seamlessly, delivering comprehensive and accessible information integration.ile
-    l_layer_in_file = os.popen("ogrinfo -ro -so -q \"" + srs_path + "\" | awk '/^Metadata:/ {skip=1; next} /^1:/ {skip=0} !skip' | cut -d ' ' -f 2", 'r').read().split('\n')[:-1]
+    # Si un nom de couche est spécifié alors on n'extrait que la couche cité (cas pour GPX et GPKG)
+    if layer_in_file:
+        command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 -nln data \"" + dst_path + "\" \"" + srs_path + "\" \"" + layer_in_file + "\""
+        os.system(command, )
+    else :
+        command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 -nln data \"" + dst_path + "\" \"" + srs_path + "\""
+        os.system(command, )
 
-    #logger.debug(l_layer_in_file)
+    # On récupère le contenu du fichier GeoJson généré dans une variable
+    with open(dst_path) as json_file:
+        geojson = json.load(json_file)
 
-    # L'objectif est de regroupper tous les objets de toutes les couches du fichier source 
-    # dans un même fichier GeoJSON qui fonctionne avec une seule couche (appelée data) mais 
-    # pouvant être composée d'objet ayant différent type de geometrie
-    loop_idx = 0
-    for layername in l_layer_in_file:
-        if loop_idx == 0:
-            # Premier layer, il faut créer le fichier destination
-            command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 -nln data \"" + dst_path + "\" \"" + srs_path + "\" \"" + layername + "\""
-
-            os.system(command, )
-
-            # On récupère le contenu du fichier GeoJson généré dans une variable
-            with open(dst_path) as json_file:
-                geojson = json.load(json_file)
-
-            # Suppression ud fichier geoJson temporaire
-            os.remove(os.path.join(dst_path))
-        else :
-            # Autre layer, il faut ajouter les données au fichier existant
-            dst_path_other_layer = os.path.join(app.root_path, "static/tmp_upload/", filename + "-" + layername + ".geojson")
-            command = "ogr2ogr -f GeoJSON -t_srs EPSG:3857 -nln data \"" + dst_path_other_layer + "\" \"" + srs_path + "\" \"" + layername + "\""
-
-            os.system(command, )
-
-            # On ajout les features du nouveau fichier geojson généré dans les features de la variable Geojson
-            with open(dst_path_other_layer) as json_file:
-                geojson_other_layer = json.load(json_file)
-                geojson["features"].extend(geojson_other_layer["features"])
-
-            # Suppression ud fichier geoJson temporaire
-            os.remove(os.path.join(dst_path_other_layer))
-
-        loop_idx += 1
-
-    # Supresion du fichier source
+    ## Supresion des fichier temporaire
+    os.remove(os.path.join(dst_path))
     os.remove(os.path.join(srs_path))
 
     return geojson
@@ -1730,8 +1704,9 @@ def upload_geodata():
 
     # Récupération des fichiers et stockage temporaire dans le dossier "static/tmp_upload/"
     files = request.files.getlist("files[]")
+    layer_in_file = request.form["layer_in_file"]
 
-    geojson = to_geojson(files)
+    geojson = to_geojson(files, layer_in_file)
 
     importedLayer =  ImportedLayer(
         None,
@@ -1784,8 +1759,9 @@ def translate_to_geojson():
 
     # Récupération des fichiers et stockage temporaire dans le dossier "static/tmp_upload/"
     files = request.files.getlist("files[]")
+    layer_in_file = request.form["layer_in_file"]
 
-    return to_geojson(files)
+    return to_geojson(files,layer_in_file)
 
 @app.route('/api/imported_layer/<ref_layer_id>', methods=['GET', 'DELETE'])
 @valid_token_required

@@ -248,6 +248,8 @@ var warningCalculatorOpenImportLayerModal = function () {
     document.getElementById("form-upload-challenge-calculator-layer-select-format").value = ""
     document.getElementById("form-upload-challenge-calculator-layer-files").value = ""
     document.getElementById("form-upload-challenge-calculator-layer-file-list").innerHTML = ""
+    document.getElementById("form-group-upload-challenge-calculator-layer-select-layer-if-multiple").classList.add("hide")
+    document.getElementById("form-upload-challenge-calculator-layer-select-layer-if-multiple").value = ""
 
     uploadChallengeCalculatorlayerModal.show()
 }
@@ -347,6 +349,8 @@ var buildUploadChallengeCalculatorLayerFormData = function () {
         formdata.append("files[]", document.getElementById("form-upload-challenge-calculator-layer-files").files[i])
     }
 
+    formdata.append("layer_in_file", document.getElementById("form-upload-challenge-calculator-layer-select-layer-if-multiple").value)
+
     return formdata
 }
 
@@ -393,5 +397,8 @@ document.getElementById("form-upload-challenge-calculator-layer-select-format").
     sourceId = "upload-challenge-calculator-layer"
 
     selectGeoFileFormat(sourceId, selectedFormat)
-
 }
+
+document.getElementById('form-upload-challenge-calculator-layer-files').addEventListener('change', e => {
+    listLayerInMultiLayerFile(e.target.files[0], "upload-challenge-calculator-layer")
+})

@@ -16,8 +16,8 @@
 
                     <div class="row">
                         <div class="col-lg-6">
+                            <!-- Champ format de fichier-->
                             <div class="form-group">
-
                                 <label for="form-upload-challenge-calculator-layer-select-format" class="form-label fw-bold mb-0 mt-2">Format du fichier * :</label>
                                 <select id="form-upload-challenge-calculator-layer-select-format" class="form-select" aria-label="Default select example">
                                     <option selected></option>
@@ -28,16 +28,26 @@
                                     <option value="tab">Mapinfo (TAB)</option>
                                     <option value="shp">Shapefile</option>
                                 </select>
-                               
                             </div>
                         </div>
 
+                        <!-- Sélection des fichiers -->
                         <div class="col-lg-6">
                             <div class="form-group">
                                 <label for="form-upload-challenge-calculator-layer-files" class="form-label fw-bold mb-0 mt-2">Fichier(s) * :</label><br>
                                 <input type="file" id="form-upload-challenge-calculator-layer-files" class="hide" multiple>
                                 <button id="form-upload-challenge-calculator-layer-files-btn" type="button" class="btn btn-primary">Parcourir...</button>
                                 
+                            </div>
+                            <ul id="form-upload-challenge-calculator-layer-file-list" class="form-upload-challenge-calculator-layer-file-list">
+                            </ul>
+                        </div>
+
+                        <!-- Selection de la couche en cas de fichier multi-couche (gpkg, gpx) -->
+                        <div class="col-lg-12">
+                            <div id="form-group-upload-challenge-calculator-layer-select-layer-if-multiple" class="form-group">
+                                <label for="form-upload-challenge-calculator-layer-select-layer-if-multiple" class="form-label fw-bold mb-0 mt-2">Le fichier choisi peut être composé de plusieurs couches, veuillez sélectionner la couche à importer :</label><br>
+                                <select id="form-upload-challenge-calculator-layer-select-layer-if-multiple" class="form-select" ></select>
                             </div>
                         </div>
 
@@ -48,13 +58,6 @@
                             <div id="upload-challenge-calculator-layer-format-tab-warning" class="text-warning hide">
                                 L'import d'un fichier mapinfo (TAB) doit inclure à minima les fichiers ayant les extensions suivantes : <b>.tab, .dat, .id, .map</b>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <ul id="form-upload-challenge-calculator-layer-file-list" class="form-upload-challenge-calculator-layer-file-list">
-                            </ul>
                         </div>
                     </div>
                 </div>

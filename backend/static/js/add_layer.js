@@ -1007,6 +1007,8 @@ var buildMyImportedLayerContent = function () {
     document.getElementById("form-upload-layer-file-list").innerHTML = ''
     document.getElementById("upload-layer-format-shp-warning").classList.add("hide")
     document.getElementById("upload-layer-format-tab-warning").classList.add("hide")
+    document.getElementById("form-group-upload-layer-select-layer-if-multiple").classList.add("hide")
+    document.getElementById("form-upload-layer-select-layer-if-multiple").innerHTML = ""
 
     // On ré-initialise le filtre sur les données déjà importées
     importedLayerFilterInput.value = ''
@@ -1209,10 +1211,13 @@ document.getElementById("form-upload-layer-select-format").onchange = function (
  * assure l'attribution du filtre par format à l'objet html input type=files 
  * et l'affichage du warning pour les format shp et tab
  */
-var selectGeoFileFormat = function (sourceId, selectedFormat) {
+var selectGeoFileFormat = async function (sourceId, selectedFormat) {
     //On masque les alertes
     document.getElementById(sourceId + "-format-shp-warning").classList.add("hide")
     document.getElementById(sourceId + "-format-tab-warning").classList.add("hide")
+
+    document.getElementById("form-group-" + sourceId + "-select-layer-if-multiple").classList.add("hide")
+    document.getElementById("form-" + sourceId + "-select-layer-if-multiple").innerHTML = ""
 
     // En fonction du format on affiche l'alerte associé
     if (selectedFormat == '') {
@@ -1231,9 +1236,34 @@ var selectGeoFileFormat = function (sourceId, selectedFormat) {
     }
     if (selectedFormat == 'gpkg') {
         document.getElementById("form-" + sourceId + "-files").setAttribute("accept", ".gpkg")
+
+        // Dans le cas d'uin gpkg, si le fichier est déjà indiqué alors on affiche la liste des couches
+        const file = document.getElementById("form-" + sourceId + "-files").files[0]
+        if (file) {
+            layerList = await getLayerListFromGPKGFile(file)
+            if (layerList) {
+                const selectTarget = document.getElementById("form-" + sourceId + "-select-layer-if-multiple")
+                layerListToSelectForGPKG(layerList, selectTarget)
+                document.getElementById("form-group-" + sourceId + "-select-layer-if-multiple").classList.remove("hide")
+            }
+        }
     }
     if (selectedFormat == 'gpx') {
         document.getElementById("form-" + sourceId + "-files").setAttribute("accept", ".gpx")
+
+        // Dans le cas d'uin gpx, si le fichier est déjà indiqué alors on affiche la liste des couches
+        const file = document.getElementById("form-" + sourceId + "-files").files[0]
+        if (file) {
+            getLayerListFromGPXFile(file,).then(layerList => {
+                if (layerList) {
+                    const selectTarget = document.getElementById("form-" + sourceId + "-select-layer-if-multiple")
+                    layerListToSelectForGPX(layerList, selectTarget)
+                    document.getElementById("form-group-" + sourceId + "-select-layer-if-multiple").classList.remove("hide")
+                }
+            }).catch(error => {
+                console.error("Erreur dans la lecture du GPX", error);
+            });
+        }
     }
     if (selectedFormat == 'kmz') {
         document.getElementById("form-" + sourceId + "-files").setAttribute("accept", ".kml, .kmz")
@@ -1304,6 +1334,159 @@ var uploadLayer = function () {
     }
 }
 
+/* 
+ * Fonction générique permettant de lister dans un select 
+ * les couches inclus dans un fichier
+ */
+var listLayerInMultiLayerFile = async function (file, sourceId) {
+
+    document.getElementById("form-group-" + sourceId + "-select-layer-if-multiple").classList.add("hide")
+    document.getElementById("form-" + sourceId + "-select-layer-if-multiple").innerHTML = ""
+
+    const selectTarget = document.getElementById("form-" + sourceId + "-select-layer-if-multiple")
+
+    if (document.getElementById("form-" + sourceId + "-select-format").value == 'gpkg') {
+        //const file = e.target.files[0]
+
+        layerList = await getLayerListFromGPKGFile(file)
+        if (layerList) {
+            layerListToSelectForGPKG(layerList, selectTarget)
+            document.getElementById("form-group-" + sourceId + "-select-layer-if-multiple").classList.remove("hide")
+        }
+    }
+
+    if (document.getElementById("form-" + sourceId + "-select-format").value == 'gpx') {
+        //const file = e.target.files[0]
+
+        getLayerListFromGPXFile(file).then(layerList => {
+            if (layerList) {
+                layerListToSelectForGPX(layerList, selectTarget)
+                document.getElementById("form-group-" + sourceId + "-select-layer-if-multiple").classList.remove("hide")
+            }
+        }).catch(error => {
+            console.error("Erreur dans la lecture du GPX", error);
+        });
+
+    }
+}
+
+/* 
+ * Fonction permettant de lister les couches inclues dans un GPKG ou d'un GPX
+ * Affichage de la liste à l'utilisateur afin qu'il en fasse la sélection
+ */
+document.getElementById('form-upload-layer-files').addEventListener('change', e => {
+    listLayerInMultiLayerFile(e.target.files[0], "upload-layer")
+})
+
+
+/* Affiche dans un select la liste des couches présente dans un GPKG */
+var getLayerListFromGPKGFile = async function (file) {
+    const buffer = await file.arrayBuffer();
+
+    sqljs_config = {
+        locateFile: filename => `./static/lib/sql.js-1.13.0/${filename}`
+    }
+
+    const SQL = await initSqlJs(sqljs_config)
+    const db = new SQL.Database(new Uint8Array(buffer))
+
+    const res = db.exec("SELECT table_name FROM gpkg_contents");
+
+    if (res.length > 0) {
+        return res[0]
+    } else {
+        return null
+    }
+}
+
+var layerListToSelectForGPKG = function (layerList, selectTarget) {
+    for (let i = 0; i < layerList.values.length; i++) {
+        const [name] = layerList.values[i]
+
+        // Créer une nouvelle option
+        var option = document.createElement('option')
+        option.value = name
+        option.text = name
+
+        // Ajouter l'option au select
+        selectTarget.appendChild(option)
+    }
+}
+
+/* Affiche dans un select la liste des couches présente dans un GPX */
+var getLayerListFromGPXFile = function (file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            try {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(e.target.result, "application/xml");
+
+                const parseError = xmlDoc.getElementsByTagName("parsererror");
+                if (parseError.length == 0) {
+                    const res = {
+                        waypoints: xmlDoc.getElementsByTagName("wpt").length,
+                        routes: xmlDoc.getElementsByTagName("rte").length,
+                        route_points: xmlDoc.getElementsByTagName("rtept").length,
+                        tracks: xmlDoc.getElementsByTagName("trk").length,
+                        track_segments: xmlDoc.getElementsByTagName("trkseg").length,
+                        track_points: xmlDoc.getElementsByTagName("trkpt").length
+                    };
+
+                    resolve(res); // on renvoie les données ici
+                } else {
+                    resolve(null)
+                }
+            } catch (err) {
+                reject(err);
+            }
+        };
+
+        reader.onerror = function (e) {
+            reject(e);
+        };
+
+        reader.readAsText(file);
+    });
+};
+
+/*var getLayerListFromGPXFile = function (file) {
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(e.target.result, "application/xml");
+
+        const res = {
+            waypoints: xmlDoc.getElementsByTagName("wpt").length,
+            routes: xmlDoc.getElementsByTagName("rte").length,
+            route_points: xmlDoc.getElementsByTagName("rtept").length,
+            tracks: xmlDoc.getElementsByTagName("trk").length,
+            track_segments: xmlDoc.getElementsByTagName("trkseg").length,
+            track_points: xmlDoc.getElementsByTagName("trkpt").length
+        }
+
+        return res
+    }
+
+    reader.readAsText(file)
+}*/
+
+var layerListToSelectForGPX = function (layerList, selectTarget) {
+    for (const [type, count] of Object.entries(layerList)) {
+
+        if (count > 0) {
+            var option = document.createElement('option')
+            option.value = type
+            option.text = type.replace(/_/g, ' ') + " (" + count + ")"
+
+            // Ajouter l'option au select
+            selectTarget.appendChild(option)
+        }
+    }
+}
+
 /**
  * Vérification de la conformité du formulaire d'uplaod d'une couche
  */
@@ -1332,6 +1515,16 @@ var checkUploadForm = function () {
     if (!checkRequired(form_field.value)) {
         form_field.parentNode.querySelector("label").style.color = "#f00"
         formIsValid = false
+    }
+
+    file_format = form.querySelector("#form-upload-layer-select-format").value
+    if (["gpx", "gpkg"].includes(file_format)) {
+        form_field = form.querySelector("#form-upload-layer-select-layer-if-multiple")
+        form_field.parentNode.querySelector("label").style.color = "#000"
+        if (!checkRequired(form_field.value)) {
+            form_field.parentNode.querySelector("label").style.color = "#f00"
+            formIsValid = false
+        }
     }
 
     return formIsValid
@@ -1389,6 +1582,8 @@ var buildImportLayerFormData = function () {
     for (var i = 0; i < document.getElementById("form-upload-layer-files").files.length; i++) {
         formdata.append("files[]", document.getElementById("form-upload-layer-files").files[i])
     }
+
+    formdata.append("layer_in_file", document.getElementById("form-upload-layer-select-layer-if-multiple").value)
 
     return formdata
 }
