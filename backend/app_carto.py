@@ -1637,7 +1637,7 @@ def get_warning_calculator_layers_list():
     -------
         JSON
     """
-    layer_list = LayerSchema(many=True).dump(Layer.query.filter(Layer.layer_is_warning == True))
+    layer_list = LayerSchema(many=True).dump(Layer.query.filter(Layer.layer_is_warning == True).order_by(Layer.layer_label))
     status_list = BibGroupStatusSchema(many=True).dump(BibGroupStatus.query.filter(BibGroupStatus.group_status_is_warning == True))
 
     return {"layers": layer_list, "status": status_list}
