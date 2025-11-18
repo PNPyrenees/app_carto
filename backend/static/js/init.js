@@ -250,17 +250,80 @@ showInformation = function (message) {
 /**
  * Gestion de l'affichage des dropdown
  */
+var activeBtnDropdownLayerMenu
 // on affiche le dropdown en cliquant sur le bouton asscocié
 var openDropdown = function (obj) {
 
-    obj.closest(".dropdown").querySelector(".dropdown-content").classList.toggle("show");
-    obj.closest(".dropdown").querySelector(".dropdown-content").classList.toggle("hide");
+    // fermeture de tous les dropdown
+    var dropdowns = document.querySelectorAll(".dropdown-content.show")
+    dropdowns.forEach(dropdown => {
+        dropdown.classList.remove('show');
+        dropdown.classList.add('hide');
+    })
+    // et désactivation des bouton dropdown
+    var btnDropdownLayerMenus = document.querySelectorAll(".btn-opt-layer")
+    btnDropdownLayerMenus.forEach(btnDropdownLayerMenu => {
+        btnDropdownLayerMenu.style.removeProperty("color")
+        btnDropdownLayerMenu.style.removeProperty("background-color")
+        btnDropdownLayerMenu.style.removeProperty("border-color")
+    })
+
+    // Affichage du dropdown
+    var dropdown = obj.closest(".dropdown").querySelector(".dropdown-content")
+    dropdown.classList.toggle("show");
+    dropdown.classList.toggle("hide");
+
+    // On fait ressortir le bouton cliqué
+    activeBtnDropdownLayerMenu = obj.closest(".dropdown").querySelector(".btn-opt-layer")
+    activeBtnDropdownLayerMenu.style.setProperty("color", "#e6e6e6", "important")
+    activeBtnDropdownLayerMenu.style.setProperty("background-color", "#9facb8", "important")
+    activeBtnDropdownLayerMenu.style.setProperty("border-color", "#9facb8", "important")
+
+    setDropdownLayerMenuPosition(dropdown)
 }
+
+var setDropdownLayerMenuPosition = function (dropdown) {
+    if (dropdown) {
+        // Gestion du positionnement du dropdown
+        const viewportHeight = window.innerHeight;
+
+        // Récupération de la position du bouton cliqué 
+        const btnDropdownLayerMenuRect = activeBtnDropdownLayerMenu.getBoundingClientRect()
+
+        // Récupération des dimmension du dropdown
+        const dropdownHeight = dropdown.offsetHeight
+
+        // Calcul de la position initiale
+        let top = btnDropdownLayerMenuRect.top
+        let left = btnDropdownLayerMenuRect.left + 26
+
+        // Ajustement vertical
+        if (top + dropdownHeight > viewportHeight) {
+            top = viewportHeight - dropdownHeight;
+        }
+
+        headerHeigth = document.getElementById("header-row").offsetHeight
+        if (top < headerHeigth) {
+            top = headerHeigth
+        }
+
+        dropdown.style.top = `${top}px`
+        dropdown.style.left = `${left}px`
+    }
+}
+
+// Gestion de l'affichage du dropdown lors d'un scroll dans le layerBar
+document.getElementById("layerbar").addEventListener("scroll", event => {
+    var dropdown = document.querySelectorAll(".dropdown-content.show")[0]
+    setDropdownLayerMenuPosition(dropdown)
+})
 
 // on ferme le dropdown quand on click en dehors
 window.onclick = function (event) {
+
+    //document.querySelector("dropdown-content show").classList.add('hide');
     if (!event.target.matches('.btn-dropdown')) {
-        var dropdowns = document.getElementsByClassName("dropdown-content");
+        dropdowns = document.getElementsByClassName("dropdown-content");
         var i;
         for (i = 0; i < dropdowns.length; i++) {
             var openDropdown = dropdowns[i];
@@ -269,6 +332,15 @@ window.onclick = function (event) {
                 openDropdown.classList.add('hide');
             }
         }
+
+        // et désactivation des bouton dropdown
+        var btnDropdownLayerMenus = document.querySelectorAll(".btn-opt-layer")
+        btnDropdownLayerMenus.forEach(btnDropdownLayerMenu => {
+            btnDropdownLayerMenu.style.removeProperty("color")
+            btnDropdownLayerMenu.style.removeProperty("background-color")
+            btnDropdownLayerMenu.style.removeProperty("border-color")
+        })
+        activeBtnDropdownLayerMenu = null
     }
 }
 
