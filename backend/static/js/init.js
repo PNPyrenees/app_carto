@@ -284,14 +284,16 @@ var openDropdown = function (obj) {
 
 var setDropdownLayerMenuPosition = function (dropdown) {
     if (dropdown) {
-        // Gestion du positionnement du dropdown
+        // Récupération des dimensions de la page
         const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
 
         // Récupération de la position du bouton cliqué 
         const btnDropdownLayerMenuRect = activeBtnDropdownLayerMenu.getBoundingClientRect()
 
         // Récupération des dimmension du dropdown
         const dropdownHeight = dropdown.offsetHeight
+        const dropdownWidth = dropdown.offsetWidth
 
         // Calcul de la position initiale
         let top = btnDropdownLayerMenuRect.top
@@ -300,6 +302,11 @@ var setDropdownLayerMenuPosition = function (dropdown) {
         // Ajustement vertical
         if (top + dropdownHeight > viewportHeight) {
             top = viewportHeight - dropdownHeight;
+        }
+
+        // Ajustement horizontal
+        if (left + dropdownWidth > viewportWidth) {
+            left = viewportWidth - dropdownWidth
         }
 
         headerHeigth = document.getElementById("header-row").offsetHeight
