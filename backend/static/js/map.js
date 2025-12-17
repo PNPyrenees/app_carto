@@ -3661,7 +3661,8 @@ const pulseLayer = new ol.layer.Vector({
     source: new ol.source.Vector(),
     style: null, // le style est défini dans l'animation
     layerType: "pulseLayer",
-    renderMode: 'vector'
+    renderMode: 'vector',
+    zIndex: 99999,
 });
 map.addLayer(pulseLayer);
 
