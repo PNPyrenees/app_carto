@@ -110,7 +110,7 @@ map = new ol.Map({
         projection: 'EPSG:3857',
         center: ol.proj.transform(CENTER, 'EPSG:4326', 'EPSG:3857'),
         zoom: ZOOM_LEVEL,
-        maxZoom: 18,
+        maxZoom: 25,
         resolution: 120
     }),
     controls: ol.control.defaults.defaults().extend([scale_line]),
@@ -1673,6 +1673,14 @@ createAttributeTable = function (layer_name, layer_uid, data) {
     // On s'assure que l'infobulle ne soit pas devant
     blocClickedFeaturesAttributes.style.zIndex = 98
 
+    // Si le champ est une lsite alors on concatène les valeurs
+    data.forEach(obj => {
+        for (const key in obj) {
+            if (Array.isArray(obj[key])) {
+                obj[key] = obj[key].join(" | ")
+            }
+        }
+    })
 
     //Création du tableau
     table = new Tabulator("#" + tab_id, {
