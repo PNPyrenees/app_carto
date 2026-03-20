@@ -687,7 +687,7 @@ highlightFeature = function (layer_uid, feature_uid, zoomOn = true, showOne = tr
                     })
                     //On zoom sur l'extent de la source
                     if (zoomOn) {
-                        map.getView().fit(selectedVectorSource.getExtent(), map.getSize())
+                        map.getView().fit(selectedVectorSource.getExtent(), { size: map.getSize(), maxZoom: 18 })
                     }
                 }
             })
@@ -1527,6 +1527,12 @@ getFullDataTable = async function (layer_uid) {
         if (ol.util.getUid(layer) == layer_uid) {
             var first_iteration = true
             data = []
+
+            let layer_columns_order
+            if (layer.get("description_layer").layer_columns) {
+                layer_columns_order = layer.get("description_layer").layer_columns
+                layer_columns_order.push("ol_uid")
+            }
             layer.getSource().getFeatures().forEach(async feature => {
 
                 //Récupération de l'uid du feature
@@ -1539,6 +1545,12 @@ getFullDataTable = async function (layer_uid) {
 
                 // On retire la colonne géométrique
                 delete feature_data.geometry
+
+                if (layer_columns_order) {
+                    feature_data = Object.fromEntries(
+                        layer_columns_order.map(key => [key, feature_data[key] ?? null])
+                    )
+                }
 
                 data.push(feature_data)
             })
@@ -1673,7 +1685,7 @@ createAttributeTable = function (layer_name, layer_uid, data) {
     // On s'assure que l'infobulle ne soit pas devant
     blocClickedFeaturesAttributes.style.zIndex = 98
 
-    // Si le champ est une lsite alors on concatène les valeurs
+    // Si le champ est une liste alors on concatène les valeurs
     data.forEach(obj => {
         for (const key in obj) {
             if (Array.isArray(obj[key])) {
@@ -2019,6 +2031,12 @@ var singleClickForFeatureInfo = function (event) {
 
         //On peuple la liste des attributs
         var properties = feature.getProperties()
+        // On réorganise la table de données en fonction de l'ordre des champs souhaités
+        if (layer.get("description_layer").layer_columns) {
+            properties = Object.fromEntries(
+                layer.get("description_layer").layer_columns.map(key => [key, properties[key] ?? null])
+            )
+        }
         for (var key in properties) {
             let value = properties[key]
 
@@ -2130,7 +2148,7 @@ zoomToFeature = function (element) {
             if (source instanceof ol.source.Vector) {
                 source.getFeatures().forEach(feature => {
                     if (ol.util.getUid(feature) == feature_uid) {
-                        map.getView().fit(feature.getGeometry().getExtent(), map.getSize())
+                        map.getView().fit(feature.getGeometry().getExtent(), { size: map.getSize(), maxZoom: 18 })
                     }
                 })
             }
