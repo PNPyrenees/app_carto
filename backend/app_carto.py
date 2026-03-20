@@ -197,15 +197,22 @@ def login():
     postdata = request.json
 
     response = requests.post(app.config['GEONATURE_URL'] + '/geonature/api/auth/login', json = postdata)
-    content = json.loads(response.content.decode('utf-8'))
 
-    if response.status_code != 200:
-        """return jsonify({
+    logger.debug(response)
+
+    # Ajout Suite à la mise à jour de GeoNature en 2.16.4 (ou avant) car l'erreur 
+    # d'authentification retourne un HTML avec code 200 plutôt qu'uin JSON avec un code différent de 200
+    if "application/json" not in response.headers.get("Content-Type", ""):
+        return jsonify({
             'status': 'error',
-            'message': 'Erreur d\'authentification : {}'.format(json.loads(content.decode('utf-8')))
-        }), response.status_code """
-        """return json.loads(content.decode('utf-8')), response.status_code """
+            'msg': 'Erreur d\'authentification'
+        }), 401
+    
+    content = json.loads(response.content.decode('utf-8'))
+    
+    if response.status_code != 200:
         return content, response.status_code 
+    
 
     token = response.headers['Set-Cookie'].split(";")[0].split("=")[1]
 

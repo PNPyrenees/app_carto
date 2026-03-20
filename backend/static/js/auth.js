@@ -118,8 +118,6 @@ login_form.addEventListener("submit", function (event) {
         usershubAuth(login, password)
 
     }
-
-    login_form.classList.add("was-validated")
 }, false)
 
 /**
@@ -151,6 +149,7 @@ var usershubAuth = function (login, password) {
                 // En envoi l"erreur dans le catch
                 throw res.json();
             } else {
+                //login_form.classList.add("was-validated")
                 return res.json()
             }
         })
