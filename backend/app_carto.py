@@ -14,6 +14,7 @@ from sqlalchemy.orm import aliased
 from functools import wraps
 from werkzeug.utils import secure_filename
 import shutil 
+import urllib.parse
 
 from .models import Role, VLayerList, Layer, BibStatusType, VRegneList, VGroupTaxoList, BibCommune, BibMeshScale, BibGroupStatus, ImportedLayer, Logs, Project, BibAuthorization, Group, GroupAuthorization
 from .schema import RoleSchema, VLayerListSchema, LayerSchema, BibGroupStatusSchema, ImportedLayerSchema, LogsSchema, ProjectSchema
@@ -244,7 +245,7 @@ def login():
 
     username = role.role_prenom + " " + role.role_nom
     resp.set_cookie("token", role.role_token, expires=role.role_token_expiration, path="/", samesite='None', secure=True)
-    resp.set_cookie("username", username, expires=role.role_token_expiration, path="/", samesite='None', secure=True)
+    resp.set_cookie("username", urllib.parse.quote(username), expires=role.role_token_expiration, path="/", samesite='None', secure=True)
     resp.set_cookie("expiration", str(role.role_token_expiration), expires=role.role_token_expiration, path="/", samesite='None', secure=True)
 
     #logger.debug(role.authorization_codes)

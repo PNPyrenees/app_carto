@@ -172,7 +172,7 @@ var usershubAuth = function (login, password) {
             document.getElementById("icon-login").classList.remove("active")
             document.getElementById("btn-logout").classList.add("active")
             document.getElementById("icon-logout").classList.add("active")
-            document.getElementById("username-label").innerHTML = getCookie('username').replace(/"/g, '')
+            document.getElementById("username-label").innerHTML = decodeURIComponent(getCookie('username')).replace(/"/g, '')
 
             //return data ;
             refreshGUI()
