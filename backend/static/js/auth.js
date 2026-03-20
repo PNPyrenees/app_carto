@@ -107,17 +107,17 @@ const login_form = document.getElementById("login-form")
 login_form.addEventListener("submit", function (event) {
 
     event.preventDefault()
-    if (!login_form.checkValidity()) {
+    /*if (!login_form.checkValidity()) {
         console.log(login_form)
         event.stopPropagation()
-    } else {
-        // Ici, le formulaire est valide, on passe à la phase 
-        // d'authentification auprès du usershub
-        let login = document.getElementById("login-input").value
-        let password = document.getElementById("password-input").value
-        usershubAuth(login, password)
+    } else {*/
+    // Ici, le formulaire est valide, on passe à la phase 
+    // d'authentification auprès du usershub
+    let login = document.getElementById("login-input").value
+    let password = document.getElementById("password-input").value
+    usershubAuth(login, password)
 
-    }
+    //}
 }, false)
 
 /**
