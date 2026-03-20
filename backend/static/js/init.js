@@ -22,7 +22,7 @@ window.addEventListener('load', (event) => {
             document.getElementById('icon-login').classList.remove("active")
             document.getElementById('btn-logout').classList.add("active")
             document.getElementById('icon-logout').classList.add("active")
-            document.getElementById('username-label').innerHTML = username.replace(/"/g, '')
+            document.getElementById('username-label').innerHTML = decodeURIComponent(username).replace(/"/g, '')
         }
     }
 });
