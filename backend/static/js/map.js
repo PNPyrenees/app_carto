@@ -1748,15 +1748,23 @@ createAttributeTable = function (layer_name, layer_uid, data) {
     // N'affiche que les objets géographiques répondant positivement au filtre
     table.on("dataFiltered", function (filters, rows) {
         setTimeout(function () {
-            table = rows[0].getTable()
-            let layer_uid = table.layeruid
 
-            let l_feature_uid = []
-            rows.forEach(row => {
-                l_feature_uid.push(row.getData().ol_uid)
-            })
+            console.log(rows)
 
-            filterFeature(layer_uid, l_feature_uid)
+            if (rows.length != 0) {
+
+                table = rows[0].getTable()
+                let layer_uid = table.layeruid
+
+                let l_feature_uid = []
+                rows.forEach(row => {
+                    l_feature_uid.push(row.getData().ol_uid)
+                })
+
+                filterFeature(layer_uid, l_feature_uid)
+            } else {
+                filterFeature(layer_uid, [])
+            }
 
         }, 500);
     })
